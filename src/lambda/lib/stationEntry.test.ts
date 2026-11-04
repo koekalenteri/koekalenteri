@@ -239,13 +239,14 @@ describe('stationEntry', () => {
         const entries = stationEntryResponse(corrected, third, [scored]).registrations
 
         expect(entries.map((dog) => dog.visit?.exercise)).toEqual([3, 4])
-        expect(entries[0].eventResult?.tasks).toEqual([byExercise(3, 13), byExercise(4, 14)])
+        const withoutName = ({ updatedBy: _by, ...task }: ReturnType<typeof byExercise>) => task
+        expect(entries[0].eventResult?.tasks).toEqual([byExercise(3, 13), byExercise(4, 14)].map(withoutName))
       })
     })
   })
 
   describe('scopeResultToStation', () => {
-    it('strips the derived prize and the other posts, keeping the version stamps', () => {
+    it('strips the derived prize, the other posts and every name, keeping the version stamps', () => {
       const result: JsonEventResult = {
         elimination: { exercise: 2, fault: 'hardMouth' },
         maxPoints: 80,
@@ -263,9 +264,8 @@ describe('stationEntry', () => {
       // The post does exercise 1 of the dog's running order.
       expect(scopeResultToStation(result, [1], 'NOWT')).toEqual({
         elimination: { exercise: 2, fault: 'hardMouth' },
-        tasks: [{ exercise: 1, part: 0, points: 17, updatedAt: 't1', updatedBy: 'u' }],
+        tasks: [{ exercise: 1, part: 0, points: 17, updatedAt: 't1' }],
         updatedAt: 't2',
-        updatedBy: 'u',
       })
     })
 
@@ -277,10 +277,9 @@ describe('stationEntry', () => {
         judge,
         result: 'ALO1',
         updatedAt: 't1',
-        updatedBy: 'u',
       })
       // A NOWT's result is derived from posts this link cannot see, so it stays off.
-      expect(scopeResultToStation(result, [1], 'NOWT')).toEqual({ updatedAt: 't1', updatedBy: 'u' })
+      expect(scopeResultToStation(result, [1], 'NOWT')).toEqual({ updatedAt: 't1' })
     })
   })
 })

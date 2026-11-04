@@ -129,6 +129,15 @@ Jos suoritusjärjestys muuttuu, kun suorituspaikan kirjaussivu on auki, sivu ker
 ettei koiran tulosta tallennettu, ja lukee koirat uudelleen. Syötetyt pisteet eivät säily: valitse koira
 listalta ja syötä pisteet uudelleen. Jos sivu ei silti näytä uutta järjestystä, lataa sivu uudelleen.
 
+Jos joku muu on muuttanut koiran pisteitä suorituspaikan rastilla, kun kirjaussivu on auki, tallennus
+pysähtyy ikkunaan **{t:results.conflictTitle}**. Ikkuna näyttää suorituspaikan omat pisteet: mitä nyt on
+tallennettu ja mitä itse syötit. Jos versiossa on keskeytys, sekin näkyy. Valmiiksi on valittu tallennettu
+versio. **{t:results.conflictResolve}** näyttää sen pisteet sivulla, ja koira pysyy valittuna. Jos valitset
+oman versiosi, se tallennetaan tallennetun päälle, ja sivu siirtyy seuraavaan koiraan. **{t:cancel}** sulkee
+ikkunan, ja syötetyt pisteet säilyvät; kun tallennat uudelleen, sivu kysyy saman asian, jos tulos on yhä
+toinen. Jos tallennus ei onnistu muusta syystä, ikkuna sulkeutuu ja sivu kertoo sen. Koesihteerin omassa
+suorituspaikkanäkymässä ikkuna kertoo, kuka on tallentanut viimeksi. Suorituspaikan linkistä nimiä ei näy.
+
 Pisteet poistuvat vain, kun rasti poistuu suoritusjärjestyksestä tai rastin tehtävien määrä muuttuu, koska
 pisteitä ei silloin voi lukea samalle rastille. Poistuvat pisteet luetellaan ennen tallennusta
 koirittain.

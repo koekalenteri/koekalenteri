@@ -28,6 +28,7 @@ import {
 } from '../../lib/results'
 import {
   dogRound,
+  editVersion,
   holdsScore,
   isRecordedTask,
   mergeStationTasks,
@@ -36,7 +37,6 @@ import {
   roundsDiffer,
   sameStationTasks,
   stationExercises,
-  stationVersion,
 } from '../../lib/resultTasks'
 import { rotationDogOf, roundInputsOf } from '../../lib/rotation'
 import { mapWithConcurrency } from '../../lib/utils'
@@ -478,7 +478,7 @@ const classifySubmission = (
 
   // Only a genuinely different result written by someone else is a conflict. Scoped to the post when
   // the submission is: two stations scoring the same dog touch different tasks and must not collide.
-  const storedVersion = stationId ? stationVersion(stored?.tasks, exercises) : stored?.updatedAt
+  const storedVersion = editVersion(stored, stationId ? exercises : undefined)
 
   if (stored && storedVersion && storedVersion !== submission.basedOn) {
     return { kind: 'conflict', stored, submitted: resolve(submitted) }

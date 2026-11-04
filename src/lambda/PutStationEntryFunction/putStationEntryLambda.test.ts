@@ -168,6 +168,48 @@ describe('putStationEntryLambda', () => {
     })
   })
 
+  // A link this widely shared names nobody (KOE-1697); the tasks' times stay, since a save is based on them.
+  describe("a writer's name", () => {
+    const at = '2026-09-12T08:00:00.000Z'
+    const stored = asJsonRegistration({
+      class: 'AVO',
+      eventId: 'event-1',
+      eventResult: {
+        tasks: [{ exercise: 1, part: 0, points: 12, updatedAt: at, updatedBy: 'Koesihteeri' }],
+        updatedAt: at,
+        updatedBy: 'Koesihteeri',
+      },
+      eventType: 'NOWT',
+      group: { date: '2026-09-12', key: 'AVO-AP', number: 1 },
+      id: 'reg-1',
+    })
+    const noName = (body: unknown) => expect(JSON.stringify(body)).not.toContain('updatedBy')
+
+    beforeEach(() => mockReadEventRegistrations.mockResolvedValue([stored]))
+
+    it("stays out of a save's echo", async () => {
+      await putStationEntryLambda(
+        apiEvent([{ basedOn: at, eventResult: { tasks: [{ exercise: 1, points: 17 }] }, id: 'reg-1' }])
+      )
+
+      const [status, body] = mockResponse.mock.calls[0]
+      expect(status).toBe(200)
+      expect(body.saved).toHaveLength(1)
+      noName(body)
+    })
+
+    it('stays out of a conflict, whose version the next save is based on', async () => {
+      await putStationEntryLambda(
+        apiEvent([{ basedOn: 'stale', eventResult: { tasks: [{ exercise: 1, points: 17 }] }, id: 'reg-1' }])
+      )
+
+      const [status, body] = mockResponse.mock.calls[0]
+      expect(status).toBe(409)
+      expect(body.conflicts[0].stored.tasks).toEqual([{ exercise: 1, part: 0, points: 12, updatedAt: at }])
+      noName(body)
+    })
+  })
+
   describe('the outcome that ended the round (KOE-1615)', () => {
     const at = '2026-09-12T08:00:00.000Z'
     const post2 = { date: '2026-09-12', id: 'post-2', number: 2 }
@@ -540,7 +582,6 @@ describe('putStationEntryLambda', () => {
             eventResult: {
               tasks: [expect.objectContaining({ exercise: 1 })],
               updatedAt: expect.any(String),
-              updatedBy: expect.any(String),
             },
             id: 'reg-1',
           },

@@ -1,5 +1,4 @@
-import type { Registration } from '@/types'
-import type { ResultConflict } from './ConflictDialog'
+import type { Registration, ResultConflict } from '@/types'
 import { registrationsToEventWithStations } from '@/__mockData__/resultsEvent'
 
 const at = new Date('2026-10-21T10:00:00Z')

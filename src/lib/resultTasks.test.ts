@@ -2,6 +2,7 @@ import type { EventExercise, EventRotationGroup, JsonEventResultTask } from '../
 import { nowtTotals } from './results'
 import {
   dogRound,
+  editVersion,
   effectiveJudge,
   endedAtExercise,
   endedBefore,
@@ -17,6 +18,7 @@ import {
   roundsDiffer,
   sameStationTasks,
   stationVersion,
+  stationWriter,
   toScoredTasks,
   visitSlots,
 } from './resultTasks'
@@ -145,6 +147,53 @@ describe('per-post entry, by the exercises the group does at the post (KOE-1665)
 
     it('adds a post that had nothing stored yet', () => {
       expect(mergeStationTasks(undefined, [at(1, 0, 17, 'x')], [1])).toHaveLength(1)
+    })
+  })
+
+  describe('stationWriter', () => {
+    const tasks = [
+      { exercise: 1, part: 0, updatedAt: '2026-09-12T10:00:00.000Z', updatedBy: 'Sihteeri' },
+      { exercise: 1, part: 1, updatedAt: '2026-09-12T12:00:00.000Z', updatedBy: 'Toinen sihteeri' },
+      { exercise: 2, part: 0, updatedAt: '2026-09-12T13:00:00.000Z', updatedBy: 'Suorituspaikka 2' },
+    ]
+
+    it("names the writer of the task that holds the post's version, not another post's", () => {
+      expect(stationWriter(tasks, [1])).toBe('Toinen sihteeri')
+    })
+
+    it('names nobody for a post with no scores, or on a link, whose tasks carry no name', () => {
+      expect(stationWriter(tasks, [9])).toBeUndefined()
+      expect(stationWriter(undefined, [1])).toBeUndefined()
+      expect(stationWriter([{ exercise: 1, updatedAt: '2026-09-12T10:00:00.000Z' }], [1])).toBeUndefined()
+    })
+  })
+
+  describe('editVersion', () => {
+    const stored = {
+      tasks: [
+        { exercise: 1, part: 0, updatedAt: '2026-09-12T10:00:00.000Z' },
+        { exercise: 2, part: 0, updatedAt: '2026-09-12T11:00:00.000Z' },
+      ],
+      updatedAt: '2026-09-12T12:00:00.000Z',
+    }
+
+    it("reads the whole result's version with no exercises given", () => {
+      expect(editVersion(stored, undefined)).toBe('2026-09-12T12:00:00.000Z')
+    })
+
+    it("reads a post's version from its exercises, whatever the other posts did since", () => {
+      expect(editVersion(stored, [1])).toBe('2026-09-12T10:00:00.000Z')
+    })
+
+    it('reads no version from a post with no exercises, which is not the whole result', () => {
+      expect(editVersion(stored, [])).toBeUndefined()
+    })
+
+    it("reads a qualitative result's own version, which has no tasks", () => {
+      const qualitative = { updatedAt: '2026-09-12T12:00:00.000Z' }
+
+      expect(editVersion(qualitative, undefined)).toBe('2026-09-12T12:00:00.000Z')
+      expect(editVersion(undefined, undefined)).toBeUndefined()
     })
   })
 

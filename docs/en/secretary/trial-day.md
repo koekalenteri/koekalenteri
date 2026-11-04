@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 69a328
+sourceHash: 2b34db
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -124,6 +124,15 @@ way.
 If the running order changes while a post's scoring page is open, the page says on saving that the
 dog's result was not saved, and reads the dogs again. The points entered are not kept: pick the dog
 from the list and enter them again. If the page still does not show the new order, reload it.
+
+If someone else has changed the dog's scores at the post's exercise while the entry page is open, the save
+stops at the dialog **{t:results.conflictTitle}**. The dialog shows the post's own scores: what is stored
+now and what you entered. An interruption in a version shows too. The stored version is selected to begin
+with. **{t:results.conflictResolve}** shows its scores on the page, and the dog stays selected. If you pick
+your own version, it is saved over the stored one, and the page moves on to the next dog. **{t:cancel}**
+closes the dialog and the entered scores stay; when you save again, the page asks the same thing if the
+result is still different. If the save fails for another reason, the dialog closes and the page says so.
+In the secretary's own view of a post the dialog says who saved last. The post's link shows no names.
 
 Points go only when an exercise leaves the running order or an exercise is split differently, since
 the points can then no longer be read as the same exercise. The scores that would go are listed dog

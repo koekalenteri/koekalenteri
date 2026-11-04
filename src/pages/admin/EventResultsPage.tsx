@@ -1,14 +1,15 @@
 import type { Theme } from '@mui/material'
 import type {
   EventResult,
+  EventResultConflict,
   EventResultsResponse,
   EventStation,
   PublicJudge,
   Registration,
   StoredEventResult,
 } from '../../types'
+import type { ConflictChoice } from '../components/stationScoring/ConflictDialog'
 import type { ResultEdit } from '../components/stationScoring/types'
-import type { ConflictChoice, ResultConflict } from './eventResultsPage/ConflictDialog'
 import Save from '@mui/icons-material/Save'
 import { useMediaQuery } from '@mui/material'
 import Alert from '@mui/material/Alert'
@@ -30,6 +31,7 @@ import { APIError } from '../../api/http'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning'
 import { reportError } from '../../lib/client/error'
+import { resultConflictResponse } from '../../lib/client/resultConflict'
 import { errorSnackbarOptions } from '../../lib/client/snackbar'
 import { localizedEventName } from '../../lib/event'
 import { liveViewEnabled } from '../../lib/features'
@@ -42,17 +44,11 @@ import {
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
 import { placementsFor } from '../../lib/results'
-import {
-  dogRound,
-  exercisePostsOf,
-  exercisesAtPost,
-  heldTasks,
-  roundColumns,
-  stationVersion,
-} from '../../lib/resultTasks'
+import { dogRound, editVersion, exercisePostsOf, exercisesAtPost, heldTasks, roundColumns } from '../../lib/resultTasks'
 import { dayStations, rotationDogOf } from '../../lib/rotation'
 import { Path } from '../../routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
+import { ConflictDialog } from '../components/stationScoring/ConflictDialog'
 import { emptyEdit } from '../components/stationScoring/types'
 import { idTokenAtom, languageAtom } from '../state'
 import { EntryPageHeader } from './components/EntryPageHeader'
@@ -60,7 +56,6 @@ import EventNotFound from './components/EventNotFound'
 import { KcIdLookupButton } from './components/KcIdLookupButton'
 import { StartDaySelector } from './components/StartDaySelector'
 import { useStartDayClasses } from './components/useStartDayClasses'
-import { ConflictDialog } from './eventResultsPage/ConflictDialog'
 import ResultsTable from './eventResultsPage/ResultsTable'
 import { useIsOfficialEventType } from './hooks/useIsOfficialEventType'
 import { useKennelliittoDogs } from './hooks/useKennelliittoDogs'
@@ -73,13 +68,6 @@ import { useKennelliittoResults, useSaveEventResults, useStoreEventResults } fro
 /** The whole round, or one post's slice of it. */
 const WHOLE_ROUND = 'all'
 
-/** A 409 carries the disputed dogs, and beside them whatever did get written. */
-interface ResultConflictBody {
-  conflicts: ResultConflict[]
-  saved?: EventResultsResponse['saved']
-  unchanged?: EventResultsResponse['unchanged']
-}
-
 /** The dogs a refused batch had written before it was refused, as the 423 body carries them. */
 const savedOf = (body: unknown): StoredEventResult[] => {
   if (typeof body !== 'object' || body === null) return []
@@ -87,9 +75,6 @@ const savedOf = (body: unknown): StoredEventResult[] => {
   const unchanged = 'unchanged' in body && Array.isArray(body.unchanged) ? body.unchanged : []
   return [...saved, ...unchanged]
 }
-
-const isResultConflictBody = (body: unknown): body is ResultConflictBody =>
-  typeof body === 'object' && body !== null && Array.isArray((body as { conflicts?: unknown }).conflicts)
 
 export default function EventResultsPage() {
   const { t } = useTranslation()
@@ -112,7 +97,7 @@ export default function EventResultsPage() {
   const [pickedScope, setPickedScope] = useState<string>(WHOLE_ROUND)
   const [edits, setEdits] = useState<Record<string, ResultEdit>>({})
   const [defaultJudges, setDefaultJudges] = useState<Record<string, PublicJudge | undefined>>({})
-  const [conflicts, setConflicts] = useState<ResultConflict[]>([])
+  const [conflicts, setConflicts] = useState<EventResultConflict[]>([])
   const [choices, setChoices] = useState<Record<string, ConflictChoice>>({})
   // A whole round's scores can ride on these edits; one stray swipe must not discard them (KOE-1283).
   useUnsavedChangesWarning(Object.keys(edits).length > 0)
@@ -259,6 +244,15 @@ export default function EventResultsPage() {
     [fullRoundFor, scope]
   )
 
+  // The same, for a disputed dog the conflict dialog has only the id of.
+  const exercisesOfDog = useCallback(
+    (id: string) => {
+      const registration = registrations.find((reg) => reg.id === id)
+      return registration ? exercisesHere(registration) : []
+    },
+    [exercisesHere, registrations]
+  )
+
   const submissionFor = useCallback(
     (id: string, edit: ResultEdit, overrideBase?: EventResult) => {
       const registration = registrations.find((reg) => reg.id === id)
@@ -270,7 +264,7 @@ export default function EventResultsPage() {
 
       return {
         // The version this edit was made against, so the server can tell a second writer from a retry.
-        basedOn: scoped ? stationVersion(stored?.tasks, here) : stored?.updatedAt,
+        basedOn: editVersion(stored, scoped ? here : undefined),
         eventResult: {
           elimination: edit.elimination,
           ...(edit.judge ? { judge: edit.judge } : {}),
@@ -359,8 +353,8 @@ export default function EventResultsPage() {
 
   // Whatever did not conflict is already written and settled; the disputed dogs stay on screen.
   const settleConflict = useCallback(
-    async (body: ResultConflictBody) => {
-      await storeResults([...(body.saved ?? []), ...(body.unchanged ?? [])])
+    async (body: EventResultsResponse) => {
+      await storeResults([...body.saved, ...body.unchanged])
       settleEdits((id) => !body.conflicts.some((conflict) => conflict.id === id))
       setEdits((prev) => ({
         ...prev,
@@ -382,9 +376,10 @@ export default function EventResultsPage() {
       if (error instanceof APIError) {
         if (error.status === 423) return settleLockedBatch(error.body)
         if (error.status === 404 || error.status === 422) return settleGoneDogs(error)
-        // A conflict arrives as a rejected 409 rather than a value, and its body carries both versions.
-        if (error.status === 409 && isResultConflictBody(error.body)) return settleConflict(error.body)
       }
+      // A conflict arrives as a rejected 409 rather than a value, and its body carries both versions.
+      const answer = resultConflictResponse(error)
+      if (answer) return settleConflict(answer)
       // Anything else, a dropped connection or a server error, keeps the entered scores on screen and says
       // so. The button only stops spinning, which reads as success.
       reportError(error)
@@ -599,6 +594,7 @@ export default function EventResultsPage() {
         choices={choices}
         conflicts={conflicts}
         eventType={event.eventType}
+        exercisesOf={scoped ? exercisesOfDog : undefined}
         onChoose={(id, choice) => setChoices((prev) => ({ ...prev, [id]: choice }))}
         onClose={() => setConflicts([])}
         onResolve={handleResolve}

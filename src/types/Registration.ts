@@ -265,6 +265,57 @@ export interface JsonEventResultConflict {
 }
 export type EventResultConflict = Replace<JsonEventResultConflict, 'stored' | 'submitted', EventResult>
 
+/** A score as a post's link gets it: when it was written, which is the version a save is based on, and not by whom. */
+export type JsonStationEventResultTask = Omit<JsonEventResultTask, 'updatedBy'>
+export type StationEventResultTask = Replace<JsonStationEventResultTask, 'updatedAt', Date>
+
+/**
+ * A result as a post's link gets it, on the load, in a save's echo and in a conflict: no writer's name
+ * reaches a link this widely shared. `scopeResultToStation` makes it.
+ */
+export type JsonStationEventResult = Omit<JsonEventResult, 'tasks' | 'updatedBy'> & {
+  tasks?: JsonStationEventResultTask[]
+}
+export type StationEventResult = Replace<Omit<JsonStationEventResult, 'tasks'>, 'updatedAt', Date> & {
+  tasks?: StationEventResultTask[]
+}
+
+export interface JsonStationStoredResult {
+  id: string
+  eventResult: JsonStationEventResult
+}
+export type StationStoredResult = Replace<JsonStationStoredResult, 'eventResult', StationEventResult>
+
+export interface JsonStationEntryConflict {
+  id: string
+  stationId?: string
+  stored: JsonStationEventResult
+  submitted: JsonStationEventResult
+}
+export type StationEntryConflict = Replace<JsonStationEntryConflict, 'stored' | 'submitted', StationEventResult>
+
+/** What a save through a post's link answers with: `JsonEventResultsResponse` without the writers' names. */
+export interface JsonStationEntryResponse {
+  saved: JsonStationStoredResult[]
+  unchanged: JsonStationStoredResult[]
+  conflicts: JsonStationEntryConflict[]
+}
+export type StationEntryResponse = Replace<
+  Replace<JsonStationEntryResponse, 'saved' | 'unchanged', StationStoredResult[]>,
+  'conflicts',
+  StationEntryConflict[]
+>
+
+/**
+ * A result where the screen serves both a post's link and the event secretary: the writers' names are
+ * there on the secretary's answers and not on the link's.
+ */
+export type EventResultVersion = Omit<StationEventResult, 'tasks'> & {
+  tasks?: (StationEventResultTask & { updatedBy?: string })[]
+  updatedBy?: string
+}
+export type ResultConflict = Replace<EventResultConflict, 'stored' | 'submitted', EventResultVersion>
+
 /**
  * What saving results answers with, as the server writes it: the rows written, the ones already so
  * (what a retry over a bad connection gets back), and the edits that lost a race.

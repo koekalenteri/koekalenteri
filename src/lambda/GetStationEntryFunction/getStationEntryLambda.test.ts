@@ -87,6 +87,31 @@ describe('getStationEntryLambda', () => {
     expect(JSON.stringify(payload)).not.toContain('example.com')
   })
 
+  // A link this widely shared names nobody (KOE-1697); the tasks' times stay, since a save is based on them.
+  it('serves no writer of the result or of a score', async () => {
+    mockReadEventRegistrations.mockResolvedValue([
+      asJsonRegistration({
+        class: 'AVO',
+        dog: { name: 'Rekku', regNo: 'REG-1' },
+        eventId: 'event-1',
+        eventResult: {
+          tasks: [{ exercise: 1, part: 0, points: 17, updatedAt: 't1', updatedBy: 'Koesihteeri' }],
+          updatedAt: 't1',
+          updatedBy: 'Koesihteeri',
+        },
+        eventType: 'NOWT',
+        group: { date: '2026-09-12', key: 'AVO-AP', number: 1, time: 'ap' },
+        id: 'reg-1',
+      }),
+    ])
+
+    await getStationEntryLambda(apiEvent())
+
+    const [, payload] = mockResponse.mock.calls[0]
+    expect(payload.registrations[0].eventResult.tasks).toEqual([{ exercise: 1, part: 0, points: 17, updatedAt: 't1' }])
+    expect(JSON.stringify(payload)).not.toContain('updatedBy')
+  })
+
   it('refuses a wrong token without reading the registrations', async () => {
     await expect(getStationEntryLambda(apiEvent('wrong'))).rejects.toThrow('not found')
 

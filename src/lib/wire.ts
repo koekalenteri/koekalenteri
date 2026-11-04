@@ -46,7 +46,12 @@ import type {
   JsonRegistrationGroup,
   JsonStartNumberPatch,
   JsonStationEntry,
+  JsonStationEntryConflict,
   JsonStationEntryDog,
+  JsonStationEntryResponse,
+  JsonStationEventResult,
+  JsonStationEventResultTask,
+  JsonStationStoredResult,
   JsonStationTurn,
   JsonStationTurnPhase,
   JsonStoredEventResult,
@@ -71,7 +76,12 @@ import type {
   RegistrationGroup,
   StartNumberPatch,
   StationEntry,
+  StationEntryConflict,
   StationEntryDog,
+  StationEntryResponse,
+  StationEventResult,
+  StationEventResultTask,
+  StationStoredResult,
   StationTurn,
   StationTurnPhase,
   StoredEventResult,
@@ -256,6 +266,15 @@ const toEventResult = converter<JsonEventResult, EventResult>()({
   updatedAt: timestamp,
 })
 
+const toStationEventResultTask = converter<JsonStationEventResultTask, StationEventResultTask>()({
+  updatedAt: timestamp,
+})
+
+const toStationEventResult = converter<JsonStationEventResult, StationEventResult>()({
+  tasks: arrayOf(toStationEventResultTask),
+  updatedAt: timestamp,
+})
+
 const toLastEmail = converter<JsonLastEmail, LastEmail>()({ sentAt: timestamp })
 
 /** `day` is a day key and stays the string it is (KOE-1140). */
@@ -386,7 +405,7 @@ const toLinkedEvent = converter<JsonLinkedEvent, LinkedEvent>()({
 })
 
 const toStationEntryDog = converter<JsonStationEntryDog, StationEntryDog>()({
-  eventResult: toEventResult,
+  eventResult: toStationEventResult,
   group: toRegistrationGroup,
 })
 
@@ -429,4 +448,19 @@ export const toEventResultsResponse = converter<JsonEventResultsResponse, EventR
   conflicts: arrayOf(toEventResultConflict),
   saved: arrayOf(toStoredEventResult),
   unchanged: arrayOf(toStoredEventResult),
+})
+
+const toStationStoredResult = converter<JsonStationStoredResult, StationStoredResult>()({
+  eventResult: toStationEventResult,
+})
+
+const toStationEntryConflict = converter<JsonStationEntryConflict, StationEntryConflict>()({
+  stored: toStationEventResult,
+  submitted: toStationEventResult,
+})
+
+export const toStationEntryResponse = converter<JsonStationEntryResponse, StationEntryResponse>()({
+  conflicts: arrayOf(toStationEntryConflict),
+  saved: arrayOf(toStationStoredResult),
+  unchanged: arrayOf(toStationStoredResult),
 })

@@ -1,11 +1,10 @@
 import type {
   DayKey,
   DbRecord,
-  EventResult,
   JsonDbRecord,
-  JsonEventResult,
   JsonRegistrationDate,
   JsonRegistrationGroup,
+  JsonStationEventResult,
   JsonUser,
   Language,
   NotOptional,
@@ -16,6 +15,7 @@ import type {
   RegistrationTime,
   Replace,
   ReplaceOptional,
+  StationEventResult,
   User,
 } from '.'
 import type { DogEventCost, MinimalEventForCost } from './Cost'
@@ -374,13 +374,13 @@ export interface JsonStationEntryDog {
    * This post's own recordings only; the rest of the round is not this link's to see. The result and
    * the judge ride along for a qualitative type alone, whose post is the whole trial.
    */
-  eventResult?: Pick<JsonEventResult, 'elimination' | 'retirement' | 'tasks' | 'result' | 'judge'> &
-    Partial<Pick<JsonEventResult, 'updatedAt'>>
+  eventResult?: Pick<JsonStationEventResult, 'elimination' | 'retirement' | 'tasks' | 'result' | 'judge'> &
+    Partial<Pick<JsonStationEventResult, 'updatedAt'>>
 }
 export type StationEntryDog = Omit<JsonStationEntryDog, 'group' | 'eventResult'> & {
   group?: RegistrationGroup
-  eventResult?: Pick<EventResult, 'elimination' | 'retirement' | 'tasks' | 'result' | 'judge'> &
-    Partial<Pick<EventResult, 'updatedAt'>>
+  eventResult?: Pick<StationEventResult, 'elimination' | 'retirement' | 'tasks' | 'result' | 'judge'> &
+    Partial<Pick<StationEventResult, 'updatedAt'>>
 }
 
 /**

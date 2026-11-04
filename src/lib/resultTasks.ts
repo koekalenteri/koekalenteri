@@ -334,6 +334,19 @@ export const heldTasks = <T extends TaskRecord>(
       )
   )
 
+/** The latest write among a post's tasks. */
+const latestStationTask = <T extends Pick<StationScopedTask, 'exercise' | 'updatedAt'>>(
+  tasks: readonly T[] | undefined,
+  exercises: readonly number[]
+): T | undefined => {
+  const own = stationTasks(tasks, exercises)
+  if (!own.length) return undefined
+
+  // Compare by instant rather than sorting the raw values: sorting happens to work on ISO strings and
+  // not at all on Date objects, which sort by their locale text.
+  return own.reduce((latest, task) => (writtenLater(task, latest) ? task : latest), own[0])
+}
+
 /**
  * The latest write among a post's tasks — the version a station-scoped edit is made against.
  *
@@ -341,17 +354,30 @@ export const heldTasks = <T extends TaskRecord>(
  * result version would go stale every time any other post saved, and every station's next save would
  * look like a conflict with work it never touched.
  */
-export const stationVersion = <T extends StationScopedTask>(
+export const stationVersion = <T extends Pick<StationScopedTask, 'exercise' | 'updatedAt'>>(
   tasks: readonly T[] | undefined,
   exercises: readonly number[]
-): T['updatedAt'] | undefined => {
-  const own = stationTasks(tasks, exercises)
-  if (!own.length) return undefined
+): T['updatedAt'] | undefined => latestStationTask(tasks, exercises)?.updatedAt
 
-  // Compare by instant rather than sorting the raw values: sorting happens to work on ISO strings and
-  // not at all on Date objects, which sort by their locale text.
-  return own.reduce((latest, task) => (writtenLater(task, latest) ? task : latest), own[0]).updatedAt
-}
+/**
+ * Who holds a post's version: the writer of the task `stationVersion` reads. A whole-round save and
+ * `recomputeFor` stamp every task they write, so this is the last writer of the post's tasks and not
+ * necessarily whoever changed the score. A post's link gets no names, so there it is undefined.
+ */
+export const stationWriter = (
+  tasks: readonly (Pick<StationScopedTask, 'exercise' | 'updatedAt'> & { updatedBy?: string })[] | undefined,
+  exercises: readonly number[]
+): string | undefined => latestStationTask(tasks, exercises)?.updatedBy
+
+/**
+ * The version an edit is made against, which the server compares a save's `basedOn` with: the given
+ * exercises' where a post scores them, and with no exercises given, the whole result's. A post with no
+ * exercises left holds no version, which is not the same as the whole result.
+ */
+export const editVersion = <V extends string | Date>(
+  stored: { tasks?: readonly (Pick<TaskAddress, 'exercise'> & { updatedAt: V })[]; updatedAt?: V } | undefined,
+  exercises: readonly number[] | undefined
+): V | undefined => (exercises ? stationVersion(stored?.tasks, exercises) : stored?.updatedAt)
 
 const withoutProvenance = <T extends StationScopedTask>({ updatedAt: _at, updatedBy: _by, ...rest }: T) => rest
 const byAddress = (a: TaskAddress, b: TaskAddress) => a.exercise - b.exercise || a.part - b.part

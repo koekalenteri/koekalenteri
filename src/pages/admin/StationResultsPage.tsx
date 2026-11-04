@@ -1,5 +1,5 @@
 import type { EventResultSubmission } from '../../api/registration'
-import type { EventStation, StationTurnOp } from '../../types'
+import type { EventResultVersion, EventStation, StationTurnOp } from '../../types'
 import ArrowBack from '@mui/icons-material/ArrowBack'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -12,6 +12,7 @@ import { Link, useParams } from 'react-router'
 import { getStationLink } from '../../api/station'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { reportError } from '../../lib/client/error'
+import { isStoredEventResult } from '../../lib/client/resultConflict'
 import { localizedEventName } from '../../lib/event'
 import { liveFormat, resolveStation } from '../../lib/liveFormat'
 import { isScorableRegistration } from '../../lib/registration'
@@ -25,7 +26,7 @@ import { useIsOfficialEventType } from './hooks/useIsOfficialEventType'
 import { useResultsLock } from './hooks/useResultsLock'
 import { adminConfirmedEventAtom, adminEventRegistrationsAtom, useAdminEventActions } from './state'
 import { useAdminEventScope } from './state/eventScope'
-import { useKennelliittoResults, useSaveEventResults } from './state/registrations/actions'
+import { useKennelliittoResults, useSaveEventResults, useStoreEventResults } from './state/registrations/actions'
 
 /**
  * The event secretary's view of one post: `StationScoring` over the admin data, plus the controls for
@@ -41,6 +42,7 @@ export default function StationResultsPage() {
   const registrations = useAtomValue(adminEventRegistrationsAtom(eventId))
   const eventActions = useAdminEventActions()
   const saveResults = useSaveEventResults(eventId)
+  const storeResults = useStoreEventResults(eventId)
   const kc = useKennelliittoResults(eventId)
   // The other posts' scores, the token link's saves and its turns arrive over the socket only while
   // this page is subscribed to the event.
@@ -70,6 +72,14 @@ export default function StationResultsPage() {
   // What came back is the stored truth for that dog: folding it in is what marks the dog as done in
   // the queue, and what keeps the post from scoring it twice.
   const handleSave = useCallback(async (submission: EventResultSubmission) => saveResults([submission]), [saveResults])
+
+  // The secretary left the other writer's version standing: the conflict's whole round is now this dog's row.
+  const handleStored = useCallback(
+    (stored: { id: string; eventResult: EventResultVersion }) => {
+      storeResults([stored].filter(isStoredEventResult)).catch(reportError)
+    },
+    [storeResults]
+  )
 
   // The answer is the freshest timeline there is, and the action writes it onto the event atom;
   // the socket's own copy of the same change arrives later and changes nothing.
@@ -161,6 +171,7 @@ export default function StationResultsPage() {
         onLocked={handleLocked}
         onRefused={handleRefused}
         onSave={handleSave}
+        onStored={handleStored}
         onTurn={handleTurn}
         registrations={scorable}
         station={station}

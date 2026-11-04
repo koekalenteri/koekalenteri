@@ -1,16 +1,16 @@
 import type {
-  EventResultsResponse,
-  JsonEventResultsResponse,
   JsonPublicStationTurn,
   JsonStationEntry,
+  JsonStationEntryResponse,
   JsonStationTurn,
   PublicStationTurn,
   StationEntry,
+  StationEntryResponse,
   StationTurn,
   StationTurnOp,
 } from '../types'
 import type { EventResultSubmission } from './registration'
-import { toEventResultsResponse, toPublicStationTurn, toStationEntry, toStationTurn } from '../lib/wire'
+import { toPublicStationTurn, toStationEntry, toStationEntryResponse, toStationTurn } from '../lib/wire'
 import http, { withToken } from './http'
 
 /** Live entry: the judge's secretary's view, authorized by the post's own link token instead of a login. */
@@ -31,10 +31,10 @@ export async function putStationEntry(
   results: EventResultSubmission[],
   token: string,
   signal?: AbortSignal
-): Promise<EventResultsResponse> {
-  return toEventResultsResponse(
+): Promise<StationEntryResponse> {
+  return toStationEntryResponse(
     (
-      await http.post<EventResultSubmission[], JsonEventResultsResponse>(
+      await http.post<EventResultSubmission[], JsonStationEntryResponse>(
         `/station-entry/${eventId}/${stationId}`,
         results,
         withToken({ signal }, token)
