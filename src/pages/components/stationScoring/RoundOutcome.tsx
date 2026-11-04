@@ -102,6 +102,9 @@ type Place = Pick<ExerciseSlot, 'exercise' | 'stationId'>
 const outcomeOf = (edit: ResultEdit) => edit.elimination?.fault ?? edit.retirement?.cause ?? SCORED
 const stationOf = (edit: ResultEdit) => edit.elimination?.stationId ?? edit.retirement?.stationId ?? ''
 
+/** The edit without how the round ended, the one thing this control writes: all else in it stays as it is. */
+const withoutOutcome = ({ elimination: _elimination, retirement: _retirement, ...rest }: ResultEdit): ResultEdit => rest
+
 /**
  * How the round ended, where that is something other than being scored.
  *
@@ -185,10 +188,10 @@ export const RoundOutcome = ({
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const next = event.target.value
 
-      // Scores — and a qualitative type's entered result — survive the choice: a dog eliminated at the
-      // last post keeps what it earned at the first, and switching back should not have quietly thrown
-      // that away.
-      const kept = { tasks: value.tasks, ...(value.resultCode ? { resultCode: value.resultCode } : {}) }
+      // Everything but the outcome survives the choice: a dog eliminated at the last post keeps what it
+      // earned at the first, a qualitative type its entered result and its judge (KOE-1706), and switching
+      // back should not have quietly thrown any of that away.
+      const kept = withoutOutcome(value)
 
       if (next === SCORED) return onChange(kept)
       if (next === JUDGE_STOPPED) {
@@ -203,7 +206,7 @@ export const RoundOutcome = ({
 
       return onChange({ elimination: { fault: next as EliminatingFault, ...at }, ...kept })
     },
-    [at, onChange, stopped, value.resultCode, value.tasks]
+    [at, onChange, stopped, value]
   )
 
   const handleWhere = useCallback(
@@ -226,11 +229,10 @@ export const RoundOutcome = ({
   const handleContention = useCallback(
     (_event: React.ChangeEvent<HTMLInputElement>, checked: boolean) =>
       onChange({
+        ...withoutOutcome(value),
         retirement: { cause: 'handlerChoice', couldStillHavePlaced: checked, ...at },
-        tasks: value.tasks,
-        ...(value.resultCode ? { resultCode: value.resultCode } : {}),
       }),
-    [at, onChange, value.resultCode, value.tasks]
+    [at, onChange, value]
   )
 
   if (!asksOutcome(eventType, carriesStop)) return null
