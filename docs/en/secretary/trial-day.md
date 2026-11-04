@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: ceb7f0
+sourceHash: 54eb5d
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -168,9 +168,9 @@ have columns of their own, for example "Exercise 2, part 1/2". A dog's row has a
 own group's exercises. The points go in a field beside which the exercise's maximum shows. At a post
 with one judge the judge's name shows in the column heading; at a post with several the judge is
 picked under the field, and the choice carries over to the next dog. The dog's name, registration
-number and handler share the *{t:results.column.team}* column. Zero points need a
-reason in the *{t:results.zeroFault}* field. When the scorecard does not say why the exercise scored
-nothing, pick *{t:results.zeroFaults.unknown}*. The result is worked out on the row by itself, as the
+number and handler share the *{t:results.column.team}* column. A zero's reason can be recorded in the
+*{t:results.zeroFault}* field, and the field may also be left empty. When the scorecard does not say
+why the exercise scored nothing, *{t:results.zeroFaults.unknown}* can be picked. The result is worked out on the row by itself, as the
 rules say: a single zero rules out a prize, and the total of the points shows under the row. With
 *{t:results.scope}* the page can be narrowed to one post, showing only the exercises done there; the
 result is then left out, since it depends on the other posts too. The choice offers only the shown

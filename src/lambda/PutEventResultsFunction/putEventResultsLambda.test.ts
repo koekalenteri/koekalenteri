@@ -459,6 +459,16 @@ describe('putEventResultsLambda', () => {
     expect(savedResult()).toMatchObject({ tasks: [expect.objectContaining({ points: 0, zeroFault: 'unknown' })] })
   })
 
+  it.each([
+    ['leaves the reason out', { exercise: 1, points: 0 }],
+    ['sends an empty reason', { exercise: 1, points: 0, zeroFault: null }],
+  ])('stores a zero when the browser %s, since the reason is optional (KOE-1709)', async (_, task) => {
+    await putEventResultsLambda(apiEvent([{ eventResult: { tasks: [task] }, id: 'reg-1' }]))
+
+    expect(savedResult().tasks).toEqual([expect.objectContaining({ exercise: 1, points: 0 })])
+    expect(savedResult().tasks[0]).not.toHaveProperty('zeroFault')
+  })
+
   it('refuses a zero fault the list does not know', async () => {
     await expect(
       putEventResultsLambda(

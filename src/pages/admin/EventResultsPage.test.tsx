@@ -719,7 +719,7 @@ describe('EventResultsPage', () => {
   // 'unknown' is the secretary's "ei tiedossa" when the scorecard does not say why (KOE-1664);
   // 'failedRetrieve' and 'physicalContact' are §5.3.4's own (KOE-1678).
   it.each(['failedRetrieve', 'physicalContact', 'eyeWipe', 'unknown'])(
-    'asks why a task scored nothing, and will not let the zero stand unexplained (%s)',
+    'offers a reason for a task that scored nothing, and an empty reason is no error (%s)',
     async (code) => {
       const { i18n } = useTranslation()
       const { user } = await renderScoringPage(i18n.language as Language)
@@ -729,11 +729,11 @@ describe('EventResultsPage', () => {
 
       await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '0')
 
-      // A zero without a reason is what would leave the series unable to answer the question it is
-      // collected for, so the select opens in an error state until one is chosen.
+      // The reason is optional (KOE-1709): a zero saves without one, so the empty select looks like any
+      // other empty field.
       const fault = within(rowFor('Ensimmainen')).getByLabelText('results.zeroFault')
       expect(fault).toBeInTheDocument()
-      expect(fault.closest('.MuiFormControl-root')?.querySelector('.Mui-error')).toBeTruthy()
+      expect(fault.closest('.MuiFormControl-root')?.querySelector('.Mui-error')).toBeNull()
 
       await user.click(fault)
       await user.click(screen.getByRole('option', { name: `results.zeroFaults.${code}` }))

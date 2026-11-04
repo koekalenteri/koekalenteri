@@ -29,14 +29,13 @@ interface ZeroFaultProps {
   readonly onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
-/** A zero without a reason is the one thing that makes the whole series unanswerable later. */
+/** The reason is optional: a zero saves without one, so an empty field is no error (KOE-1709). */
 const ZeroFaultField = ({ value, disabled, inline, onChange }: ZeroFaultProps) => {
   const { t } = useTranslation()
 
   return (
     <TextField
       disabled={disabled}
-      error={!value}
       label={t('results.zeroFault')}
       onChange={onChange}
       select

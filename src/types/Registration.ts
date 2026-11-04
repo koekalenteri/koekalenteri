@@ -175,7 +175,7 @@ export interface JsonEventResultTask {
    * the entry, never the denominator — scoring against the reduced figure would erase the penalty.
    */
   recalled?: boolean
-  /** Required whenever `points` is 0, so the reason survives into later statistics. */
+  /** Why `points` is 0, kept for later statistics. Optional: a zero stands without a reason. */
   zeroFault?: NowtZeroFault
   judge?: PublicJudge
   updatedAt: string
