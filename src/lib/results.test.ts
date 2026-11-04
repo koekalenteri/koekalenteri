@@ -161,7 +161,7 @@ describe('deriveNowtResult by §5.4.1 (15.4.2023)', () => {
 })
 
 describe('nowtZeroFaults', () => {
-  it('lists §5.3.4 one to one and in its order, with the secretary\'s "ei tiedossa" last (KOE-1664)', () => {
+  it('lists §5.3.4 one to one and in its order', () => {
     expect(nowtZeroFaults).toEqual([
       'failedRetrieve',
       'unauthorizedRun',
@@ -172,7 +172,6 @@ describe('nowtZeroFaults', () => {
       'huntingWithDummy',
       'swappedDummy',
       'eyeWipe',
-      'unknown',
     ])
   })
 })

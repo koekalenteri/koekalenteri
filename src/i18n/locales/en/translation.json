@@ -1400,9 +1400,9 @@
       "physicalContact": "Physical contact with the dog",
       "refusedWater": "Refused to work in water",
       "swappedDummy": "Swapped the dummy",
-      "unauthorizedRun": "Unauthorised run-in",
-      "unknown": "Not known"
-    }
+      "unauthorizedRun": "Unauthorised run-in"
+    },
+    "zeroFaultUnknown": "Not known"
   },
   "role": "Role",
   "roles": "Roles",

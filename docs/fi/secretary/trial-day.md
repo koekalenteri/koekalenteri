@@ -158,8 +158,9 @@ Kahteen osaan jaetun rastin osat ovat omissa sarakkeissaan, esimerkiksi "Rasti 2
 rivillä on kenttä vain sen oman ryhmän rasteille. Pisteet kirjoitetaan kenttään, jonka vieressä näkyy
 rastin enimmäispistemäärä. Jos suorituspaikalla on yksi tuomari, hänen nimensä näkyy sarakkeen
 otsikossa; useamman tuomarin paikalla tuomari valitaan kentän alta ja valinta siirtyy seuraavalle
-koirakolle. Koiran nimi, rekisterinumero ja ohjaaja ovat samassa sarakkeessa *{t:results.column.team}*. Nolla pistettä vaatii syyn kenttään *{t:results.zeroFault}*. Jos
-arvostelukortista ei käy ilmi, miksi rasti nollattiin, valitaan *{t:results.zeroFaults.unknown}*.
+koirakolle. Koiran nimi, rekisterinumero ja ohjaaja ovat samassa sarakkeessa *{t:results.column.team}*.
+Nollalle voi kirjata syyn kenttään *{t:results.zeroFault}*. Kentän voi jättää tyhjäksi, mikä on sama
+kuin valinta *{t:results.zeroFaultUnknown}*.
 Tulos lasketaan riville itsestään sääntöjen mukaan: yksikin nolla
 estää palkintosijan, ja rivin alla näkyy pisteiden summa. Valinnalla *{t:results.scope}* sivun
 voi rajata yhteen suorituspaikkaan, jolloin näkyvissä ovat vain siellä tehdyt rastit; tulos jää

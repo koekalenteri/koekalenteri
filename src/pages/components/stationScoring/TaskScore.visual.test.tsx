@@ -17,10 +17,29 @@ const Frame = ({ children }: { readonly children: React.ReactNode }) => (
 const [task] = dogRound(eventWithStations, rotationDogOf(registrationsToEventWithStations[0]))
 const judges = [{ id: 223, name: 'Tuomari 2', official: true }]
 
-// A zero asks why: the nollatulokseen johtavat virheet of NOWT §5.3.4 in the rules' own order and words,
-// noudon epäonnistuminen as one reason, then "Ei tiedossa" (KOE-1664, KOE-1678). The menu opens over the
-// page, so the capture is the menu itself.
-it('asks why an exercise scored zero, in the order of §5.3.4', async () => {
+// A zero's reason is optional, so the empty field looks like any other empty field, not an error (KOE-1709).
+it('shows a zero with no reason chosen without an error', async () => {
+  await render(
+    <Frame>
+      <TaskScore
+        judges={judges}
+        name="Rasti 1"
+        onChange={() => {}}
+        onJudgeChange={() => {}}
+        task={task}
+        value={{ exercise: task.exercise, part: task.part, points: 0 }}
+      />
+    </Frame>
+  )
+
+  await expect.element(page.getByRole('combobox', { name: 'Nollan syy' })).toBeVisible()
+  await expect(page.getByTestId('visual-root')).toMatchScreenshot('task-score-zero-no-reason')
+})
+
+// A zero offers the reasons: first "Ei tiedossa", the empty option that takes a chosen reason back (KOE-1709),
+// then the nollatulokseen johtavat virheet of NOWT §5.3.4 in the rules' own order and words, noudon
+// epäonnistuminen as one reason (KOE-1678). The menu opens over the page, so the capture is the menu itself.
+it('lists "Ei tiedossa", then the reasons for a zero in the order of §5.3.4', async () => {
   await render(
     <Frame>
       <TaskScore

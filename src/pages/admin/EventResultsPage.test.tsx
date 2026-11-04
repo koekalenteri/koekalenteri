@@ -716,10 +716,9 @@ describe('EventResultsPage', () => {
     expect(screen.getByRole('button', { name: 'results.save' })).toBeEnabled()
   })
 
-  // 'unknown' is the secretary's "ei tiedossa" when the scorecard does not say why (KOE-1664);
   // 'failedRetrieve' and 'physicalContact' are §5.3.4's own (KOE-1678).
-  it.each(['failedRetrieve', 'physicalContact', 'eyeWipe', 'unknown'])(
-    'asks why a task scored nothing, and will not let the zero stand unexplained (%s)',
+  it.each(['failedRetrieve', 'physicalContact', 'eyeWipe'])(
+    'offers a reason for a task that scored nothing, and an empty reason is no error (%s)',
     async (code) => {
       const { i18n } = useTranslation()
       const { user } = await renderScoringPage(i18n.language as Language)
@@ -729,11 +728,11 @@ describe('EventResultsPage', () => {
 
       await score(user, within(rowFor('Ensimmainen')).getAllByRole('textbox')[0], '0')
 
-      // A zero without a reason is what would leave the series unable to answer the question it is
-      // collected for, so the select opens in an error state until one is chosen.
+      // The reason is optional (KOE-1709): a zero saves without one, so the empty select looks like any
+      // other empty field.
       const fault = within(rowFor('Ensimmainen')).getByLabelText('results.zeroFault')
       expect(fault).toBeInTheDocument()
-      expect(fault.closest('.MuiFormControl-root')?.querySelector('.Mui-error')).toBeTruthy()
+      expect(fault.closest('.MuiFormControl-root')?.querySelector('.Mui-error')).toBeNull()
 
       await user.click(fault)
       await user.click(screen.getByRole('option', { name: `results.zeroFaults.${code}` }))
@@ -744,6 +743,39 @@ describe('EventResultsPage', () => {
       expect(chosen.closest('.MuiFormControl-root')?.querySelector('.Mui-error')).toBeNull()
     }
   )
+
+  it('clears a chosen reason with "not known", leaving the zero in place (KOE-1709)', async () => {
+    const { i18n } = useTranslation()
+    const { user } = await renderScoringPage(i18n.language as Language)
+    await flushPromises()
+
+    const row = () => within(rowFor('Ensimmainen'))
+    await score(user, row().getAllByRole('textbox')[0], '0')
+
+    await user.click(row().getByLabelText('results.zeroFault'))
+    await user.click(screen.getByRole('option', { name: 'results.zeroFaults.eyeWipe' }))
+    await flushPromises()
+    expect(row().getByLabelText('results.zeroFault')).toHaveTextContent('results.zeroFaults.eyeWipe')
+
+    await user.click(row().getByLabelText('results.zeroFault'))
+    // "Not known" is the empty option, first in the menu, and no stored code stands behind it.
+    const [first] = screen.getAllByRole('option')
+    expect(first).toHaveAccessibleName('results.zeroFaultUnknown')
+    expect(screen.queryByRole('option', { name: 'results.zeroFaults.unknown' })).not.toBeInTheDocument()
+    await user.click(first)
+    await flushPromises()
+
+    expect(row().getByLabelText('results.zeroFault')).not.toHaveTextContent('results.zeroFault')
+    expect(row().getAllByRole('textbox')[0]).toHaveValue('0')
+
+    await user.click(screen.getByRole('button', { name: 'results.save' }))
+    await flushPromises()
+
+    const [, submissions] = vi.mocked(putEventResults).mock.lastCall ?? []
+    const [saved] = submissions?.[0].eventResult.tasks ?? []
+    expect(saved).toMatchObject({ exercise: 1, points: 0 })
+    expect(saved.zeroFault).toBeUndefined()
+  })
 
   it('voids the round on an eliminating fault and asks where it happened', async () => {
     const { i18n } = useTranslation()

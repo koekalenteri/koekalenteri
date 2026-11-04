@@ -1400,9 +1400,9 @@
       "physicalContact": "Fyysinen kosketus koiraan",
       "refusedWater": "Kieltäytyminen vesityöskentelystä",
       "swappedDummy": "Damin vaihtaminen",
-      "unauthorizedRun": "Luvaton lähtö noutoon",
-      "unknown": "Ei tiedossa"
-    }
+      "unauthorizedRun": "Luvaton lähtö noutoon"
+    },
+    "zeroFaultUnknown": "Ei tiedossa"
   },
   "role": "Rooli",
   "roles": "Roolit",
