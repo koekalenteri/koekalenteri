@@ -4,10 +4,12 @@ import type {
   AuditRecord,
   CollectionResponse,
   ConfirmedEvent,
+  DuplicatePaymentEntry,
   EventResultsResponse,
   IncrementalCollectionResponse,
   JsonAuditRecord,
   JsonConfirmedEvent,
+  JsonDuplicatePaymentEntry,
   JsonEventResultsResponse,
   JsonPublicRegistration,
   JsonRegistration,
@@ -27,6 +29,7 @@ import {
   converter,
   toAuditRecord,
   toCollection,
+  toDuplicatePaymentEntry,
   toEventClass,
   toEventResultsResponse,
   toPublicRegistration,
@@ -226,6 +229,19 @@ export async function getStartListPreview(
     toPublicRegistration
   )
 }
+
+/** The event's payments charged twice that have not gone back: never part of `getRegistrations` (KOE-1693). */
+export const getDuplicatePayments = async (
+  eventId: string,
+  token: string,
+  signal?: AbortSignal
+): Promise<DuplicatePaymentEntry[]> =>
+  (
+    await http.get<JsonDuplicatePaymentEntry[]>(
+      `/admin/registration/duplicates/${eventId}`,
+      withToken({ signal }, token)
+    )
+  ).map(toDuplicatePaymentEntry)
 
 export const getRegistrationTransactions = async (
   eventId: string,

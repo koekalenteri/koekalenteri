@@ -66,6 +66,10 @@ ilmoittautumisen maksut. Valitse palautettava maksu, kirjaa tarvittaessa
 ilmoittautujalle. **{t:refund}** tekee palautuksen Paytrailin kautta samalle maksutavalle, jolla
 maksu tuli. Palautettu summa näkyy sen jälkeen ilmoittautumisen rivillä.
 
+Jos luokkalistojen yläpuolella on ilmoitus *{t:registration.duplicatePayments.title}*, koiran
+ilmoittautuminen on maksettu kahdesti, ja se maksu odottaa palautustasi. Palauta se ilmoituksen
+riviltä; [Maksuliikenne](/docs/admin/payments) kertoo enemmän.
+
 Palautuksen voi tehdä myös suoraan Paytrailin kauppiasportaalissa, yleensä yhdistyksen
 rahastonhoitaja. Silloin rahastonhoitaja tarvitsee maksupäivän ja maksajan nimen: molemmat löytyvät
 avaamalla ilmoittautuminen (*{t:registration.actions.edit}*) ja vierittämällä sen loppuun, jossa

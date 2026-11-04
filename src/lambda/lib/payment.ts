@@ -365,7 +365,8 @@ export const publishCancelledRegistration = ({ eventId, field, registrationId }:
     await Promise.all([
       publishRegistrationPatches(
         eventId,
-        [{ [field]: registration[field], eventId, id: registrationId, updatedAt: registration.updatedAt }],
+        // An emptied set is gone from the row, and a key without a value never reaches the page.
+        [{ [field]: registration[field] ?? [], eventId, id: registrationId, updatedAt: registration.updatedAt }],
         event.organizer.id
       ),
       publishParticipantRegistrationPatches(eventId, [registrationId], () =>

@@ -498,7 +498,12 @@ describe('RegistrationForm', () => {
         {},
         atOnce('123,00'),
       ],
-      ['a payment charged twice', paymentPictureWith({ due: 123, status: 'duplicate' }), {}, atOnce('123,00')],
+      [
+        'a payment charged twice',
+        paymentPictureWith({ due: 0, standing: false, status: 'duplicate' }),
+        { paymentStatus: 'DUPLICATE' as const },
+        atOnce('0,00'),
+      ],
       [
         'a reserve that waits for a place',
         paymentPictureWith({ due: 123, standing: false, status: 'waitingForPlace' }),

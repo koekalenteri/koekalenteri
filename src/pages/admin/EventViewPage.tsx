@@ -7,7 +7,7 @@ import Modal from '@mui/material/Modal'
 import Stack from '@mui/material/Stack'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
-import { useAtom, useAtomValue } from 'jotai'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
@@ -21,6 +21,7 @@ import LoadingIndicator from '../components/LoadingIndicator'
 import { useHelpPath } from '../state/docs'
 import EventNotFound from './components/EventNotFound'
 import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
+import DuplicatePayments from './eventViewPage/DuplicatePayments'
 import EventDetailsDialog from './eventViewPage/EventDetailsDialog'
 import InfoPanel from './eventViewPage/InfoPanel'
 import { PANEL_HANDLE_WIDTH } from './eventViewPage/infoPanel/styles'
@@ -37,6 +38,7 @@ import { useResultsLock } from './hooks/useResultsLock'
 import {
   adminBackgroundActionsRunningAtom,
   adminConfirmedEventAtom,
+  adminDuplicatePaymentsRefreshAtom,
   adminEventClassAtom,
   adminEventIdAtom,
   adminEventViewDialogAtom,
@@ -153,6 +155,8 @@ export default function EventViewPage() {
     }
   }, [eventId, setSelectedEventId])
 
+  const refreshDuplicatePayments = useSetAtom(adminDuplicatePaymentsRefreshAtom(eventId))
+
   useEffect(() => {
     const refresh = () => void actions.refreshIfStale().catch(reportError)
 
@@ -161,12 +165,13 @@ export default function EventViewPage() {
     const refreshWhenVisible = () => {
       if (document.visibilityState === 'visible') {
         refresh()
+        refreshDuplicatePayments((count) => count + 1)
       }
     }
     document.addEventListener('visibilitychange', refreshWhenVisible)
 
     return () => document.removeEventListener('visibilitychange', refreshWhenVisible)
-  }, [actions.refreshIfStale])
+  }, [actions.refreshIfStale, refreshDuplicatePayments])
 
   useEffect(() => {
     if (!allClasses.length) {
@@ -217,6 +222,10 @@ export default function EventViewPage() {
         registrations={allRegistrations}
       />
 
+      {/* A boundary of its own: the entry lists do not wait for what stands beside them. */}
+      <Suspense fallback={null}>
+        <DuplicatePayments event={event} />
+      </Suspense>
       <Stack
         direction="row"
         sx={{

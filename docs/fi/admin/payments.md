@@ -9,9 +9,11 @@ covers:
   - src/pages/admin/OrganizerListPage.tsx
   - src/pages/admin/organizerListPage/**
   - src/pages/admin/eventViewPage/RefundDialog.tsx
+  - src/pages/admin/eventViewPage/DuplicatePayments.tsx
   - src/pages/admin/eventViewPage/refundDialog/**
   - src/lambda/lib/payment.ts
   - src/lambda/PaymentCreateFunction/**
+  - src/lambda/GetDuplicatePaymentsFunction/**
   - src/lambda/RefundCreateFunction/**
 ---
 
@@ -67,6 +69,26 @@ Maksutapahtumien yläpuolella ikkuna näyttää ilmoittautumisen ostoskorin sell
 osallistumismaksun, valitut lisäpalvelut, aiemmin maksetun ja maksettavan summan.
 
 !shot[RefundDialog/refund-dialog-open] Maksun palautus koekalenterista
+
+### {t:registration.duplicatePayments.title}
+
+Jos koiralla on jo maksettu ilmoittautuminen ja sen vanha, kesken jäänyt ilmoittautuminen maksetaan
+vielä esimerkiksi auki jääneellä Paytrail-välilehdellä, raha tulee yhdistykselle, mutta
+ilmoittautuminen ei valmistu. Se ei näy luokkalistoilla, ryhmissä eikä laskureissa. Maksajalle
+kerrotaan ilmoittautumisen sivulla, että maksu palautetaan koesihteerin kautta.
+
+Tällaiset maksut näkyvät kokeen näkymässä luokkalistojen yläpuolella omassa ilmoituksessaan, ja vain
+silloin kun palautettavaa on. Riviltä näkee koiran, maksajan, palautettavan summan ja maksuhetken.
+**{t:refund}** avaa saman palautusikkunan kuin ilmoittautumisen rivin valikko; käsittelykulu on
+valmiiksi nolla, mutta sitä voi muuttaa. Palautuksen ollessa kesken rivillä lukee
+*{t:registration.duplicatePayments.refundPending}*. Kun palautus on tehty, rivi poistuu ja maksajan
+sivulla lukee *{t:paymentStatus.refunded}*. Jos palautus epäonnistuu, rivi jää ja palautuksen voi
+yrittää uudelleen. Maksaja saa palautuksesta tavallisen palautusviestin.
+
+Ilmoitus ei tiedä palautusta, joka on tehty Paytrailin kauppiaspaneelissa: palauta nämä maksut
+koekalenterista, tai rivi jää näkyviin.
+
+!shot[DuplicatePayments/duplicate-payments] Kahdesti veloitetut maksut kokeen näkymässä
 
 Palautus onnistuu vain, jos yhdistyksen Paytrail-tilillä on saldoa. Heti tilityksen jälkeen sitä
 ei ole, ja silloin rahastonhoitaja siirtää tilille rahaa kauppiaspaneelin *Siirrä varoja*

@@ -511,7 +511,7 @@ describe('paymentSuccessLambda', () => {
         id: 'reg456',
         // Recomputed with this transaction's id taken out of the open set, not left at whatever it
         // was on the row this handler started with (KOE-1529, round 1 part 3).
-        payment: expect.objectContaining({ canPay: false, due: 50, status: 'duplicate' }),
+        payment: expect.objectContaining({ canPay: false, due: 0, status: 'duplicate' }),
         paymentStatus: 'DUPLICATE',
         updatedAt: expect.any(String),
       })

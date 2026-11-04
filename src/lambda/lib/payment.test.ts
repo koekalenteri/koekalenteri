@@ -653,6 +653,18 @@ describe('payment', () => {
   // (KOE-1529), and never failing the request (KOE-1566).
   describe('publishCancelledRegistration', () => {
     const cancelled = { eventId: 'event-1', field: 'openPayments', registrationId: 'registration-1' } as const
+
+    // An emptied set is gone from the row: the patch still says it emptied, or an open page keeps
+    // "palautus kesken" and the section never hears of it (KOE-1693).
+    it('says the set emptied when the row no longer has one', async () => {
+      mockReadRegistration.mockResolvedValueOnce({ ...settledRow, openRefunds: undefined })
+
+      await publishCancelledRegistration({ ...cancelled, field: 'openRefunds' })
+
+      expect(mockToAdmins).toHaveBeenCalledWith('event-1', [
+        { eventId: 'event-1', id: 'registration-1', openRefunds: [], updatedAt: '2026-08-16T12:00:00.000Z' },
+      ])
+    })
     const settledRow: JsonRegistration = {
       ...JSON.parse(JSON.stringify(jsonRegistrationsToEventWithALOInvited[0])),
       eventId: 'event-1',

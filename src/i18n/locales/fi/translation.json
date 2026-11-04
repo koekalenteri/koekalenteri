@@ -928,6 +928,16 @@
     "datesFilterInfo": "Valitse sinulle sopivat päivät",
     "datesInfo": "Valitse sinulle sopivimmat ryhmät. Ryhmätoivettasi ei välttämättä pystytä toteuttamaan.",
     "dog": "Koiran tiedot",
+    "duplicatePayments": {
+      "action": "Toiminto",
+      "amount": "Palautettava",
+      "date": "Maksettu",
+      "dog": "Koira",
+      "payer": "Maksaja",
+      "refundPending": "Palautus kesken",
+      "text": "Nämä maksut veloitettiin, vaikka koiralla oli jo voimassa oleva ilmoittautuminen. Ne eivät ole luokkalistoilla eivätkä laskureissa. Palauta maksu maksajalle.",
+      "title": "Kahdesti veloitetut maksut"
+    },
     "email": {
       "subject": "Ilmoittautumisen vahvistus",
       "subject_cancel": "Ilmoittautumisesi on peruttu",

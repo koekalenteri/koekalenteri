@@ -10,6 +10,7 @@ import type { PaymentTerms } from './payment'
 import { eventWithStaticDates } from '../__mockData__/events'
 import { paymentPictureWith } from '../__mockData__/paymentPicture'
 import {
+  getDuplicatePaymentRemainder,
   getFormPayment,
   getPaymentPicture,
   getProviderName,
@@ -213,6 +214,30 @@ describe('payment', () => {
         [],
         { canPay: false, status: 'duplicate' },
       ],
+      // The row PaymentSuccess writes (KOE-1693): the mark and nothing paid, with the money in the
+      // transaction. It owes nothing before the refund and after it.
+      ['a payment charged twice, owing nothing', {}, { paymentStatus: 'DUPLICATE' }, [], { canPay: false, due: 0 }],
+      [
+        'a duplicate whose fee went back as refunded, owing nothing',
+        {},
+        { paymentStatus: 'DUPLICATE', refundAmount: 40 },
+        [],
+        { canPay: false, due: 0, status: 'refunded' },
+      ],
+      [
+        'a duplicate returned less a kept handling fee as refunded',
+        {},
+        { paymentStatus: 'DUPLICATE', refundAmount: 35, refundHandlingCost: 5 },
+        [],
+        { canPay: false, due: 0, status: 'refunded' },
+      ],
+      [
+        'a refunded duplicate in a place, which owes nothing rather than the fee and the refund',
+        {},
+        { group: place, paymentStatus: 'DUPLICATE', refundAmount: 40 },
+        [],
+        { canPay: false, due: 0, excess: 0, status: 'refunded' },
+      ],
       [
         'a duplicate outranks a payment in progress',
         {},
@@ -360,13 +385,6 @@ describe('payment', () => {
         { group: place, paidAmount: 30, paymentStatus: 'SUCCESS' },
         [pending],
         { status: 'inProgress' },
-      ],
-      [
-        'a duplicate outranks a returned fee',
-        {},
-        { group: { key: 'reserve' }, paidAmount: 40, paymentStatus: 'DUPLICATE', refundAmount: 40 },
-        [],
-        { status: 'duplicate' },
       ],
       [
         'a duplicate outranks a part payment',
@@ -537,6 +555,34 @@ describe('payment', () => {
   })
 
   // KOE-1552: what the form says of the payment, read from the picture of the row it edits.
+  describe('getDuplicatePaymentRemainder', () => {
+    const charged = { amount: 5000, duplicatePaymentAt: '2026-08-16T10:00:00.000Z', type: 'payment' as const }
+    const applied = {
+      amount: 4500,
+      handlingCost: 500,
+      registrationAppliedAt: '2026-08-17T10:00:00.000Z',
+      type: 'refund' as const,
+    }
+    const remainderOf = (transactions: object[]) =>
+      getDuplicatePaymentRemainder(transactions as Parameters<typeof getDuplicatePaymentRemainder>[0])
+
+    it.each([
+      ['nothing', [], 0],
+      ['a charge, in euros from the cents of the transaction', [charged], 50],
+      ['a charge with a refund on its way', [charged, { amount: 5000, status: 'pending', type: 'refund' }], 50],
+      ['a charge refunded less a kept fee', [charged, applied], 0],
+      ['a second charge after the first went back', [charged, applied, charged], 50],
+      ['a payment that was not charged twice', [{ amount: 5000, status: 'fail', type: 'payment' }], 0],
+      [
+        'a refund written without a handling fee',
+        [charged, { amount: 1050, registrationAppliedAt: 'x', type: 'refund' }],
+        39.5,
+      ],
+    ])('leaves %s', (_name, transactions, expected) => {
+      expect(remainderOf(transactions)).toBe(expected)
+    })
+  })
+
   describe('getFormPayment', () => {
     const shown = { ...eventWithStaticDates, cost: 40, costMember: 35 }
     const confirmed = { ...shown, state: 'confirmed' as const }
@@ -616,7 +662,6 @@ describe('payment', () => {
         ['paying is not offered', { canPay: false, status: 'waitingForPlace' }, true],
         ['a free class (nothing owed yet)', { status: 'notCharged' }, true],
         ['a payment in progress', { status: 'inProgress' }, false],
-        ['a payment charged twice', { status: 'duplicate' }, false],
       ])('on a row with no group, when %s', (_name, overrides, expected) => {
         expect(
           getFormPayment(atConfirmation, { ...unpaid, payment: paymentPictureWith(overrides) }).waitsForPlace

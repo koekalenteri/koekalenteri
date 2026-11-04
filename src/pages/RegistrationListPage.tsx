@@ -15,6 +15,7 @@ import {
   getRegistrationClass,
   getRegistrationEmails,
   hasPaymentPicture,
+  isDuplicatePayment,
   isRegistrationCancelClosed,
   isRegistrationContentLocked,
   isRegistrationEditingClosed,
@@ -69,7 +70,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
   // for exactly the window this flag covers -- keying it on that would end the loop at once and
   // re-offer Pay (KOE-1529).
   const payment = registration?.payment
-  const paymentSettled = Boolean(payment?.standing) || payment?.status === 'duplicate'
+  const paymentSettled = Boolean(payment?.standing) || (registration ? isDuplicatePayment(registration) : false)
   const paymentVerificationInProgress = paymentFlow === 'verifying' && !paymentSettled && reloadCount < 5
   // Confirming and cancelling close with the shared rule: once the trial's last Finnish day has gone,
   // or the class the entry sits in has been judged (KOE-1388, KOE-1584).

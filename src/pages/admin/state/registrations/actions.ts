@@ -3,6 +3,7 @@ import type { EventResultSubmission } from '@/api/registration'
 import type { KcBlocker, KcDogReport, KcSendReport, KcSendResponse } from '@/lib/kennelliittoResults'
 import type {
   PublicDogEvent,
+  RefundRegistration,
   Registration,
   RegistrationGroupMove,
   RegistrationMessage,
@@ -40,6 +41,7 @@ import { showRegistrationSaveConflict } from '@/pages/state/registration/registr
 import { adminEventAtom } from '../events'
 import {
   adminBackgroundActionsRunningAtom,
+  adminDuplicatePaymentsRefreshAtom,
   adminEventRegistrationsAtom,
   adminEventRegistrationsCursorAtom,
   adminEventRegistrationsFetchedAtAtom,
@@ -349,6 +351,7 @@ export const useAdminRegistrationActions = (eventId: string) => {
   const [event, setEvent] = useAtom(adminEventAtom(eventId))
   const setBackgroundActionsRunning = useSetAtom(adminBackgroundActionsRunningAtom)
   const setPendingGroupMoves = useSetAtom(adminPendingRegistrationGroupMovesAtom(eventId))
+  const setDuplicatePaymentsRefresh = useSetAtom(adminDuplicatePaymentsRefreshAtom(eventId))
   const token = useAtomValue(validIdTokenAtom)
   const refreshInFlightRef = useRef<Promise<void> | undefined>(undefined)
   const groupMoveInFlightRef = useRef<Promise<false | undefined> | undefined>(undefined)
@@ -582,12 +585,17 @@ export const useAdminRegistrationActions = (eventId: string) => {
 
     refreshIfStale,
 
-    async refund(reg: Registration, transactionId: string, amount: number, handlingCost: number) {
+    async refund(reg: RefundRegistration, transactionId: string, amount: number, handlingCost: number) {
       if (!token) throw new Error('missing token')
 
       const result = await createRefund(transactionId, amount, handlingCost, token)
 
-      if (result?.status === 'pending' || result?.status === 'ok') {
+      // A payment charged twice is on no list and must not get on one: its own list is fetched again,
+      // since only the server knows what is left of it (KOE-1693).
+      const listed = eventRegistrations.find(({ id }) => id === reg.id)
+      if (!listed) {
+        setDuplicatePaymentsRefresh((count) => count + 1)
+      } else if (result?.status === 'pending' || result?.status === 'ok') {
         // The row reads at once as it will once the refund is applied: the amount and the handling fee
         // kept from it go together, or a reserve whose fee is on its way back would read as owing the
         // kept part in the meantime (KOE-1526). A pending or emailed refund is not written SUCCESS any
@@ -598,11 +606,11 @@ export const useAdminRegistrationActions = (eventId: string) => {
         // only refundStatus SUCCESS is withheld for a pending or emailed one.
         const isPendingRefund = result.status === 'pending' || result.provider === 'email refund'
         updateAdminRegistration({
-          ...reg,
-          openRefunds: [...(reg.openRefunds ?? []), result.transactionId],
-          refundAmount: (reg.refundAmount ?? 0) + amount / 100,
+          ...listed,
+          openRefunds: [...(listed.openRefunds ?? []), result.transactionId],
+          refundAmount: (listed.refundAmount ?? 0) + amount / 100,
           refundAt: new Date(),
-          refundHandlingCost: (reg.refundHandlingCost ?? 0) + handlingCost / 100,
+          refundHandlingCost: (listed.refundHandlingCost ?? 0) + handlingCost / 100,
           ...(isPendingRefund ? {} : { refundStatus: 'SUCCESS' }),
         })
       }

@@ -62,6 +62,13 @@ const registration = withPaymentPicture(event, { ...unpaidRegistrationWithStatic
 /** A second payment for the dog: the row is marked and keeps the amounts it had. */
 const chargedTwice = withPaymentPicture(event, { ...registration, paymentStatus: 'DUPLICATE' as const })
 
+/** The same row after its refund: the mark stays, and what went back is all it has (KOE-1693). */
+const chargedTwiceRefunded = withPaymentPicture(event, {
+  ...registration,
+  paymentStatus: 'DUPLICATE' as const,
+  refundAmount: 50,
+})
+
 interface RenderOptions {
   /**
    * The box model index.tsx gives the app: without it the page's padding runs past the frame and cuts
@@ -142,6 +149,14 @@ it('tells the payer a payment charged twice goes back through the secretary', as
     'Maksu veloitettiin sen jälkeen, kun koiran toinen ilmoittautuminen oli jo maksettu. Ota yhteyttä koesihteeriin maksun palauttamiseksi.'
   await expect.element(screen.getByText(notice)).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-page-duplicate')
+})
+
+// What the payer sees on the old link once the secretary has refunded it (KOE-1693).
+it('tells the payer a payment charged twice has gone back', async () => {
+  const screen = await renderAt(DESKTOP, 'fi', { appBoxModel: true, responseStatus: 409, row: chargedTwiceRefunded })
+
+  await expect.element(screen.getByText('Koemaksu on palautettu')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('payment-page-duplicate-refunded')
 })
 
 /** Paytrail's own JSON answer to a payment it would not create. */

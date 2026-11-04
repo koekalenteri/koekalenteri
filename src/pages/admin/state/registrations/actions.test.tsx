@@ -403,6 +403,42 @@ describe('useAdminRegistrationActions', () => {
     expect(result.current.event).toMatchObject({ startListPublished: false, state: 'invited' })
   })
 
+  // A payment charged twice has no row on the secretary's list and must not get one (KOE-1693).
+  it('leaves the list as it is when refunding a payment charged twice', async () => {
+    const duplicate = {
+      ...registrationWithStaticDates,
+      id: 'duplicate-row',
+      paymentStatus: 'DUPLICATE' as const,
+      state: 'creating' as const,
+    }
+    vi.mocked(createRefund).mockResolvedValueOnce({ provider: 'nordea', status: 'ok', transactionId: 'r-1' })
+    const { result } = renderHook(
+      () => ({
+        actions: useAdminRegistrationActions(eventWithStaticDates.id),
+        registrations: useAtomValue(adminProjectedEventRegistrationsAtom(eventWithStaticDates.id)),
+      }),
+      {
+        wrapper: ({ children }: { readonly children: React.ReactNode }) => (
+          <Provider
+            initializeState={({ set }) => {
+              set(idTokenAtom, TEST_ID_TOKEN)
+              set(adminEventsAtom, [eventWithStaticDates])
+              set(adminEventRegistrationsAtom(eventWithStaticDates.id), [registrationWithStaticDates])
+            }}
+          >
+            {children}
+          </Provider>
+        ),
+      }
+    )
+
+    await act(async () => {
+      await result.current.actions.refund(duplicate, 'payment-1', 5000, 0)
+    })
+
+    expect(result.current.registrations.map(({ id }) => id)).toEqual([registrationWithStaticDates.id])
+  })
+
   // KOE-1526 review: the row must read right after the click as it will once the refund is applied.
   // A reserve paid 50 and had 45 back with 5 kept: its fee went back, so nothing is missing.
   // KOE-1529: the server ADDs to openRefunds for every refund it creates, synchronous ones
