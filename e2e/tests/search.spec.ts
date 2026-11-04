@@ -6,9 +6,7 @@ import { issue } from '../fixtures/issue'
 import { SearchPage } from '../pages/SearchPage'
 
 test.describe('finding an event', { annotation: issue('KOE-1476'), tag: '@public' }, () => {
-  test('the event type filter shows the matching event and hides the other', {
-    annotation: issue('KOE-1480', 'the options are picked with includeHidden'),
-  }, async ({ page }) => {
+  test('the event type filter shows the matching event and hides the other', async ({ page }) => {
     const nomeB = await seedEvent({ eventType: 'NOME-B' })
     const nowt = await seedEvent({ eventType: 'NOWT' })
     const search = new SearchPage(page)

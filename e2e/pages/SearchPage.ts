@@ -27,8 +27,7 @@ export class SearchPage {
 
   async selectEventType(eventType: string) {
     await this.filters.getByRole('combobox', { name: 'Tapahtumatyyppi' }).click()
-    // includeHidden: the options sit inside an aria-hidden ancestor (SelectMulti, disablePortal), KOE-1480
-    await this.page.getByRole('option', { exact: true, includeHidden: true, name: eventType }).click()
+    await this.page.getByRole('option', { exact: true, name: eventType }).click()
     await this.page.keyboard.press('Escape')
   }
 
