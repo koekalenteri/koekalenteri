@@ -13,6 +13,7 @@ import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import i18next from 'i18next'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { APIError } from '@/api/http'
@@ -35,12 +36,16 @@ type CopyState =
   | { step: 'failed'; message: string }
   | { step: 'alreadyCopied'; name: string }
 
-/** The server's own words where it gave some; the copy's refusals name what is wrong. */
+/**
+ * The server's own words where it gave some; the copy's refusals name what is wrong. An unhandled
+ * failure keeps its words in the log, and gets the general reason here.
+ */
 const errorMessage = (error: unknown) => {
   if (error instanceof APIError) {
     const { body } = error
     if (typeof body === 'object' && body?.message) return body.message
     if (typeof body === 'string' && body) return body
+    return error.statusText || i18next.t('error.somethingWentWrong')
   }
   return error instanceof Error ? error.message : String(error)
 }

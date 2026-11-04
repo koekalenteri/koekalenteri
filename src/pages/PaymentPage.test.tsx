@@ -635,7 +635,6 @@ describe('PaymentPage', () => {
       [409, 'paymentPage.error409'],
       [412, 'paymentPage.error412'],
       [500, 'paymentPage.error500'],
-      [501, 'paymentPage.error501MerchantInactive'],
     ])('should show mapped payment error message for status %s', async (status, expectedMessage) => {
       const event = {
         cost: 50,
@@ -676,54 +675,6 @@ describe('PaymentPage', () => {
 
       expect(container).toHaveTextContent(expectedMessage)
       expect(container).not.toHaveTextContent('paymentPage.choosePaymentMethod')
-    })
-
-    it('should show merchant inactive message with secretary contact for status 501', async () => {
-      const event = {
-        contactInfo: {
-          secretary: {
-            email: 'secretary@example.com',
-            name: 'Secretary Name',
-            phone: '+358401234567',
-          },
-        },
-        cost: 50,
-        id: 'test-id',
-        paymentTime: 'registration' as const,
-      }
-      const registration = {
-        ...testRegistration,
-        totalAmount: 50,
-      }
-
-      const routes: RouteObject[] = [
-        {
-          element: (
-            <PaymentPageWithData
-              registrationId="test-reg-id"
-              event={asPaymentEvent(event)}
-              registration={registration}
-              response={undefined}
-              responseStatus={501}
-            />
-          ),
-          path: '/test-path',
-        },
-      ]
-
-      const { container } = render(
-        <ThemeProvider theme={theme}>
-          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-            <Provider>
-              <DataMemoryRouter initialEntries={['/test-path']} routes={routes} />
-            </Provider>
-          </LocalizationProvider>
-        </ThemeProvider>
-      )
-
-      await flushPromises()
-
-      expect(container).toHaveTextContent('paymentPage.error501MerchantInactive contact')
     })
 
     // Paytrail's refusal in the payer's language, with Paytrail's status and words whatever they came

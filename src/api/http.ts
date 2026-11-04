@@ -107,8 +107,9 @@ export class APIError extends Error {
 
 /**
  * The code a refusal carries, where it carries one. A 4xx that the handler threw with a body says
- * what it refused in a field of its own; anything else — a network failure, a bare string, a 500 —
- * says nothing, and reads the same as an unknown refusal here.
+ * what it refused in a field of its own; anything else says nothing and reads the same as an unknown
+ * refusal here: a network failure and a bare string have no code, and the `error` of an unhandled 500
+ * is the wrapper's constant, which matches none.
  */
 export const refusalCode = (error: unknown): string | undefined => {
   if (!(error instanceof APIError) || !isObject(error.body)) return undefined

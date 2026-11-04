@@ -8,10 +8,14 @@ import { putEmailTemplate } from '../../api/email'
 import { APIError } from '../../api/http'
 import theme from '../../assets/Theme'
 import { shimCodeMirrorLayout } from '../../test-utils/codemirror'
+import { describeWithTranslations } from '../../test-utils/language'
 import { flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../state'
 import EmailTemplateListPage from './EmailTemplateListPage'
 
+vi.mock('react-i18next', async (importOriginal) =>
+  (await import('../../test-utils/language')).spyOnUseTranslation(importOriginal)
+)
 vi.mock('../../api/email')
 vi.mock('../../api/user')
 
@@ -32,7 +36,7 @@ describe('EmailTemplateListPage', () => {
   })
   afterAll(() => vi.useRealTimers())
 
-  const setup = async () => {
+  const setup = async (templateName = 'emailTemplate.registration') => {
     const { user } = await renderSuspendedWithUserEvents(
       <ThemeProvider theme={theme}>
         <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
@@ -48,7 +52,7 @@ describe('EmailTemplateListPage', () => {
     )
     await flushPromises()
 
-    await user.click(screen.getByText('emailTemplate.registration'))
+    await user.click(screen.getByText(templateName))
     await flushPromises()
 
     // The Finnish editor is the visible one; the English one is mounted hidden beside it.
@@ -88,6 +92,28 @@ describe('EmailTemplateListPage', () => {
     expect(mockPutEmailTemplate).toHaveBeenCalledTimes(1)
     expect(screen.getByRole('alert')).toHaveTextContent('templateEditor.rejected')
     expect(screen.getByRole('tab', { name: 'locale.en' })).toHaveAttribute('aria-selected', 'true')
+  })
+
+  describeWithTranslations('en', () => {
+    it.each([
+      ['the general reason to a failure the server keeps to itself (KOE-1622)', '', 'Something went wrong.'],
+      ['the status text of a failure that has one', 'timeout loading /x', 'timeout loading /x'],
+    ])('gives %s', async (_name, statusText, reason) => {
+      const { editor, user } = await setup('Confirmation')
+      mockPutEmailTemplate.mockRejectedValueOnce(
+        new APIError(new Response(null, { status: 500, statusText }), {
+          error: 'Internal server error',
+          requestId: 'req-1',
+        })
+      )
+
+      await user.type(editor, 'x')
+      await flushPromises()
+      await user.click(screen.getByRole('button', { name: 'Save' }))
+      await flushPromises()
+
+      expect(screen.getByRole('alert')).toHaveTextContent(`Saving failed: ${reason}`)
+    })
   })
 
   it('clears the notice when the template is edited again', async () => {
