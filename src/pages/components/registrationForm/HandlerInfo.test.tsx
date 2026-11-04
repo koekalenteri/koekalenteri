@@ -27,7 +27,7 @@ function Wrapper(props: { readonly children?: ReactNode }) {
     </LocalizationProvider>
   )
 }
-describe('HadnlerInfo', () => {
+describe('HandlerInfo', () => {
   beforeAll(() => vi.useFakeTimers())
   afterEach(() => {
     vi.runOnlyPendingTimers()
