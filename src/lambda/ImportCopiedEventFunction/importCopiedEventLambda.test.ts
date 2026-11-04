@@ -14,7 +14,6 @@ const mockReadOrganizers = vi.fn()
 const mockSaveEvent = vi.fn()
 const mockPublishEventChange = vi.fn()
 const mockWriteRegistrations = vi.fn()
-const mockUpdateOrganizerEventStats = vi.fn()
 const mockAudit = vi.fn()
 const mockFindEventCopy = vi.fn()
 
@@ -29,10 +28,6 @@ vi.doMock('../lib/repositories/registrationRepository', async () => ({
     '../lib/repositories/registrationRepository'
   )),
   writeRegistrations: mockWriteRegistrations,
-}))
-vi.doMock('../lib/stats/stats', async () => ({
-  ...(await vi.importActual<typeof import('../lib/stats/stats')>('../lib/stats/stats')),
-  updateOrganizerEventStats: mockUpdateOrganizerEventStats,
 }))
 vi.doMock('../lib/audit', async () => ({
   ...(await vi.importActual<typeof import('../lib/audit')>('../lib/audit')),
@@ -106,10 +101,6 @@ describe('importCopiedEvent', () => {
       expect.objectContaining({ eventId: 'copy-1', updatedAt: '2026-09-29T12:00:00.000Z' }),
       expect.objectContaining({ eventId: 'copy-1', updatedAt: '2026-09-29T12:00:00.000Z' }),
     ])
-    expect(mockUpdateOrganizerEventStats).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'copy-1', organizer: { id: 'org-test', name: 'Seura' } }),
-      expect.objectContaining({ totalDelta: 2 })
-    )
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event:copy-1',
       messageKey: 'audit.messages.eventCopiedFrom',
@@ -228,7 +219,6 @@ describe('importCopiedEvent', () => {
     expect(result).toEqual({ alreadyCopied: { eventId: 'copy-0', name: '[Kopio: prod] NOME-B Kangasala' } })
     expect(mockSaveEvent).not.toHaveBeenCalled()
     expect(mockWriteRegistrations).not.toHaveBeenCalled()
-    expect(mockUpdateOrganizerEventStats).not.toHaveBeenCalled()
     expect(mockAudit).not.toHaveBeenCalled()
   })
 
@@ -238,12 +228,5 @@ describe('importCopiedEvent', () => {
     expect(mockFindEventCopy).toHaveBeenCalledWith({ eventId: 'source-1', stage: 'prod' })
     expect(result).toEqual(expect.objectContaining({ eventId: 'copy-1' }))
     expect(mockSaveEvent).toHaveBeenCalledTimes(1)
-  })
-
-  it('leaves the stats alone for an event without registrations', async () => {
-    await importCopiedEvent({ ...request(), copy: { event: request().copy.event, registrations: [] } })
-
-    expect(mockWriteRegistrations).toHaveBeenCalledWith([])
-    expect(mockUpdateOrganizerEventStats).not.toHaveBeenCalled()
   })
 })

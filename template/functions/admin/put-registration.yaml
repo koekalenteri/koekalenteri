@@ -15,8 +15,6 @@
             TableName: !Ref EventTable
         - DynamoDBWritePolicy:
             TableName: !Ref AuditTable
-        - DynamoDBWritePolicy:
-            TableName: !Ref EventStatsTable
         - DynamoDBReadPolicy:
             TableName: !Ref UserTable
         # A typed microchip is checked against the one Kennelliitto gave the dog (KOE-1650).

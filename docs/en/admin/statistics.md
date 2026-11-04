@@ -7,7 +7,7 @@ covers:
   - src/pages/admin/EventBreakdownPage.tsx
   - src/pages/StatsPage.tsx
   - src/pages/components/stats/**
-sourceHash: 979cdc
+sourceHash: b2d36f
 ---
 
 The calendar works its statistics out from the trials that have ended. They are on three pages:
@@ -20,6 +20,10 @@ figures the chart is drawn from and what has been left out.
 **{t:stats.admin.overviewTitle}** in the admin menu shows the figures of the club you have access
 to; with several clubs, the club is picked under *{t:organization}*. *{t:stats.year}* narrows the
 charts to one year, and only the years in which the club has had trials can be picked.
+
+The figures are updated nightly, so an entry, a payment or a refund made today shows in them
+tomorrow. Only a finished entry counts: one left in the payment step is not in the figures, and
+neither is an entry charged twice or its refund.
 
 | Chart or table | What it says |
 | --- | --- |

@@ -54,7 +54,6 @@ import {
   clearRegistrationEmailDeliveryStatus,
   markNewRegistrationPhase,
 } from './repositories/registrationRepository'
-import { applyNewRegistrationStatsOnce, updateEventStatsForRegistration } from './stats/stats'
 import {
   publishEventCounts,
   publishPublicStartList,
@@ -358,9 +357,9 @@ interface CompleteNewRegistrationOptions {
 }
 
 /**
- * The phases after a new registration is stored, each once even across retries: the stats, the
- * audit entry, the confirmation email and the broadcast. A registration that is ready on arrival
- * gets all of them now; one awaiting payment is counted, published and confirmed by the payment.
+ * The phases after a new registration is stored, each once even across retries: the audit entry, the
+ * confirmation email and the broadcast. A registration that is ready on arrival gets all of them now;
+ * one awaiting payment is published and confirmed by the payment.
  */
 export const completeNewRegistration = async ({
   auditMessage,
@@ -385,9 +384,6 @@ export const completeNewRegistration = async ({
     const phase = (name: Parameters<typeof markNewRegistrationPhase>[3]) =>
       markNewRegistrationPhase(saved.eventId, saved.id, claim.token, name)
 
-    if (!saved.newRegistrationStatsAt) {
-      await applyNewRegistrationStatsOnce(saved, event, claim.token)
-    }
     if (!saved.newRegistrationAuditAt) {
       await auditStrict({ auditKey: registrationAuditKey(saved), ...auditMessage, ...auditUser(user) }, saved.createdAt)
       await auditDateMismatch(saved, event, user)
@@ -476,8 +472,8 @@ interface FinalizeRegistrationUpdateOptions {
 }
 
 /**
- * Everything that follows a stored edit: the counters, the stats, the broadcast, the audit trail
- * and the email telling the participant what changed.
+ * Everything that follows a stored edit: the counters, the broadcast, the audit trail and the email
+ * telling the participant what changed.
  */
 export const finalizeRegistrationUpdate = async ({
   existing,
@@ -488,7 +484,6 @@ export const finalizeRegistrationUpdate = async ({
   user,
 }: FinalizeRegistrationUpdateOptions): Promise<void> => {
   const confirmedEvent = await recountRegistrations(registration.eventId)
-  await updateEventStatsForRegistration(registration, existing, confirmedEvent)
   await publishRegistrationChange(confirmedEvent, registration, existing, groupPatches, false)
   // A secretary's edit can change what the entrant owes or cancel the entry, and the entrant's open
   // page must hear it (KOE-1553). The entrant's own save gets the same patch next to its response;

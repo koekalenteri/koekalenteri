@@ -38,7 +38,6 @@ import { logger } from '../lib/log'
 import { readOrganizer } from '../lib/repositories/organizerRepository'
 import { readEventRegistrations } from '../lib/repositories/registrationRepository'
 import { validateBody } from '../lib/request'
-import { moveOrganizerEventStats } from '../lib/stats/stats'
 import {
   publishEventChange,
   publishEventCounts,
@@ -459,14 +458,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
     await publishPublicStartList(data.id)
   }
 
-  // Organizer stats are keyed by organizer + start date, so an edit to either has to carry the
-  // already-counted registrations across rather than leave them under the old key. An event stored
-  // without an organizer has no such row, its key being the organizer. This and the audit trail touch
-  // different tables and don't depend on each other, so they run together.
-  await Promise.all([
-    stored?.organizer?.id ? moveOrganizerEventStats(stored, data) : undefined,
-    auditEventChanges(existing, item, result, user.name),
-  ])
+  await auditEventChanges(existing, item, result, user.name)
 
   // Do not expose the server-owned lock or its token in an admin response.
   const {

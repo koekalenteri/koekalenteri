@@ -94,8 +94,8 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   the accepted years (1100 to 9899) leave room for every step the app takes from an accepted day.
 - Every calendar day a row stores is a `DayKey` (KOE-1547): an event's days (its own, the entry's, the
   classes', the dates', the posts', the Kennelliitto trial's, the published-day lists), a
-  registration's days and groups' days, a dog's birth date and results' days, and an organizer stats
-  row's key. Rows stored before held instants (a Finnish midnight, the end of a Finnish day, a
+  registration's days and groups' days, and a dog's birth date and results' days. An organizer stats
+  row's key holds its day too, as the rebuild writes it. Rows stored before held instants (a Finnish midnight, the end of a Finnish day, a
   browser's local midnight or noon of a dog's date) or Kennelliitto's stamps; the `store...DaysAsKeys`
   migrations rewrite them. An event's or an entry's day stored an hour off (a winter midnight worked
   out in summer time is 23:00 the evening before) is the day it was stored for (`storedEventDayOf` in
@@ -152,8 +152,8 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 ## Data Migrations
 
 - A one-off data migration is an entry in one of the migration lists of
-  `src/lambda/RunMigrationFunction/handler.ts`, one per table (events, users, registrations, dogs,
-  organizer stats rows): a `name` plus an idempotent, synchronous `run(row, context)` that mutates the
+  `src/lambda/RunMigrationFunction/handler.ts`, one per table (events, users, registrations, dogs):
+  a `name` plus an idempotent, synchronous `run(row, context)` that mutates the
   row and returns whether it changed, or a `DayRekeying`, which also says the row held a day it could
   not read. `context` is what the run reads once before any row: the organizer repoint of KOE-1580,
   from the organizer table and the events as read, and the events by id for a migration that sets
@@ -178,9 +178,9 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - A registration migration that changes a dog's result leaves a line on the registration's audit
   trail, written in the registration table's `afterWrites` from the rows as read and as written,
   since `run` is synchronous (`restoreFirstPrizes`, KOE-1677).
-- An event migration that changes the organizer moves the organizer stats row (ORG#) to the new
-  organizer and the event's start as migrated before the event is written, so a failed move leaves the
-  event for the next run to find. A start rekeyed alone is moved by `storeOrganizerStatsDaysAsKeys`.
+- The stats table has no migrations: the `Start the stats rebuild` step that follows the migrations
+  in the same job writes every row from the migrated events and registrations and deletes the keys
+  they no longer name (`src/lambda/lib/stats/README.md`).
 - The deploy runs it, nobody runs it by hand: after `sam deploy`, the `Run data migrations` step of
   `deploy-backend` in `release.yml` invokes the function directly (`aws lambda invoke`, no
   `requestContext`, so no Cognito check) and prints the counters. A failed run fails the job before
@@ -196,13 +196,10 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   change inside a helper the migration calls (`getEventSeason`, say) does not alter it, so a migration
   whose behaviour changes through a helper **needs a new name**.
 - Each modified row is written with the condition that its `updatedAt` is still the one read (or that
-  it had none; a dog row, which has none, with its dates as read, and an organizer stats row moved in
-  a transaction a concurrent count cancels), so a secretary's save is never overwritten: on a conflict
-  the row is read again, migrated again and retried, at most three attempts. The organizer stats table
-  is the exception: its move is retried as a save's move of the row is, by `ORGANIZER_STATS_MOVE_RETRY`
-  (eight attempts with a jittered wait between them). If they run out the invocation fails (non-200),
-  records nothing, and the next deploy picks the migrations up. A mark never overwrites an earlier one
-  with the same hash.
+  it had none; a dog row, which has none, with its dates as read), so a secretary's save is never
+  overwritten: on a conflict the row is read again, migrated again and retried, at most three attempts.
+  If they run out the invocation fails (non-200), records nothing, and the next deploy picks the
+  migrations up. A mark never overwrites an earlier one with the same hash.
 - `POST /admin/migrate` (admin-only) stays a forced run of every migration, for a correction run
   (a wrong season, say), and leaves the registry as it is when the hashes match. A migration must therefore stay safe to re-run.
 - Copying events from prod into dev or test never copies the data version table, so the receiving

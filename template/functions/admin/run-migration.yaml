@@ -8,14 +8,11 @@
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref EventTable
-        # The registration, dog and organizer stats rows hold calendar days too (KOE-1547), and the
-        # stats move with a repointed event too (KOE-1580, a transaction with a Delete).
+        # The registration and dog rows hold calendar days too (KOE-1547).
         - DynamoDBCrudPolicy:
             TableName: !Ref EventRegistrationTable
         - DynamoDBCrudPolicy:
             TableName: !Ref DogTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref EventStatsTable
         # The registry of applied migrations (collection `migrations`) lives in the version table.
         - DynamoDBCrudPolicy:
             TableName: !Ref DataVersionTable

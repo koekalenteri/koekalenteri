@@ -14,8 +14,6 @@
             TableName: !Ref EventTable
         - DynamoDBCrudPolicy:
             TableName: !Ref EventRegistrationTable
-        - DynamoDBWritePolicy:
-            TableName: !Ref EventStatsTable
         - DynamoDBReadPolicy:
             TableName: !Ref OrganizerTable
         - DynamoDBReadPolicy:

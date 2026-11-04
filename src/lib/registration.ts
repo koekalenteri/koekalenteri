@@ -222,7 +222,10 @@ export const withoutParticipantResponses = <T extends Partial<Record<Participant
   registration: T
 ): T => withoutFields(registration, PARTICIPANT_RESPONSE_FIELDS)
 
-/** The durable and leased state of one creation attempt of a registration. */
+/**
+ * The durable and leased state of one creation attempt of a registration. `newRegistrationStatsAt` is
+ * no longer written, but stored rows hold it, so it stays on the list that keeps it from a client.
+ */
 export const NEW_REGISTRATION_WORKFLOW_FIELDS = [
   'newRegistrationAuditAt',
   'newRegistrationEmailSentAt',
@@ -809,6 +812,12 @@ export const isPaymentReturned = <T extends JsonRegistration | Registration>(reg
  */
 export const isDuplicatePayment = (reg: Pick<Registration, 'paymentStatus'>): boolean =>
   reg.paymentStatus === 'DUPLICATE'
+
+/**
+ * Whether the entry is finished. One still in the payment step, or whose payment was charged twice,
+ * is no entry: the statistics, the secretary's list and the event's counts leave it out.
+ */
+export const isFinishedEntry = (reg: Pick<JsonRegistration, 'state'>): boolean => reg.state === 'ready'
 
 /**
  * A reserve that did not get a place and had its fee back: it owes nothing while it has no place,

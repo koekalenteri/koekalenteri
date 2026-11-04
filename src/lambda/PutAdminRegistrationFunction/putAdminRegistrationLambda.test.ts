@@ -32,8 +32,6 @@ const mockUpdateRegistrations = vi.fn(async () => ({
   organizer: { id: 'org-1' },
   startDate: '2024-01-01',
 }))
-const mockApplyNewRegistrationStatsOnce = vi.fn()
-const mockUpdateEventStatsForRegistration = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 const mockClaimNewRegistrationPostProcessing = vi.fn().mockResolvedValue({
   registration: { eventId: 'event123', id: 'reg456', state: 'ready' },
@@ -128,11 +126,6 @@ vi.doMock('../lib/event', () => ({
   lockRegistrationPayments: mockLockRegistrationPayments,
   repairReadyRegistrationGroups: mockRepairReadyRegistrationGroups,
   updateRegistrations: mockUpdateRegistrations,
-}))
-
-vi.doMock('../lib/stats/stats', () => ({
-  applyNewRegistrationStatsOnce: mockApplyNewRegistrationStatsOnce,
-  updateEventStatsForRegistration: mockUpdateEventStatsForRegistration,
 }))
 
 const mockPublishEventCounts = vi.fn()
@@ -235,8 +228,6 @@ describe('putAdminRegistrationLambda', () => {
     })
 
     mockWriteRegistration.mockResolvedValue({})
-
-    mockUpdateEventStatsForRegistration.mockResolvedValue({})
 
     mockSendTemplatedMail.mockResolvedValue(undefined)
 
@@ -381,12 +372,6 @@ describe('putAdminRegistrationLambda', () => {
       'org-1'
     )
     expect(mockFixRegistrationGroups).toHaveBeenCalledTimes(1)
-    expect(mockApplyNewRegistrationStatsOnce).toHaveBeenCalledWith(
-      expect.objectContaining({ eventId: 'event123', id: 'reg456' }),
-      expect.objectContaining({ id: 'event123' }),
-      'test-token'
-    )
-    expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
     // The secretary's entry is named by its key in the trail (KOE-1442).
     expect(mockWriteAudit).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -1080,7 +1065,6 @@ describe('putAdminRegistrationLambda', () => {
     const result = await putAdminRegistrationLambda({ ...event, body: JSON.stringify(request) })
 
     expect(result.statusCode).toBe(200)
-    expect(mockApplyNewRegistrationStatsOnce).not.toHaveBeenCalled()
     expect(mockMarkNewRegistrationPhase).not.toHaveBeenCalled()
   })
 

@@ -1,7 +1,24 @@
 import type { JsonKcResult, JsonRegistration } from '../../../types'
 import { uniqueId } from '../../test-utils/integration'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
-import { readRegistration, writeDogRegNo, writeKcResult, writeRecomputedEventResult } from './registrationRepository'
+import {
+  readRegistration,
+  readRegistrationsForStats,
+  writeDogRegNo,
+  writeKcResult,
+  writeRecomputedEventResult,
+} from './registrationRepository'
+
+/** `state` is a word DynamoDB reserves, and a projection naming it directly is refused only by a real table. */
+describe('readRegistrationsForStats against DynamoDB-local', () => {
+  it("reads a row's state", async () => {
+    const client = new CustomDynamoClient('EventRegistrationTable')
+    const row = { eventId: uniqueId('event'), id: uniqueId('registration'), state: 'creating' }
+    await client.write(row)
+
+    expect(await readRegistrationsForStats()).toContainEqual(row)
+  })
+})
 
 /**
  * What sending a dog's result to Kennelliitto came to is written on condition it is still the record

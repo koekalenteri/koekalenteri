@@ -1,6 +1,5 @@
 import type { DayRekeying } from '../../lib/storedDays'
 import type { JsonDog, JsonDogEvent, JsonRegistration, JsonUser, RegistrationClass } from '../../types'
-import type { JsonEventStatsItem } from '../../types/Stats'
 import type { OrganizerRepoints } from './organizerRepoints'
 import { createHash } from 'node:crypto'
 import { getEventSeason } from '../../lib/event'
@@ -17,14 +16,6 @@ import { logger } from '../lib/log'
 import { createPatch } from '../lib/patch'
 import { readAllDogs, readDog, writeMigratedDog } from '../lib/repositories/dogRepository'
 import { readAllEvents, readEvent, writeMigratedEvent } from '../lib/repositories/eventRepository'
-import {
-  moveOrganizerEventStatsRow,
-  ORGANIZER_STATS_MOVE_RETRY,
-  organizerStatsKey,
-  organizerStatsRowEvent,
-  readAllOrganizerEventStats,
-  readOrganizerEventStatsRow,
-} from '../lib/repositories/eventStatsRepository'
 import { readOrganizersIncludingDeleted } from '../lib/repositories/organizerRepository'
 import {
   readEventRegistrations,
@@ -33,7 +24,6 @@ import {
   writeMigratedRegistration,
 } from '../lib/repositories/registrationRepository'
 import { readAllUsers, readUser, writeMigratedUserRoles } from '../lib/repositories/userRepository'
-import { moveOrganizerEventStats } from '../lib/stats/stats'
 import { userScopes } from '../lib/user'
 import { auditRederivedResults, restoreFirstPrize } from './firstPrizes'
 import { findOrganizerRepoints, repointRoles, unmappableRoleIds } from './organizerRepoints'
@@ -355,25 +345,6 @@ const dogMigrations: Migration<JsonDog>[] = [
   },
 ]
 
-const organizerStatsMigrations: Migration<JsonEventStatsItem>[] = [
-  {
-    // KOE-1547: an organizer's event row is keyed by the event's start day; a row counted before the
-    // event's days were keys is keyed by the instant, and registrations counted after the migration
-    // would open a second row beside it. The row is moved to the key of the day.
-    name: 'storeOrganizerStatsDaysAsKeys',
-    // The move writes the row's `date` from the key it moves to.
-    run: (row) => {
-      const event = organizerStatsRowEvent(row)
-      if (!event) return false
-      const day = legacyDecoder('event')(event.startDate)
-      if (!day) return { changed: false, unreadable: true }
-      if (day === event.startDate) return false
-      row.SK = organizerStatsKey({ ...event, startDate: day }).SK
-      return true
-    },
-  },
-]
-
 /**
  * Identifies the code of a migration. The text is the bundled function, so a change of the build can
  * alter it without a source change (the migration then reruns once, which is harmless) and a change
@@ -415,12 +386,6 @@ interface MigratedTable<T extends object> {
   write: (row: ReadRow<T>) => Promise<void>
   /** Names the row in a conflict and in the log. */
   id: (row: T) => string
-  /** Whether a failed write means the row moved meanwhile; a failed condition unless said otherwise. */
-  isConflict?: (error: unknown) => boolean
-  /** The writes of a row before the run gives up; MAX_WRITE_ATTEMPTS unless said otherwise. */
-  maxAttempts?: number
-  /** The wait before a row is read and written again; none unless said otherwise. */
-  wait?: (attempt: number) => Promise<void>
   /** After the run of the table, also a failed one: the rows whose writes landed. */
   afterWrites?: (written: ReadRow<T>[]) => Promise<void>
 }
@@ -440,26 +405,6 @@ const bumpedChanges = <T extends object>(row: ReadRow<T>) => {
   return { ...(remove ? { remove } : {}), set: { ...set, updatedAt: new Date().toISOString() } }
 }
 
-/**
- * Whether the migrations moved the event to another organizer (KOE-1580), whose organizer stats row
- * (ORG#, keyed on the organizer and the start) then has to come along. A start rekeyed alone is moved
- * by `storeOrganizerStatsDaysAsKeys`; with an organizer change the move goes to the new key whole.
- */
-const movesOrganizer = ({ before, item }: ReadRow<JsonDogEvent>) =>
-  Boolean(before.organizer?.id && item.organizer?.id) && before.organizer?.id !== item.organizer?.id
-
-/**
- * The organizer stats move first, as PutEvent moves them on an edit, but before the write rather than
- * after it: a move that fails leaves the event as it was, and the next run finds it again. The other
- * way round the event would already name its new organizer, no run would look at it again, and the
- * counters would stay under the old key, which the nightly rebuild never touches. A move repeated after
- * a failed write finds no old row and returns at once.
- */
-const writeMigratedEventRow = async (row: ReadRow<JsonDogEvent>) => {
-  if (movesOrganizer(row)) await moveOrganizerEventStats(row.before, row.item)
-  await writeMigratedEvent(row.item.id, bumpedChanges(row), row.before.updatedAt)
-}
-
 /** The event table, over the events the run read once for its context. */
 const eventTable = (events: JsonDogEvent[]): MigratedTable<JsonDogEvent> => ({
   id: (event) => event.id,
@@ -467,7 +412,7 @@ const eventTable = (events: JsonDogEvent[]): MigratedTable<JsonDogEvent> => ({
   migrations: eventMigrations,
   name: 'event',
   reread: ({ item }) => readEvent(item.id, true),
-  write: writeMigratedEventRow,
+  write: (row) => writeMigratedEvent(row.item.id, bumpedChanges(row), row.before.updatedAt),
 })
 
 /** The cached user lists a role change moves a user between, which have to be fetched again. */
@@ -517,27 +462,6 @@ const dogTable: MigratedTable<JsonDog> = {
   },
 }
 
-const organizerStatsTable: MigratedTable<JsonEventStatsItem> = {
-  id: (row) => `${row.PK}/${row.SK}`,
-  // The move is a transaction: a registration counted on the row since it was read cancels it. It is
-  // retried as a save's move of the row is, with a wait, since registrations come in bursts.
-  ...ORGANIZER_STATS_MOVE_RETRY,
-  loaders: () => Promise.resolve([() => readAllOrganizerEventStats()]),
-  migrations: organizerStatsMigrations,
-  name: 'organizer stats',
-  reread: async ({ before }) => {
-    const event = organizerStatsRowEvent(before)
-    return event && readOrganizerEventStatsRow(event)
-  },
-  // A move: the counters are added to the row of the day's key, which a registration counted since
-  // the migration may have opened already, and the old row is deleted on condition it is as read.
-  write: async ({ before, item }) => {
-    const from = organizerStatsRowEvent(before)
-    const to = organizerStatsRowEvent(item)
-    if (from && to) await moveOrganizerEventStatsRow(from, to, before, new Date().toISOString())
-  },
-}
-
 const MAX_WRITE_ATTEMPTS = 3
 
 /** Rows are independent partitions; a modest fan-out keeps a large table well inside the timeout. */
@@ -545,7 +469,7 @@ const WRITE_CONCURRENCY = 5
 
 /**
  * Writes a migrated row. A row changed by someone else since it was read is read again and migrated
- * afresh, up to the table's attempts (MAX_WRITE_ATTEMPTS unless it says). Returns what the migrations
+ * afresh, up to MAX_WRITE_ATTEMPTS. Returns what the migrations
  * did to the row that was finally written, nothing when the row is gone or needs nothing any more.
  */
 const writeRow = <T extends object>(
@@ -557,13 +481,11 @@ const writeRow = <T extends object>(
   retryOnConditionFailure<ReadRow<T> | undefined, DayRekeying[]>({
     exhausted: () => new LambdaError(409, `${table.name} ${table.id(row.item)} kept changing while it was migrated`),
     initial: row,
-    isConflict: table.isConflict,
-    maxAttempts: table.maxAttempts ?? MAX_WRITE_ATTEMPTS,
+    maxAttempts: MAX_WRITE_ATTEMPTS,
     reread: async () => {
       const fresh = await table.reread(row)
       return fresh && migrateRow(fresh, pending, run.context)
     },
-    wait: table.wait,
     work: async (current) => {
       // A row deleted meanwhile needs nothing any more.
       if (!current) return pending.map(() => ({ changed: false, unreadable: false }))
@@ -656,13 +578,9 @@ const migrateTable = async <T extends object>(
   })
 }
 
-const allMigrationNames = [
-  eventMigrations,
-  userMigrations,
-  registrationMigrations,
-  dogMigrations,
-  organizerStatsMigrations,
-].flatMap((migrations: Migration<never>[]) => migrations.map(({ name }) => name))
+const allMigrationNames = [eventMigrations, userMigrations, registrationMigrations, dogMigrations].flatMap(
+  (migrations: Migration<never>[]) => migrations.map(({ name }) => name)
+)
 
 /** A table's migrations still to run, or nothing when none are. */
 const pendingOf = <T extends object>(table: MigratedTable<T>, applied: Map<string, string | undefined>) => {
@@ -744,7 +662,6 @@ const pendingRuns = async (applied: Map<string, string | undefined>) => {
     pendingEvents && tableRun(eventTable(events), pendingEvents),
     pendingRegistrations && tableRun(registrationTable, pendingRegistrations),
     pendingRun(dogTable, applied),
-    pendingRun(organizerStatsTable, applied),
   ].filter((run): run is TableRun => !!run)
   return { context, runs }
 }

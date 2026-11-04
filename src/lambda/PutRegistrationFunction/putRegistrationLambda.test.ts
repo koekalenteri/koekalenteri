@@ -45,8 +45,6 @@ vi.doMock('@aws-sdk/client-ses', () => ({
 
 const mockGetEvent = vi.fn()
 const mockGetLiveEvent = vi.fn<(eventId: string) => Promise<JsonDogEvent>>()
-const mockApplyNewRegistrationStatsOnce = vi.fn()
-const mockUpdateEventStatsForRegistration = vi.fn()
 const mockUpdateRegistrations = vi.fn()
 const mockPublishRegistrationPatches = vi.fn()
 const mockQueryUsersByEmail = vi.fn().mockResolvedValue([])
@@ -72,11 +70,6 @@ vi.doMock('../lib/event', () => ({
   lockRegistrationPayments: mockLockRegistrationPayments,
   repairReadyRegistrationGroups: mockRepairReadyRegistrationGroups,
   updateRegistrations: mockUpdateRegistrations,
-}))
-
-vi.doMock('../lib/stats/stats', () => ({
-  applyNewRegistrationStatsOnce: mockApplyNewRegistrationStatsOnce,
-  updateEventStatsForRegistration: mockUpdateEventStatsForRegistration,
 }))
 
 const mockPublishEventCounts = vi.fn()
@@ -272,12 +265,6 @@ describe('putRegistrationLabmda', () => {
     )
     expect(mockWriteRegistration).toHaveBeenCalledWith(expect.objectContaining({ state: 'creating' }))
     expect(mockWriteRegistration).toHaveBeenCalledTimes(1)
-    expect(mockApplyNewRegistrationStatsOnce).toHaveBeenCalledWith(
-      registrationWithStaticDates,
-      expect.objectContaining({ id: eventWithStaticDates.id }),
-      'test-token'
-    )
-    expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
 
     expect(mockWriteAudit).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -722,7 +709,6 @@ describe('putRegistrationLabmda', () => {
     )
     expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
     expect(mockWriteRegistration).not.toHaveBeenCalled()
-    expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
     expect(mockWriteAudit).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -811,7 +797,6 @@ describe('putRegistrationLabmda', () => {
     )
     expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
     expect(mockWriteRegistration).not.toHaveBeenCalled()
-    expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
     expect(mockWriteAudit).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -887,7 +872,6 @@ describe('putRegistrationLabmda', () => {
     )
     expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
     expect(mockWriteRegistration).not.toHaveBeenCalled()
-    expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
     expect(mockWriteAudit).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -963,7 +947,6 @@ describe('putRegistrationLabmda', () => {
     )
     expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
     expect(mockWriteRegistration).not.toHaveBeenCalled()
-    expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
     expect(mockWriteAudit).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -1049,7 +1032,6 @@ describe('putRegistrationLabmda', () => {
     )
     expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
     expect(mockWriteRegistration).not.toHaveBeenCalled()
-    expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
     // The entrant's own save tells their other open pages too, beside the response (KOE-1553).
     expect(mockPublishParticipantRegistrationPatches).toHaveBeenCalledWith(
       eventWithStaticDates.id,
@@ -1310,7 +1292,6 @@ describe('putRegistrationLabmda', () => {
     )
     expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
     expect(mockWriteRegistration).not.toHaveBeenCalled()
-    expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
     expect(mockWriteAudit).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -1360,7 +1341,6 @@ describe('putRegistrationLabmda', () => {
 
     expect(mockWriteRegistration).not.toHaveBeenCalled()
     expect(mockPatchRegistration).not.toHaveBeenCalled()
-    expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
     expect(mockUpdateRegistrations).not.toHaveBeenCalled()
     expect(mockWriteAudit).not.toHaveBeenCalled()
     expect(mockSES.send).not.toHaveBeenCalled()
@@ -1925,7 +1905,6 @@ describe('putRegistrationLabmda', () => {
     )
 
     expect(res.statusCode).toEqual(200)
-    expect(mockApplyNewRegistrationStatsOnce).not.toHaveBeenCalled()
     expect(mockMarkNewRegistrationPhase).not.toHaveBeenCalled()
     expectNoSecretaryOnlyFields(JSON.parse(res.body))
   })
@@ -1981,7 +1960,6 @@ describe('putRegistrationLabmda', () => {
 
     // No writes or side effects should occur
     expect(mockWriteRegistration).not.toHaveBeenCalled()
-    expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
     expect(mockUpdateRegistrations).not.toHaveBeenCalled()
     expect(mockSES.send).not.toHaveBeenCalled()
     expect(mockWriteAudit).not.toHaveBeenCalled()
@@ -1999,7 +1977,6 @@ describe('putRegistrationLabmda', () => {
 
     // No writes or side effects should occur
     expect(mockWriteRegistration).not.toHaveBeenCalled()
-    expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
     expect(mockUpdateRegistrations).not.toHaveBeenCalled()
     expect(mockSES.send).not.toHaveBeenCalled()
     expect(mockWriteAudit).not.toHaveBeenCalled()
@@ -2018,7 +1995,6 @@ describe('putRegistrationLabmda', () => {
 
     // No writes or side effects should occur
     expect(mockWriteRegistration).not.toHaveBeenCalled()
-    expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
     expect(mockUpdateRegistrations).not.toHaveBeenCalled()
     expect(mockSES.send).not.toHaveBeenCalled()
     expect(mockWriteAudit).not.toHaveBeenCalled()

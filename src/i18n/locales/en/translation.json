@@ -1526,7 +1526,7 @@
       "judgeWorkloadTitleInfo": "How many trials each judge officiates in the selected year. Held trials have already ended; upcoming trials have not yet passed their last day. Drafts, tentative and cancelled trials are not counted. The figures are updated nightly.",
       "memberShare": "Member share",
       "memberShareTitle": "Member share of starters",
-      "memberShareTitleInfo": "Share of starters (not cancelled or on the waiting list) whose owner or handler was a member of the organizing club, per month.",
+      "memberShareTitleInfo": "Share of starters (not cancelled or on the waiting list) whose owner or handler was a member of the organizing club, per month. The figures are updated nightly.",
       "noCapacityData": "No statistics for the selected event type",
       "noJudgeData": "No statistics for judges in the selected year",
       "overviewTitle": "Organizer statistics",
@@ -1536,10 +1536,10 @@
       "refundedAmount": "Refunded",
       "reserve": "On waiting list",
       "reserveCancelledTitle": "Waiting list and cancellations",
-      "reserveCancelledTitleInfo": "Number of registrations left on the waiting list and cancelled registrations per month, for the selected organization and year. Only events that have already started are counted.",
+      "reserveCancelledTitleInfo": "Number of registrations left on the waiting list and cancelled registrations per month, for the selected organization and year. Only events that have already started are counted. The figures are updated nightly.",
       "starters": "Starters",
       "title": "Financial statistics",
-      "titleInfo": "Amount paid and amount refunded per month, for the selected organization and year."
+      "titleInfo": "Amount paid and amount refunded per month, for the selected organization and year. The figures are updated nightly."
     },
     "beta": "(beta)",
     "breedDistribution": "Breed distribution",

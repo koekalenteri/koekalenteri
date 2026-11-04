@@ -37,7 +37,6 @@ const {
   claimNewRegistrationPostProcessing,
   clearRegistrationEmailDeliveryStatus,
   markNewRegistrationPhase,
-  newRegistrationStatsMarkItem,
   readEventRegistrations,
   readRegistration,
   readRegistrationEventIds,
@@ -83,9 +82,16 @@ describe('registrationRepository', () => {
 
       await expect(readRegistrationsForStats()).resolves.toBe(rows)
       expect(mockReadAll).toHaveBeenCalledWith({
-        names: { '#class': 'class', '#group': 'group', '#handler': 'handler', '#key': 'key', '#owner': 'owner' },
+        names: {
+          '#class': 'class',
+          '#group': 'group',
+          '#handler': 'handler',
+          '#key': 'key',
+          '#owner': 'owner',
+          '#state': 'state',
+        },
         projection:
-          'eventId, id, cancelled, paidAmount, refundAmount, eventType, dog.regNo, dog.breedCode, #handler.email, #handler.membership, #owner.membership, owners, ownerHandles, #class, #group.#key',
+          'eventId, id, cancelled, paidAmount, refundAmount, eventType, dog.regNo, dog.breedCode, #handler.email, #handler.membership, #owner.membership, owners, ownerHandles, #class, #group.#key, #state',
       })
     })
 
@@ -428,27 +434,6 @@ describe('registrationRepository', () => {
         undefined,
         { ...leaseCondition, values: { ':token': 'lease-token' } }
       )
-    })
-  })
-
-  describe('newRegistrationStatsMarkItem', () => {
-    it("marks the registration counted while it exists, is not counted yet and the caller's lease holds", () => {
-      expect(newRegistrationStatsMarkItem('e1', 'r1', 'lease-token', '2026-10-19T12:00:00.000Z')).toEqual({
-        Update: {
-          ConditionExpression:
-            'attribute_exists(#id) AND attribute_not_exists(#statsAt) AND #lease.#token = :leaseToken',
-          ExpressionAttributeNames: {
-            '#id': 'id',
-            '#lease': 'newRegistrationLease',
-            '#statsAt': 'newRegistrationStatsAt',
-            '#token': 'token',
-          },
-          ExpressionAttributeValues: { ':leaseToken': 'lease-token', ':statsAt': '2026-10-19T12:00:00.000Z' },
-          Key: { eventId: 'e1', id: 'r1' },
-          TableName: 'registration-table',
-          UpdateExpression: 'SET #statsAt = :statsAt',
-        },
-      })
     })
   })
 

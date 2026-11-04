@@ -1,5 +1,4 @@
-import type { TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb'
-import type { JsonConfirmedEvent, JsonRegistration } from '../../../types'
+import type { JsonConfirmedEvent } from '../../../types'
 import type {
   JsonBreedStartStatsItem,
   JsonCapacityStatsItem,
@@ -10,13 +9,8 @@ import type {
 } from '../../../types/Stats'
 import { CONFIG } from '../../config'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
-import { isTransactionCanceled } from '../api-gw'
-import { jitteredWait } from '../conditionalWrite'
-import { newRegistrationStatsMarkItem } from './registrationRepository'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.eventStatsTable)
-
-type StatsTransactionItem = NonNullable<TransactWriteCommandInput['TransactItems']>[number]
 
 /** The key of a stats row: the partition names the statistic and its year, the sort key the entry. */
 export interface EventStatKey {
@@ -31,22 +25,10 @@ export interface StatCountRow {
 }
 
 /**
- * Identifies an event's organizer stats row. Both key parts are editable event fields. The start day is
- * a key; a row counted before KOE-1547 is keyed by the instant the event's start was stored as.
+ * Identifies an event's organizer stats row. Both key parts are editable event fields: the rebuild
+ * writes the row under what the event holds now and deletes the key it held before.
  */
 export type OrganizerStatsEvent = Pick<JsonConfirmedEvent, 'id'> & { organizer: { id: string }; startDate: string }
-
-/** How much one registration change moves each organizer counter. */
-export interface StatDeltas {
-  cancelledDelta: number
-  memberDelta: number
-  paidAmountDelta: number
-  paidDelta: number
-  refundedAmountDelta: number
-  refundedDelta: number
-  reserveDelta: number
-  totalDelta: number
-}
 
 /** The participation bucket partitions of a year. */
 export type BucketPartition = 'dog#handler' | 'dogsPerHandler'
@@ -104,62 +86,6 @@ export const organizerStatsKey = (event: OrganizerStatsEvent) => ({
   PK: organizerPk(event.organizer.id),
   SK: `${event.startDate}#${event.id}`,
 })
-
-/**
- * The event an organizer stats row counts, as its key names it: the organizer of the partition, and the
- * start day and the event of the sort key (`<start day>#<event id>`). The start is the event's start as
- * it was stored when the row was keyed, a day key or, for a row counted before KOE-1547, an instant.
- * Undefined for a row whose key names no organizer or no event.
- */
-export const organizerStatsRowEvent = (
-  row: Partial<Pick<JsonEventStatsItem, 'PK' | 'SK'>>
-): OrganizerStatsEvent | undefined => {
-  if (!row.PK?.startsWith(STATS_KEY_PREFIX.organizer) || !row.SK) return undefined
-  const at = row.SK.indexOf('#')
-  if (at < 0) return undefined
-  return {
-    id: row.SK.slice(at + 1),
-    organizer: { id: row.PK.slice(STATS_KEY_PREFIX.organizer.length) },
-    startDate: row.SK.slice(0, at),
-  }
-}
-
-/**
- * How a move of an organizer stats row is retried: a registration counted on the row meanwhile cancels
- * the move's transaction, and in a burst of registrations the moves spread out with a jittered wait.
- * The one rule for a save that moves the row and for the migration that rekeys it. `random` gives the
- * jitter's fraction in [0, 1), for a test.
- */
-export const organizerStatsMoveRetry = (random?: () => number) => ({
-  isConflict: isTransactionCanceled,
-  maxAttempts: 8,
-  wait: jitteredWait(10, 500, random),
-})
-
-/** The move's retry with the jitter drawn from the platform's cryptographic source. */
-export const ORGANIZER_STATS_MOVE_RETRY = organizerStatsMoveRetry()
-
-/** Whether the two versions of an event keep their organizer stats in the same row. */
-export const isSameOrganizerStatsRow = (a: OrganizerStatsEvent, b: OrganizerStatsEvent) => {
-  const keyA = organizerStatsKey(a)
-  const keyB = organizerStatsKey(b)
-  return keyA.PK === keyB.PK && keyA.SK === keyB.SK
-}
-
-/** Every counter an organizer stats row carries, as the update expressions name them. */
-const ORGANIZER_STATS_NAMES = {
-  '#cancelledRegistrations': 'cancelledRegistrations',
-  '#count': 'count',
-  '#date': 'date',
-  '#memberRegistrations': 'memberRegistrations',
-  '#organizerId': 'organizerId',
-  '#paidAmount': 'paidAmount',
-  '#paidRegistrations': 'paidRegistrations',
-  '#refundedAmount': 'refundedAmount',
-  '#refundedRegistrations': 'refundedRegistrations',
-  '#reserveRegistrations': 'reserveRegistrations',
-  '#updatedAt': 'updatedAt',
-}
 
 const queryPartition = async <T extends object>(pk: string): Promise<T[]> =>
   (await dynamoDB.query<T>({ key: 'PK = :pk', values: { ':pk': pk } })) ?? []
@@ -318,128 +244,6 @@ export async function readJudgeWorkload(year: number, organizerIds?: string[]): 
 
 /** The year's club + event type breakdown rows. */
 export const readEventBreakdown = async (year: number) => queryPartition<JsonEventBreakdownItem>(eventBreakdownPk(year))
-
-/** Adds the deltas to the event's organizer stats row, creating the row when there is none. */
-export async function addOrganizerEventStats(
-  event: OrganizerStatsEvent,
-  deltas: StatDeltas,
-  updatedAt: string
-): Promise<void> {
-  await dynamoDB.update(organizerStatsKey(event), {
-    add: {
-      cancelledRegistrations: deltas.cancelledDelta,
-      count: deltas.totalDelta,
-      memberRegistrations: deltas.memberDelta,
-      paidAmount: deltas.paidAmountDelta,
-      paidRegistrations: deltas.paidDelta,
-      refundedAmount: deltas.refundedAmountDelta,
-      refundedRegistrations: deltas.refundedDelta,
-      reserveRegistrations: deltas.reserveDelta,
-    },
-    set: {
-      date: event.startDate,
-      organizerId: event.organizer.id,
-      updatedAt,
-    },
-  })
-}
-
-/** The event's organizer stats row as last written, or undefined when nothing has been counted yet. */
-export const readOrganizerEventStatsRow = async (event: OrganizerStatsEvent) =>
-  dynamoDB.read<JsonEventStatsItem>(organizerStatsKey(event), true)
-
-/**
- * Moves the counters read from the existing event's row onto the updated event's row in one
- * transaction. The destination is added to, not overwritten: a registration for the updated event
- * can already have created it with a blind ADD. The delete of the source is conditioned on the
- * `updatedAt` read, so a registration write landing on it in between cancels the transaction
- * instead of being discarded.
- */
-export async function moveOrganizerEventStatsRow(
-  existing: OrganizerStatsEvent,
-  updated: OrganizerStatsEvent,
-  stats: JsonEventStatsItem,
-  updatedAt: string
-): Promise<void> {
-  await dynamoDB.documentTransaction([
-    {
-      Update: {
-        ExpressionAttributeNames: ORGANIZER_STATS_NAMES,
-        ExpressionAttributeValues: {
-          ':cancelledRegistrations': stats.cancelledRegistrations ?? 0,
-          ':count': stats.count ?? 0,
-          ':date': updated.startDate,
-          ':memberRegistrations': stats.memberRegistrations ?? 0,
-          ':organizerId': updated.organizer.id,
-          ':paidAmount': stats.paidAmount ?? 0,
-          ':paidRegistrations': stats.paidRegistrations ?? 0,
-          ':refundedAmount': stats.refundedAmount ?? 0,
-          ':refundedRegistrations': stats.refundedRegistrations ?? 0,
-          ':reserveRegistrations': stats.reserveRegistrations ?? 0,
-          ':updatedAt': updatedAt,
-        },
-        Key: organizerStatsKey(updated),
-        TableName: CONFIG.eventStatsTable,
-        UpdateExpression:
-          'ADD #cancelledRegistrations :cancelledRegistrations, #count :count, #memberRegistrations :memberRegistrations, #paidAmount :paidAmount, #paidRegistrations :paidRegistrations, #refundedAmount :refundedAmount, #refundedRegistrations :refundedRegistrations, #reserveRegistrations :reserveRegistrations SET #date = :date, #organizerId = :organizerId, #updatedAt = :updatedAt',
-      },
-    },
-    {
-      Delete: {
-        ConditionExpression: stats.updatedAt ? '#updatedAt = :expectedUpdatedAt' : 'attribute_not_exists(#updatedAt)',
-        ExpressionAttributeNames: { '#updatedAt': 'updatedAt' },
-        ExpressionAttributeValues: stats.updatedAt ? { ':expectedUpdatedAt': stats.updatedAt } : undefined,
-        Key: organizerStatsKey(existing),
-        TableName: CONFIG.eventStatsTable,
-      },
-    },
-  ])
-}
-
-const organizerStatsTransactionItem = (
-  event: OrganizerStatsEvent,
-  deltas: StatDeltas,
-  updatedAt: string
-): StatsTransactionItem => ({
-  Update: {
-    ExpressionAttributeNames: ORGANIZER_STATS_NAMES,
-    ExpressionAttributeValues: {
-      ':cancelledDelta': deltas.cancelledDelta,
-      ':date': event.startDate,
-      ':memberDelta': deltas.memberDelta,
-      ':organizerId': event.organizer.id,
-      ':paidAmountDelta': deltas.paidAmountDelta,
-      ':paidDelta': deltas.paidDelta,
-      ':refundedAmountDelta': deltas.refundedAmountDelta,
-      ':refundedDelta': deltas.refundedDelta,
-      ':reserveDelta': deltas.reserveDelta,
-      ':totalDelta': deltas.totalDelta,
-      ':updatedAt': updatedAt,
-    },
-    Key: organizerStatsKey(event),
-    TableName: CONFIG.eventStatsTable,
-    UpdateExpression:
-      'ADD #cancelledRegistrations :cancelledDelta, #count :totalDelta, #memberRegistrations :memberDelta, #paidAmount :paidAmountDelta, #paidRegistrations :paidDelta, #refundedAmount :refundedAmountDelta, #refundedRegistrations :refundedDelta, #reserveRegistrations :reserveDelta SET #date = :date, #organizerId = :organizerId, #updatedAt = :updatedAt',
-  },
-})
-
-/**
- * Adds a new registration's deltas to the event's organizer stats row and marks the registration
- * counted, in one transaction. The marker is conditioned on the registration existing, not being
- * counted yet and still holding the caller's lease; the organizer row has no condition of its own.
- */
-export async function commitNewRegistrationStats(
-  event: OrganizerStatsEvent,
-  deltas: StatDeltas,
-  registration: Pick<JsonRegistration, 'eventId' | 'id'>,
-  leaseToken: string,
-  updatedAt: string
-): Promise<void> {
-  await dynamoDB.documentTransaction([
-    organizerStatsTransactionItem(event, deltas, updatedAt),
-    newRegistrationStatsMarkItem(registration.eventId, registration.id, leaseToken, updatedAt),
-  ])
-}
 
 /** The key of every stats row in the table. */
 export const readAllStatKeys = async (): Promise<EventStatKey[]> =>

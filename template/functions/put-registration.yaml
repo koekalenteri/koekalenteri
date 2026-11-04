@@ -18,8 +18,6 @@
             TableName: !Ref EventTable
         - DynamoDBWritePolicy:
             TableName: !Ref AuditTable
-        - DynamoDBWritePolicy:
-            TableName: !Ref EventStatsTable
         # The logged-in route resolves the calling user (KOE-1418).
         - DynamoDBReadPolicy:
             TableName: !Ref UserTable

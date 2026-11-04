@@ -102,22 +102,6 @@ vi.doMock('../lib/ws/actions', () => ({
   publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
 
-const mockReadOrganizerEventStatsRow = vi.fn()
-const mockMoveOrganizerEventStatsRow = vi.fn()
-// Whether the row moves is the repository's pure key comparison, and how it is retried its policy,
-// both run as they are.
-vi.doMock('../lib/repositories/eventStatsRepository', async () => {
-  const actual = await vi.importActual<typeof import('../lib/repositories/eventStatsRepository')>(
-    '../lib/repositories/eventStatsRepository'
-  )
-  return {
-    isSameOrganizerStatsRow: actual.isSameOrganizerStatsRow,
-    moveOrganizerEventStatsRow: mockMoveOrganizerEventStatsRow,
-    ORGANIZER_STATS_MOVE_RETRY: actual.ORGANIZER_STATS_MOVE_RETRY,
-    readOrganizerEventStatsRow: mockReadOrganizerEventStatsRow,
-  }
-})
-
 const { authorizeWithMemberOf } = await import('../lib/auth')
 const authorizeWithMemberOfMock = authorizeWithMemberOf as import('vitest').Mock<typeof authorizeWithMemberOf>
 const { httpError } = await import('../lib/lambda')
@@ -620,8 +604,6 @@ describe('putEventLambda', () => {
         expect.anything(),
         expect.objectContaining({ organizer: mockEvent.organizer, organizerId: 'org-id' })
       )
-      // No organizer stats row can exist for an event that had no organizer to key it by.
-      expect(mockReadOrganizerEventStatsRow).not.toHaveBeenCalled()
     })
   })
 
@@ -1607,52 +1589,6 @@ describe('putEventLambda', () => {
     expect(res.statusCode).toEqual(200)
   })
 
-  it('moves the organizer stats record when startDate changes', async () => {
-    signIn(mockSecretary)
-    getEventMock.mockResolvedValueOnce({ ...mockEvent, season: '2024', startDate: '2024-06-15' })
-    const stats = {
-      count: 7,
-      date: '2024-06-15',
-      organizerId: mockEvent.organizer.id,
-      PK: `ORG#${mockEvent.organizer.id}`,
-      paidAmount: 350,
-      SK: `2024-06-15T00:00:00.000Z#existing`,
-    }
-    mockReadOrganizerEventStatsRow.mockResolvedValueOnce(stats)
-
-    await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', startDate: '2025-01-01' }))
-
-    // The row of the event as stored is read, and its counters move onto the row of the new start
-    // date in one transaction; the keys and the transaction are the repository test's.
-    const stored = expect.objectContaining({
-      id: 'existing',
-      organizer: mockEvent.organizer,
-      startDate: '2024-06-15',
-    })
-    expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledWith(stored)
-    expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledTimes(1)
-    expect(mockMoveOrganizerEventStatsRow).toHaveBeenCalledWith(
-      stored,
-      expect.objectContaining({
-        id: 'existing',
-        organizer: mockEvent.organizer,
-        startDate: '2025-01-01',
-      }),
-      stats,
-      expect.any(String)
-    )
-  })
-
-  it('does not touch the organizer stats record when the key is unchanged', async () => {
-    signIn(mockSecretary)
-    getEventMock.mockResolvedValueOnce({ ...mockEvent, season: '2024', startDate: '2024-06-15' })
-
-    await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', name: 'Renamed but same dates' }))
-
-    expect(mockReadOrganizerEventStatsRow).not.toHaveBeenCalled()
-    expect(mockMoveOrganizerEventStatsRow).not.toHaveBeenCalled()
-  })
-
   // KOE-1547: a row not yet migrated holds its days as instants, and a browser loaded before the
   // change sends them so; the same days in the other form are no change.
   it('reads the stored and the sent days as keys before comparing, merging or auditing them', async () => {
@@ -1675,10 +1611,6 @@ describe('putEventLambda', () => {
     expect(mockGetEventAuditMessages).toHaveBeenCalledWith(keyed, keyed)
     // The save is worked out from the row as stored, so the days it keeps are written as keys too.
     expect(patchEventMock).toHaveBeenCalledWith('existing', expect.objectContaining(asInstants()), keyed)
-    // The organizer stats row is keyed by the start as stored, and moves to the key of its day.
-    expect(mockReadOrganizerEventStatsRow).toHaveBeenCalledWith(
-      expect.objectContaining({ startDate: '2025-05-31T21:00:00.000Z' })
-    )
   })
 
   // The stored row is read as a stored row, not as a request: forms no request sends are days there.

@@ -1,4 +1,3 @@
-import type { JsonEventStatsItem } from '../../../types/Stats'
 import type CustomDynamoClient from '../../utils/CustomDynamoClient'
 import { vi } from 'vitest'
 
@@ -31,17 +30,10 @@ vi.doMock('../../utils/CustomDynamoClient', () => ({
 }))
 
 const {
-  addOrganizerEventStats,
   capacitySk,
-  commitNewRegistrationStats,
   deleteStatRecords,
-  isSameOrganizerStatsRow,
-  moveOrganizerEventStatsRow,
   organizerPk,
-  ORGANIZER_STATS_MOVE_RETRY,
   organizerStatsKey,
-  organizerStatsMoveRetry,
-  organizerStatsRowEvent,
   readAllOrganizerEventStats,
   readAllStatKeys,
   readBreedStarts,
@@ -50,7 +42,6 @@ const {
   readEventBreakdown,
   readJudgeWorkload,
   readOrganizerEventStats,
-  readOrganizerEventStatsRow,
   readRetention,
   readStatsYears,
   readYearlyBreakdown,
@@ -58,7 +49,7 @@ const {
   writeStatRecords,
 } = await import('./eventStatsRepository')
 
-const ORGANIZER_STATS_NAMES = {
+const _ORGANIZER_STATS_NAMES = {
   '#cancelledRegistrations': 'cancelledRegistrations',
   '#count': 'count',
   '#date': 'date',
@@ -72,7 +63,7 @@ const ORGANIZER_STATS_NAMES = {
   '#updatedAt': 'updatedAt',
 }
 
-const deltas = {
+const _deltas = {
   cancelledDelta: 1,
   memberDelta: 2,
   paidAmountDelta: 30,
@@ -107,85 +98,9 @@ describe('eventStatsRepository', () => {
     })
   })
 
-  describe('organizerStatsMoveRetry', () => {
-    afterEach(() => {
-      vi.useRealTimers()
-    })
-
-    it('retries a cancelled move eight times', () => {
-      const retry = organizerStatsMoveRetry()
-
-      expect(retry.maxAttempts).toBe(8)
-      expect(retry.isConflict({ name: 'TransactionCanceledException' })).toBe(true)
-      expect(retry.isConflict({ name: 'ConditionalCheckFailedException' })).toBe(false)
-      expect(ORGANIZER_STATS_MOVE_RETRY.maxAttempts).toBe(8)
-    })
-
-    // From 10 ms doubled per attempt up to 500 ms; a fraction of a half halves each.
-    it.each([
-      [1, 5],
-      [8, 250],
-    ])('waits after the attempt %i for %i ms', async (attempt, ms) => {
-      vi.useFakeTimers()
-      let done = false
-      const waiting = organizerStatsMoveRetry(() => 0.5)
-        .wait(attempt)
-        .then(() => {
-          done = true
-        })
-
-      await vi.advanceTimersByTimeAsync(ms - 1)
-      expect(done).toBe(false)
-      await vi.advanceTimersByTimeAsync(1)
-      await waiting
-      expect(done).toBe(true)
-    })
-  })
-
-  describe('organizerStatsRowEvent', () => {
-    it.each([
-      ['a day key', '2024-06-01#e1', '2024-06-01'],
-      [
-        'the instant a row counted before KOE-1547 is keyed by',
-        '2024-05-31T21:00:00.000Z#e1',
-        '2024-05-31T21:00:00.000Z',
-      ],
-    ])('reads the event a row counts from its key, with %s', (_name, SK, startDate) => {
-      expect(organizerStatsRowEvent({ PK: 'ORG#org1', SK })).toEqual({ id: 'e1', organizer: { id: 'org1' }, startDate })
-    })
-
-    it('reads the key it builds back to the event', () => {
-      const event = { id: 'e1', organizer: { id: 'org1' }, startDate: '2024-06-01' }
-      expect(organizerStatsRowEvent(organizerStatsKey(event))).toEqual(event)
-    })
-
-    it.each<[string, Partial<Pick<JsonEventStatsItem, 'PK' | 'SK'>>]>([
-      ['a key without an event', { PK: 'ORG#org1', SK: '2024-06-01' }],
-      ['a row of another partition', { PK: 'TOTALS#2024', SK: '2024-06-01#e1' }],
-      ['no key', {}],
-    ])('reads no event from %s', (_name, row) => {
-      expect(organizerStatsRowEvent(row)).toBeUndefined()
-    })
-  })
-
   it('keys a capacity row by month, class and organizer, and an organizer partition by organizer', () => {
     expect(capacitySk('2025-06', 'ALO', 'org-1')).toBe('2025-06#ALO#org-1')
     expect(organizerPk('org-1')).toBe('ORG#org-1')
-  })
-
-  describe('isSameOrganizerStatsRow', () => {
-    const event = { id: 'e1', organizer: { id: 'org1' }, startDate: '2024-06-01' }
-
-    it('is the same row while neither the organizer nor the start date changed', () => {
-      expect(isSameOrganizerStatsRow(event, { ...event })).toBe(true)
-    })
-
-    it.each([
-      ['the organizer', { ...event, organizer: { id: 'org2' } }],
-      ['the start date', { ...event, startDate: '2024-06-02' }],
-    ])('is another row when %s changed', (_change, updated) => {
-      expect(isSameOrganizerStatsRow(event, updated)).toBe(false)
-    })
   })
 
   describe('readOrganizerEventStats', () => {
@@ -353,201 +268,6 @@ describe('eventStatsRepository', () => {
       mockQuery.mockResolvedValueOnce(undefined)
 
       await expect(readJudgeWorkload(2024)).resolves.toEqual([])
-    })
-  })
-
-  describe('addOrganizerEventStats', () => {
-    it('adds the deltas to the organizer row and stamps it', async () => {
-      await addOrganizerEventStats({ id: 'e5', organizer: { id: 'org1' }, startDate: '2024-01-01' }, deltas, NOW)
-
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { PK: 'ORG#org1', SK: '2024-01-01#e5' },
-        {
-          add: {
-            cancelledRegistrations: 1,
-            count: 8,
-            memberRegistrations: 2,
-            paidAmount: 30,
-            paidRegistrations: 4,
-            refundedAmount: 5,
-            refundedRegistrations: 6,
-            reserveRegistrations: 7,
-          },
-          set: { date: '2024-01-01', organizerId: 'org1', updatedAt: NOW },
-        }
-      )
-    })
-  })
-
-  describe('readOrganizerEventStatsRow', () => {
-    it('reads the row consistently so a just-counted registration is not missed', async () => {
-      const row = { count: 7, PK: 'ORG#org1', SK: '2024-06-15#e5' }
-      mockRead.mockResolvedValueOnce(row)
-
-      await expect(
-        readOrganizerEventStatsRow({ id: 'e5', organizer: { id: 'org1' }, startDate: '2024-06-15' })
-      ).resolves.toBe(row)
-      expect(mockRead).toHaveBeenCalledWith({ PK: 'ORG#org1', SK: '2024-06-15#e5' }, true)
-    })
-  })
-
-  describe('moveOrganizerEventStatsRow', () => {
-    // A row counted before KOE-1547 is keyed by the instant the start was stored as; it moves to a key.
-    const existing = { id: 'e5', organizer: { id: 'org1' }, startDate: '2024-06-15T00:00:00.000Z' }
-    const updated = { id: 'e5', organizer: { id: 'org2' }, startDate: '2025-01-01' }
-    const stats = {
-      cancelledRegistrations: 1,
-      count: 7,
-      memberRegistrations: 2,
-      PK: 'ORG#org1',
-      paidAmount: 350,
-      paidRegistrations: 3,
-      refundedAmount: 20,
-      refundedRegistrations: 1,
-      reserveRegistrations: 4,
-      SK: '2024-06-15T00:00:00.000Z#e5',
-    }
-    const destination = {
-      Update: {
-        ExpressionAttributeNames: ORGANIZER_STATS_NAMES,
-        ExpressionAttributeValues: {
-          ':cancelledRegistrations': 1,
-          ':count': 7,
-          ':date': '2025-01-01',
-          ':memberRegistrations': 2,
-          ':organizerId': 'org2',
-          ':paidAmount': 350,
-          ':paidRegistrations': 3,
-          ':refundedAmount': 20,
-          ':refundedRegistrations': 1,
-          ':reserveRegistrations': 4,
-          ':updatedAt': NOW,
-        },
-        Key: { PK: 'ORG#org2', SK: '2025-01-01#e5' },
-        TableName: 'event-stats-table',
-        UpdateExpression:
-          'ADD #cancelledRegistrations :cancelledRegistrations, #count :count, #memberRegistrations :memberRegistrations, #paidAmount :paidAmount, #paidRegistrations :paidRegistrations, #refundedAmount :refundedAmount, #refundedRegistrations :refundedRegistrations, #reserveRegistrations :reserveRegistrations SET #date = :date, #organizerId = :organizerId, #updatedAt = :updatedAt',
-      },
-    }
-
-    it('adds the counters into the destination and deletes the source on the updatedAt it read', async () => {
-      await moveOrganizerEventStatsRow(existing, updated, { ...stats, updatedAt: '2024-06-20T00:00:00.000Z' }, NOW)
-
-      expect(mockDocumentTransaction).toHaveBeenCalledWith([
-        destination,
-        {
-          Delete: {
-            ConditionExpression: '#updatedAt = :expectedUpdatedAt',
-            ExpressionAttributeNames: { '#updatedAt': 'updatedAt' },
-            ExpressionAttributeValues: { ':expectedUpdatedAt': '2024-06-20T00:00:00.000Z' },
-            Key: { PK: 'ORG#org1', SK: '2024-06-15T00:00:00.000Z#e5' },
-            TableName: 'event-stats-table',
-          },
-        },
-      ])
-    })
-
-    it('deletes a source that was never stamped only while it still has no updatedAt', async () => {
-      await moveOrganizerEventStatsRow(existing, updated, stats, NOW)
-
-      expect(mockDocumentTransaction).toHaveBeenCalledWith([
-        destination,
-        {
-          Delete: {
-            ConditionExpression: 'attribute_not_exists(#updatedAt)',
-            ExpressionAttributeNames: { '#updatedAt': 'updatedAt' },
-            ExpressionAttributeValues: undefined,
-            Key: { PK: 'ORG#org1', SK: '2024-06-15T00:00:00.000Z#e5' },
-            TableName: 'event-stats-table',
-          },
-        },
-      ])
-    })
-
-    it('carries missing counters over as zero', async () => {
-      await moveOrganizerEventStatsRow(existing, updated, { PK: 'ORG#org1', SK: '2024-06-15T00:00:00.000Z#e5' }, NOW)
-
-      expect(mockDocumentTransaction).toHaveBeenCalledWith([
-        {
-          Update: expect.objectContaining({
-            ExpressionAttributeValues: {
-              ':cancelledRegistrations': 0,
-              ':count': 0,
-              ':date': '2025-01-01',
-              ':memberRegistrations': 0,
-              ':organizerId': 'org2',
-              ':paidAmount': 0,
-              ':paidRegistrations': 0,
-              ':refundedAmount': 0,
-              ':refundedRegistrations': 0,
-              ':reserveRegistrations': 0,
-              ':updatedAt': NOW,
-            },
-          }),
-        },
-        expect.anything(),
-      ])
-    })
-
-    it('passes a cancelled transaction on to the caller', async () => {
-      mockDocumentTransaction.mockRejectedValueOnce({ name: 'TransactionCanceledException' })
-
-      await expect(moveOrganizerEventStatsRow(existing, updated, stats, NOW)).rejects.toEqual({
-        name: 'TransactionCanceledException',
-      })
-    })
-  })
-
-  describe('commitNewRegistrationStats', () => {
-    it('adds the deltas to the organizer row and marks the registration counted in one transaction', async () => {
-      await commitNewRegistrationStats(
-        { id: 'event-1', organizer: { id: 'organizer-1' }, startDate: '2024-06-01' },
-        deltas,
-        { eventId: 'event-1', id: 'registration-1' },
-        'lease-token',
-        NOW
-      )
-
-      expect(mockDocumentTransaction).toHaveBeenCalledWith([
-        {
-          Update: {
-            ExpressionAttributeNames: ORGANIZER_STATS_NAMES,
-            ExpressionAttributeValues: {
-              ':cancelledDelta': 1,
-              ':date': '2024-06-01',
-              ':memberDelta': 2,
-              ':organizerId': 'organizer-1',
-              ':paidAmountDelta': 30,
-              ':paidDelta': 4,
-              ':refundedAmountDelta': 5,
-              ':refundedDelta': 6,
-              ':reserveDelta': 7,
-              ':totalDelta': 8,
-              ':updatedAt': NOW,
-            },
-            Key: { PK: 'ORG#organizer-1', SK: '2024-06-01#event-1' },
-            TableName: 'event-stats-table',
-            UpdateExpression:
-              'ADD #cancelledRegistrations :cancelledDelta, #count :totalDelta, #memberRegistrations :memberDelta, #paidAmount :paidAmountDelta, #paidRegistrations :paidDelta, #refundedAmount :refundedAmountDelta, #refundedRegistrations :refundedDelta, #reserveRegistrations :reserveDelta SET #date = :date, #organizerId = :organizerId, #updatedAt = :updatedAt',
-          },
-        },
-        {
-          Update: {
-            ConditionExpression:
-              'attribute_exists(#id) AND attribute_not_exists(#statsAt) AND #lease.#token = :leaseToken',
-            ExpressionAttributeNames: {
-              '#id': 'id',
-              '#lease': 'newRegistrationLease',
-              '#statsAt': 'newRegistrationStatsAt',
-              '#token': 'token',
-            },
-            ExpressionAttributeValues: { ':leaseToken': 'lease-token', ':statsAt': NOW },
-            Key: { eventId: 'event-1', id: 'registration-1' },
-            TableName: 'registration-table',
-            UpdateExpression: 'SET #statsAt = :statsAt',
-          },
-        },
-      ])
     })
   })
 

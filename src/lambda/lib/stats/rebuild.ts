@@ -1,5 +1,4 @@
-// Rebuilds statistics from scratch out of the events and registrations tables. Which partitions
-// each caller rebuilds, and why the scheduled run leaves ORG# alone: README.md in this folder.
+// Rebuilds statistics from scratch out of the events and registrations tables: README.md in this folder.
 import type { EventState, JsonRegistration } from '../../../types'
 import type {
   JsonBreedStartStatsItem,
@@ -13,7 +12,7 @@ import type {
 import type { EventStatsEvent } from '../repositories/eventRepository'
 import type { EventStatKey } from '../repositories/eventStatsRepository'
 import { isEventOver, OFFICIAL_EVENT_TYPES, storedMonthKey, uniqueClasses } from '../../../lib/event'
-import { getRegistrationClass, isMember, isStarter } from '../../../lib/registration'
+import { getRegistrationClass, isFinishedEntry, isMember, isStarter } from '../../../lib/registration'
 import { mapWithConcurrency, splitEvenly } from '../../../lib/utils'
 import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS, YEARLY_BREAKDOWN_TYPES } from '../../../types/Stats'
 import { logger } from '../log'
@@ -86,16 +85,6 @@ const isHeldOfficialEvent = (dated: Pick<DatedStatsEvent, 'event' | 'ended'>): b
 
 /** Which group of stats records a key belongs to; README.md names each partition's writers. */
 type StatsPartition = 'organizer' | 'participation' | 'capacity' | 'judges' | 'eventBreakdown'
-
-export const ALL_STATS_PARTITIONS: StatsPartition[] = [
-  'organizer',
-  'participation',
-  'capacity',
-  'judges',
-  'eventBreakdown',
-]
-/** Everything the scheduled rebuild owns: safe to delete and rewrite while the site is live. */
-export const REBUILDABLE_STATS_PARTITIONS: StatsPartition[] = ['participation', 'capacity', 'judges', 'eventBreakdown']
 
 export const getStatsRecordPartition = ({ PK }: EventStatKey): StatsPartition | undefined => {
   if (PK.startsWith(STATS_KEY_PREFIX.organizer)) return 'organizer'
@@ -735,15 +724,14 @@ const addRegistrationStats = (
   registration: RegistrationStatsInput,
   dated: DatedStatsEvent & { year: number },
   updatedAt: string,
-  accumulator: StatsAccumulator,
-  wanted: Set<StatsPartition>
+  accumulator: StatsAccumulator
 ) => {
   const { event, year } = dated
   accumulator.years.add(year)
   // The organizer stats count every entry of every event: they track the cancelled and reserve counts.
-  if (wanted.has('organizer')) updateOrganizerStats(accumulator.organizerStats, event, registration, updatedAt)
+  updateOrganizerStats(accumulator.organizerStats, event, registration, updatedAt)
 
-  if (!wanted.has('participation') || !isParticipationStart(registration, dated)) return
+  if (!isParticipationStart(registration, dated)) return
 
   const yearlyCounts = getYearlyCounts(accumulator.yearlyStats, year)
   const identifiers = participationIdentifiers(registration)
@@ -760,7 +748,6 @@ interface RegistrationStatsContext {
   eventsById: Map<string, DatedStatsEvent>
   updatedAt: string
   accumulator: StatsAccumulator
-  wanted: Set<StatsPartition>
   capacityBuckets: Map<string, CapacityBucket>
   eventClassMonths: Map<string, Map<string, string>>
   breedStartBuckets: Map<string, BreedStartBucket>
@@ -769,8 +756,7 @@ interface RegistrationStatsContext {
 
 /**
  * Processes one registration into the accumulator/capacity buckets. Returns whether it had to be
- * skipped (unresolvable event/year) and, when capacity is wanted, whether it couldn't be
- * attributed to a capacity bucket.
+ * skipped (unresolvable event/year) and whether it couldn't be attributed to a capacity bucket.
  */
 const processRegistrationStats = (
   registration: CapacityRegistrationInput,
@@ -778,13 +764,15 @@ const processRegistrationStats = (
     eventsById,
     updatedAt,
     accumulator,
-    wanted,
     capacityBuckets,
     eventClassMonths,
     breedStartBuckets,
     eventBreakdownBuckets,
   }: RegistrationStatsContext
 ): { skipped: boolean; unattributedCapacity: boolean } => {
+  // One still in the payment step, or whose payment was charged twice and refunded, counts nowhere.
+  if (!isFinishedEntry(registration)) return { skipped: false, unattributedCapacity: false }
+
   const dated = eventsById.get(registration.eventId)
   if (dated?.year === undefined) {
     logger.info('skipping registration: event is missing or has an invalid start date', {
@@ -794,11 +782,10 @@ const processRegistrationStats = (
     return { skipped: true, unattributedCapacity: false }
   }
   const datedWithYear = { ...dated, year: dated.year }
-  addRegistrationStats(registration, datedWithYear, updatedAt, accumulator, wanted)
-  if (wanted.has('participation')) addBreedStartRegistration(registration, datedWithYear, breedStartBuckets)
-  if (wanted.has('eventBreakdown')) addEventBreakdownRegistration(registration, datedWithYear, eventBreakdownBuckets)
-  const unattributedCapacity =
-    wanted.has('capacity') && !addCapacityRegistration(registration, dated, capacityBuckets, eventClassMonths)
+  addRegistrationStats(registration, datedWithYear, updatedAt, accumulator)
+  addBreedStartRegistration(registration, datedWithYear, breedStartBuckets)
+  addEventBreakdownRegistration(registration, datedWithYear, eventBreakdownBuckets)
+  const unattributedCapacity = !addCapacityRegistration(registration, dated, capacityBuckets, eventClassMonths)
   return { skipped: false, unattributedCapacity }
 }
 
@@ -808,32 +795,30 @@ const processRegistrationStats = (
  */
 const seedStatsBuckets = (
   datedEvents: Map<string, DatedStatsEvent>,
-  wanted: Set<StatsPartition>,
   yearlyStats: Map<number, Map<YearlyStatTypes, Map<string, number>>>
 ) => {
   const capacityBuckets = new Map<string, CapacityBucket>()
   const eventClassMonths = new Map<string, Map<string, string>>()
-  if (wanted.has('capacity')) seedCapacityFromEvents(datedEvents, capacityBuckets, eventClassMonths)
+  seedCapacityFromEvents(datedEvents, capacityBuckets, eventClassMonths)
 
   const judgeWorkloadBuckets = new Map<string, JudgeWorkloadBucket>()
-  if (wanted.has('judges')) seedJudgeWorkloadFromEvents(datedEvents, judgeWorkloadBuckets)
+  seedJudgeWorkloadFromEvents(datedEvents, judgeWorkloadBuckets)
 
-  if (wanted.has('participation')) seedEventCountsFromEvents(datedEvents, yearlyStats)
+  seedEventCountsFromEvents(datedEvents, yearlyStats)
 
   const breedStartBuckets = new Map<string, BreedStartBucket>()
 
   const eventBreakdownBuckets = new Map<string, EventBreakdownBucket>()
-  if (wanted.has('eventBreakdown')) seedEventBreakdownFromEvents(datedEvents, eventBreakdownBuckets)
+  seedEventBreakdownFromEvents(datedEvents, eventBreakdownBuckets)
 
   return { breedStartBuckets, capacityBuckets, eventBreakdownBuckets, eventClassMonths, judgeWorkloadBuckets }
 }
 
-/** Builds the desired contents of the given stats partitions without making DynamoDB writes. */
+/** Builds the desired contents of the stats table without making DynamoDB writes. */
 export function buildStatsRecords(
   registrations: CapacityRegistrationInput[],
   eventsById: Map<string, EventStatsEvent>,
   updatedAt: string,
-  partitions: StatsPartition[] = ALL_STATS_PARTITIONS,
   now = new Date()
 ): {
   records: (
@@ -846,7 +831,6 @@ export function buildStatsRecords(
   skippedCount: number
   unattributedCapacityCount: number
 } {
-  const wanted = new Set(partitions)
   const organizerStats = new Map<string, JsonEventStatsItem>()
   const yearlyStats = new Map<number, Map<YearlyStatTypes, Map<string, number>>>()
   const handlerDogsByYear = new Map<number, Map<string, Set<string>>>()
@@ -857,7 +841,7 @@ export function buildStatsRecords(
 
   const datedEvents = dateStatsEvents(eventsById, now)
   const { breedStartBuckets, capacityBuckets, eventBreakdownBuckets, eventClassMonths, judgeWorkloadBuckets } =
-    seedStatsBuckets(datedEvents, wanted, yearlyStats)
+    seedStatsBuckets(datedEvents, yearlyStats)
 
   const context: RegistrationStatsContext = {
     accumulator,
@@ -867,7 +851,6 @@ export function buildStatsRecords(
     eventClassMonths,
     eventsById: datedEvents,
     updatedAt,
-    wanted,
   }
   for (const registration of registrations) {
     const outcome = processRegistrationStats(registration, context)
@@ -882,18 +865,16 @@ export function buildStatsRecords(
     | JsonBreedStartStatsItem
     | JsonEventBreakdownItem
   )[] = [
-    ...(wanted.has('organizer') ? organizerStats.values() : []),
-    ...(wanted.has('participation') ? yearlyStatsRecords(yearlyStats, handlerDogsByYear) : []),
-    ...(wanted.has('participation') ? breedStartRecords(breedStartBuckets, updatedAt) : []),
-    ...(wanted.has('capacity') ? capacityStatsRecords(capacityBuckets, updatedAt) : []),
-    ...(wanted.has('judges') ? judgeWorkloadRecords(judgeWorkloadBuckets, updatedAt) : []),
-    ...(wanted.has('eventBreakdown') ? eventBreakdownRecords(eventBreakdownBuckets, updatedAt) : []),
+    ...organizerStats.values(),
+    ...yearlyStatsRecords(yearlyStats, handlerDogsByYear),
+    ...breedStartRecords(breedStartBuckets, updatedAt),
+    ...capacityStatsRecords(capacityBuckets, updatedAt),
+    ...judgeWorkloadRecords(judgeWorkloadBuckets, updatedAt),
+    ...eventBreakdownRecords(eventBreakdownBuckets, updatedAt),
   ]
 
   // The YEARS marker belongs to the participation partition (see getStatsRecordPartition).
-  if (wanted.has('participation')) {
-    for (const year of years) records.push({ PK: YEARS_PK, SK: year.toString(), updatedAt })
-  }
+  for (const year of years) records.push({ PK: YEARS_PK, SK: year.toString(), updatedAt })
   return { records, skippedCount, unattributedCapacityCount }
 }
 
@@ -923,63 +904,61 @@ const regenerateYear = async (year: number, oldRecords: EventStatKey[], newRecor
   logger.info('regenerated stats for year', { removed: staleRecords.length, wrote: newRecords.length, year })
 }
 
-export function createHandler(partitions: StatsPartition[] = ALL_STATS_PARTITIONS) {
-  return async function handler(): Promise<void> {
-    const wanted = new Set(partitions)
-    logger.info('starting stats regeneration', { partitions })
+/** Regenerates the whole stats table: what RebuildStatsFunction runs, nightly and after every deploy. */
+export async function rebuildStats(): Promise<void> {
+  logger.info('starting stats regeneration')
 
-    const [allEvents, registrationRecords, everyStatKey] = await Promise.all([
-      readEventsForStats(),
-      readRegistrationsForStats(),
-      readAllStatKeys(),
-    ])
-    const events = allEvents || []
-    // Only ever delete keys in the partitions this run owns; anything else is left untouched.
-    const statKeys = everyStatKey.filter((key) => {
-      const partition = getStatsRecordPartition(key)
-      return partition !== undefined && wanted.has(partition)
-    })
-    const eventsById = new Map(events.map((event) => [event.id, event]))
-    const now = new Date()
-    const { records, skippedCount, unattributedCapacityCount } = buildStatsRecords(
-      registrationRecords,
-      eventsById,
-      now.toISOString(),
-      partitions,
-      now
-    )
-    const existingStatsByYear = groupStatsByYear(statKeys)
-    const recordsByYear = groupStatsByYear(records)
-    // Counted across the whole table, not just this run's scope: a record no rebuild can place by
-    // year is never refreshed or deleted by anyone, so it leaks regardless of which run finds it.
-    const unclassifiedStatsCount = everyStatKey.filter((key) => getEventStatsRecordYear(key) === undefined).length
-    const years = [...new Set([...existingStatsByYear.keys(), ...recordsByYear.keys()])].sort((a, b) => a - b)
+  const [allEvents, registrationRecords, everyStatKey] = await Promise.all([
+    readEventsForStats(),
+    readRegistrationsForStats(),
+    readAllStatKeys(),
+  ])
+  const events = allEvents || []
+  // Only ever delete keys of the known partitions; anything else is left untouched.
+  const statKeys = everyStatKey.filter((key) => getStatsRecordPartition(key) !== undefined)
+  const eventsById = new Map(events.map((event) => [event.id, event]))
+  const now = new Date()
+  const { records, skippedCount, unattributedCapacityCount } = buildStatsRecords(
+    registrationRecords,
+    eventsById,
+    now.toISOString(),
+    now
+  )
+  const existingStatsByYear = groupStatsByYear(statKeys)
+  const recordsByYear = groupStatsByYear(records)
+  // A key of a known partition with no readable year names no row this run writes, so it is stale:
+  // left alone, an organizer row of a start date no year can be read from would stay on the charts.
+  const unreadableKeys = statKeys.filter((key) => getEventStatsRecordYear(key) === undefined)
+  // A key of no known partition is nobody's to delete, and it leaks, so the log counts it.
+  const unclassifiedStatsCount = everyStatKey.filter((key) => getStatsRecordPartition(key) === undefined).length
+  const years = [...new Set([...existingStatsByYear.keys(), ...recordsByYear.keys()])].sort((a, b) => a - b)
 
-    logger.info('stats regeneration scope resolved', {
-      events: events.length,
-      rebuilding: records.length,
-      registrations: registrationRecords.length,
-      statsRecordsInScope: statKeys.length,
-    })
-    // One year at a time, in order, so each year stays independently regenerable if a manual run
-    // fails midway: the years after the failing one are left as they were.
-    await mapWithConcurrency(years, 1, (year) =>
-      regenerateYear(year, existingStatsByYear.get(year) ?? [], recordsByYear.get(year) ?? [])
-    )
+  logger.info('stats regeneration scope resolved', {
+    events: events.length,
+    rebuilding: records.length,
+    registrations: registrationRecords.length,
+    statsRecordsInScope: statKeys.length,
+  })
+  // One year at a time, in order, so each year stays independently regenerable if a run fails
+  // midway: the years after the failing one are left as they were.
+  await mapWithConcurrency(years, 1, (year) =>
+    regenerateYear(year, existingStatsByYear.get(year) ?? [], recordsByYear.get(year) ?? [])
+  )
 
-    logger.info('stats regeneration completed', {
-      records: records.length,
-      skipped: skippedCount,
-      unattributedCapacity: unattributedCapacityCount,
-      unclassifiedStats: unclassifiedStatsCount,
+  if (unreadableKeys.length > 0) await deleteStatRecords(unreadableKeys)
+
+  logger.info('stats regeneration completed', {
+    records: records.length,
+    skipped: skippedCount,
+    unattributedCapacity: unattributedCapacityCount,
+    unclassifiedStats: unclassifiedStatsCount,
+  })
+  // Matched by RebuildStatsFunctionUnattributedCapacityMetricFilter in rebuild-stats.yaml: a
+  // dropped registration otherwise has no signal short of grepping this log by hand.
+  if (unattributedCapacityCount > 0) {
+    // The phrase is matched verbatim by the metric filter; keep it in the message.
+    logger.warn('stats rebuild found registrations it could not attribute to a capacity class', {
+      count: unattributedCapacityCount,
     })
-    // Matched by RebuildStatsFunctionUnattributedCapacityMetricFilter in rebuild-stats.yaml: a
-    // dropped registration otherwise has no signal short of grepping this log by hand.
-    if (unattributedCapacityCount > 0) {
-      // The phrase is matched verbatim by the metric filter; keep it in the message.
-      logger.warn('stats rebuild found registrations it could not attribute to a capacity class', {
-        count: unattributedCapacityCount,
-      })
-    }
   }
 }
