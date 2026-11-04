@@ -34,13 +34,15 @@ drops the event's instances from every family, and the next visit builds them ag
 the server. Add a new event-keyed family to `eventScope.ts`, or it leaks.
 
 `rereadHeldAdminEventsAtom` is write-only: after the socket has been away it runs `adminEventsRereadAtom`
-and `adminEventRegistrationsReloadAtom` for every held event, and reports a read that failed, which
-then waits for the next reconnect. When it runs is in [the ws README](../../../lambda/lib/ws/README.md).
+and, for every held event, `adminEventRegistrationsReloadAtom` and a bump of
+`adminDuplicatePaymentsRefreshAtom`. It reports a read that failed, which then waits for the next
+reconnect. When it runs is in [the ws README](../../../lambda/lib/ws/README.md).
 
 ```mermaid
 graph LR
   rereadHeldAdminEventsAtom-->adminEventsRereadAtom
   rereadHeldAdminEventsAtom-->adminEventRegistrationsReloadAtom
+  rereadHeldAdminEventsAtom-->adminDuplicatePaymentsRefreshAtom
 ```
 
 ## Event view dialogs
@@ -307,6 +309,8 @@ the event id: it reads the whole list for a refused save and for a socket that w
 row with a newer stamp (`keepNewerRows`), and drops the answer if the token changed during the read. It
 takes the list's instance before the read, so an answer after a release cannot recreate it with this
 user's rows for the next login. It neither reads nor moves the cursor (KOE-1698).
+`adminDuplicatePaymentsAtom` is the event's payments charged twice, a list of its own that reads again
+when `adminDuplicatePaymentsRefreshAtom` is bumped (KOE-1693).
 
 ```mermaid
 graph LR
@@ -315,6 +319,9 @@ graph LR
   adminEventRegistrationsReloadAtom-->adminEventRegistrationsAtom
   adminEventRegistrationsReloadAtom-->validIdTokenAtom
   adminEventRegistrationsReloadAtom-->getRegistrations
+  adminDuplicatePaymentsAtom-->adminDuplicatePaymentsRefreshAtom
+  adminDuplicatePaymentsAtom-->validIdTokenAtom
+  adminDuplicatePaymentsAtom-->getDuplicatePayments[/getDuplicatePayments/]-->aws
   adminPendingRegistrationGroupMovesAtom
   adminBackgroundActionsRunningAtom
   adminEventRegistrationsFetchedAtAtom

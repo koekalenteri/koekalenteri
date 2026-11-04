@@ -1,18 +1,19 @@
 import type { ReactNode } from 'react'
 import type { TestStore } from '../test-utils/AtomProvider'
-import type { DogEvent, PublicRegistration, Registration } from '../types'
+import type { DogEvent, DuplicatePaymentEntry, PublicRegistration, Registration } from '../types'
 import { act, renderHook } from '@testing-library/react'
 import { createElement } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { registrationWithStaticDates } from '../__mockData__/registrations'
 import { eventWithStations } from '../__mockData__/resultsEvent'
 import { getAdminEvents } from '../api/event'
-import { getRegistrations, getStartList } from '../api/registration'
+import { getDuplicatePayments, getRegistrations, getStartList } from '../api/registration'
 import { stationDogsInOrder } from '../lib/results'
 import { useAdminEventScope } from '../pages/admin/state/eventScope'
 import { adminEventAtom, adminEventsAtom } from '../pages/admin/state/events'
 import { adminEditableEventByIdAtom } from '../pages/admin/state/events/editableAtoms'
 import {
+  adminDuplicatePaymentsAtom,
   adminEventRegistrationsAtom,
   adminEventRegistrationsCursorAtom,
 } from '../pages/admin/state/registrations/atoms'
@@ -103,6 +104,19 @@ const registration = (notes: string, updatedAt: string): Registration => ({
   notes,
   updatedAt: new Date(updatedAt),
 })
+
+const duplicate: DuplicatePaymentEntry = {
+  amount: 50,
+  duplicatePaymentAt: new Date('2026-09-12T07:00:00.000Z'),
+  registration: {
+    createdAt: new Date('2026-09-01T07:00:00.000Z'),
+    dog: { name: 'Charged Twice', regNo: 'FI1/26' },
+    eventId: EVENT_ID,
+    id: 'duplicate-row',
+    payer: { name: 'Payer' },
+    paymentStatus: 'DUPLICATE',
+  },
+}
 
 const BEFORE = '2026-09-12T08:00:00.000Z'
 const DURING_OUTAGE = '2026-09-12T08:05:00.000Z'
@@ -209,6 +223,7 @@ describe('useWebSocket after the connection comes back', () => {
     vi.mocked(getAdminEvents).mockReset()
     vi.mocked(getRegistrations).mockReset()
     vi.mocked(getStartList).mockReset()
+    vi.mocked(getDuplicatePayments).mockReset()
   })
 
   afterEach(() => {
@@ -242,6 +257,22 @@ describe('useWebSocket after the connection comes back', () => {
       await vi.waitFor(async () => expect(await notesInList(store)).toBe('during'))
       expect(getRegistrations).toHaveBeenLastCalledWith(EVENT_ID, TOKEN)
       expect(store.get(adminEventRegistrationsCursorAtom(EVENT_ID))).toBe(cursor)
+    }, 10_000)
+
+    it('reads the payments charged twice again: a refund patch of a row off the list was lost too', async () => {
+      const { store } = await openSecretaryView()
+      vi.mocked(getDuplicatePayments).mockResolvedValue([duplicate])
+      await act(async () => {
+        store.sub(adminDuplicatePaymentsAtom(EVENT_ID), () => undefined)
+        await store.get(adminDuplicatePaymentsAtom(EVENT_ID))
+      })
+      await vi.waitFor(() => expect(getDuplicatePayments).toHaveBeenCalledTimes(1))
+
+      vi.mocked(getDuplicatePayments).mockResolvedValue([])
+      await reconnectSubscribed()
+
+      await vi.waitFor(async () => expect(await store.get(adminDuplicatePaymentsAtom(EVENT_ID))).toEqual([]))
+      expect(getDuplicatePayments).toHaveBeenCalledTimes(2)
     }, 10_000)
 
     it('reads nothing again when the first connection is subscribed, since the page has just read', async () => {

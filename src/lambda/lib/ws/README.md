@@ -120,7 +120,8 @@ a read started on it sees everything sent before, and anything later arrives on 
   GET per page open.
 - **Admin.** An `{ adminSubscribed: true }` on a different connection than the previous one reads the
   events changed since the last fetch and the whole registration list of every event a mounted view
-  holds (`rereadHeldAdminEventsAtom` in `src/pages/admin/state/eventScope.ts`). The admin channel is the
+  holds (`rereadHeldAdminEventsAtom` in `src/pages/admin/state/eventScope.ts`), and bumps that event's
+  payments charged twice, a list of its own whose rows no registration read brings. The admin channel is the
   ack because it delivers every event's patches, also to a view without an event subscription. The
   first ack reads nothing, since the page has just read; signing out starts over. A token refresh
   replaces the socket and reads the same way: a socket can die unnoticed before it.
