@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 2989ac
+sourceHash: ceb7f0
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -130,7 +130,7 @@ If the running order changes while a post's scoring page is open, the page says 
 dog's result was not saved, and reads the dogs again. The points entered are not kept: pick the dog
 from the list and enter them again. If the page still does not show the new order, reload it.
 
-If someone else has changed the dog's scores at the post's exercise while the entry page is open, the save
+If someone else has changed the dog's scores or interruption at the post's exercise since you picked the dog, the save
 stops at the dialog **{t:results.conflictTitle}**. The dialog shows the post's own scores: what is stored
 now and what you entered. An interruption in a version shows too. The stored version is selected to begin
 with. **{t:results.conflictResolve}** shows its scores on the page, and the dog stays selected. If you pick
@@ -233,11 +233,16 @@ leave the page without saving, the page asks first: **{t:unsavedChanges.stay}** 
 **{t:unsavedChanges.leave}** discards the changes. Closing or reloading the tab gets the browser's own
 warning.
 
-Another secretary's saves reach the page by themselves. If the same dog has meanwhile been recorded differently elsewhere, the save stops at
+Saves by another secretary or a post reach the page by themselves. If you are editing a dog's row while someone saves results for the same dog, the row shows what you have until you save, and your save changes only what you changed: the other writer's scores and interruption stay, under their name, and the row shows them after the save. If the same exercise or interruption you changed has meanwhile been recorded differently elsewhere, the save stops at
 the dialog **{t:results.conflictTitle}**, which shows both versions and asks which one stands;
 **{t:results.conflictResolve}** saves the choices. The other rows have already been saved by then. If
 saving the choices fails, the dialog stays open and the entered scores are kept; if the dog has
-meanwhile been recorded differently elsewhere again, the dialog shows the new version.
+meanwhile been recorded differently elsewhere again, the dialog shows the new version. When you pick your
+own version, your edit and the other scores of the stored version are saved.
+
+A save of the whole round does not change who recorded an exercise, or when, if what the exercise says stays
+the same. A post gets the conflict dialog only if its scores, or an interruption recorded at its exercise,
+really have changed.
 
 In an official trial the *{t:results.kennelliitto.column}* column tells for each dog whether its result is
 in Omakoira: *{t:results.kennelliitto.badge.sent}*, *{t:results.kennelliitto.badge.changed}*,

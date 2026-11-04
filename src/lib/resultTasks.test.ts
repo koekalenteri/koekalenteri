@@ -11,12 +11,16 @@ import {
   isRecordedTask,
   isResultTasksDroppedBody,
   mergeStationTasks,
+  outcomeDiffers,
+  outcomeExercises,
   outcomeHeldElsewhere,
   partMaxPoints,
+  rebaseTasks,
   reconcileRoundTasks,
   roundColumns,
   roundsDiffer,
   sameStationTasks,
+  stampTasks,
   stationVersion,
   stationWriter,
   toScoredTasks,
@@ -575,5 +579,147 @@ describe('scores addressed by exercise (KOE-1665, Jukka 2.11.2026)', () => {
     it('keeps the stored judge where the post names none', () => {
       expect(effectiveJudge({ judge: c }, [])).toEqual(c)
     })
+  })
+})
+
+describe('outcomeDiffers', () => {
+  const injury = { cause: 'injury' as const, exercise: 1 }
+
+  it('reads nothing and nothing as the same, an undefined field or none', () => {
+    expect(outcomeDiffers(undefined, { retirement: undefined })).toBe(false)
+  })
+
+  it('reads an outcome against none, and another outcome, as a difference', () => {
+    expect(outcomeDiffers({ retirement: injury }, undefined)).toBe(true)
+    expect(outcomeDiffers({ retirement: injury }, { retirement: { ...injury, exercise: 2 } })).toBe(true)
+  })
+
+  it('reads the same outcome as the same', () => {
+    expect(outcomeDiffers({ retirement: injury }, { retirement: { ...injury } })).toBe(false)
+  })
+})
+
+describe('outcomeExercises', () => {
+  const posts = ['post-2', 'post-1', 'post-1']
+  const at = (exercise?: number) => ({ retirement: { cause: 'injury' as const, ...(exercise ? { exercise } : {}) } })
+
+  it('names nothing where the outcome did not change', () => {
+    expect(outcomeExercises(at(2), at(2), posts)).toEqual([])
+  })
+
+  it('names every exercise of the post the new outcome is at', () => {
+    expect(outcomeExercises(undefined, at(2), posts)).toEqual([2, 3])
+  })
+
+  it('names the post of a cleared outcome', () => {
+    expect(outcomeExercises(at(1), {}, posts)).toEqual([1])
+  })
+
+  it('names both posts of a moved outcome', () => {
+    expect(outcomeExercises(at(1), at(3), posts)).toEqual([1, 2, 3])
+  })
+
+  it('names no post for an outcome without a place', () => {
+    expect(outcomeExercises(undefined, at(), posts)).toEqual([])
+  })
+
+  it('names no post for an exercise the round no longer has', () => {
+    expect(outcomeExercises(undefined, at(9), posts)).toEqual([])
+  })
+
+  it('names nothing in a round without posts', () => {
+    expect(outcomeExercises(undefined, at(1), [])).toEqual([])
+  })
+})
+
+describe('stampTasks', () => {
+  const stamp = { updatedAt: 'now', updatedBy: 'Sihteeri' }
+  const stored: JsonEventResultTask[] = [{ exercise: 1, part: 0, points: 15, updatedAt: 'then', updatedBy: 'Rasti' }]
+
+  it('keeps the stored stamp on a task saying the same', () => {
+    expect(stampTasks([{ exercise: 1, part: 0, points: 15 }], stored, [], stamp)).toEqual(stored)
+  })
+
+  it('stamps a task saying something else', () => {
+    expect(stampTasks([{ exercise: 1, part: 0, points: 18 }], stored, [], stamp)).toEqual([
+      { exercise: 1, part: 0, points: 18, ...stamp },
+    ])
+  })
+
+  it('stamps a task with nothing stored at its address, also with nothing stored at all', () => {
+    expect(stampTasks([{ exercise: 2, part: 0, points: 8 }], stored, [], stamp)[0]).toMatchObject(stamp)
+    expect(stampTasks([{ exercise: 2, part: 0, points: 8 }], undefined, [], stamp)[0]).toMatchObject(stamp)
+  })
+
+  it('stamps a task of a renewed exercise that says the same', () => {
+    expect(stampTasks([{ exercise: 1, part: 0, points: 15 }], stored, [1], stamp)[0]).toMatchObject(stamp)
+  })
+
+  it('stamps a recall added alone', () => {
+    expect(stampTasks([{ exercise: 1, part: 0, points: 15, recalled: true }], stored, [], stamp)[0]).toMatchObject(
+      stamp
+    )
+  })
+
+  it('stamps each part of an exercise by its own content', () => {
+    const parts: JsonEventResultTask[] = [
+      { exercise: 1, part: 0, points: 8, updatedAt: 'then', updatedBy: 'Rasti' },
+      { exercise: 1, part: 1, points: 7, updatedAt: 'then', updatedBy: 'Rasti' },
+    ]
+    const [first, second] = stampTasks(
+      [
+        { exercise: 1, part: 0, points: 8 },
+        { exercise: 1, part: 1, points: 6 },
+      ],
+      parts,
+      [],
+      stamp
+    )
+
+    expect(first).toMatchObject({ updatedAt: 'then', updatedBy: 'Rasti' })
+    expect(second).toMatchObject(stamp)
+  })
+})
+
+describe('rebaseTasks', () => {
+  const task = (exercise: number, points: number | null, part = 0) => ({ exercise, part, points })
+
+  it('takes the stored task where the edit is as it started, and keeps the edit elsewhere', () => {
+    expect(rebaseTasks([task(1, 15), task(2, 12)], [task(1, 15), task(2, 9)], [task(1, 18), task(2, 12)])).toEqual({
+      collided: [],
+      tasks: [task(1, 18), task(2, 9)],
+    })
+  })
+
+  it('tells the parts of an exercise apart, and names the exercise once', () => {
+    const { collided } = rebaseTasks(
+      [task(1, 8), task(1, 7, 1)],
+      [task(1, 9), task(1, 6, 1)],
+      [task(1, 5), task(1, 4, 1)]
+    )
+
+    expect(collided).toEqual([1])
+  })
+
+  it('reads a blank as nothing, against nothing stored and against a stored blank', () => {
+    expect(rebaseTasks([], [task(1, null)], []).tasks).toEqual([])
+    expect(rebaseTasks([task(1, null)], [task(1, null)], [task(1, 4)]).tasks).toEqual([task(1, 4)])
+  })
+
+  it('reads a clearing as the secretary’s change', () => {
+    const { collided, tasks } = rebaseTasks([task(1, 15)], [task(1, null)], [task(1, 18)])
+
+    expect(tasks).toEqual([task(1, null)])
+    expect(collided).toEqual([1])
+  })
+
+  it('reads a judge changed alone as the secretary’s change', () => {
+    const judged = { ...task(1, 15), judge: { id: 1, name: 'Tuomari' } }
+
+    expect(rebaseTasks([task(1, 15)], [judged], [task(1, 18)]).collided).toEqual([1])
+  })
+
+  it('leaves out a task the edit does not hold where it started without it and nothing is stored', () => {
+    expect(rebaseTasks([task(1, 15)], [task(1, 15)], []).tasks).toEqual([])
   })
 })

@@ -640,4 +640,36 @@ describe('putStationEntryLambda', () => {
 
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
   })
+
+  describe('an outcome without a place, stored since the page was read (KOE-1703)', () => {
+    const at = '2026-09-12T08:00:00.000Z'
+
+    it('saves the score of a stale page and keeps the outcome, so no stamp has to move for it', async () => {
+      mockReadEventRegistrations.mockResolvedValue([
+        {
+          ...registration('reg-1'),
+          eventResult: {
+            retirement: { cause: 'injury' },
+            tasks: [{ exercise: 1, part: 0, points: 15, updatedAt: at, updatedBy: 'Suorituspaikka 1' }],
+            updatedAt: '2026-09-12T08:05:00.000Z',
+            updatedBy: 'Sihteeri',
+          },
+        },
+      ])
+
+      await putStationEntryLambda(
+        apiEvent([{ basedOn: at, eventResult: { tasks: [{ exercise: 1, part: 0, points: 18 }] }, id: 'reg-1' }])
+      )
+
+      expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+        'event-1',
+        'reg-1',
+        'eventResult',
+        expect.objectContaining({
+          retirement: { cause: 'injury' },
+          tasks: [expect.objectContaining({ exercise: 1, points: 18 })],
+        })
+      )
+    })
+  })
 })

@@ -36,7 +36,7 @@ import { compareRegistrationClasses } from '@/lib/event'
 import { makeArray } from '@/lib/judge'
 import { scoresAtPosts } from '@/lib/liveFormat'
 import { getRegistrationClass } from '@/lib/registration'
-import { formatTaskName, parseEventResultCode } from '@/lib/results'
+import { formatTaskName } from '@/lib/results'
 import {
   editVersion,
   effectiveJudge,
@@ -56,7 +56,7 @@ import { ResultSummary } from './ResultSummary'
 import { RoundOutcome } from './RoundOutcome'
 import { StationTurnControls } from './StationTurnControls'
 import { TaskScore } from './TaskScore'
-import { emptyEdit } from './types'
+import { emptyEdit, seededResultEdit } from './types'
 
 /**
  * A dog as this screen needs it. Structural on purpose: the event secretary's view has the whole
@@ -90,7 +90,7 @@ interface Props {
    * each in start order. The screen keeps that order.
    */
   readonly registrations: StationScoringDog[]
-  readonly onSave: (submission: EventResultSubmission) => Promise<Pick<StationEntryResponse, 'saved'>>
+  readonly onSave: (submission: EventResultSubmission) => Promise<Pick<StationEntryResponse, 'saved' | 'unchanged'>>
   /** The post's live timeline (KOE-1259); the clock and its buttons render only when provided. */
   readonly turns?: readonly StationTurnItem[]
   readonly onTurn?: (op: StationTurnOp) => Promise<unknown>
@@ -127,29 +127,15 @@ const exercisesHere = (dog: StationScoringDog, stationId: string): number[] =>
   dog.visit ? exercisesAtPost(dog.visit.exercisePosts, stationId) : []
 
 /**
- * What this post already recorded for a dog, as the edit starts from — so a correction edits rather
- * than replaces. A post-scored type's recording is its tasks; a qualitative type's is the judge's
- * decision, read back out of the stored string, and who made it.
+ * What this post already recorded for a dog, as the edit starts from: the shared seed, of this post's
+ * exercises where a round is scored at posts.
  */
 const seededEdit = (dog: StationScoringDog, stationId: string, eventType: string): ResultEdit => {
-  const stored = dog.eventResult
-  const outcome = { elimination: stored?.elimination, retirement: stored?.retirement }
-
-  if (scoresAtPosts(eventType)) {
-    const here = exercisesHere(dog, stationId)
-    const tasks = (stored?.tasks ?? [])
-      .filter((task) => here.includes(task.exercise))
-      .map(({ updatedAt: _at, updatedBy: _by, ...task }) => task)
-    return { ...outcome, tasks }
-  }
-
-  const resultCode = parseEventResultCode(stored?.result, eventType, getRegistrationClass(dog))
-  return {
-    ...outcome,
-    ...(resultCode ? { resultCode } : {}),
-    ...(stored?.judge ? { judge: stored.judge } : {}),
-    tasks: [],
-  }
+  const seeded = seededResultEdit(dog.eventResult, eventType, getRegistrationClass(dog))
+  const here = exercisesHere(dog, stationId)
+  return scoresAtPosts(eventType)
+    ? { ...seeded, tasks: seeded.tasks.filter((task) => here.includes(task.exercise)) }
+    : seeded
 }
 
 /**
@@ -235,6 +221,9 @@ export function StationScoring({
   )
   const [selectedKey, setSelectedKey] = useState<string | undefined>(initial && entryKey(initial))
   const [edit, setEdit] = useState<ResultEdit>(initial ? seededEdit(initial, station.id, eventType) : emptyEdit)
+  // What the edit was seeded from, whose version its save is based on: a row the socket or a read moves while
+  // the form is open must not make the save look current, or it overwrites what the post never saw (KOE-1701).
+  const [editBase, setEditBase] = useState(initial?.eventResult)
   const [lastJudge, setLastJudge] = useState<PublicJudge | undefined>()
   const [pending, setPending] = useState<PendingConflict>()
   const [choices, setChoices] = useState<Record<string, ConflictChoice>>({})
@@ -313,6 +302,7 @@ export function StationScoring({
     (dog: StationScoringDog) => {
       setSelectedKey(entryKey(dog))
       setEdit(seededEdit(dog, station.id, eventType))
+      setEditBase(dog.eventResult)
     },
     [eventType, station.id]
   )
@@ -366,20 +356,24 @@ export function StationScoring({
 
   const submit = useCallback(
     async (submission: EventResultSubmission, dog: StationScoringDog) => {
-      let saved: number
+      let answer: Awaited<ReturnType<Props['onSave']>>
       try {
-        saved = (await onSave(submission)).saved.length
+        answer = await onSave(submission)
       } catch (error) {
         settleRefusal(error, submission, dog)
         return
       }
 
       setPending(undefined)
-      enqueueSnackbar(saved ? t('results.saved') : t('results.alreadySaved'), { variant: 'success' })
+      enqueueSnackbar(answer.saved.length ? t('results.saved') : t('results.alreadySaved'), { variant: 'success' })
 
       // Move on to the next place in the queue not scored yet: at a post the queue is the job.
       const next = dogs.find((other) => !isScored(other) && entryKey(other) !== entryKey(dog))
-      if (next) select(next)
+      // The list here is from before this save. Where the next place is the same dog, at its other exercise here,
+      // it starts from what the save stored: from the old row its edit would drop the score just saved, and its
+      // version would make the post's own save a conflict.
+      const echo = [...answer.saved, ...answer.unchanged].find((item) => item.id === next?.id)
+      if (next) select(echo ? { ...next, eventResult: echo.eventResult } : next)
       else setSelectedKey(undefined)
     },
     [dogs, isScored, onSave, select, settleRefusal, t]
@@ -393,7 +387,7 @@ export function StationScoring({
     await submit(
       {
         // Where the post is the whole trial, the version is the whole result's, as on the results page.
-        basedOn: editVersion(selected.eventResult, versionExercises(selected)),
+        basedOn: editVersion(editBase, versionExercises(selected)),
         eventResult: {
           elimination: edit.elimination,
           retirement: edit.retirement,
@@ -406,7 +400,7 @@ export function StationScoring({
       },
       selected
     )
-  }, [edit, judges, lastJudge, qualitative, selected, station.id, submit, versionExercises])
+  }, [edit, editBase, judges, lastJudge, qualitative, selected, station.id, submit, versionExercises])
 
   /**
    * The post decided. "Mine" sends the same save again based on the version that beat it. "Stored" lets that
@@ -421,6 +415,7 @@ export function StationScoring({
       }
 
       setEdit(seededEdit({ ...dog, eventResult: conflict.stored }, station.id, eventType))
+      setEditBase(conflict.stored)
       onStored?.({ eventResult: conflict.stored, id: conflict.id })
       setPending(undefined)
     },
