@@ -9,7 +9,7 @@ covers:
   - src/pages/admin/eventViewPage/InfoPanel.tsx
   - src/pages/admin/eventViewPage/RefundDialog.tsx
   - src/pages/admin/eventViewPage/RegistrationEditDialog.tsx
-sourceHash: d83622
+sourceHash: b7cfb1
 ---
 
 While entry is open the calendar does most of the work by itself: entries accumulate, payments
@@ -68,6 +68,10 @@ one to refund, enter a *{t:registration.refundDialog.handlingCost}* if the club
 keeps one, and add an internal comment if you like — the entrant does not see it. **Refund** makes
 the refund through Paytrail to the same payment method the payment came from. The refunded amount
 then shows on the entry's row.
+
+If a notice *{t:registration.duplicatePayments.title}* shows above the class lists, a dog's entry was
+paid twice and that payment waits for your refund. Refund it from the notice's row;
+[Payments](/docs/admin/payments) tells more.
 
 A refund can also be made directly in Paytrail's merchant portal, usually by the club's treasurer.
 The treasurer then needs the payment date and the payer's name: both are found by opening the entry

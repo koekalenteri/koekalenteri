@@ -5,8 +5,10 @@ import type {
   EmailTemplateId,
   JsonConfirmedEvent,
   JsonLastEmail,
+  JsonRefundRegistration,
   JsonRegistration,
   Patch,
+  RegistrationPerson,
   RegistrationTemplateContext,
 } from '../../types'
 import { createHmac, timingSafeEqual } from 'node:crypto'
@@ -188,6 +190,37 @@ export const adminRegistrationResponse = <T extends Partial<JsonRegistration>>(r
   const result = removeRegistrationCreationMetadata({ ...registration, editToken })
   delete result.editTokenVersion
   return result
+}
+
+/**
+ * A payment charged twice as the event view's section and the refund dialog receive it: what they
+ * read and no more, since the row is on no list the secretary would otherwise see (KOE-1693).
+ */
+export const refundRegistrationResponse = (registration: JsonRegistration): JsonRefundRegistration => {
+  const membership = (person?: Pick<RegistrationPerson, 'membership'>) => person && { membership: person.membership }
+  return {
+    cancelled: registration.cancelled,
+    createdAt: registration.createdAt,
+    dog: { breedCode: registration.dog.breedCode, name: registration.dog.name, regNo: registration.dog.regNo },
+    eventId: registration.eventId,
+    group: registration.group,
+    handler: membership(registration.handler),
+    id: registration.id,
+    openPayments: registration.openPayments,
+    openRefunds: registration.openRefunds,
+    optionalCosts: registration.optionalCosts,
+    owner: membership(registration.owner),
+    ownerHandles: registration.ownerHandles,
+    owners: registration.owners?.map(({ key, membership }) => ({ key, membership })),
+    paidAmount: registration.paidAmount,
+    payer: registration.payer && { name: registration.payer.name },
+    paymentStatus: registration.paymentStatus,
+    refundAmount: registration.refundAmount,
+    refundHandlingCost: registration.refundHandlingCost,
+    refundStatus: registration.refundStatus,
+    selectedCost: registration.selectedCost,
+    updatedAt: registration.updatedAt,
+  }
 }
 
 /**

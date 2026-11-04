@@ -803,6 +803,14 @@ export const isPaymentReturned = <T extends JsonRegistration | Registration>(reg
   (reg.refundAmount ?? 0) > 0 && !hasRefundableBalance(reg)
 
 /**
+ * Whether the payment was recorded as charged twice: the dog already had a paid entry, and this row
+ * stays unfinished with its money in the transaction, waiting for its refund (KOE-1693). The mark
+ * stays after the refund: such an entry never owes anything and can never be paid.
+ */
+export const isDuplicatePayment = (reg: Pick<Registration, 'paymentStatus'>): boolean =>
+  reg.paymentStatus === 'DUPLICATE'
+
+/**
  * A reserve that did not get a place and had its fee back: it owes nothing while it has no place,
  * and owes the fee again once it is lifted into one (KOE-1526). An entry without a group counts as a
  * reserve, as it does for the refund.

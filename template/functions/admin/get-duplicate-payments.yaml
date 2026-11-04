@@ -1,0 +1,23 @@
+  GetDuplicatePaymentsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/GetDuplicatePaymentsFunction
+      Handler: handler.default
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref TransactionTable
+        - !Ref AuthorizePolicy
+        - CloudWatchPutMetricPolicy: {}
+      Events:
+        GetDuplicatePayments:
+          Type: Api
+          Properties:
+            Path: /admin/registration/duplicates/{eventId}
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer

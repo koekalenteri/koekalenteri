@@ -572,19 +572,23 @@ describe('PaymentPage', () => {
         expect(container).not.toHaveTextContent(notShown)
       })
 
-      it('asks for no fee under the notice of a payment charged twice', async () => {
+      it.each([
+        ['duplicate', 'paymentStatus.duplicate'],
+        ['refunded', 'paymentStatus.refunded'],
+      ] as const)('has nothing to pay under the notice of a payment charged twice, %s', async (status, notice) => {
         const { container } = renderPage(
           'registration',
           {
             ...testRegistration,
-            payment: paymentPictureWith({ ...owing, canPay: false, status: 'duplicate' }),
+            payment: paymentPictureWith({ canPay: false, due: 0, standing: false, status }),
             paymentStatus: 'DUPLICATE',
           },
           { responseStatus: 409 }
         )
         await flushPromises()
 
-        expect(container).not.toHaveTextContent('registration.toBePaid')
+        expect(container).toHaveTextContent(notice)
+        expect(container).toHaveTextContent(/registration\.toBePaid\s*0,00/)
       })
     })
 

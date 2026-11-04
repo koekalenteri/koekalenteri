@@ -72,6 +72,7 @@ const {
   sendTemplatedEmailToEventRegistrations,
   patchRegistration,
   adminRegistrationResponse,
+  refundRegistrationResponse,
   participantRegistrationResponse,
   publicRegistrationPatch,
   removeRegistrationCreationMetadata,
@@ -1188,6 +1189,53 @@ describe('registration access', () => {
         id: 'registration',
         internalNotes: 'call the owner',
         startGroup: { ...group, number: 7 },
+      })
+    })
+  })
+
+  // A payment charged twice is on no list the secretary would otherwise see (KOE-1693).
+  describe('refundRegistrationResponse', () => {
+    it('gives what the section and the refund dialog read, and nothing else', () => {
+      const person = { email: 'p@example.com', membership: true, name: 'Person', phone: '040' }
+      const row = asJsonRegistration({
+        createdAt: '2026-08-01T10:00:00.000Z',
+        dog: { breedCode: '122', name: 'Rex', regNo: 'FI1/26', results: [] },
+        eventId: 'event-1',
+        handler: person,
+        id: 'registration',
+        internalNotes: 'call the owner',
+        owner: { ...person, membership: false },
+        ownerHandles: true,
+        owners: [{ ...person, key: 'o1' }],
+        payer: person,
+        paymentStatus: 'DUPLICATE',
+        refundAmount: 45,
+        refundHandlingCost: 5,
+      })
+
+      expect(JSON.parse(JSON.stringify(refundRegistrationResponse(row)))).toEqual({
+        createdAt: '2026-08-01T10:00:00.000Z',
+        dog: { breedCode: '122', name: 'Rex', regNo: 'FI1/26' },
+        eventId: 'event-1',
+        handler: { membership: true },
+        id: 'registration',
+        owner: { membership: false },
+        ownerHandles: true,
+        owners: [{ key: 'o1', membership: true }],
+        payer: { name: 'Person' },
+        paymentStatus: 'DUPLICATE',
+        refundAmount: 45,
+        refundHandlingCost: 5,
+      })
+    })
+
+    it('leaves out the people a row does not have', () => {
+      const row = asJsonRegistration({ dog: {}, eventId: 'event-1', id: 'registration' })
+
+      expect(JSON.parse(JSON.stringify(refundRegistrationResponse(row)))).toEqual({
+        dog: {},
+        eventId: 'event-1',
+        id: 'registration',
       })
     })
   })

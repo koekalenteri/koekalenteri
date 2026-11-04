@@ -3,6 +3,7 @@ import { API_BASE_URL } from '../routeConfig'
 import { expectConsoleOutput } from '../test-utils/consoleGuard'
 import fetchMock from '../test-utils/fetchMock'
 import {
+  getDuplicatePayments,
   getRegistration,
   getRegistrations,
   getRegistrationTransactions,
@@ -386,6 +387,31 @@ test('getRegistrationTransactions makes the stamps of the transactions Dates', a
     createdAt: new Date('2026-05-03T08:00:00.000Z'),
     statusAt: new Date('2026-05-03T08:01:00.000Z'),
     transactionId: 't1',
+  })
+})
+
+test("getDuplicatePayments reads the section's own route, its stamps Dates", async () => {
+  fetchMock.mockResponseOnce(
+    JSON.stringify([
+      {
+        amount: 50,
+        duplicatePaymentAt: '2026-05-03T08:00:00.000Z',
+        registration: { createdAt: '2026-05-01T08:00:00.000Z', id: 'r1', updatedAt: '2026-05-03T08:00:00.000Z' },
+      },
+    ])
+  )
+
+  const entries = await getDuplicatePayments('test-id', 'token')
+
+  expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/admin/registration/duplicates/test-id`, expect.any(Object))
+  expect(entries[0]).toMatchObject({
+    amount: 50,
+    duplicatePaymentAt: new Date('2026-05-03T08:00:00.000Z'),
+    registration: {
+      createdAt: new Date('2026-05-01T08:00:00.000Z'),
+      id: 'r1',
+      updatedAt: new Date('2026-05-03T08:00:00.000Z'),
+    },
   })
 })
 

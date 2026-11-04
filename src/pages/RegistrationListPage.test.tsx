@@ -921,10 +921,23 @@ describe('RegistrationListPage', () => {
   const verifyingMessage = ['registration.notifications.paymentVerifying', { variant: 'info' }] as const
 
   it.each([
-    ['a payment standing', paymentPictureWith()],
-    ['a payment charged twice', paymentPictureWith({ due: 123, standing: false, status: 'duplicate' })],
-  ])('stops verifying a payment return once the picture has %s', async (_name, payment) => {
-    vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({ ...unpaidRegistrationWithStaticDates, payment })
+    ['a payment standing', paymentPictureWith(), {}],
+    [
+      'a payment charged twice',
+      paymentPictureWith({ due: 0, standing: false, status: 'duplicate' }),
+      { paymentStatus: 'DUPLICATE' as const },
+    ],
+    [
+      'a payment charged twice that went back',
+      paymentPictureWith({ due: 0, standing: false, status: 'refunded' }),
+      { paymentStatus: 'DUPLICATE' as const },
+    ],
+  ])('stops verifying a payment return once the picture has %s', async (_name, payment, row) => {
+    vi.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+      ...unpaidRegistrationWithStaticDates,
+      ...row,
+      payment,
+    })
     await renderWithRouter('/r/test1/unpaid-nou-registration?payment=verifying')
     await flushPromises()
 

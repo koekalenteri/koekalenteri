@@ -928,6 +928,16 @@
     "datesFilterInfo": "Select the days that suit you",
     "datesInfo": "Select the most suitable groups for you. Your group preference may not be fulfilled.",
     "dog": "Dog information",
+    "duplicatePayments": {
+      "action": "Action",
+      "amount": "To refund",
+      "date": "Paid",
+      "dog": "Dog",
+      "payer": "Payer",
+      "refundPending": "Refund in progress",
+      "text": "These payments were charged although the dog already had a valid registration. They are not on the class lists or in the counts. Refund the payment to the payer.",
+      "title": "Payments charged twice"
+    },
     "email": {
       "subject": "Registration confirmation",
       "subject_cancel": "Registration cancelled",
