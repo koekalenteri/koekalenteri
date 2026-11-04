@@ -125,6 +125,10 @@ säilyvät ennallaan, eikä tallennus kysy mitään. Pisteen tuomari on sen suor
 ryhmä tekee rastin: kirjattu tuomari pysyy, kun hän on paikan tuomareita, ja muuten tuomariksi
 luetaan paikan ensimmäinen tuomari. Omakoiraan lähtevät tuomarit luetaan samoin.
 
+Jos suoritusjärjestys muuttuu, kun suorituspaikan kirjaussivu on auki, sivu kertoo tallennettaessa,
+ettei koiran tulosta tallennettu, ja lukee koirat uudelleen. Syötetyt pisteet eivät säily: valitse koira
+listalta ja syötä pisteet uudelleen. Jos sivu ei silti näytä uutta järjestystä, lataa sivu uudelleen.
+
 Pisteet poistuvat vain, kun rasti poistuu suoritusjärjestyksestä tai rastin tehtävien määrä muuttuu, koska
 pisteitä ei silloin voi lukea samalle rastille. Poistuvat pisteet luetellaan ennen tallennusta
 koirittain.

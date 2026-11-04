@@ -139,4 +139,54 @@ describe('LiveEntryPage', () => {
     expect(getStationEntry).toHaveBeenCalledTimes(1)
     expect(screen.getAllByRole('textbox')[0]).toHaveValue('10')
   })
+
+  // The link has no socket: the save's refusal is the only way it hears of a new running order (KOE-1694).
+  describe('a save refused because the running order changed', () => {
+    const staleData = () =>
+      new APIError(new Response(null, { status: 409 }), { error: 'staleData', message: 'layout changed' })
+    const chips = () =>
+      screen.getAllByRole('button', { name: /^\d (Ensimmainen|Toinen)/ }).map((chip) => chip.textContent)
+    const saveFirstDog = async (user: ReturnType<typeof renderPage>['user']) => {
+      await user.click(screen.getByRole('button', { name: /1 Ensimmainen/ }))
+      await user.type(screen.getAllByRole('textbox')[0], '10')
+      await user.click(screen.getByRole('button', { name: 'results.save' }))
+      await flushPromises()
+    }
+
+    it('reads the day’s list again and shows the new order', async () => {
+      vi.mocked(getStationEntry).mockResolvedValue(entry())
+      vi.mocked(putStationEntry).mockRejectedValueOnce(staleData())
+      const { user } = renderPage()
+      await flushPromises()
+      expect(chips()).toEqual(['1 Ensimmainen', '2 Toinen'])
+
+      vi.mocked(getStationEntry).mockClear()
+      const [first, second] = entry().registrations
+      vi.mocked(getStationEntry).mockResolvedValue({
+        ...entry(),
+        registrations: [{ ...second, group: { date: '2026-09-12', key: 'AVO-AP', number: 1, time: 'ap' } }, first],
+      })
+      await saveFirstDog(user)
+
+      expect(screen.getByText('results.layoutChanged')).toBeInTheDocument()
+      expect(getStationEntry).toHaveBeenCalledTimes(1)
+      expect(chips()).toEqual(['1 Toinen', '1 Ensimmainen'])
+      expect(screen.getByRole('button', { name: 'results.save' })).toBeDisabled()
+    })
+
+    it('still says what happened, and stays on the list it has, when the read fails too', async () => {
+      vi.mocked(getStationEntry).mockResolvedValue(entry())
+      vi.mocked(putStationEntry).mockRejectedValueOnce(staleData())
+      const { user } = renderPage()
+      await flushPromises()
+
+      vi.mocked(getStationEntry).mockRejectedValueOnce(new Error('Network Error'))
+      expectConsoleOutput(/reportError .*Network Error/)
+      await saveFirstDog(user)
+
+      expect(screen.getByText('results.layoutChanged')).toBeInTheDocument()
+      expect(screen.queryByText('results.liveEntryLinkInvalid')).not.toBeInTheDocument()
+      expect(chips()).toEqual(['1 Ensimmainen', '2 Toinen'])
+    })
+  })
 })

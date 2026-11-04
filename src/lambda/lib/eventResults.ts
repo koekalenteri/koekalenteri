@@ -491,11 +491,6 @@ const classifySubmission = (
   return { eventResult: resolve({ ...submitted, tasks }), hadStored: Boolean(stored), kind: 'save' }
 }
 
-/**
- * Classify, write and audit a batch of result submissions. Shared by the event secretary's endpoint
- * and the tokenized station endpoint, so the two cannot drift on what counts as a retry, a conflict
- * or a save — `userName` is whoever this write is attributed to.
- */
 /** What a post's save or the event save is told when the layout it was made against has changed. */
 const LAYOUT_CHANGED_MESSAGE = 'The results changed while the stations were saved; save again'
 
@@ -508,7 +503,8 @@ const taskName = (task: SubmittedTask): string => `exercise ${task.exercise}#${t
  * unearned prize as faithfully as a real score — and a task naming a slot outside the round would
  * ride along stored forever. A post's submission may hold only the exercises the dog's group does at the
  * post: a page opened before the running order changed would otherwise send an exercise the merge leaves
- * out and report it saved, so it is told the layout changed and reloads (409).
+ * out and report it saved, so it is told the layout changed (409), and its page says so, reads the list
+ * again and lets go of the dog (KOE-1694).
  */
 const validateSubmittedTasks = (
   round: readonly ExerciseSlot[],
@@ -589,6 +585,11 @@ const planSubmission = (
   }
 }
 
+/**
+ * Classify, write and audit a batch of result submissions. Shared by the event secretary's endpoint
+ * and the tokenized station endpoint, so the two cannot drift on what counts as a retry, a conflict
+ * or a save — `userName` is whoever this write is attributed to.
+ */
 export const processResultSubmissions = async (
   eventId: string,
   confirmedEvent: JsonConfirmedEvent,

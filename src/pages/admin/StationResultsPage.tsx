@@ -51,6 +51,7 @@ export default function StationResultsPage() {
   const official = useIsOfficialEventType(event?.eventType)
   const { locked, refreshState } = useResultsLock(event, kc.preview, { readOnOpen: official })
   // A save found the trial locked, or a dog it named gone: the page learns it the same way the results page does.
+  // The read covers the dogs only; a changed running order is on the event, which arrives over the socket.
   const handleLocked = useCallback(() => {
     refreshState().catch(reportError)
   }, [refreshState])

@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 52e8cd
+sourceHash: e01d3a
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -120,6 +120,10 @@ corrected to three, the third post doing exercises 3 and 4, every dog keeps its 
 where the group does the exercise: the recorded judge stays while they judge at that post, and
 otherwise the post's first judge is read as the judge. The judges sent to Omakoira are read the same
 way.
+
+If the running order changes while a post's scoring page is open, the page says on saving that the
+dog's result was not saved, and reads the dogs again. The points entered are not kept: pick the dog
+from the list and enter them again. If the page still does not show the new order, reload it.
 
 Points go only when an exercise leaves the running order or an exercise is split differently, since
 the points can then no longer be read as the same exercise. The scores that would go are listed dog

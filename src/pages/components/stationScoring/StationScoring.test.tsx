@@ -39,7 +39,7 @@ const dogs = [
 
 const renderScoring = (props: Partial<Parameters<typeof StationScoring>[0]> = {}) => {
   const onSave = vi.fn().mockResolvedValue({ conflicts: [], saved: [{ id: 'run-1' }], unchanged: [] })
-  render(
+  const tree = (more: Partial<Parameters<typeof StationScoring>[0]> = {}) => (
     <AppSnackbarProvider>
       <StationScoring
         eventType="NOME-B"
@@ -49,10 +49,12 @@ const renderScoring = (props: Partial<Parameters<typeof StationScoring>[0]> = {}
         station={station}
         turns={[]}
         {...props}
+        {...more}
       />
     </AppSnackbarProvider>
   )
-  return { onSave }
+  const { rerender } = render(tree())
+  return { onSave, rerender: (more: Partial<Parameters<typeof StationScoring>[0]>) => rerender(tree(more)) }
 }
 
 describe('StationScoring', () => {
@@ -562,6 +564,162 @@ describe('StationScoring', () => {
 
       expect(await screen.findByText('results.saveFailed')).toBeInTheDocument()
       expect(onRefused).not.toHaveBeenCalled()
+    })
+  })
+
+  // The running order changed while the page was open: the server refuses a task the post no longer does (KOE-1694).
+  describe('a save refused because the running order changed', () => {
+    const staleData = () =>
+      new APIError(new Response(null, { status: 409 }), { error: 'staleData', message: 'layout changed' })
+    const scores = {
+      tasks: [
+        { exercise: 1, part: 0, points: 11, updatedAt: new Date(), updatedBy: 'x' },
+        { exercise: 3, part: 0, points: 13, updatedAt: new Date(), updatedBy: 'x' },
+      ],
+    }
+    const place = (
+      id: string,
+      eventClass: 'ALO' | 'VOI',
+      exercise: number,
+      exercisePosts: string[],
+      eventResult?: typeof scores
+    ) => ({
+      class: eventClass,
+      dog: { name: id },
+      eventResult,
+      eventType: 'NOWT',
+      group: { ...group, key: `${eventClass}-AP`, number: 1 },
+      id,
+      visit: { exercise, exercisePosts, parts: 1 as const },
+    })
+    const twiceHere = ['1', 'post-2', '1']
+    const onceHere = ['1', 'post-2', 'post-3']
+    const saveButton = () => screen.getByRole('button', { name: 'results.save' })
+
+    it('says so, has the caller read the list again and lets go of the dog, as an expected state', async () => {
+      const user = userEvent.setup()
+      const onRefused = vi.fn()
+      const { onSave } = renderScoring({
+        eventType: 'NOWT',
+        onRefused,
+        registrations: [place('alo', 'ALO', 1, onceHere, scores)],
+      })
+      onSave.mockRejectedValueOnce(staleData())
+
+      await user.click(screen.getByRole('button', { name: '1 alo' }))
+      await user.click(saveButton())
+
+      // No reportError: the console guard fails this test if it runs.
+      expect(await screen.findByText('results.layoutChanged')).toBeInTheDocument()
+      expect(screen.queryByText('results.saveFailed')).not.toBeInTheDocument()
+      expect(onRefused).toHaveBeenCalledTimes(1)
+      expect(saveButton()).toBeDisabled()
+      expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument()
+    })
+
+    it('starts the next pick from the fresh list, for a dog the post no longer does twice', async () => {
+      const user = userEvent.setup()
+      const onRefused = vi.fn()
+      const { onSave, rerender } = renderScoring({
+        eventType: 'NOWT',
+        onRefused,
+        registrations: [place('alo', 'ALO', 1, twiceHere, scores), place('alo', 'ALO', 3, twiceHere, scores)],
+      })
+      onSave.mockRejectedValueOnce(staleData())
+
+      await user.click(screen.getAllByRole('button', { name: /^1 alo/ })[0])
+      await user.click(saveButton())
+      expect(await screen.findByText('results.layoutChanged')).toBeInTheDocument()
+      expect(onSave).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          eventResult: expect.objectContaining({
+            tasks: [expect.objectContaining({ exercise: 1 }), expect.objectContaining({ exercise: 3 })],
+          }),
+        })
+      )
+
+      // The re-read: exercise 1 is still here under the same key, exercise 3 has moved to another post.
+      rerender({ registrations: [place('alo', 'ALO', 1, onceHere, scores)] })
+      expect(saveButton()).toBeDisabled()
+
+      await user.click(screen.getByRole('button', { name: '1 alo' }))
+      await user.click(saveButton())
+
+      expect(onSave).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          eventResult: expect.objectContaining({ tasks: [expect.objectContaining({ exercise: 1, points: 11 })] }),
+        })
+      )
+    })
+
+    it('goes on with the dogs left when the dog is no longer at this post', async () => {
+      const user = userEvent.setup()
+      const { onSave, rerender } = renderScoring({
+        eventType: 'NOWT',
+        registrations: [place('gone', 'ALO', 1, onceHere), place('left', 'ALO', 1, onceHere)],
+      })
+      onSave.mockRejectedValueOnce(staleData())
+
+      await user.click(screen.getByRole('button', { name: '1 gone' }))
+      await user.click(saveButton())
+      expect(await screen.findByText('results.layoutChanged')).toBeInTheDocument()
+
+      rerender({ registrations: [place('left', 'ALO', 1, onceHere)] })
+
+      expect(screen.queryByRole('button', { name: '1 gone' })).not.toBeInTheDocument()
+      expect(saveButton()).toBeDisabled()
+      await user.click(screen.getByRole('button', { name: '1 left' }))
+      expect(saveButton()).toBeEnabled()
+    })
+
+    it('moves to a class still here when the whole class on show has left this post', async () => {
+      const user = userEvent.setup()
+      const { onSave, rerender } = renderScoring({
+        eventType: 'NOWT',
+        registrations: [place('alo', 'ALO', 1, onceHere), place('voi', 'VOI', 1, onceHere)],
+      })
+      onSave.mockRejectedValueOnce(staleData())
+
+      await user.click(screen.getByRole('button', { name: '1 alo' }))
+      await user.click(saveButton())
+      expect(await screen.findByText('results.layoutChanged')).toBeInTheDocument()
+
+      rerender({ registrations: [place('voi', 'VOI', 1, onceHere)] })
+
+      expect(screen.getByRole('tab', { name: 'VOI' })).toHaveAttribute('aria-selected', 'true')
+      expect(screen.getByRole('button', { name: '1 voi' })).toBeInTheDocument()
+    })
+
+    it('opens on the first class when the list comes back with dogs after an empty one', () => {
+      const { rerender } = renderScoring({ eventType: 'NOWT', registrations: [] })
+      expect(screen.queryByRole('tab')).not.toBeInTheDocument()
+
+      rerender({ registrations: [place('alo', 'ALO', 1, onceHere)] })
+
+      expect(screen.getByRole('tab', { name: 'ALO' })).toHaveAttribute('aria-selected', 'true')
+    })
+
+    it.each([
+      ['a conflict over the score', { conflicts: [], error: 'resultConflict' }],
+      ['a refusal that names nothing', 'conflict'],
+    ])('leaves %s to the general path: the dog and its scores stay', async (_name, body) => {
+      const user = userEvent.setup()
+      const onRefused = vi.fn()
+      const { onSave } = renderScoring({
+        eventType: 'NOWT',
+        onRefused,
+        registrations: [place('alo', 'ALO', 1, onceHere, scores)],
+      })
+      onSave.mockRejectedValueOnce(new APIError(new Response(null, { status: 409 }), body))
+      expectConsoleOutput(/reportError .*409/)
+
+      await user.click(screen.getByRole('button', { name: '1 alo' }))
+      await user.click(saveButton())
+
+      expect(await screen.findByText('results.saveFailed')).toBeInTheDocument()
+      expect(screen.queryByText('results.layoutChanged')).not.toBeInTheDocument()
+      expect(onRefused).not.toHaveBeenCalled()
+      expect(saveButton()).toBeEnabled()
     })
   })
 

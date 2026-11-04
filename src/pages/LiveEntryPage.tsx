@@ -61,19 +61,20 @@ export function Component() {
     [eventId, setEntry, stationId, token]
   )
 
-  // A wrong link, a revoked one and a station that never existed all read the same, on purpose.
   const handleLocked = useCallback(
     () => setEntry((previous) => previous && { ...previous, event: { ...previous.event, locked: true } }),
     [setEntry]
   )
 
-  // A dog the trial no longer has: the day's list is read again, so the post goes on with the dogs that are.
+  // A dog the trial no longer has, or a running order changed: the link has no socket to hear of either, so the
+  // day's list is read again and the post goes on with the dogs and the order that are.
   const handleRefused = useCallback(() => {
     load(new AbortController().signal)
       .then((data) => setEntry(data))
       .catch(reportError)
   }, [load, setEntry])
 
+  // A wrong link, a revoked one and a station that never existed all read the same, on purpose.
   if (failed) {
     return (
       <>
