@@ -16,6 +16,8 @@ import {
   getFormPayment,
   getPaymentPicture,
   getProviderName,
+  getRefundableAmount,
+  getRefundableBalance,
   getRegistrationPaymentDetails,
   hasEarlyBirdPrice,
   hasPaymentLockingRegistrations,
@@ -593,6 +595,75 @@ describe('payment', () => {
       ],
     ])('leaves %s', (_name, transactions, expected) => {
       expect(getDuplicatePaymentRemainder(transactions)).toBe(expected)
+    })
+  })
+
+  // KOE-1614: the one rule RefundCreate refuses by and the refund dialog offers by.
+  describe('refundable money', () => {
+    const payment = { amount: 5000, status: 'ok', type: 'payment' } as const
+    const refund = (status: JsonRefundTransaction['status'], amount = 1500, handlingCost?: number) =>
+      ({ amount, handlingCost, status, type: 'refund' }) as const
+
+    describe('getRefundableBalance', () => {
+      it.each([
+        ['ok', 3000],
+        ['pending', 3000],
+        ['delayed', 3000],
+        ['fail', 5000],
+        ['new', 5000],
+      ] as const)('reads a refund that is %s, with its handling cost, leaving %i', (status, expected) => {
+        expect(getRefundableBalance([payment, refund(status, 1500, 500)])).toBe(expected)
+      })
+
+      it.each([
+        ['new', 0],
+        ['pending', 0],
+        ['delayed', 0],
+        ['fail', 0],
+        ['ok', 5000],
+      ] as const)('reads a payment that is %s as %i', (status, expected) => {
+        expect(getRefundableBalance([{ ...payment, status }])).toBe(expected)
+      })
+
+      it('reads a refund without a handling cost as having none', () => {
+        expect(getRefundableBalance([payment, refund('ok')])).toBe(3500)
+      })
+
+      it('is nothing without transactions', () => {
+        expect(getRefundableBalance([])).toBe(0)
+      })
+
+      it('says so when more went back than came in', () => {
+        expect(getRefundableBalance([payment, refund('ok', 6000)])).toBe(-1000)
+      })
+    })
+
+    describe('getRefundableAmount', () => {
+      it('is the payment when all of it is left', () => {
+        expect(getRefundableAmount(payment, [payment])).toBe(5000)
+      })
+
+      it('is what is left of the money when that is less than the payment', () => {
+        expect(getRefundableAmount(payment, [payment, refund('pending', 3000, 500)])).toBe(1500)
+      })
+
+      it('is the selected payment when the registration holds more', () => {
+        const other = { ...payment, amount: 7000 }
+
+        expect(getRefundableAmount(payment, [payment, other])).toBe(5000)
+      })
+
+      it('is nothing when more went back than came in', () => {
+        expect(getRefundableAmount(payment, [payment, refund('ok', 6000)])).toBe(0)
+      })
+
+      it.each([
+        ['a refund', refund('ok')],
+        ['a pending payment', { ...payment, status: 'pending' }],
+        ['a failed payment', { ...payment, status: 'fail' }],
+      ] as const)('has nothing to give from %s', (_case, selected) => {
+        expect(getRefundableAmount(selected, [payment, selected])).toBe(0)
+      })
     })
   })
 

@@ -23,8 +23,8 @@ it('lines up the total, the handling cost, and the refund amount with their curr
             canHaveHandlingCosts: true,
             handlingCost: 500,
             onHandlingCostChange: () => {},
+            refundBase: 1000,
             refundTotal: 500,
-            selectedTotal: 1000,
             total: 1000,
           },
         }}
@@ -34,4 +34,30 @@ it('lines up the total, the handling cost, and the refund amount with their curr
 
   await expect.element(screen.getByText('10,00 €')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('refund-footer-amounts')
+})
+
+// A pending refund left nothing to give back, and the default handling cost still stands (KOE-1614).
+it('shows no amount when there is nothing to refund', async () => {
+  const screen = await render(
+    <Frame>
+      <DataGrid
+        columns={[{ field: 'name', headerName: 'Nimi', width: 200 }]}
+        rows={[{ id: 1, name: 'Test Dog' }]}
+        slots={{ footer: RefundFooter }}
+        slotProps={{
+          footer: {
+            canHaveHandlingCosts: true,
+            handlingCost: 500,
+            onHandlingCostChange: () => {},
+            refundBase: 0,
+            refundTotal: -500,
+            total: 0,
+          },
+        }}
+      />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('-', { exact: true })).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('refund-footer-nothing-to-refund')
 })

@@ -153,3 +153,25 @@ it('explains a partial refund as the part kept back in the handling fee', async 
   await expect.element(screen.getByText(/^Jos palautat vain osan maksusta/)).toBeVisible()
   await expect(screen.getByRole('dialog')).toMatchScreenshot('refund-dialog-partial')
 })
+
+// A refund still on its way counts (KOE-1614): its amount on its row, and only what is left in the
+// total, so a second refund cannot be started on the same money.
+it('counts a refund on its way', async () => {
+  mockTransactions.current = [
+    itemisedPayment,
+    {
+      ...payment,
+      amount: 3000,
+      createdAt: new Date('2026-01-02T12:00:00Z'),
+      handlingCost: 500,
+      status: 'pending',
+      transactionId: 'refund-123',
+      type: 'refund',
+      user: 'Sihteeri',
+    },
+  ]
+  const screen = await renderOpen()
+
+  await expect.element(screen.getByText('15,00 €').first()).toBeVisible()
+  await expect(screen.getByRole('dialog')).toMatchScreenshot('refund-dialog-pending-refund')
+})
