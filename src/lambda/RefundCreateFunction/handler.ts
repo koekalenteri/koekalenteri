@@ -10,7 +10,8 @@ import type {
 import { nanoid } from 'nanoid'
 import { paymentAudit } from '../../lib/audit'
 import { formatMoney } from '../../lib/money'
-import { getProviderName, paytrailRefusalBody } from '../../lib/payment'
+import { getProviderName, getRefundableAmount, paytrailRefusalBody } from '../../lib/payment'
+import { refundCreateSchema } from '../../lib/schema/payment'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { getAuthorizedEvent } from '../lib/eventAuth'
@@ -25,7 +26,9 @@ import {
   createPendingRefundTransaction,
   createSettledRefundTransaction,
   readTransaction,
+  readTransactionsByReference,
 } from '../lib/repositories/transactionRepository'
+import { validateBody } from '../lib/request'
 import { getApiHost } from '../utils/proxyEvent'
 
 const STALE_REFUND_CREATION_AGE_MS = 5 * 60 * 1000
@@ -52,24 +55,27 @@ const getData = async (transactionId: string, user: JsonUser, memberOf: string[]
 }
 
 /**
+ * Refuses a refund and handling fee that add up to more than can be refunded, before anything is
+ * claimed or sent. Paytrail bounds only the money it pays back, and the fee kept is never sent to it,
+ * so this is the one check on the fee (KOE-1614).
+ */
+const assertWithinRefundable = async (
+  paymentTransaction: JsonPaymentTransaction,
+  reference: string,
+  requested: number
+) => {
+  const transactions = (await readTransactionsByReference(reference)) ?? []
+  const remaining = getRefundableAmount(paymentTransaction, transactions)
+  if (requested > remaining) throw httpError(422, { remaining })
+}
+
+/**
  * refundCreate is called by client to refund a payment
  */
 const refundCreateLambda = lambda('refundCreate', async (event) => {
   const { user, memberOf } = await authorizeWithMemberOf(event)
 
-  const {
-    transactionId,
-    amount,
-    handlingCost = 0,
-  } = parseJSONWithFallback<{
-    transactionId: string
-    amount: number
-    handlingCost?: number
-  }>(event.body)
-
-  if (amount <= 0) {
-    throw new LambdaError(400, `Invalid amount: '${amount}'`)
-  }
+  const { transactionId, amount, handlingCost } = validateBody(refundCreateSchema, parseJSONWithFallback(event.body))
 
   const { paymentTransaction, eventId, registrationId, registration } = await getData(transactionId, user, memberOf)
 
@@ -79,6 +85,8 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
   if (paymentTransaction.items && paymentTransaction.items.length !== 1) {
     throw new LambdaError(412, 'Unsupported transaction')
   }
+
+  await assertWithinRefundable(paymentTransaction, reference, amount + handlingCost)
 
   const paymentItem = paymentTransaction.items?.[0]
 

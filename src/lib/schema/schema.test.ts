@@ -4,7 +4,7 @@ import * as eventFixtures from '../../__mockData__/events'
 import * as registrationFixtures from '../../__mockData__/registrations'
 import { summarizeFieldErrors, validate } from './common'
 import { eventBodySchema } from './event'
-import { paymentCreateSchema } from './payment'
+import { paymentCreateSchema, refundCreateSchema } from './payment'
 import { registrationBodySchema } from './registration'
 
 /** As the value reaches a lambda: dates are strings and nothing carries a class. */
@@ -112,4 +112,27 @@ describe('paymentCreateSchema', () => {
       expect(errors.every(({ message }) => message === 'is required')).toBe(true)
     }
   )
+})
+
+describe('refundCreateSchema', () => {
+  it('accepts whole cents, and a handling cost above the refund', () => {
+    expect(errorsOf(refundCreateSchema, { amount: 300, handlingCost: 500, transactionId: 'tx' })).toEqual([])
+  })
+
+  it('takes a missing handling cost', () => {
+    expect(errorsOf(refundCreateSchema, { amount: 1, transactionId: 'tx' })).toEqual([])
+  })
+
+  it.each([
+    [{ amount: 0, transactionId: 'tx' }, 'amount', 'must be at least 1'],
+    [{ amount: 1.5, transactionId: 'tx' }, 'amount', 'must be a whole number of cents'],
+    [{ amount: null, transactionId: 'tx' }, 'amount', 'must be a number'],
+    [{ amount: 1, handlingCost: -1, transactionId: 'tx' }, 'handlingCost', 'must be at least 0'],
+    [{ amount: 1, handlingCost: 0.5, transactionId: 'tx' }, 'handlingCost', 'must be a whole number of cents'],
+    [{ amount: 1, handlingCost: null, transactionId: 'tx' }, 'handlingCost', 'must be a number'],
+    [{ amount: 1, transactionId: '' }, 'transactionId', 'is required'],
+    [{ amount: 1 }, 'transactionId', 'is required'],
+  ])('rejects %j', (body, field, message) => {
+    expect(errorsOf(refundCreateSchema, body)).toEqual([{ field, message }])
+  })
 })

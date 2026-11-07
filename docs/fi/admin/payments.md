@@ -57,6 +57,11 @@ tuli, ja yhdistys voi pidättää siitä *{t:registration.refundDialog.handlingC
 suuruisen käsittelykulun. Joillakin maksutavoilla Paytrail pyytää ilmoittautujalta tilinumeron
 sähköpostilla, ja palautus näkyy keskeneräisenä, kunnes ilmoittautuja on vastannut.
 
+Palautus ja käsittelykulu voivat yhteensä olla enintään sen verran kuin valitusta maksusta ja
+ilmoittautumisen rahoista on jäljellä. Kesken oleva palautus lasketaan mukaan, joten samaa rahaa ei voi
+palauttaa kahdesti. Jos palautus epäonnistuu, sen summa on taas palautettavissa. Jos joku muu ehti
+palauttaa saman rahan, koekalenteri hylkää palautuksen ja kertoo jäljellä olevan summan.
+
 Maksun voi palauttaa myös ilmoittautumiselle, jolla on koepaikka, jos siitä on maksettu liikaa:
 koesihteeri on esimerkiksi poistanut lisäpalvelun tai korjannut osallistumismaksun jäsenhintaan.
 Ikkuna tarjoaa silloin ensin liikaa maksetun osuuden palautusta ilman käsittelykulua. Jos
