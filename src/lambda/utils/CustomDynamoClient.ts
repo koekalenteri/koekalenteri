@@ -222,7 +222,6 @@ const toQueryInput = (table: string, params: QueryParams): QueryCommandInput => 
   FilterExpression: params.includeDeleted ? params.filterExpression : liveRowsFilter(params.filterExpression),
   IndexName: params.index,
   KeyConditionExpression: params.key,
-  Limit: params.limit,
   ScanIndexForward: params.forward,
   TableName: table,
 })
