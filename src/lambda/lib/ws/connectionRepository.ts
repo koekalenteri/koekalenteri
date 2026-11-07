@@ -4,18 +4,18 @@ import CustomDynamoClient from '../../utils/CustomDynamoClient'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.wsConnectionsTable)
 
-export const listConnections = async () => (await dynamoDB.readAll<WebSocketConnection>()) ?? []
-
 export const getConnection = async (connectionId: string) => dynamoDB.read<WebSocketConnection>({ connectionId })
 
 export const createConnection = async ({
   connectionId,
   expiresAt,
-}: Pick<WebSocketConnection, 'connectionId' | 'expiresAt'>) => {
+  sourceBucket,
+}: Pick<WebSocketConnection, 'connectionId' | 'expiresAt' | 'sourceBucket'>) => {
   await dynamoDB.write({
     audience: 'public' as const,
     connectionId,
     ...(typeof expiresAt === 'number' ? { expiresAt } : {}),
+    ...(sourceBucket ? { sourceBucket } : {}),
   })
 }
 
@@ -104,3 +104,23 @@ const queryConnectionsByAudience = async (audience: NonNullable<WebSocketConnect
 export const queryAdminConnections = async () => queryConnectionsByAudience('admin')
 
 export const queryPublicConnections = async () => queryConnectionsByAudience('public')
+
+/**
+ * The rows still within `expiresAt`, so one whose `$disconnect` was lost and whose TTL deletion lags
+ * holds no place. Connection rows are never soft-deleted, and source-index projects no deletedAt.
+ */
+const countOpenConnections = async (index: string, key: string, values: Record<string, string>, limit: number) =>
+  dynamoDB.count({
+    filterExpression: 'expiresAt > :now',
+    includeDeleted: true,
+    index,
+    key,
+    limit,
+    values: { ...values, ':now': Math.floor(Date.now() / 1000) },
+  })
+
+export const countOpenPublicConnections = async (limit: number) =>
+  countOpenConnections('audience-index', 'audience = :audience', { ':audience': 'public' }, limit)
+
+export const countOpenConnectionsInSourceBucket = async (sourceBucket: string, limit: number) =>
+  countOpenConnections('source-index', 'sourceBucket = :sourceBucket', { ':sourceBucket': sourceBucket }, limit)

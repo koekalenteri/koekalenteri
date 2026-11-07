@@ -1,11 +1,11 @@
 import { vi } from 'vitest'
 
-const mockReadAll = vi.fn()
 const mockRead = vi.fn()
 const mockWrite = vi.fn()
 const mockUpdate = vi.fn()
 const mockDelete = vi.fn()
 const mockQuery = vi.fn()
+const mockCount = vi.fn()
 
 vi.doMock('../../config', () => ({
   CONFIG: { wsConnectionsTable: 'ws-connections' },
@@ -13,20 +13,21 @@ vi.doMock('../../config', () => ({
 
 vi.doMock('../../utils/CustomDynamoClient', () => ({
   default: class MockCustomDynamoClient {
-    readAll = (...args: any[]) => mockReadAll(...args)
-    read = (...args: any[]) => mockRead(...args)
-    write = (...args: any[]) => mockWrite(...args)
-    update = (...args: any[]) => mockUpdate(...args)
-    delete = (...args: any[]) => mockDelete(...args)
-    query = (...args: any[]) => mockQuery(...args)
+    read = (...args: unknown[]) => mockRead(...args)
+    write = (...args: unknown[]) => mockWrite(...args)
+    update = (...args: unknown[]) => mockUpdate(...args)
+    delete = (...args: unknown[]) => mockDelete(...args)
+    query = (...args: unknown[]) => mockQuery(...args)
+    count = (...args: unknown[]) => mockCount(...args)
   },
 }))
 
 const {
   authenticateConnection,
+  countOpenConnectionsInSourceBucket,
+  countOpenPublicConnections,
   createConnection,
   getConnection,
-  listConnections,
   queryAdminConnections,
   queryPublicConnections,
   removeConnection,
@@ -43,11 +44,6 @@ const {
 describe('ws/connectionRepository', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-  })
-
-  it('listConnections returns empty array for undefined db result', async () => {
-    mockReadAll.mockResolvedValueOnce(undefined)
-    await expect(listConnections()).resolves.toEqual([])
   })
 
   it('getConnection reads by connectionId', async () => {
@@ -83,6 +79,17 @@ describe('ws/connectionRepository', () => {
     await createConnection(legacyPayload)
 
     expect(mockWrite).toHaveBeenCalledWith({ audience: 'public', connectionId: 'c1', expiresAt: 123 })
+  })
+
+  it('createConnection stores the source bucket when there is one', async () => {
+    await createConnection({ connectionId: 'c1', expiresAt: 123, sourceBucket: 'a1b2c' })
+
+    expect(mockWrite).toHaveBeenCalledWith({
+      audience: 'public',
+      connectionId: 'c1',
+      expiresAt: 123,
+      sourceBucket: 'a1b2c',
+    })
   })
 
   it('authenticateConnection stores user display metadata', async () => {
@@ -184,6 +191,46 @@ describe('ws/connectionRepository', () => {
       index: 'audience-index',
       key: 'audience = :audience',
       values: { ':audience': 'public' },
+    })
+  })
+
+  describe('open connection counts', () => {
+    beforeEach(() => {
+      vi.useFakeTimers().setSystemTime(new Date('2026-05-23T19:00:00.000Z'))
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('countOpenConnectionsInSourceBucket counts unexpired rows through the source index', async () => {
+      mockCount.mockResolvedValueOnce(3)
+
+      await expect(countOpenConnectionsInSourceBucket('a1b2c', 20)).resolves.toBe(3)
+
+      expect(mockCount).toHaveBeenCalledWith({
+        filterExpression: 'expiresAt > :now',
+        includeDeleted: true,
+        index: 'source-index',
+        key: 'sourceBucket = :sourceBucket',
+        limit: 20,
+        values: { ':now': 1779562800, ':sourceBucket': 'a1b2c' },
+      })
+    })
+
+    it('countOpenPublicConnections counts unexpired public rows through the audience index', async () => {
+      mockCount.mockResolvedValueOnce(7)
+
+      await expect(countOpenPublicConnections(1000)).resolves.toBe(7)
+
+      expect(mockCount).toHaveBeenCalledWith({
+        filterExpression: 'expiresAt > :now',
+        includeDeleted: true,
+        index: 'audience-index',
+        key: 'audience = :audience',
+        limit: 1000,
+        values: { ':audience': 'public', ':now': 1779562800 },
+      })
     })
   })
 })

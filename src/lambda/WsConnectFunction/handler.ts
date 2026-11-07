@@ -6,7 +6,7 @@ const wsConnectHandler = wsLambda('wsConnect', async (event) => {
 
   if (!connectionId) throw httpError(400, 'Bad request')
 
-  await connectWebSocket({ connectionId })
+  await connectWebSocket({ connectionId }, event.requestContext.identity?.sourceIp)
 
   return { body: 'Connected', statusCode: 200 }
 })

@@ -4,7 +4,7 @@ This folder contains the Lambda-side WebSocket service layer. It keeps track of 
 
 ## Runtime flow
 
-1. `$connect` calls `connectWebSocket`, which stores the connection as a public connection and sets a DynamoDB TTL close to API Gateway's maximum WebSocket lifetime.
+1. `$connect` calls `connectWebSocket`, which checks the limits (see "Operational notes"), stores the connection as a public connection and sets a DynamoDB TTL close to API Gateway's maximum WebSocket lifetime.
 2. `$default` messages are handled by `WsMessageFunction`. Clients can authenticate, subscribe to an admin channel, a single event, an event's published start list, or an edit-token-authorized participant registration, or unsubscribe.
 3. Domain mutations call the publish helpers in `actions.ts`. These helpers resolve the right audience and broadcast JSON payloads to each connection. See "Live pushes are best effort" below.
 4. `$disconnect` removes the connection and publishes updated connection or event-viewer state when needed.
@@ -139,7 +139,7 @@ a read started on it sees everything sent before, and anything later arrives on 
 
 ## Connection model
 
-Connections are stored in the configured WebSocket connections DynamoDB table. The table is queried by the `audience-index` GSI using `audience` values `public` and `admin`.
+Connections are stored in the configured WebSocket connections DynamoDB table. The table is queried by the `audience-index` GSI using `audience` values `public` and `admin`, and counted per source by the sparse `source-index` GSI, keyed on `sourceBucket` and projecting only `expiresAt`.
 
 Important fields:
 - `connectionId`: API Gateway connection ID and table key.
@@ -152,6 +152,7 @@ Important fields:
 - `publicEventId`: event whose published start list the connection watches. Unlike `eventId` it does not move the connection to the `admin` audience.
 - `registrationEventId` and `registrationId`: participant registration whose payment updates the connection receives.
 - `expiresAt`: epoch-seconds expiry used by authorization checks and DynamoDB TTL.
+- `sourceBucket`: the first 5 hex characters (20 bits) of the hash of `requestContext.identity.sourceIp`, absent when the event has no source. Deliberately not unique: some 4096 IPv4 addresses share a value. It is truncated because the full hash of an IPv4 address can be reversed by trying every address, and the value also reaches the log lines of the queries. The raw address is never stored or logged. It stays on the row through authentication and subscriptions.
 
 ## Module responsibilities
 
@@ -159,9 +160,9 @@ Important fields:
 - `livePush.ts`: `bestEffort`, the rule that a push never fails the write before it.
 - `authentication.ts`: verifies Cognito ID tokens and maps claims to application authorization.
 - `broadcast.ts`: sends payloads to recipients in bounded-concurrency batches and reports sent, gone, and failed counts.
-- `connectionLifecycle.ts`: handles connection creation, authentication updates, lookup, disconnect cleanup, and viewer notifications.
+- `connectionLifecycle.ts`: handles the connection limits, connection creation, authentication updates, lookup, disconnect cleanup, and viewer notifications.
 - `connectionPolicy.ts`: centralizes expiry and admin/organizer authorization checks.
-- `connectionRepository.ts`: DynamoDB persistence and audience queries.
+- `connectionRepository.ts`: DynamoDB persistence, audience queries and the counts of open connections.
 - `connectionSelectors.ts`: builds public, admin, organizer, and event audiences from persisted connections.
 - `gatewaySender.ts`: wraps API Gateway Management API `PostToConnection` and normalizes send outcomes.
 - `payloads.ts`: constructs outbound payloads and derives distinct event viewers.
@@ -171,7 +172,8 @@ Important fields:
 
 ## Operational notes
 
-- Public connection creation is capped to avoid unbounded fan-out; currently the service rejects new public connections after 1000 public connections.
+- `$connect` answers 429 when the connection's source bucket already holds 20 open connections, of any audience, and then when there are 1000 open public connections, to avoid unbounded fan-out. The bucket comes first, so one source cannot fill the public cap and costs one small count when it is refused. A refused client retries with the backoff of `useWebSocket` and keeps working through fetch.
+- Both are `Select: COUNT` queries of the rows with `expiresAt` in the future, so a row whose `$disconnect` was lost holds its place until then and not until a late TTL deletion. They read before the write on an eventually consistent index, so a burst can pass a limit by a few, which is accepted. Everyone behind one address (a shared wifi, carrier NAT), and anyone else in the same bucket, shares the 20.
 - Admin/event authorization also checks `expiresAt`, so long-lived sockets must re-authenticate by reconnecting with a fresh token before the stored token expiry.
 - Event patches are published twice when needed: admin recipients receive the full admin patch, while public recipients receive only the sanitized public fields (and the `deleted` mark on a delete).
 - The public event patch deliberately goes to every anonymous connection rather than to subscribers of that event: the event list is left open in a tab and is meant to stay current. The start list rows are the targeted publication, because they are the payload no unrelated reader needs.

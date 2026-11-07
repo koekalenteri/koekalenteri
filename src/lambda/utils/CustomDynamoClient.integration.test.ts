@@ -42,6 +42,22 @@ describe('CustomDynamoClient against DynamoDB-local', () => {
     })
   })
 
+  describe('count', () => {
+    it('counts the rows of one partition through an index, leaving out the deleted ones unless asked', async () => {
+      const organizerId = uniqueId('org')
+      await client.batchWrite([row({ organizerId }), row({ organizerId }), row({ deletedAt: 'x', organizerId }), row()])
+      const params = {
+        index: 'gsiOrganizerStartDate',
+        key: 'organizerId = :organizerId',
+        values: { ':organizerId': organizerId },
+      }
+
+      await expect(client.count(params)).resolves.toBe(2)
+      await expect(client.count({ ...params, includeDeleted: true })).resolves.toBe(3)
+      await expect(client.count({ ...params, includeDeleted: true, limit: 1 })).resolves.toBe(1)
+    })
+  })
+
   describe('query', () => {
     it('reads the rows of one partition through gsiOrganizerStartDate, in key order', async () => {
       const organizerId = uniqueId('org')

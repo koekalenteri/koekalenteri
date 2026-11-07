@@ -100,6 +100,7 @@ const CLIENT_METHODS = new Map<string, MethodSpec>([
   ['batchDelete', { actions: ['BatchWriteItem'], table: 'client' }],
   ['batchGet', { actions: ['BatchGetItem'], table: 'client' }],
   ['batchWrite', { actions: ['BatchWriteItem'], table: 'client' }],
+  ['count', { actions: ['Query'], table: { indexOption: 0 } }],
   ['delete', { actions: ['DeleteItem'], table: 'client' }],
   ['documentTransaction', { actions: [], table: 'items' }],
   ['query', { actions: ['Query'], table: { indexOption: 0 } }],

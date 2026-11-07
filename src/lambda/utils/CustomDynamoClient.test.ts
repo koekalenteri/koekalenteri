@@ -306,6 +306,83 @@ describe('CustomDynamoClient', () => {
     })
   })
 
+  describe('count', () => {
+    const params = { key: 'id = :id', values: { ':id': '1' } }
+
+    it('asks only for the count, with the same filter rule as a query', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({ Count: 3 })
+
+      await expect(client.count({ ...params, index: 'gsi' })).resolves.toBe(3)
+
+      expect(mockSend).toHaveBeenCalledTimes(1)
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ExpressionAttributeValues: { ':id': '1' },
+          FilterExpression: 'attribute_not_exists(deletedAt)',
+          IndexName: 'gsi',
+          KeyConditionExpression: 'id = :id',
+          Select: 'COUNT',
+          TableName: 'test-table',
+        })
+      )
+    })
+
+    it('sends the caller filter as it is when the deleted rows are asked for', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({ Count: 0 })
+
+      await client.count({ ...params, filterExpression: 'a > :a', includeDeleted: true })
+
+      expect(mockSend).toHaveBeenCalledWith(expect.objectContaining({ FilterExpression: 'a > :a' }))
+    })
+
+    it('adds up the pages', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({ Count: 2, LastEvaluatedKey: { id: 'a' } })
+      mockSend.mockResolvedValueOnce({ Count: 3 })
+
+      await expect(client.count(params)).resolves.toBe(5)
+
+      expect(mockSend).toHaveBeenCalledTimes(2)
+      expect(mockSend).toHaveBeenLastCalledWith(expect.objectContaining({ ExclusiveStartKey: { id: 'a' } }))
+    })
+
+    // Limit applies before the filter: a page can count nothing and still have keys after it.
+    it('walks on past a page that counts nothing, until the limit or the end of the keys', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({ Count: 0, LastEvaluatedKey: { id: 'a' } })
+      mockSend.mockResolvedValueOnce({ Count: 1, LastEvaluatedKey: { id: 'b' } })
+      mockSend.mockResolvedValueOnce({ Count: 0 })
+
+      await expect(client.count({ ...params, limit: 2 })).resolves.toBe(1)
+
+      expect(mockSend).toHaveBeenCalledTimes(3)
+      expect(mockSend).toHaveBeenNthCalledWith(2, expect.objectContaining({ ExclusiveStartKey: { id: 'a' }, Limit: 2 }))
+      expect(mockSend).toHaveBeenNthCalledWith(3, expect.objectContaining({ ExclusiveStartKey: { id: 'b' }, Limit: 1 }))
+    })
+
+    it('answers 0 for a page without a count', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({})
+
+      await expect(client.count(params)).resolves.toBe(0)
+    })
+
+    it('asks each page only for what the limit leaves, and stops when it is reached', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      // A filter can leave a page short of its limit, so the next page is still needed.
+      mockSend.mockResolvedValueOnce({ Count: 1, LastEvaluatedKey: { id: 'a' } })
+      mockSend.mockResolvedValueOnce({ Count: 2, LastEvaluatedKey: { id: 'b' } })
+
+      await expect(client.count({ ...params, limit: 3 })).resolves.toBe(3)
+
+      expect(mockSend).toHaveBeenCalledTimes(2)
+      expect(mockSend).toHaveBeenNthCalledWith(1, expect.objectContaining({ Limit: 3 }))
+      expect(mockSend).toHaveBeenNthCalledWith(2, expect.objectContaining({ ExclusiveStartKey: { id: 'a' }, Limit: 2 }))
+    })
+  })
+
   describe('query', () => {
     it('queries items with key condition', async () => {
       const client = new CustomDynamoClient('TestTable')
