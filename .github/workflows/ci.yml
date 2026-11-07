@@ -20,7 +20,7 @@ jobs:
       e2e: ${{ steps.scope.outputs.e2e }}
       frontend: ${{ steps.scope.outputs.frontend }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0 # Fetch all history
 
@@ -53,7 +53,7 @@ jobs:
             echo "sha=$(git merge-base origin/main ${{ github.sha }})" >> $GITHUB_OUTPUT
           fi
 
-      - uses: dorny/paths-filter@v4
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         id: filter
         with:
           base: ${{ steps.base-commit.outputs.sha }}
@@ -90,7 +90,7 @@ jobs:
       - name: Check previous main CI result
         id: previous-ci
         if: ${{ github.event_name == 'push' }}
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const currentRunId = context.runId
@@ -127,7 +127,7 @@ jobs:
             echo "e2e=${{ steps.filter.outputs.e2e }}" >> $GITHUB_OUTPUT
           fi
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
@@ -135,7 +135,7 @@ jobs:
 
       - name: Cache node_modules
         id: cache
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -150,15 +150,15 @@ jobs:
     needs: setup
     if: ${{ needs.setup.outputs.backend == 'true' }}
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Cache node_modules
         id: cache
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -167,7 +167,7 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run build-backend
-      - uses: aws-actions/setup-sam@v3
+      - uses: aws-actions/setup-sam@341eee193f458fa5aae5d52c94b0c5cf3a1c5a52 # v3
         with:
           use-installer: true
       - name: Validate SAM template
@@ -193,7 +193,7 @@ jobs:
             exit 1
           fi
       - name: Cache coverage report
-        uses: actions/cache/save@v6
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: coverage/lcov.info
           key: ${{ github.ref_name }}-backend-coverage-${{ github.run_id }}
@@ -203,15 +203,15 @@ jobs:
     needs: setup
     if: ${{ needs.setup.outputs.frontend == 'true' }}
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Cache node_modules
         id: cache
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -231,7 +231,7 @@ jobs:
           node scripts/smoke-deploy.mjs --html build-e2e/index.html \
             --expect-version "$(jq -r .version package.json)" --expect-revision "$(git rev-parse HEAD)"
       - name: Upload the build for the browser tests
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: frontend-e2e-build
           # stats.json is the bundle analyzer's, some 250 MB that the tests never read.
@@ -248,15 +248,15 @@ jobs:
       matrix:
         shard: [1, 2, 3, 4, 5]
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Restore node_modules
         id: cache-restore
-        uses: actions/cache/restore@v6
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -272,7 +272,7 @@ jobs:
       - name: Rename coverage
         run: mv coverage/lcov.info coverage/lcov${{ matrix.shard }}.info
       - name: Upload coverage report
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: frontend-coverage-${{ matrix.shard }}
           path: coverage/lcov${{ matrix.shard }}.info
@@ -286,15 +286,15 @@ jobs:
     needs: [setup, integration]
     if: ${{ !cancelled() && needs.setup.result == 'success' && needs.setup.outputs.frontend == 'true' }}
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Restore node_modules
         id: cache-restore
-        uses: actions/cache/restore@v6
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -303,7 +303,7 @@ jobs:
         run: npm ci
       - name: Cache Playwright browsers
         id: playwright-cache
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
@@ -313,7 +313,7 @@ jobs:
         run: npm run test-visual -- --run
       - name: Upload screenshot diffs
         if: failure()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: visual-screenshot-diffs
           # The actual and diff images vitest writes for a failed comparison; the references
@@ -345,15 +345,15 @@ jobs:
     env:
       DYNAMODB_ENDPOINT: http://127.0.0.1:8000
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Restore node_modules
         id: cache-restore
-        uses: actions/cache/restore@v6
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -366,7 +366,7 @@ jobs:
         run: npm run build-backend
       - name: Download the frontend build
         if: ${{ needs.frontend.result == 'success' }}
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: frontend-e2e-build
           path: build-e2e
@@ -378,7 +378,7 @@ jobs:
           SKIP_TYPECHECK: 'true' # the lint job type-checks the same sources
       - name: Cache Playwright browsers
         id: playwright-cache
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
@@ -391,7 +391,7 @@ jobs:
         run: node e2e/summary.mjs >> "$GITHUB_STEP_SUMMARY"
       - name: Upload report and traces
         if: failure()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: e2e-report-${{ matrix.shard }}
           path: |
@@ -407,15 +407,15 @@ jobs:
     needs: [setup, frontend]
     if: ${{ !cancelled() && needs.setup.result == 'success' }}
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Restore node_modules
         id: cache-restore
-        uses: actions/cache/restore@v6
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -472,15 +472,15 @@ jobs:
     env:
       DYNAMODB_ENDPOINT: http://127.0.0.1:8000
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Restore node_modules
         id: cache-restore
-        uses: actions/cache/restore@v6
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -495,13 +495,13 @@ jobs:
     needs: [frontend-test]
     steps:
       - name: Download coverage artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: frontend-coverage-*
           path: coverage
           merge-multiple: true
       - name: Cache frotnend coverage reports
-        uses: actions/cache/save@v6
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: coverage
           key: ${{ github.ref_name }}-frontend-coverage-${{ github.run_id }}
@@ -531,7 +531,7 @@ jobs:
     needs: [deploy-dev]
     if: ${{ always() && needs.deploy-dev.result == 'success' && github.event_name == 'push' }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0 # Issue keys are collected per pushed commit
 
@@ -543,7 +543,7 @@ jobs:
       # since the last one that got through, however many pipelines failed in between.
       - name: Find the last commit this job successfully marked
         id: last-marked
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const { data } = await github.rest.actions.listWorkflowRuns({
@@ -595,17 +595,17 @@ jobs:
         !(github.event_name == 'pull_request' && github.actor == 'dependabot[bot]')
       }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis (SonarCloud)
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Restore node_modules
         id: cache-restore
-        uses: actions/cache/restore@v6
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -613,23 +613,23 @@ jobs:
         if: steps.cache-restore.outputs.cache-hit != 'true'
         run: npm ci
       - name: Download frontend coverage
-        uses: actions/cache/restore@v6
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: coverage
           key: ${{ github.ref_name }}-frontend-coverage
           restore-keys: ${{ github.ref_name }}-frontend-coverage
       - name: Download backend coverage
-        uses: actions/cache/restore@v6
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: coverage/lcov.info
           key: ${{ github.ref_name }}-backend-coverage
           restore-keys: ${{ github.ref_name }}-backend-coverage
       - name: Read frontend version
         id: package-version
-        uses: martinbeentjes/npm-get-version-action@v1.3.1
+        uses: martinbeentjes/npm-get-version-action@3cf273023a0dda27efcd3164bdfb51908dd46a5b # v1.3.1
       - name: Set version
         run: echo -e "\nsonar.projectVersion=${{ steps.package-version.outputs.current-version}}" >> sonar-project.properties
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v8
+        uses: SonarSource/sonarqube-scan-action@e805d875275f728fac1885b413934be6d7c63f65 # v8.4.1
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
