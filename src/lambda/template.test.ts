@@ -34,6 +34,29 @@ const resourceName = (block: string) => block.slice(0, block.indexOf(':'))
 const resourcesOfType = (type: string) =>
   resources.filter((block) => new RegExp(String.raw`^\w+:.*\n {4}Type: ${type}\s*$`, 'm').test(block))
 
+/** Whether each table's block matches, by logical id. Fails if the split above lost a table. */
+const tableFlags = (pattern: RegExp) => {
+  const tables = resourcesOfType('AWS::DynamoDB::Table')
+
+  expect(tables.length).toBeGreaterThan(0)
+  expect(tables).toHaveLength(template.match(/^ {4}Type: AWS::DynamoDB::Table\s*$/gm)?.length ?? 0)
+
+  return Object.fromEntries(tables.map((block) => [resourceName(block), pattern.test(block)]))
+}
+
+/** The tables whose rows can be had again without a backup, and how. */
+const rebuildableTables: Record<string, string> = {
+  EventStatsTable: 'the nightly run rebuilds the statistics from the registrations',
+  WsConnectionsTable: 'the connections expire on their own and mean nothing after a restore',
+}
+
+/** The flags a rule for the tables worth restoring expects. Fails if an exception names no table. */
+const allButRebuildable = (flags: Record<string, boolean>) => {
+  expect(Object.keys(rebuildableTables).filter((name) => !(name in flags))).toEqual([])
+
+  return Object.fromEntries(Object.keys(flags).map((name) => [name, !(name in rebuildableTables)]))
+}
+
 describe('template', () => {
   it('has a function for every lambda directory, and nothing else', () => {
     const codeUris = matchAll(/^ {6}CodeUri: lambda\/(\w+)$/gm).sort()
@@ -87,21 +110,32 @@ describe('template', () => {
   // A table that holds anything a restore would need gets point-in-time recovery; the data-version
   // table went without it while it held the migration registry (KOE-1597).
   it('has point-in-time recovery on every table but the rebuildable ones', () => {
-    const withoutRecovery: Record<string, string> = {
-      EventStatsTable: 'the nightly run rebuilds the statistics from the registrations',
-      WsConnectionsTable: 'the connections expire on their own and mean nothing after a restore',
-    }
-    const tables = resourcesOfType('AWS::DynamoDB::Table')
-    const recovery = Object.fromEntries(
-      tables.map((block) => [resourceName(block), /^ {8}PointInTimeRecoveryEnabled: true$/m.test(block)])
-    )
+    const recovery = tableFlags(/^ {8}PointInTimeRecoveryEnabled: true$/m)
 
-    expect(tables).toHaveLength(template.match(/^ {4}Type: AWS::DynamoDB::Table\s*$/gm)?.length ?? 0)
-    expect(Object.keys(withoutRecovery).filter((name) => !(name in recovery))).toEqual([])
-    expect(recovery).toEqual(
-      Object.fromEntries(Object.keys(recovery).map((name) => [name, !(name in withoutRecovery)]))
-    )
+    expect(recovery).toEqual(allButRebuildable(recovery))
   })
+
+  // Point-in-time recovery does not outlive its table, so DynamoDB refuses to delete one (KOE-1613),
+  // whoever asks: a deploy, a stack delete or the console. To remove a table on purpose, its
+  // protection must be switched off by hand first, on a rebuildable table too.
+  it('has deletion protection on every table', () => {
+    const protection = tableFlags(/^ {6}DeletionProtectionEnabled: true$/m)
+
+    expect(protection).toEqual(Object.fromEntries(Object.keys(protection).map((name) => [name, true])))
+  })
+
+  // Renaming a table's logical id or TableName no longer drops its data: the stack gets a new empty
+  // table, and the old one stays behind in the account, outside the stack and still protected, to be
+  // copied from and removed by hand. A rebuildable table has nothing worth leaving behind, so the
+  // comparison is exact and it stays without these.
+  it.each(['DeletionPolicy', 'UpdateReplacePolicy'])(
+    'has %s: Retain on every table but the rebuildable ones',
+    (policy) => {
+      const retained = tableFlags(new RegExp(String.raw`^ {4}${policy}: Retain$`, 'm'))
+
+      expect(retained).toEqual(allButRebuildable(retained))
+    }
+  )
 
   // An alarm is billed per month whether or not anyone hears it. Before KOE-1602 the 13 alarms of each
   // stack had no action at all, so one in ALARM (the data version drift of 24.10.2026) told nobody.
@@ -186,12 +220,8 @@ describe('template', () => {
   // calls KMS on the table's behalf, each request billed (82 000 in October 2026). False keeps the
   // data encrypted at rest with a key AWS owns, at no charge (KOE-1603).
   it('encrypts every table with the AWS-owned key', () => {
-    const tables = resourcesOfType('AWS::DynamoDB::Table')
-    const ownedKey = Object.fromEntries(
-      tables.map((block) => [resourceName(block), /^ {8}SSEEnabled: false$/m.test(block)])
-    )
+    const ownedKey = tableFlags(/^ {8}SSEEnabled: false$/m)
 
-    expect(tables).toHaveLength(template.match(/^ {4}Type: AWS::DynamoDB::Table\s*$/gm)?.length ?? 0)
     expect(ownedKey).toEqual(Object.fromEntries(Object.keys(ownedKey).map((name) => [name, true])))
   })
 })
