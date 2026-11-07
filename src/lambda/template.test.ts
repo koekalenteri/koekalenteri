@@ -194,6 +194,26 @@ describe('template', () => {
     expect(tables).toHaveLength(template.match(/^ {4}Type: AWS::DynamoDB::Table\s*$/gm)?.length ?? 0)
     expect(ownedKey).toEqual(Object.fromEntries(Object.keys(ownedKey).map((name) => [name, true])))
   })
+
+  // The access logs of the attachment bucket name who fetched what, so their bucket is as closed as the
+  // one they describe, and they do not pile up forever (KOE-1624). With ACLs disabled the bucket policy
+  // is the only thing that lets the S3 log delivery service write, so it is asserted along with them.
+  it('keeps the access logs in an encrypted private bucket with no ACLs, for a year', () => {
+    const logsBucket = resources.find((block) => block.startsWith('S3BucketLogs:')) ?? ''
+    const logsPolicy = resources.find((block) => block.startsWith('S3BucketLogsPolicy:')) ?? ''
+
+    expect(logsBucket).toMatch(/^ {14}SSEAlgorithm: AES256$/m)
+    expect(logsBucket).toMatch(
+      /^ {6}PublicAccessBlockConfiguration:\n {8}BlockPublicAcls: true\n {8}BlockPublicPolicy: true\n {8}IgnorePublicAcls: true\n {8}RestrictPublicBuckets: true$/m
+    )
+    expect(logsBucket).toMatch(/^ {10}- ObjectOwnership: BucketOwnerEnforced$/m)
+    expect(logsBucket).toMatch(
+      /^ {6}LifecycleConfiguration:\n {8}Rules:\n {10}- Id: OneYearRetentionRule\n {12}Status: Enabled\n {12}ExpirationInDays: 365$/m
+    )
+
+    expect(logsPolicy).toMatch(/^ {6}Bucket: !Ref S3BucketLogs$/m)
+    expect(logsPolicy).toMatch(/^ {14}Service: logging\.s3\.amazonaws\.com$/m)
+  })
 })
 
 // A lambda that reaches a table its policies do not grant fails here, not in dev (KOE-1492). The

@@ -1,10 +1,24 @@
   S3BucketLogs:
     Type: 'AWS::S3::Bucket'
     Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
       BucketName: !Join ['-', [!Ref AWS::StackName, 'bucket-logs']]
       OwnershipControls:
         Rules:
-          - ObjectOwnership: BucketOwnerPreferred
+          - ObjectOwnership: BucketOwnerEnforced
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      LifecycleConfiguration:
+        Rules:
+          - Id: OneYearRetentionRule
+            Status: Enabled
+            ExpirationInDays: 365
 
   S3BucketLogsPolicy:
     Type: 'AWS::S3::BucketPolicy'
