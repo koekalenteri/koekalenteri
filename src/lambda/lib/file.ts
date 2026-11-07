@@ -21,13 +21,19 @@ import { logger } from './log'
 const s3 = new S3Client()
 const { fileBucket } = CONFIG
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024
+
+export type UploadRejection = 'tooLarge' | 'tooManyFiles'
+
 interface ParseResult {
   info?: FileInfo
+  /** Never set on a rejected body: what Busboy kept of it is not the file that was sent. */
   data?: Buffer
-  fields: Record<string, string>
   error: Error | null
+  rejection?: UploadRejection
 }
 
+/** Busboy does not fail a body over its limits, it drops or cuts the part and tells only by an event. */
 export const parsePostFile = (event: APIGatewayProxyEvent) =>
   new Promise<ParseResult>((resolve, reject) => {
     logger.debug('parsing file from event')
@@ -35,13 +41,15 @@ export const parsePostFile = (event: APIGatewayProxyEvent) =>
       headers: {
         'content-type': event.headers['content-type'] ?? event.headers['Content-Type'],
       },
+      // Busboy marks a file truncated on reaching the limit, also when the file ends right there, so
+      // one byte more is what tells a file of exactly MAX_FILE_SIZE from a larger one.
+      limits: { fields: 0, fileSize: MAX_FILE_SIZE + 1, files: 1 },
     })
     logger.debug('busboy initialized')
 
     const result: ParseResult = {
       data: undefined,
       error: null,
-      fields: {},
       info: undefined,
     }
     const buffers: Uint8Array[] = []
@@ -52,6 +60,16 @@ export const parsePostFile = (event: APIGatewayProxyEvent) =>
         buffers.push(data)
       })
 
+      // A body cut off inside the file fails the form too, and bb's listener answers that. A stream
+      // destroyed with an error and no listener would be an uncaught exception that ends the container.
+      file.on('error', (error) => {
+        logger.debug('file stream failed', { error })
+      })
+
+      file.on('limit', () => {
+        result.rejection = 'tooLarge'
+      })
+
       file.on('end', () => {
         logger.debug('file ended')
         result.error = file.errored
@@ -60,9 +78,8 @@ export const parsePostFile = (event: APIGatewayProxyEvent) =>
       })
     })
 
-    bb.on('field', (name, value) => {
-      logger.debug('field received', { field: name })
-      result.fields[name] = value
+    bb.on('filesLimit', () => {
+      result.rejection = 'tooManyFiles'
     })
 
     bb.on('error', (error) => {
@@ -71,7 +88,7 @@ export const parsePostFile = (event: APIGatewayProxyEvent) =>
     })
     bb.on('finish', () => {
       logger.debug('parse finished')
-      resolve(result)
+      resolve(result.rejection ? { ...result, data: undefined } : result)
     })
     bb.write(event.body, event.isBase64Encoded ? 'base64' : 'binary')
     bb.end()
