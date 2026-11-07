@@ -1,5 +1,8 @@
 import { uniqueId } from '../../test-utils/integration'
 import {
+  authenticateConnection,
+  countOpenConnectionsInSourceBucket,
+  countOpenPublicConnections,
   createConnection,
   getConnection,
   queryAdminConnections,
@@ -55,5 +58,61 @@ describe('the connection repository against DynamoDB-local', () => {
 
     await expect(getConnection(connectionId)).resolves.toBeUndefined()
     expect(ownOf([connectionId], await queryPublicConnections())).toEqual([])
+  })
+
+  describe('open connection counts', () => {
+    const inAnHour = () => Math.floor(Date.now() / 1000) + 3600
+    const anHourAgo = () => Math.floor(Date.now() / 1000) - 3600
+    const LARGE_LIMIT = 100_000
+    const connect = (expiresAt: number, sourceBucket?: string) =>
+      createConnection({ connectionId: uniqueId('connection'), expiresAt, sourceBucket })
+
+    it('counts one source bucket through source-index, leaving out the expired rows and the other buckets', async () => {
+      const sourceBucket = uniqueId('source')
+      await connect(inAnHour(), sourceBucket)
+      await connect(inAnHour(), sourceBucket)
+      await connect(anHourAgo(), sourceBucket)
+      await connect(inAnHour(), uniqueId('source'))
+      await connect(inAnHour())
+
+      await expect(countOpenConnectionsInSourceBucket(sourceBucket, LARGE_LIMIT)).resolves.toBe(2)
+    })
+
+    it('stops counting a source bucket at the limit', async () => {
+      const sourceBucket = uniqueId('source')
+      await connect(anHourAgo(), sourceBucket)
+      await connect(inAnHour(), sourceBucket)
+      await connect(inAnHour(), sourceBucket)
+      await connect(inAnHour(), sourceBucket)
+
+      await expect(countOpenConnectionsInSourceBucket(sourceBucket, 2)).resolves.toBe(2)
+    })
+
+    it('keeps the source bucket on the row through authentication and subscriptions', async () => {
+      const sourceBucket = uniqueId('source')
+      const connectionId = uniqueId('connection')
+      await createConnection({ connectionId, expiresAt: inAnHour(), sourceBucket })
+
+      await authenticateConnection({ connectionId, expiresAt: inAnHour(), userId: uniqueId('user') })
+      await subscribeConnection(connectionId, uniqueId('event'))
+
+      await expect(getConnection(connectionId)).resolves.toMatchObject({ audience: 'admin', sourceBucket })
+      await expect(countOpenConnectionsInSourceBucket(sourceBucket, LARGE_LIMIT)).resolves.toBe(1)
+    })
+
+    // This file is the only one writing connections, and its tests run one at a time.
+    it('counts the open public connections, without an expired row or an admin one', async () => {
+      const before = await countOpenPublicConnections(LARGE_LIMIT)
+      await connect(anHourAgo())
+      const admin = uniqueId('connection')
+      await createConnection({ connectionId: admin, expiresAt: inAnHour() })
+      await subscribeConnection(admin, uniqueId('event'))
+      await expect(countOpenPublicConnections(LARGE_LIMIT)).resolves.toBe(before)
+
+      await connect(inAnHour())
+      await connect(inAnHour())
+      await expect(countOpenPublicConnections(LARGE_LIMIT)).resolves.toBe(before + 2)
+      await expect(countOpenPublicConnections(1)).resolves.toBe(1)
+    })
   })
 })

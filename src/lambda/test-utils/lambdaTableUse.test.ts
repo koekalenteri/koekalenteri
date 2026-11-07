@@ -517,6 +517,9 @@ const { 'quotedTable': table } = CONFIG
 
 export default async () => new CustomDynamoClient(table).readAll()
 `,
+  CountIndex: `${COMMON}
+export default async () => dynamoDB.count({ index: 'gsiEmail', key: 'email = :email' })
+`,
   DefaultArgument: `${COMMON}
 const byIndex = (index = 'gsiEmail') => dynamoDB.query({ index, key: 'email = :email' })
 
@@ -1422,6 +1425,9 @@ beforeAll(() => {
     await this.readAll()
     return []
   }
+  async count(_params: { key: string; index?: string }): Promise<number> {
+    return 0
+  }
   async update(_key: object, _updates: object, _returnValues?: string): Promise<void> {}
   async write<T>(_item: T, _condition?: object): Promise<void> {}
   async documentTransaction(_items: { Put?: { Item: object; TableName: string } }[]): Promise<void> {}
@@ -1485,6 +1491,10 @@ describe('createTableUseAnalyzer', () => {
 
   it('keeps the index of a query apart from its table', () => {
     expect(usesOf('Index')).toEqual(['Query judgeTable', 'Query userTable/index/gsiEmail'])
+  })
+
+  it('reads a count as a query of its index', () => {
+    expect(usesOf('CountIndex')).toEqual(['Query userTable/index/gsiEmail'])
   })
 
   // The base-table query of the calls without an index is the one IAM denies when only the index

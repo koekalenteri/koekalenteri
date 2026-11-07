@@ -16,6 +16,7 @@ export interface WebSocketConnection {
   publicEventId?: string
   registrationEventId?: string
   registrationId?: string
+  sourceBucket?: string
   userEmail?: string
   userId?: string
   userName?: string

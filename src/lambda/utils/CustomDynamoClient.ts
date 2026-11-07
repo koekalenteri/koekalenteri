@@ -214,6 +214,18 @@ const logDb = (operation: string, payload: unknown) => {
 const liveRowsFilter = (filter?: string) =>
   filter ? `(attribute_not_exists(deletedAt)) AND (${filter})` : 'attribute_not_exists(deletedAt)'
 
+/** The parts of a query that stay the same from page to page, for rows or for a count. */
+const toQueryInput = (table: string, params: QueryParams): QueryCommandInput => ({
+  ...(params.consistent ? { ConsistentRead: true } : {}),
+  ExpressionAttributeNames: params.names,
+  ExpressionAttributeValues: params.values,
+  FilterExpression: params.includeDeleted ? params.filterExpression : liveRowsFilter(params.filterExpression),
+  IndexName: params.index,
+  KeyConditionExpression: params.key,
+  ScanIndexForward: params.forward,
+  TableName: table,
+})
+
 /**
  * The DynamoDB access of one table: every method reads or writes the table the client was built on,
  * and only `documentTransaction`, whose items each name their table, writes across tables
@@ -349,17 +361,7 @@ export default class CustomDynamoClient {
       logger.warn('CustomDynamoClient.query: no key provided, returning undefined')
       return
     }
-    const queryParams: QueryCommandInput = {
-      ...(params.consistent ? { ConsistentRead: true } : {}),
-      ExpressionAttributeNames: params.names,
-      ExpressionAttributeValues: params.values,
-      FilterExpression: params.includeDeleted ? params.filterExpression : liveRowsFilter(params.filterExpression),
-      IndexName: params.index,
-      KeyConditionExpression: params.key,
-      Limit: params.limit,
-      ScanIndexForward: params.forward,
-      TableName: this.table,
-    }
+    const queryParams = toQueryInput(this.table, params)
 
     const items: T[] = []
     let lastEvaluatedKey: QueryCommandOutput['LastEvaluatedKey']
@@ -385,6 +387,36 @@ export default class CustomDynamoClient {
     } while (lastEvaluatedKey)
 
     return items
+  }
+
+  /**
+   * How many rows a query with these parameters would answer, without fetching them. `limit` stops
+   * the count there: the database evaluates only what is still needed, whereas a filter does not
+   * reduce what it reads.
+   */
+  async count(params: QueryParams): Promise<number> {
+    return this.countPages(toQueryInput(this.table, params), params.limit)
+  }
+
+  /** DynamoDB applies `Limit` before the filter, so a page can count nothing and still have keys after it. */
+  private async countPages(
+    input: QueryCommandInput,
+    limit: number | undefined,
+    startKey?: QueryCommandOutput['LastEvaluatedKey']
+  ): Promise<number> {
+    const pageParams: QueryCommandInput = {
+      ...input,
+      Limit: limit,
+      Select: 'COUNT',
+      ...(startKey ? { ExclusiveStartKey: startKey } : {}),
+    }
+    logDb('DB.count', pageParams)
+    const page = await this.docClient.send(new QueryCommand(pageParams))
+    const count = page.Count ?? 0
+    const remaining = limit === undefined ? undefined : limit - count
+    if (!page.LastEvaluatedKey || remaining === 0) return count
+
+    return count + (await this.countPages(input, remaining, page.LastEvaluatedKey))
   }
 
   /** With a condition, a Put that fails it rejects with `ConditionalCheckFailedException`. */

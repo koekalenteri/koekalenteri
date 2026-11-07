@@ -1,6 +1,6 @@
 import { vi } from 'vitest'
 import { LambdaError } from '../lib/lambda'
-import { constructPartialAPIGwEvent } from '../test-utils/helpers'
+import { constructAPIGwEvent, constructPartialAPIGwEvent } from '../test-utils/helpers'
 
 const mockWsConnect = vi.fn()
 
@@ -29,10 +29,17 @@ describe('wsConnectHandler', () => {
     errorSpy.mockRestore()
   })
 
-  it('connects the websocket', async () => {
-    const result = await wsConnectHandler(event)
+  it('connects the websocket, passing on where it comes from', async () => {
+    const result = await wsConnectHandler(
+      constructPartialAPIGwEvent({
+        requestContext: {
+          connectionId: 'test-connection-id',
+          identity: { ...constructAPIGwEvent('').requestContext.identity, sourceIp: '203.0.113.7' },
+        },
+      })
+    )
 
-    expect(mockWsConnect).toHaveBeenCalledWith({ connectionId: 'test-connection-id' })
+    expect(mockWsConnect).toHaveBeenCalledWith({ connectionId: 'test-connection-id' }, '203.0.113.7')
 
     expect(result).toEqual({
       body: 'Connected',
@@ -46,7 +53,7 @@ describe('wsConnectHandler', () => {
 
     await expect(wsConnectHandler(event)).resolves.toEqual({ body: 'Internal server error', statusCode: 500 })
 
-    expect(mockWsConnect).toHaveBeenCalledWith({ connectionId: 'test-connection-id' })
+    expect(mockWsConnect).toHaveBeenCalledWith({ connectionId: 'test-connection-id' }, undefined)
   })
 
   it('returns LambdaError status if wsConnect rejects with LambdaError', async () => {
@@ -70,6 +77,6 @@ describe('wsConnectHandler', () => {
     )
 
     expect(result).toEqual({ body: 'Connected', statusCode: 200 })
-    expect(mockWsConnect).toHaveBeenCalledWith({ connectionId: 'test-connection-id' })
+    expect(mockWsConnect).toHaveBeenCalledWith({ connectionId: 'test-connection-id' }, undefined)
   })
 })

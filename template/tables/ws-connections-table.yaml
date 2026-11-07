@@ -7,6 +7,8 @@
           AttributeType: S
         - AttributeName: audience
           AttributeType: S
+        - AttributeName: sourceBucket
+          AttributeType: S
       KeySchema:
         - AttributeName: connectionId
           KeyType: HASH
@@ -17,6 +19,14 @@
               KeyType: HASH
           Projection:
             ProjectionType: ALL
+        - IndexName: source-index
+          KeySchema:
+            - AttributeName: sourceBucket
+              KeyType: HASH
+          Projection:
+            ProjectionType: INCLUDE
+            NonKeyAttributes:
+              - expiresAt
       Tags:
         - Key: Env
           Value: !Ref AWS::StackName
