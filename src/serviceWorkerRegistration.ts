@@ -54,7 +54,30 @@ const notifyUpdate = (registration: ServiceWorkerRegistration, worker: ServiceWo
   })
 }
 
+/**
+ * The browser looks for a newer service worker only on a real page load, and the app's own routing
+ * never makes one, so a tab left open for days kept running the version it was opened with. Coming
+ * back to the tab asks again, at most this often; the found update then reloads the page as any
+ * other does, before the user has done anything with the old one.
+ */
+const updateCheckInterval = 60 * 60 * 1000
+
+const checkForUpdateOnReturn = (registration: ServiceWorkerRegistration) => {
+  // Registering just checked, so the first return within the interval has nothing new to ask.
+  let lastCheck = Date.now()
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible' || Date.now() - lastCheck < updateCheckInterval) return
+
+    lastCheck = Date.now()
+    // Offline the check rejects; the next return asks again, so the failure has nothing to report.
+    registration.update().catch(() => undefined)
+  })
+}
+
 const watchRegistration = (registration: ServiceWorkerRegistration) => {
+  checkForUpdateOnReturn(registration)
+
   if (registration.waiting && navigator.serviceWorker.controller) {
     notifyUpdate(registration, registration.waiting)
   }
