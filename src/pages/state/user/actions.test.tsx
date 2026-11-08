@@ -9,7 +9,7 @@ import { Path } from '@/routeConfig'
 import { TEST_ID_TOKEN } from '@/test-utils/utils'
 import AppSnackbarProvider from '../../components/AppSnackbarProvider'
 import { useUserActions } from './actions'
-import { idTokenAtom } from './atoms'
+import { idTokenAtom, signingOutAtom } from './atoms'
 
 const NEW_TEST_ID_TOKEN = 'header.eyJleHAiOjQxMDI0NDQ4MDB9.updated-signature'
 const FAILED_USER_TEST_ID_TOKEN = 'header.eyJleHAiOjQxMDI0NDQ4MDB9.failed-user-signature'
@@ -89,6 +89,25 @@ describe('useUserActions', () => {
     })
 
     expect(result.current.token).toBeUndefined()
+  })
+
+  // The flag a sign-out sets keeps the admin page it leaves from sending the user to login. Left set
+  // after the next sign-in, an expired token on an admin page would leave the page blank (KOE-1734).
+  it('clears the sign-out flag when the user signs in again', async () => {
+    vi.spyOn(userAPI, 'getUser').mockResolvedValue({ email: 'new@example.com', id: 'user-1', name: 'New User' })
+    const { result } = renderHook(() => ({ actions: useUserActions(), signingOut: useAtomValue(signingOutAtom) }), {
+      wrapper,
+    })
+
+    await act(async () => {
+      await result.current.actions.signOut(false)
+    })
+    expect(result.current.signingOut).toBe(true)
+
+    await act(async () => {
+      await result.current.actions.signIn(NEW_TEST_ID_TOKEN)
+    })
+    expect(result.current.signingOut).toBe(false)
   })
 
   it('loads the signed-in user with the new token instead of the callback snapshot token', async () => {

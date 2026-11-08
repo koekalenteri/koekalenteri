@@ -4,7 +4,7 @@ import { getCurrentUser } from '@/lib/client/currentUser'
 import { reportError } from '@/lib/client/error'
 import { asSettled, mapMaybe } from '@/lib/maybePromise'
 import { isValidIdToken } from '@/lib/token'
-import { userHasAdminAccess } from '@/lib/user'
+import { adminAccessOf } from '@/lib/user'
 import { loadedAtom } from '../loadedAtom'
 import { idTokenAtom, tokenValidityRevisionAtom, userRefreshAtom } from './atoms'
 
@@ -40,5 +40,10 @@ export const isOrgAdminAtom = atom((get) =>
     return user?.admin === true || Object.keys(roles).some((key) => roles[key] === 'admin')
   })
 )
-export const hasAdminAccessAtom = atom((get) => mapMaybe(get(userAtom), userHasAdminAccess))
+/** One rule for the admin pages' guard and the header's admin buttons; suspends while the user loads. */
+export const adminAccessAtom = atom((get) => {
+  const token = get(validIdTokenAtom)
+  return mapMaybe(get(userAtom), (user) => adminAccessOf(token, user))
+})
+export const hasAdminAccessAtom = atom((get) => mapMaybe(get(adminAccessAtom), (access) => access === 'granted'))
 export const adminUserOrgIdsAtom = atom((get) => mapMaybe(get(userAtom), (user) => Object.keys(user?.roles ?? {})))

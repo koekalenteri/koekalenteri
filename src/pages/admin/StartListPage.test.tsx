@@ -6,6 +6,8 @@ import { MemoryRouter, Route, Routes } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { mockEvents } from '../../api/__mocks__/event'
 import { mockRegistrations } from '../../api/__mocks__/registration'
+import { MOCK_NO_ROLE_USER } from '../../api/__mocks__/user'
+import { getUser } from '../../api/user'
 import theme from '../../assets/Theme'
 import { describeWithTranslations } from '../../test-utils/language'
 import { flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../test-utils/utils'
@@ -147,5 +149,32 @@ describe('OrganizerListPage', () => {
     const rows = screen.getAllByRole('row')
     const reserveRows = rows.filter((row) => row.textContent?.includes('-1'))
     expect(reserveRows.map((row) => row.querySelectorAll('td')[1]?.textContent)).toEqual(['VOI', 'ALO'])
+  })
+
+  // A signed-in user without a role was sent to /login, which only sent them back (KOE-1734).
+  it('tells a signed-in user without a role that they have no rights', async () => {
+    vi.mocked(getUser).mockResolvedValueOnce(MOCK_NO_ROLE_USER)
+
+    await renderSuspended(
+      <ThemeProvider theme={theme}>
+        <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
+          <Suspense fallback={<div>loading...</div>}>
+            <AppSnackbarProvider>
+              <MemoryRouter initialEntries={['/testInvited']}>
+                <Routes>
+                  <Route path=":id" element={<StartListPage />} />
+                  <Route path="/login" element={<>Login</>} />
+                </Routes>
+              </MemoryRouter>
+            </AppSnackbarProvider>
+          </Suspense>
+        </Provider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+
+    expect(screen.queryByText('Login')).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'error.noAdminAccess' })).toBeInTheDocument()
+    expect(screen.queryAllByRole('row')).toHaveLength(0)
   })
 })

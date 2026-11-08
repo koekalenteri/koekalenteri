@@ -2,9 +2,11 @@ import type { AllYearlyStatsResponse } from '../api/stats'
 import { ThemeProvider } from '@mui/material'
 import { screen } from '@testing-library/react'
 import { Suspense } from 'react'
-import { MemoryRouter } from 'react-router'
+import { MemoryRouter, Route, Routes } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
+import { MOCK_NO_ROLE_USER } from '../api/__mocks__/user'
 import { getAllYearlyStats } from '../api/stats'
+import { getUser } from '../api/user'
 import theme from '../assets/Theme'
 import { flushPromises, renderSuspended, TEST_ID_TOKEN } from '../test-utils/utils'
 import { Component as StatsPage } from './StatsPage'
@@ -102,5 +104,30 @@ describe('StatsPage', () => {
 
     await screen.findByText('stats.title', { exact: false })
     expect(screen.queryByText('stats.retentionTitle')).not.toBeInTheDocument()
+  })
+
+  // A signed-in user without a role was sent to /login, which only sent them back (KOE-1734).
+  it('tells a signed-in user without a role that they have no rights', async () => {
+    vi.mocked(getUser).mockResolvedValueOnce(MOCK_NO_ROLE_USER)
+
+    await renderSuspended(
+      <ThemeProvider theme={theme}>
+        <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
+          <MemoryRouter initialEntries={['/stats']}>
+            <Suspense fallback={<div>loading...</div>}>
+              <Routes>
+                <Route path="/stats" element={<StatsPage />} />
+                <Route path="/login" element={<>Login</>} />
+              </Routes>
+            </Suspense>
+          </MemoryRouter>
+        </Provider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+
+    expect(screen.queryByText('Login')).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'error.noAdminAccess' })).toBeInTheDocument()
+    expect(screen.queryByText('stats.title', { exact: false })).not.toBeInTheDocument()
   })
 })
