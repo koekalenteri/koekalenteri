@@ -527,13 +527,19 @@ export const resolveEventResult = (
   }
 }
 
+/** What `withStoredTotals` reads of a stored result: its totals and its tasks' scores. */
+type StoredTotalsResult = Pick<JsonEventResult, 'maxPoints' | 'percentage' | 'points'> & {
+  tasks?: readonly Pick<JsonEventResultTask, 'exercise' | 'part' | 'points'>[]
+}
+
 /**
  * The registration with its NOWT totals worked out from its stored tasks where the stored result has
  * none: a round that ended early saved before KOE-1669, when such a round kept no totals. The tasks are
  * read against the dog's round as `resolveEventResult` reads them; nothing else of the result changes.
- * A result with totals, or of a type not scored at posts, is returned as it is.
+ * A result with totals, or of a type not scored at posts, is returned as it is. The stored row and the
+ * browser's alike: the teams page sums the same totals the start list does (KOE-1717).
  */
-export const withStoredTotals = <T extends SortableRegistration & { eventResult?: JsonEventResult }>(
+export const withStoredTotals = <T extends SortableRegistration & { eventResult?: StoredTotalsResult }>(
   event: RotationEvent & FormatOwner,
   registration: T
 ): T => {
@@ -617,17 +623,26 @@ export const placementsFor = (rows: readonly PlacementRow[], event: FormatOwner)
     // a before b when a.points / a.maxPoints is larger, without dividing.
     entries.sort((a, b) => b.points * a.maxPoints - a.points * b.maxPoints)
 
-    let rank = 0
+    const ranks = sharedRanks(entries, (a, b) => a.points * b.maxPoints === b.points * a.maxPoints)
     entries.forEach((entry, index) => {
-      const previous = entries[index - 1]
-      const tied = previous && previous.points * entry.maxPoints === entry.points * previous.maxPoints
-      // A tie keeps the rank of the dog before it; otherwise the rank is the position, so 1, 2, 2, 4.
-      if (!tied) rank = index + 1
-      placements.set(entry.id, rank)
+      placements.set(entry.id, ranks[index])
     })
   }
 
   return placements
+}
+
+/**
+ * The ranks of entries already in order, best first: an entry tied with the one before it keeps that
+ * one's rank, any other ranks at its position, so 1, 2, 2, 4. The dogs of a class (`placementsFor`) and
+ * the teams of a day (`teamStandings`) are ranked by this one rule; each caller says what a tie is.
+ */
+export const sharedRanks = <T>(sorted: readonly T[], tied: (previous: T, entry: T) => boolean): number[] => {
+  const ranks: number[] = []
+  sorted.forEach((entry, index) => {
+    ranks.push(index > 0 && tied(sorted[index - 1], entry) ? ranks[index - 1] : index + 1)
+  })
+  return ranks
 }
 
 /**

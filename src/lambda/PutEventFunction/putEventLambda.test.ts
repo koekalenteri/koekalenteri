@@ -1820,6 +1820,7 @@ describe('putEventLambda', () => {
     it.each([
       ['without a list of dogs', [{ name: 'Joukkue' }]],
       ['with a name that is not text', [{ name: 1, registrationIds: [] }]],
+      ['with a run-off mark that is not a boolean', [{ registrationIds: [], runOffWon: 'yes' }]],
     ])('refuses a team %s', async (_name, teams) => {
       const res = await putTeams(teams)
 
@@ -1875,6 +1876,8 @@ describe('putEventLambda', () => {
         ['new teams', undefined, [team]],
         ['a renamed team', [team], [{ ...team, name: 'Team Finland 2' }]],
         ['a reordered team', [team], [{ ...team, registrationIds: ['b', 'a'] }]],
+        // KOE-1717: the run-off decides a placing the list shows.
+        ['a run-off won', [team], [{ ...team, runOffWon: true }]],
         ['removed teams', [team], null],
       ])('publishes %s', async (_name, storedTeams, teams) => {
         const res = await putOver(storedTeams, teams)

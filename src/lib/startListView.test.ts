@@ -5,6 +5,7 @@ import type { PublicRegistration } from '../types/Registration'
 import i18n from 'i18next'
 import { eventWithStaticDates } from '../__mockData__/events'
 import {
+  formatTeamStanding,
   publicationNote,
   rowPublicationNote,
   startListTeamDays,
@@ -109,6 +110,16 @@ describe('startListTeamDays', () => {
     ])
   })
 
+  it('gives a team the standing its rows carry (KOE-1717)', () => {
+    const standing = { number: 1, placement: 1, points: 170, runOff: true as const }
+    const [day] = startListTeamDays([
+      row('Aapo', DAY_1, { team: { ...standing, code: '1A' } }),
+      row('Bella', DAY_1, { team: { ...standing, code: '1B' } }),
+    ])
+
+    expect(day.teams).toEqual([{ ...standing, rows: [expect.anything(), expect.anything()] }])
+  })
+
   it('leaves a cancelled dog out, also from the classes the day shows', () => {
     const [day] = startListTeamDays([row('Aapo', DAY_1, { cancelled: true, class: 'VOI' }), row('Bella', DAY_1)])
 
@@ -177,5 +188,19 @@ describe('teamRowPrefix', () => {
     ],
   ])('names %s', (_what, reg, showClass, expected) => {
     expect(teamRowPrefix(reg, showClass)).toBe(expected)
+  })
+})
+
+describe('formatTeamStanding (KOE-1717)', () => {
+  it.each([
+    ['a placing', { placement: 3, points: 150 }, '3. sija, 150 pistettä'],
+    [
+      'a team tied for first',
+      { placement: 1, points: 170, runOff: true as const },
+      '1. sija, 170 pistettä (uusintatehtävä)',
+    ],
+    ['no standing while it is not public', {}, undefined],
+  ])('writes %s', (_what, standing, expected) => {
+    expect(formatTeamStanding(standing, t)).toBe(expected)
   })
 })

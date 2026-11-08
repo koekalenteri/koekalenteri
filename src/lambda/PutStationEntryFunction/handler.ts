@@ -6,7 +6,7 @@ import { parseSubmissions, processResultSubmissions, stationScopedSubmission } f
 import { getParam, httpError, lambda, response } from '../lib/lambda'
 import { readEventRegistrations } from '../lib/repositories/registrationRepository'
 import { authorizeStationEntry, scopeResultToStation } from '../lib/stationEntry'
-import { publishRegistrationPatches } from '../lib/ws/actions'
+import { publishPublicStartList, publishRegistrationPatches } from '../lib/ws/actions'
 
 /**
  * Scores from the station's tokenized link. The same classification the event secretary's endpoint
@@ -37,7 +37,12 @@ const putStationEntryLambda = lambda('putStationEntry', async (event) => {
     `Suorituspaikka ${station.number}`
   )
 
-  if (patches.length) await publishRegistrationPatches(eventId, patches, confirmedEvent.organizer.id)
+  // The post stays open after the results are published, so a score corrected here must reach open
+  // public lists as the secretary's does: the dog's own result and its team's standing (KOE-1717).
+  if (patches.length) {
+    await publishRegistrationPatches(eventId, patches, confirmedEvent.organizer.id)
+    await publishPublicStartList(eventId)
+  }
 
   // Echo back only what this link may see: its own post's tasks, the exercises the dog's group does
   // here, without the derived prize the whole-round data would carry or anyone's name.

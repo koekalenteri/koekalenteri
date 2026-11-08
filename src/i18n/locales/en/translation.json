@@ -1441,6 +1441,8 @@
     "reserveNotice": "Notice period",
     "sire": "sire",
     "team": "Team {{number}}",
+    "teamRunOff": "run-off",
+    "teamStanding": "place {{placement}}, {{points}} points",
     "title": "Start list",
     "view": "Start list order"
   },
@@ -1600,6 +1602,8 @@
     "name": "Team name",
     "noDogs": "The team has no dogs yet.",
     "remove": "Remove {{code}} from the team",
+    "result": "Team result",
+    "runOffWon": "Won the run-off",
     "saved": "Teams saved",
     "team": "Team {{number}}",
     "title": "Teams"

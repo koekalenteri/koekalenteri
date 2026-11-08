@@ -540,6 +540,11 @@ export interface EventTeam {
   name?: string
   /** The team's dogs by registration id, in the order of their letters. */
   registrationIds: string[]
+  /**
+   * The team won the run-off task that decides a tie for first (KOE-1717). Read only while the team is
+   * tied for first (`teamStandings`), so a corrected score leaves it inert.
+   */
+  runOffWon?: boolean
 }
 
 export type KcEventInfo = {

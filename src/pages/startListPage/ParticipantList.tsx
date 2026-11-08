@@ -30,6 +30,7 @@ import { judgeName } from '../../lib/judge'
 import { formatResultLine } from '../../lib/results'
 import { startListColumnWidths, startListSpreadsheetRows } from '../../lib/startList'
 import {
+  formatTeamStanding,
   publicationNote,
   publicationNoteLine,
   rowPublicationNote,
@@ -454,7 +455,11 @@ function formatTeamStartList(days: readonly StartListTeamDay[], event: PublicCon
       ...teamDayNoteLines(event, day, t)
     )
     for (const team of teams) {
-      group([t('startList.team', { number: team.number }), ...(team.name ? [team.name] : [])], team.rows, showClass)
+      const standing = formatTeamStanding(team, t)
+      const heading = [t('startList.team', { number: team.number }), team.name, standing].filter(
+        (line): line is string => !!line
+      )
+      group(heading, team.rows, showClass)
     }
     if (noTeam.length) group([t('startList.noTeam')], noTeam, showClass)
   })

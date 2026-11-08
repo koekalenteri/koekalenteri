@@ -1,8 +1,11 @@
+import type { TeamStanding } from '@/lib/team'
 import type { EventTeam, Registration } from '@/types'
 import ArrowDownward from '@mui/icons-material/ArrowDownward'
 import ArrowUpward from '@mui/icons-material/ArrowUpward'
 import DeleteOutline from '@mui/icons-material/DeleteOutlined'
+import Checkbox from '@mui/material/Checkbox'
 import Chip from '@mui/material/Chip'
+import FormControlLabel from '@mui/material/FormControlLabel'
 import IconButton from '@mui/material/IconButton'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
@@ -14,6 +17,7 @@ import Typography from '@mui/material/Typography'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getHandlingPerson, isStarter } from '@/lib/registration'
+import { formatTeamStanding } from '@/lib/startListView'
 import { MAX_TEAM_MEMBERS, teamMembers } from '@/lib/team'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 
@@ -26,6 +30,37 @@ interface Props {
   /** The entries the team may take: not cancelled, and in no team yet. */
   readonly available: readonly Registration[]
   readonly onChange: (team: EventTeam) => void
+  /** The team's points and placing over the trial, in a format scored at posts once a dog has a result. */
+  readonly standing?: TeamStanding
+  /** Records whether the team won the run-off for first place. */
+  readonly onRunOffChange: (won: boolean) => void
+}
+
+interface StandingProps {
+  readonly standing?: TeamStanding
+  readonly runOffWon: boolean
+  readonly onRunOffChange: Props['onRunOffChange']
+}
+
+/**
+ * The team's result over the trial (KOE-1717): its placing and points, and where it is tied for first,
+ * whether it won the run-off task that decides first place.
+ */
+const TeamResult = ({ standing, runOffWon, onRunOffChange }: StandingProps) => {
+  const { t } = useTranslation()
+  if (!standing) return null
+
+  return (
+    <Stack direction="row" spacing={2} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+      <Typography variant="body2">{`${t('teams.result')}: ${formatTeamStanding(standing, t)}`}</Typography>
+      {standing.runOff && (
+        <FormControlLabel
+          control={<Checkbox checked={runOffWon} onChange={(e) => onRunOffChange(e.target.checked)} size="small" />}
+          label={t('teams.runOffWon')}
+        />
+      )}
+    </Stack>
+  )
 }
 
 const dogLabel = (registration: Registration) => registration.dog.name ?? registration.dog.regNo ?? ''
@@ -41,7 +76,7 @@ const memberState = (registration: Registration): 'memberCancelled' | 'memberRes
  * One team of a team competition (KOE-1714): its number, its name and its dogs, each by its code
  * (`teamMembers`). A dog's place is its letter, so moving it is the only way to change one.
  */
-export default function TeamCard({ number, team, entries, available, onChange }: Props) {
+export default function TeamCard({ number, team, entries, available, onChange, standing, onRunOffChange }: Props) {
   const { t } = useTranslation()
   const ids = team.registrationIds
 
@@ -84,6 +119,7 @@ export default function TeamCard({ number, team, entries, available, onChange }:
           size="small"
           value={team.name ?? ''}
         />
+        <TeamResult standing={standing} runOffWon={!!team.runOffWon} onRunOffChange={onRunOffChange} />
         {ids.length === 0 && (
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             {t('teams.noDogs')}

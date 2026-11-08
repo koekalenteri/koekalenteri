@@ -667,11 +667,21 @@ export interface JsonPublicRegistration {
   team?: PublicTeamPlace
 }
 
-/** A dog's place in its team as the start list shows it: "Joukkue 1", its name, and the dog's code "1B". */
+/**
+ * A dog's place in its team as the start list shows it: "Joukkue 1", its name, and the dog's code "1B".
+ * The team's standing over the whole trial rides beside it, the same on every row of the team, and only
+ * once every result it is worked out from is published (KOE-1717).
+ */
 export interface PublicTeamPlace {
   code: string
   name?: string
   number: number
+  /** The team's points over the trial. */
+  points?: number
+  /** The team's placing over the trial; teams level on points share one. */
+  placement?: number
+  /** The team was tied for first, so a run-off task decides (or decided) first place. */
+  runOff?: true
 }
 
 export interface PublicRegistration extends Omit<JsonPublicRegistration, 'dog' | 'group'> {

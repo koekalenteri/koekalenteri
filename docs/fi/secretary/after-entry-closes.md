@@ -199,12 +199,25 @@ kuin poistat sen itse. Varasijalla olevan koiran kohdalla lukee *{t:teams.member
 
 !shot[EventTeamsPage/teams] Joukkueet koirineen ja niiden tunnuksineen
 
+Kokeessa, jossa koirat saavat pisteitä (NOWT), jokaisen joukkueen kohdalla on rivi
+*{t:teams.result}*, kun ensimmäinen tulos on kirjattu: joukkueen sijoitus ja pisteet koko kokeesta.
+Pisteet ovat joukkueen koirien pisteet yhteensä, mistä luokasta ja miltä päivältä tahansa, ja
+koira, jolla ei vielä ole tulosta, tuo nolla pistettä. Tasapisteissä olevat joukkueet jakavat sijan.
+Jos ensimmäisestä sijasta on tasapisteitä, niiden joukkueiden kohdalla on valinta
+**{t:teams.runOffWon}**. Merkitse siihen uusintatehtävän voittaja ja tallenna: voittaja nousee
+ensimmäiseksi ja muut jakavat seuraavan sijan. Valinta yhdessä joukkueessa poistaa sen muista. Jos
+tulos myöhemmin korjataan niin, ettei tasapisteitä enää ole, valinnalla ei ole vaikutusta.
+
+!shot[EventTeamsPage/teams-standings] Joukkueiden tulokset: joukkueet 1 ja 2 ovat tasapisteissä, ja joukkue 2 on merkitty uusintatehtävän voittajaksi
+
 Muutokset tallennetaan painikkeella **{t:save}**. **{t:cancel}** palaa tapahtumaan tallentamatta.
 
 Tallennetut joukkueet näkyvät julkisella starttilistalla, joka avautuu joukkueittain
 ([Starttilista ja tulokset](/docs/participant/start-list)). Listalla näkyvät vain julkaistut koirat:
 varalla oleva tai vielä julkaisematon koira ei näy, eikä joukkuetta, jonka yhtäkään koiraa ei ole
-julkaistu, näytetä lainkaan. Muutos joukkueisiin päivittyy avoimille starttilistoille itsestään.
+julkaistu, näytetä lainkaan. Joukkueiden sijoitukset ja pisteet näkyvät listalla, kun kaikkien
+joukkueiden koirien tulokset on julkaistu. Muutos joukkueisiin, uusintatehtävän voittajaan tai
+tuloksiin päivittyy avoimille starttilistoille itsestään.
 
 ## Peruutukset ja palautukset
 

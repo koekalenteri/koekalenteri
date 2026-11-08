@@ -1441,6 +1441,8 @@
     "reserveNotice": "Varoitusaika",
     "sire": "i.",
     "team": "Joukkue {{number}}",
+    "teamRunOff": "uusintatehtävä",
+    "teamStanding": "{{placement}}. sija, {{points}} pistettä",
     "title": "Starttilista",
     "view": "Starttilistan järjestys"
   },
@@ -1600,6 +1602,8 @@
     "name": "Joukkueen nimi",
     "noDogs": "Joukkueessa ei ole vielä koiria.",
     "remove": "Poista {{code}} joukkueesta",
+    "result": "Joukkueen tulos",
+    "runOffWon": "Voitti uusintatehtävän",
     "saved": "Joukkueet tallennettu",
     "team": "Joukkue {{number}}",
     "title": "Joukkueet"

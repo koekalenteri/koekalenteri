@@ -29,14 +29,14 @@ const cancelled: Registration = {
 }
 const registrations = [...registrationsToEventWithStations, cancelled]
 
-const renderPage = (event: ConfirmedEvent = eventWithStations) =>
+const renderPage = (event: ConfirmedEvent = eventWithStations, entries: Registration[] = registrations) =>
   renderSuspendedWithUserEvents(
     <ThemeProvider theme={theme}>
       <Provider
         initializeState={({ set }) => {
           set(idTokenAtom, TEST_ID_TOKEN)
           set(adminEventsAtom, [event])
-          set(adminEventRegistrationsAtom(event.id), registrations)
+          set(adminEventRegistrationsAtom(event.id), entries)
         }}
       >
         <Suspense fallback={<div>loading...</div>}>
@@ -225,6 +225,62 @@ describe('EventTeamsPage', () => {
       undefined,
       undefined
     )
+  })
+
+  // KOE-1717: each team's points and placing over the trial, and the run-off that decides a tie for first.
+  describe('standings', () => {
+    const scored = (registration: Registration, points: number): Registration => ({
+      ...registration,
+      eventResult: { maxPoints: 60, points, result: 'ALO1', updatedAt: new Date(), updatedBy: 'Sihteeri' },
+    })
+    const teamsEvent = { ...eventWithStations, teams: [{ registrationIds: ['run-1'] }, { registrationIds: ['run-2'] }] }
+    const runOff = (team: HTMLElement) => within(team).getByRole('checkbox', { name: 'teams.runOffWon' })
+
+    it('shows each team its result, and no run-off where the teams are not level', async () => {
+      await renderPage(teamsEvent, [scored(registrations[0], 50), scored(registrations[1], 40)])
+      await flushPromises()
+
+      const [first, second] = teamSections()
+      expect(within(first).getByText(/^teams\.result/)).toBeInTheDocument()
+      expect(within(second).getByText(/^teams\.result/)).toBeInTheDocument()
+      expect(within(first).queryByRole('checkbox')).not.toBeInTheDocument()
+    })
+
+    it('records one winner of the run-off for a tie for first, and saves it', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const { user } = await renderPage(teamsEvent, [scored(registrations[0], 50), scored(registrations[1], 50)])
+      await flushPromises()
+      const [first, second] = teamSections()
+
+      await user.click(runOff(second))
+      await user.click(runOff(first))
+      await flushPromises()
+
+      expect(runOff(first)).toBeChecked()
+      expect(runOff(second)).not.toBeChecked()
+
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+
+      expect(putEvent).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          teams: [{ registrationIds: ['run-1'], runOffWon: true }, { registrationIds: ['run-2'] }],
+        }),
+        TEST_ID_TOKEN,
+        undefined,
+        undefined
+      )
+    })
+
+    it('shows no result in a format without points', async () => {
+      await renderPage({ ...teamsEvent, eventType: 'NOME-B' }, [
+        scored(registrations[0], 50),
+        scored(registrations[1], 50),
+      ])
+      await flushPromises()
+
+      expect(screen.queryByText(/^teams\.result/)).not.toBeInTheDocument()
+    })
   })
 
   it('saves an empty list once the count is back at nought, so a whole-event save clears them too', async () => {
