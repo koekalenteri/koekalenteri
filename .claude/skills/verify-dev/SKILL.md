@@ -30,6 +30,47 @@ only those. The release decision stays with the user.
   `scripts/playwright-mcp.mjs` was in its checkout, or without the keys in `.env`. Stop the run
   and tell the user to start a new session from the main checkout with main pulled (and to fill in
   `.env` if the server's log says the keys are missing); never work around it by reading `.env`.
+- **Signing in and the admin side** (until KOE-1734 is fixed). A page that checks for admin
+  access sends a signed-in account without it (no global admin flag and no organizer role, or a
+  failed `/user` fetch) to the login page, which signs it straight back in and returns it to the
+  same page, over and over: the browser hangs. These pages are `/admin` and everything under it
+  (`/admin/event/startlist/<id>` and `/admin/event/startlist-preview/<id>` among them) and
+  `/stats` (`src/routeConfig.ts`). An account with any role cannot loop there. So:
+  - Sign in at https://dev.koekalenteri.snj.fi/login directly, never by opening one of those pages
+    first; signing in from one also stores it as the page to return to. Before judging anything,
+    wait until the sign-in has finished: the address has left `/login` and the snackbar "Tervetuloa,
+    <name>!" has shown, or the header shows the account's menu. Until then the user is still
+    loading and the header has no Ylläpito for anyone.
+  - Ylläpito shows in the header only to an account with admin access (global admin or any
+    organizer role). An account without it (`ILMOITTAJA`) never opens one of those addresses,
+    typed or followed.
+  - An account with Ylläpito may type an `/admin/...` address, such as an admin-only page's for
+    the negative case below. Otherwise enter the admin side by clicking Ylläpito and move inside it
+    through the side menu. The public start list (`/startlist/<id>`) has no access check.
+  - If a page keeps showing only the loading indicator, or the address flips between `/admin` and
+    `/login`, call `browser_close` at once, record "KOE-1734 loop" in the run summary with the
+    account and the page, and do not try that path again in the run.
+- **Admin-only pages** are the side menu's lower group, shown only to a global admin
+  (`isAdminAtom`, `src/pages/components/SideMenu.tsx`). For an organizer account (`SIHTEERI`,
+  `YHDISTYS_ADMIN`) the menu hides them, but only Tapahtumat, paikat ja startit has a route guard.
+  Typing a page's address as such an account counts as refused when:
+  - Tapahtumat, paikat ja startit (`/admin/event-breakdown`): the page sends it on to
+    `/admin/event` (`src/pages/admin/EventBreakdownPage.tsx`).
+  - Yhdistykset (`/admin/organizations`): the list shows, Päivitä yhdistykset Kennelliiton
+    rajapinnasta is hidden (`src/pages/admin/OrganizerListPage.tsx`), and saving in Muokkaa
+    yhdistyksen tietoja fails with 403 (`authorizeAdmin`,
+    `src/lambda/PutOrganizerFunction/handler.ts`).
+  - Tapahtumatyypit (`/admin/types`): the list shows, Lisää uusi tapahtumatyyppi is disabled and
+    Päivitä tapahtumatyypit Kennelliiton rajapinnasta hidden
+    (`src/pages/admin/EventTypeListPage.tsx`); a save fails with 403
+    (`src/lambda/PutEventTypeFunction/handler.ts`).
+  - Viestipohjat (`/admin/templates`): the templates show, and saving one fails with 403
+    (`src/lambda/PutEmailTemplateFunction/handler.ts`).
+
+  Read the 403 from `browser_network_requests`, and check that the change did not stick after a
+  reload. Reading these lists is allowed for an organizer account today
+  (`GetOrganizersFunction`, `GetEventTypesFunction`, `GetEmailTemplatesFunction`), so a visible
+  list alone is no finding.
 - **Jira:** REST at https://koekalenteri.atlassian.net with `JIRA_USER_EMAIL` and
   `JIRA_API_TOKEN` from `.env` (the main checkout's from a worktree), loaded inside the command
   that calls Jira, as `candidates.mjs` does, and never printed. Status names are exact: "Ready
@@ -40,17 +81,21 @@ only those. The release decision stays with the user.
 
 Runs first on every run. When everything is in place, it costs one sign-in and opens no dialog.
 
-1. Sign in as `PAAKAYTTAJA` through the dev login form, typing `E2E_DEV_PAAKAYTTAJA_EMAIL` and
-   `E2E_DEV_PAAKAYTTAJA_PASSWORD` into its fields. The side menu shows Yhdistykset only to a
-   global admin. Without it, stop the run and tell the user to make the account a global admin by
-   hand (Käyttäjät, Muokkaa rooleja, Koekalenterin pääkäyttäjä): only an existing admin can, and
-   nothing below works without it.
-2. Open Käyttäjät (`/admin/users`), Yhdistys set to Kaikki. Find each of the other four accounts
+1. Sign in as `PAAKAYTTAJA` at the login page, typing `E2E_DEV_PAAKAYTTAJA_EMAIL` and
+   `E2E_DEV_PAAKAYTTAJA_PASSWORD` into its fields ("Signing in and the admin side" above). Wait
+   until the sign-in has finished (the address has left `/login` and "Tervetuloa, <name>!" has
+   shown, or the header shows the account's menu); judging earlier stops the run for nothing. If
+   the header then has no Ylläpito, the account has no access at all: stop the run and tell the
+   user to make it a global admin by hand (Käyttäjät, Muokkaa rooleja, Koekalenterin
+   pääkäyttäjä). If it is there, click it: the side menu shows Yhdistykset only to a global
+   admin. Without Yhdistykset, stop the run the same way. Only an existing admin can grant the
+   role, and nothing below works without it.
+2. Open Käyttäjät from the side menu, Yhdistys set to Kaikki. Find each of the other four accounts
    by typing its `E2E_DEV_<KEY>_EMAIL` into the search field; the browser types the address. A
    user appears on the page only after its first sign-in, so for each account whose row is
    missing: close the browser (`browser_close`), sign in once as that account, then sign in as
-   `PAAKAYTTAJA` again and come back. After signing in as `ILMOITTAJA`, do not open `/admin`
-   (KOE-1734, `test-data.md`).
+   `PAAKAYTTAJA` again and come back. The other accounts sign in at the login page too, and none
+   of them opens the admin side here.
 3. Compare each account's roles with the expected roles in `test-data.md`, "Accounts". The Roolit
    column's tooltip lists them: Koekalenterin pääkäyttäjä (global admin), then one line per
    organizer role, "Yhdistyksen pääkäyttäjä - <organizer>" (admin) or "Koesihteeri - <organizer>"
@@ -111,8 +156,9 @@ Test the issues one at a time, in the order listed.
 
 ## 3. Start
 
-- Move the issue to Testing In Progress, unless it is already there. Take the transition id by its target's name from
-  `GET /rest/api/3/issue/<KEY>/transitions`, then `POST` it to the same endpoint.
+- Move the issue to Testing In Progress, unless it is already there. Take the transition id by
+  its target's name from `GET /rest/api/3/issue/<KEY>/transitions`, then `POST` it to the same
+  endpoint.
 - Make or find the data as `test-data.md` says: a rerun of the same issue reuses the event named
   with its key.
 
@@ -123,9 +169,13 @@ Test the issues one at a time, in the order listed.
   that must not succeed. A secretary's action is also tried as `ILMOITTAJA` and as `SIHTEERI_2`
   for a J1 event; an admin-only page as `SIHTEERI`; a registrant's own page as another registrant
   or signed out.
-- Sign in through the dev login form with the account the case needs, typing its
-  `E2E_DEV_<KEY>_EMAIL` and `E2E_DEV_<KEY>_PASSWORD`. To switch account, close the browser
-  (`browser_close`) and sign in again; the profile keeps nothing between them.
+- Sign in at the login page with the account the case needs, typing its
+  `E2E_DEV_<KEY>_EMAIL` and `E2E_DEV_<KEY>_PASSWORD`, and reach admin pages only as "Signing in
+  and the admin side" says. An account with no access at all (`ILMOITTAJA`) passes an admin-page
+  case when its header has no Ylläpito; never type the page's address to try it. An organizer
+  account is tried on an admin-only page by typing its address and judged by "Admin-only pages"
+  above. To switch account, close the browser (`browser_close`) and sign in again; the profile
+  keeps nothing between them.
 - Take a screenshot of every point you judge (`browser_take_screenshot`) with an explicit
   `filename` under `.playwright-mcp/<KEY>/`, named after what it shows, e.g.
   `.playwright-mcp/KOE-1674/sihteeri-tallennus-onnistui.png`. The browser writes only inside the
@@ -144,8 +194,8 @@ Test the issues one at a time, in the order listed.
 Every comment is in Finnish, the app's own terms from `translation.json`, with every issue key,
 commit and file as a Markdown link (`AGENTS.md`, "Every reference in a Jira comment is a link").
 Post with `contentFormat: "markdown"`. Attach the screenshots from `.playwright-mcp/<KEY>/`
-first (`POST /rest/api/3/issue/<KEY>/attachments`, header `X-Atlassian-Token: no-check`, the file as
-the multipart field `file`) and name them in the comment.
+first (`POST /rest/api/3/issue/<KEY>/attachments`, header `X-Atlassian-Token: no-check`, the
+file as the multipart field `file`) and name them in the comment.
 
 - **Works:** a comment with what was tried, with which accounts, and the screenshots as evidence;
   then move it to Done.
