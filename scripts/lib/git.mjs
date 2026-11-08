@@ -15,11 +15,12 @@ export function isGitDescendant(ancestor, revision) {
 
 /**
  * The .env of the checkout at `root`, or of the main checkout (the first entry of
- * `git worktree list`) when `root` is a worktree without one. The file may not exist.
+ * `git worktree list`) when `root` is a worktree without one. The file may not exist. `env` is
+ * git's environment; a test passes one built for a throwaway repository.
  */
-export function dotenvFile(root) {
+export function dotenvFile(root, env = process.env) {
   const own = path.join(root, '.env')
   if (existsSync(own)) return own
-  const list = execFileSync('git', ['-C', root, 'worktree', 'list', '--porcelain'], { encoding: 'utf8' })
+  const list = execFileSync('git', ['-C', root, 'worktree', 'list', '--porcelain'], { encoding: 'utf8', env })
   return path.join(list.split('\n')[0].replace(/^worktree /, ''), '.env')
 }

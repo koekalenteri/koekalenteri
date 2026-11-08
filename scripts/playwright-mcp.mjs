@@ -5,11 +5,12 @@
 // `browser_fill_form`, the server fills in the value, and the value never reaches the transcript.
 //
 // The accounts are the E2E_DEV_* keys of the checkout's .env, or of the main checkout's for a
-// worktree without one (dotenvFile). Only those keys are handed over: the server replaces every secret value it
-// finds in a tool response with the secret's name, and fills any secret whose name is typed, so
-// the rest of .env (the Jira token, REACT_APP_REGION=eu-north-1) would both garble the page
-// snapshots and be one typed name away from a dev form field. Without a .env, or without E2E_DEV_*
-// keys in it, the server starts without secrets.
+// worktree without one (dotenvFile). Only those keys are handed over: the server replaces every
+// secret value it finds in a tool response with the secret's name, and fills any secret whose
+// name is typed, so the rest of .env (the Jira token, REACT_APP_REGION=eu-north-1) would both
+// garble the page snapshots and be one typed name away from a dev form field. Without a .env, or
+// without E2E_DEV_* keys in it, the server starts without secrets. A key whose value cannot be
+// written so that it reads back the same stops the launcher before anything is written.
 //
 // The server takes secrets only as a dotenv file. It is written next to the server's other
 // output (.playwright-mcp/, which git ignores) and removed as soon as the server has parsed its
@@ -33,71 +34,76 @@ export const devSecrets = (env) =>
   Object.fromEntries(Object.entries(env).filter(([name, value]) => name.startsWith(SECRET_PREFIX) && value !== ''))
 
 /**
- * `secrets` as dotenv text that parses back to exactly them, and the names of any that no quoting
- * writes so. Each line is checked together with the lines before it, because a quoted value may
- * run on into the next line.
+ * `secrets` as dotenv text that parses back to exactly them. Throws, naming the key, when no
+ * quoting writes a value so. Each line is checked together with the lines before it, because a
+ * quoted value may run on into the next line.
+ *
+ * The check parses with the repository's `dotenv`; the server parses with the copy bundled in
+ * playwright-core (`require('playwright-core/lib/utilsBundle').dotenv`). The two read the same
+ * quoting today, but a @playwright/mcp bump should check that they still do.
  */
 export const toDotenv = (secrets) => {
   let text = ''
-  const written = {}
-  const skipped = []
   for (const [name, value] of Object.entries(secrets)) {
-    const expected = { ...written, [name]: value }
+    const expected = { ...parse(text), [name]: value }
     const line = QUOTES.map((quote) => `${name}=${quote}${value}${quote}\n`).find((candidate) =>
       isDeepStrictEqual(parse(text + candidate), expected)
     )
-    if (line === undefined) {
-      skipped.push(name)
-    } else {
-      text += line
-      written[name] = value
-    }
-  }
-  return { text, skipped }
-}
-
-/** The server's command line: `args` as given, plus the secrets file when there is one. */
-export const serverArgs = (args, secretsFile) => (secretsFile ? [...args, '--secrets', secretsFile] : [...args])
-
-/** The dotenv text of the test accounts in the .env that `dotenvFile` finds, or undefined when there are none. */
-const accountSecrets = () => {
-  const envFile = dotenvFile(REPO)
-  if (!existsSync(envFile)) {
-    console.error(`playwright-mcp: no ${envFile}; the browser cannot sign in to dev`)
-    return undefined
-  }
-  const { text, skipped } = toDotenv(devSecrets(parse(readFileSync(envFile, 'utf8'))))
-  if (skipped.length > 0) {
-    console.error(`playwright-mcp: cannot hand over ${skipped.join(', ')}; check their quoting in ${envFile}`)
-  }
-  if (text === '') {
-    console.error(`playwright-mcp: no ${SECRET_PREFIX}* keys in ${envFile}; the browser cannot sign in to dev`)
-    return undefined
+    if (line === undefined) throw new Error(`no quoting writes the value of ${name} so that it reads back the same`)
+    text += line
   }
   return text
 }
 
-/** Loads the server's CLI with `args`; its option parsing reads the secrets file before this returns. */
-const runServer = (args) => {
-  const require = createRequire(import.meta.url)
-  const cli = path.join(path.dirname(require.resolve('@playwright/mcp/package.json')), 'cli.js')
-  const secrets = accountSecrets()
-  if (secrets === undefined) {
-    process.argv = [process.argv[0], cli, ...serverArgs(args)]
-    require(cli)
-    return
-  }
-  const outputDir = path.join(REPO, '.playwright-mcp')
-  mkdirSync(outputDir, { recursive: true })
-  const dir = mkdtempSync(path.join(outputDir, 'secrets-'))
+/**
+ * What `envFile` holds for the browser: `{ text }`, the dotenv text of the test accounts, or
+ * `{ problem }` when there are none to hand over. Throws when a value cannot be written (toDotenv).
+ */
+export const accountSecrets = (envFile) => {
+  if (!existsSync(envFile)) return { problem: `no ${envFile}` }
+  const text = toDotenv(devSecrets(parse(readFileSync(envFile, 'utf8'))))
+  if (text === '') return { problem: `no ${SECRET_PREFIX}* keys in ${envFile}` }
+  return { text }
+}
+
+/**
+ * Runs `fn` with the path of a file that holds `text` and only its owner may read, in a fresh
+ * folder under `dir`, and removes the folder afterwards, also when `fn` throws.
+ */
+export const withSecretsFile = (text, dir, fn) => {
+  mkdirSync(dir, { recursive: true })
+  const folder = mkdtempSync(path.join(dir, 'secrets-'))
   try {
-    const file = path.join(dir, 'secrets.env')
-    writeFileSync(file, secrets, { mode: 0o600 })
-    process.argv = [process.argv[0], cli, ...serverArgs(args, file)]
-    require(cli)
+    const file = path.join(folder, 'secrets.env')
+    writeFileSync(file, text, { mode: 0o600 })
+    return fn(file)
   } finally {
-    rmSync(dir, { recursive: true, force: true })
+    rmSync(folder, { recursive: true, force: true })
   }
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) runServer(process.argv.slice(2))
+/** Loads the server's CLI with `args`; its option parsing reads the secrets file before this returns. */
+const startServer = (args) => {
+  const require = createRequire(import.meta.url)
+  const cli = path.join(path.dirname(require.resolve('@playwright/mcp/package.json')), 'cli.js')
+  process.argv = [process.argv[0], cli, ...args]
+  require(cli)
+}
+
+const main = (args) => {
+  let found
+  try {
+    found = accountSecrets(dotenvFile(REPO))
+  } catch (error) {
+    console.error(`playwright-mcp: ${error.message}`)
+    process.exit(1)
+  }
+  if (found.text === undefined) {
+    console.error(`playwright-mcp: ${found.problem}; the browser cannot sign in to dev`)
+    startServer(args)
+    return
+  }
+  withSecretsFile(found.text, path.join(REPO, '.playwright-mcp'), (file) => startServer([...args, '--secrets', file]))
+}
+
+if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) main(process.argv.slice(2))

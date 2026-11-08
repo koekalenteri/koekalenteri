@@ -32,8 +32,9 @@ only those. The release decision stays with the user.
   `.env` if the server's log says the keys are missing); never work around it by reading `.env`.
 - **Jira:** REST at https://koekalenteri.atlassian.net with `JIRA_USER_EMAIL` and
   `JIRA_API_TOKEN` from `.env` (the main checkout's from a worktree), loaded inside the command
-  that calls Jira, as `candidates.mjs` does, and never printed. Status names are exact: "Ready for Testing", "Testing In
-  Progress", "In Progress", "Done"; a misspelled one silently matches nothing.
+  that calls Jira, as `candidates.mjs` does, and never printed. Status names are exact: "Ready
+  for Testing", "Testing In Progress", "In Progress", "Done"; a misspelled one silently matches
+  nothing.
 
 ## 0. Setup check
 
@@ -45,10 +46,11 @@ Runs first on every run. When everything is in place, it costs one sign-in and o
    hand (Käyttäjät, Muokkaa rooleja, Koekalenterin pääkäyttäjä): only an existing admin can, and
    nothing below works without it.
 2. Open Käyttäjät (`/admin/users`), Yhdistys set to Kaikki. Find each of the other four accounts
-   by typing its `E2E_DEV_<KEY>_EMAIL` into the search field; the browser types the address. A user appears on the page only after its first
-   sign-in, so for each account whose row is missing: close the browser (`browser_close`), sign in
-   once as that account, then sign in as `PAAKAYTTAJA` again and come back. After signing in as
-   `ILMOITTAJA`, do not open `/admin` (KOE-1734, `test-data.md`).
+   by typing its `E2E_DEV_<KEY>_EMAIL` into the search field; the browser types the address. A
+   user appears on the page only after its first sign-in, so for each account whose row is
+   missing: close the browser (`browser_close`), sign in once as that account, then sign in as
+   `PAAKAYTTAJA` again and come back. After signing in as `ILMOITTAJA`, do not open `/admin`
+   (KOE-1734, `test-data.md`).
 3. Compare each account's roles with the expected roles in `test-data.md`, "Accounts". The Roolit
    column's tooltip lists them: Koekalenterin pääkäyttäjä (global admin), then one line per
    organizer role, "Yhdistyksen pääkäyttäjä - <organizer>" (admin) or "Koesihteeri - <organizer>"
@@ -122,8 +124,8 @@ Test the issues one at a time, in the order listed.
   for a J1 event; an admin-only page as `SIHTEERI`; a registrant's own page as another registrant
   or signed out.
 - Sign in through the dev login form with the account the case needs, typing its
-  `E2E_DEV_<KEY>_EMAIL` and `E2E_DEV_<KEY>_PASSWORD`. To switch account, close the
-  browser (`browser_close`) and sign in again; the profile keeps nothing between them.
+  `E2E_DEV_<KEY>_EMAIL` and `E2E_DEV_<KEY>_PASSWORD`. To switch account, close the browser
+  (`browser_close`) and sign in again; the profile keeps nothing between them.
 - Take a screenshot of every point you judge (`browser_take_screenshot`), saved under the
   scratchpad in a folder named after the key. Name each file after what it shows.
 - Read what the page shows, not what you expect it to show. When unsure whether something is a
