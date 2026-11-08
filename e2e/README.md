@@ -105,9 +105,10 @@ set to `local`, the key the servers' database is kept under.
 MCP server (`@playwright/mcp`, pinned in `package.json`), named `playwright`, run from
 `node_modules` with the settings in `.claude/playwright-mcp.json` (KOE-1731). It is for checking
 a change on dev (https://dev.koekalenteri.snj.fi) the way a tester would, signed in through the
-dev login form with the test accounts in `.env` (`E2E_DEV_<KEY>_EMAIL`, `E2E_DEV_<KEY>_PASSWORD`).
-Claude Code asks once, at the first session after the file appears, whether to approve the project
-server; `claude mcp get playwright` shows whether it is approved.
+dev login form. Claude Code asks once, at the first session after the file appears, whether to
+approve the project server; `claude mcp get playwright` shows whether it is approved. The server
+runs from `node_modules`, so a fresh checkout or worktree needs `npm ci` first, or Claude Code
+shows the server as failed.
 
 - The browser is headless and isolated: its profile lives in memory and nothing is kept between
   sessions. To change account, close the browser (`browser_close`) and sign in again through
@@ -116,14 +117,40 @@ server; `claude mcp get playwright` shows whether it is approved.
   Google Chrome otherwise.
 - Snapshots and console logs land in `.playwright-mcp/` at the repository root, which git ignores.
 
+The test accounts are in `.env` as `E2E_DEV_<KEY>_EMAIL` and `E2E_DEV_<KEY>_PASSWORD`
+(`.env.sample` lists the names), each meant for one role on dev:
+
+| KEY              | Role                        |
+| ---------------- | --------------------------- |
+| `PAAKAYTTAJA`    | global admin                |
+| `YHDISTYS_ADMIN` | admin of the organizer J1   |
+| `SIHTEERI`       | secretary of J1             |
+| `SIHTEERI_2`     | secretary of J2             |
+| `ILMOITTAJA`     | no role, a plain registrant |
+
+### The allowlist
+
 The browser may request only the origins listed under `network.allowedOrigins`; every other
 request, a page load included, is aborted with `net::ERR_BLOCKED_BY_CLIENT`. The list holds what
-loading dev, signing in and opening the admin page request (the front end, the dev API and
-WebSocket, Cognito, STS and CloudWatch RUM) and Paytrail's payment page. Production
-(https://koekalenteri.snj.fi and its API) is not on it, so the browser cannot open it, a
-navigation from a dev page included. When a run needs another origin (a bank's test page behind
-Paytrail, say), the blocked request shows in `browser_network_requests` as `ERR_BLOCKED_BY_CLIENT`:
-add that origin, scheme and host without a path, to the list in the same change that needs it.
-The filter is Playwright's request routing, which does not see the hops of an HTTP redirect or
-the WebSocket traffic, so it keeps the browser off production by default and is not a security
-boundary.
+loading dev, signing in and opening the admin page request (the front end, the dev API, Cognito,
+STS and CloudWatch RUM) and Paytrail's payment page. When a run needs another origin (a bank's
+test page behind Paytrail, say), the blocked request shows in `browser_network_requests` as
+`ERR_BLOCKED_BY_CLIENT`: add that origin, a scheme and a host with no path, port or wildcard, to
+the list in the same change that needs it.
+
+- The two `execute-api` hosts are the dev stack's: `h1tkq96ib3` its API, `b98joqlym3` its
+  WebSocket. A recreated stack gets new ones; take them from the stack's outputs, or from
+  `REACT_APP_API_BASE_URL` and `REACT_APP_WS_API_URL` of the dev Amplify app, which
+  `template/amplify.yaml` builds from the stack. Its CSP `connect-src` allows any `execute-api`
+  host of the region and does not name them.
+- The filter is Playwright's request routing, which does not route WebSockets: the `wss://` entry
+  records what the page opens and enforces nothing.
+- Nor does it see the hops of an HTTP redirect, so it keeps the browser off production by default
+  and is not a security boundary.
+
+Production (https://koekalenteri.snj.fi and its API) is not on the list, so the browser cannot
+open it, a navigation from a dev page included. `scripts/playwright-mcp-config.test.mjs` refuses
+an entry that is not a bare origin, and any host under `koekalenteri.snj.fi` other than
+`dev.koekalenteri.snj.fi`, which keeps out the production front end and the auth domains. The
+production API's `execute-api` host cannot be told from dev's by its name, so keeping it off the
+list is up to review.
