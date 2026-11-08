@@ -1001,6 +1001,35 @@ export default async () => {
   await byOptions({ index: 'gsiName' })
 }
 `,
+  // The parameters of a reader it reaches, written three ways, and none of one nothing calls; the
+  // command under the name it is imported as, not the one it is renamed to (KOE-1617).
+  Parameters: `${COMMON}
+import { SendEmailCommand as Send, SESClient } from '@aws-sdk/client-ses'
+import { getPaytrailConfig } from '../lib/secrets'
+const ses = new SESClient()
+export default async () => {
+  await getPaytrailConfig()
+  await ses.send(new Send({}))
+}
+`,
+  ParametersComputed: `${COMMON}
+import { getSSMParams } from '../lib/secrets'
+export default async (name: string) => getSSMParams([name])
+`,
+  ParametersOtherSubstitution: `${COMMON}
+import { getSSMParams } from '../lib/secrets'
+export default async () => getSSMParams([\`\${String(Date.now())}-SECRET\`])
+`,
+  ParametersSpread: `${COMMON}
+import { getSSMParams } from '../lib/secrets'
+const names = ['SECRET']
+export default async () => getSSMParams([...names])
+`,
+  ParametersVariable: `${COMMON}
+import { getSSMParams } from '../lib/secrets'
+const names = ['SECRET']
+export default async () => getSSMParams(names)
+`,
   PropertyTwoLiterals: `${COMMON}
 type ScanOptions = { table?: string }
 
@@ -1339,6 +1368,17 @@ export const admin = {
 
 export const list = () => new CustomDynamoClient(table).readAll()
 `,
+  'lib/secrets.ts': `import { CONFIG } from '../config'
+const { stackName } = CONFIG
+export async function getSSMParams(names: string[]): Promise<Record<string, string>> {
+  return Object.fromEntries(names.map((name) => [name, '']))
+}
+export const getPaytrailConfig = () => {
+  const secret = \`\${stackName}-SECRET\`
+  return getSSMParams(['PLAIN', secret, \`\${CONFIG.stackName}-MERCHANT\`])
+}
+export const getUnusedConfig = () => getSSMParams(['NEVER_READ'])
+`,
   'lib/setter.ts': `${COMMON}
 let table = CONFIG.judgeTable
 
@@ -1398,6 +1438,7 @@ beforeAll(() => {
   userTable: process.env.USER_TABLE_NAME ?? 'user-table',
   'quotedTable': process.env.QUOTED_TABLE_NAME ?? 'quoted-table',
   ['computedTable']: process.env.COMPUTED_TABLE_NAME ?? 'computed-table',
+  stackName: process.env.STACK_NAME ?? 'local',
 }
 `
   )
@@ -1467,6 +1508,24 @@ describe('createTableUseAnalyzer', () => {
     ['a computed key', 'EnvironmentComputed', /cannot tell which environment variable process\.env\[name\]/],
     ['process.env handed on whole', 'EnvironmentWhole', /cannot tell which environment variables Object\.keys/],
   ])('refuses an environment read through %s', (_, name, message) => {
+    expect(() => analyzer.analyze(handlerFile(name))).toThrow(message)
+  })
+
+  it('names the SSM parameters a reader it reaches asks for, and the SDK commands it builds', () => {
+    const { commands, parameters } = analyzer.analyze(handlerFile('Parameters'))
+
+    expect([...parameters.keys()].sort()).toEqual([`\${AWS::StackName}-MERCHANT`, `\${AWS::StackName}-SECRET`, 'PLAIN'])
+    expect(parameters.get('PLAIN')).toEqual([expect.stringMatching(/lib\/secrets\.ts:\d+ \(getPaytrailConfig\)$/)])
+    expect([...commands.keys()]).toEqual(['ses:SendEmail'])
+    expect(commands.get('ses:SendEmail')).toEqual([expect.stringMatching(/ParametersFunction\/handler\.ts:11 \(\)$/)])
+  })
+
+  it.each([
+    ['a name it cannot read', 'ParametersComputed', /cannot tell which SSM parameter name names/],
+    ['a substitution that is not the stack', 'ParametersOtherSubstitution', /cannot tell which SSM parameter String/],
+    ['a spread', 'ParametersSpread', /cannot tell which SSM parameter \.\.\.names names/],
+    ['a list that is not written out', 'ParametersVariable', /cannot tell which SSM parameter getSSMParams\(names\)/],
+  ])('refuses an SSM parameter read through %s', (_, name, message) => {
     expect(() => analyzer.analyze(handlerFile(name))).toThrow(message)
   })
 

@@ -12,6 +12,14 @@
  * (KOE-1605). A read is counted where the walk counts a table use, so a variable read inside a
  * function nobody reaches does not count.
  *
+ * It names, counted the same way, the SSM parameters the code reads and the AWS SDK commands it
+ * builds (KOE-1617), so each function's SSM and SES grants can be the ones its code needs. A
+ * parameter is read only through `getSSMParams` in lib/secrets.ts, and a call of it must write its
+ * list out: strings, templates whose every substitution is the stack's name, or `const`s holding
+ * either; anything else is refused. A command is a `new XCommand(...)` of a class imported by name
+ * from an `@aws-sdk/client-*` package, named `<client>:<X>` (`ses:SendTemplatedEmail`). A command
+ * class re-exported through a file of ours, or `getSSMParams` called through a value, is not seen.
+ *
  * The code side follows calls, not imports. Nearly every handler imports a module that opens a
  * client on some table at load (`lib/repositories/dataVersionRepository`, `lib/email`, `lib/ws/connectionRepository`),
  * so an import graph would grant every lambda every table. Instead the walk starts at the code that
@@ -71,12 +79,17 @@ import { indexKey } from './dynamoActions'
  */
 type TableUse = Map<string, Map<Action, string[]>>
 
-/** The environment variables a handler's code reads, each read as `file:line (call chain)`. */
-type EnvironmentUse = Map<string, string[]>
+/** What a handler's code reads or sends by name (a variable, a parameter, a command), each as `file:line (call chain)`. */
+type NamedUse = Map<string, string[]>
 
 interface HandlerUse {
   uses: TableUse
-  environment: EnvironmentUse
+  /** The environment variables the code reads (`process.env.X`). */
+  environment: NamedUse
+  /** The SSM parameters the code reads through `getSSMParams`, `${AWS::StackName}` standing for the stack's name (KOE-1617). */
+  parameters: NamedUse
+  /** The AWS SDK commands the code builds, as `<client>:<command>`: `ses:SendTemplatedEmail` (KOE-1617). */
+  commands: NamedUse
 }
 
 interface MethodSpec {
@@ -115,6 +128,11 @@ const READ_PROPERTIES = new Set(['client', 'index', 'TableName'])
 const CONFIG_FILE = /[\\/]src[\\/]lambda[\\/]config\.ts$/
 const CLIENT_FILE = /[\\/]src[\\/]lambda[\\/]utils[\\/]CustomDynamoClient\.ts$/
 const CLIENT_CLASS = 'CustomDynamoClient'
+const SECRETS_FILE = /[\\/]src[\\/]lambda[\\/]lib[\\/]secrets\.ts$/
+const PARAMETER_READER = 'getSSMParams'
+/** `@aws-sdk/client-ses` to `ses`: the package a command class is imported from names its client. */
+const SDK_CLIENT = /^@aws-sdk\/client-([\w-]+)$/
+const COMMAND_SUFFIX = 'Command'
 
 /**
  * What an expression can evaluate to, as far as tables are concerned: `T:<key>` a table name from
@@ -158,6 +176,10 @@ interface UnitInfo {
   tableNameLiterals: ts.ObjectLiteralExpression[]
   /** `process.env.X` and `process.env['X']` reads, with the variable's name. */
   environmentReads: { node: ts.Node; variable: string }[]
+  /** Calls of `getSSMParams`, whose first argument lists the parameters read. */
+  parameterReads: ts.CallExpression[]
+  /** `new XCommand(...)` of a class imported from an `@aws-sdk/client-*` package, as `<client>:<X>`. */
+  commands: { node: ts.NewExpression; command: string }[]
 }
 
 interface Context {
@@ -165,6 +187,8 @@ interface Context {
   /** `export const CONFIG = {...}` in config.ts. */
   config: ts.VariableDeclaration
   clientClass: ts.ClassDeclaration
+  /** `getSSMParams` in lib/secrets.ts, the one function that reads SSM parameters. */
+  parameterReader: ts.FunctionDeclaration
   /** The program's own source files: no declaration files, nothing from node_modules. */
   files: ts.SourceFile[]
   nodes: Map<string, ts.Node>
@@ -1009,13 +1033,33 @@ const environmentVariableRead = (node: ts.Node): string | undefined => {
   return undefined
 }
 
+/**
+ * The command a `new X(...)` builds, when X is imported by name from an `@aws-sdk/client-*` package
+ * and ends in `Command`: `ses:SendTemplatedEmail` for `new SendTemplatedEmailCommand(...)`. The
+ * import is read as written, so the walk needs no resolved declaration from node_modules.
+ */
+const sdkCommand = (ctx: Context, node: ts.NewExpression): string | undefined => {
+  const specifier = ctx.checker.getSymbolAtLocation(node.expression)?.declarations?.[0]
+  if (!specifier || !ts.isImportSpecifier(specifier)) return undefined
+  const { moduleSpecifier } = specifier.parent.parent.parent
+  const client = ts.isStringLiteral(moduleSpecifier) ? SDK_CLIENT.exec(moduleSpecifier.text)?.[1] : undefined
+  const name = (specifier.propertyName ?? specifier.name).text
+  if (!client || !name.endsWith(COMMAND_SUFFIX)) return undefined
+  return `${client}:${name.slice(0, -COMMAND_SUFFIX.length)}`
+}
+
+const isParameterRead = (ctx: Context, node: ts.CallExpression) =>
+  declarationsOf(ctx, node.expression).includes(ctx.parameterReader)
+
 const scan = (ctx: Context, unit: Unit, skip?: (node: ts.Node) => boolean): UnitInfo => {
   const info: UnitInfo = {
     calls: [],
     clientCalls: [],
+    commands: [],
     elementCalls: [],
     environmentReads: [],
     literals: [],
+    parameterReads: [],
     tableNameLiterals: [],
     targets: new Set(),
     writes: [],
@@ -1034,6 +1078,11 @@ const scan = (ctx: Context, unit: Unit, skip?: (node: ts.Node) => boolean): Unit
       const method = clientMethod(ctx, node)
       if (method !== undefined) info.clientCalls.push({ call: node, method })
       if (ts.isElementAccessExpression(node.expression)) info.elementCalls.push(node)
+      if (isParameterRead(ctx, node)) info.parameterReads.push(node)
+    }
+    if (ts.isNewExpression(node)) {
+      const command = sdkCommand(ctx, node)
+      if (command !== undefined) info.commands.push({ command, node })
     }
     const variable = environmentVariableRead(node)
     if (variable !== undefined) info.environmentReads.push({ node, variable })
@@ -1152,8 +1201,68 @@ const itemAction = (item: ts.ObjectLiteralExpression, at: ts.Node): Action => {
   return action
 }
 
+/** Records one read or send of a name at a node, once per place, under the chain found first. */
+const recordNamed = (state: HandlerState, named: NamedUse, name: string, node: ts.Node, unit: Unit) => {
+  const known = named.get(name) ?? []
+  const where = location(node)
+  if (!known.some((entry) => entry.startsWith(`${where} (`))) known.push(`${where} (${chain(state, unit)})`)
+  named.set(name, known)
+}
+
+const cannotTellParameter = (node: ts.Node): never => {
+  throw new Error(`${location(node)}: cannot tell which SSM parameter ${node.getText()} names`)
+}
+
+/** Whether an expression is the stack's name: `CONFIG.stackName`, or a name bound by `const { stackName } = CONFIG`. */
+const isStackName = (ctx: Context, node: ts.Expression): boolean => {
+  if (ts.isPropertyAccessExpression(node)) return isConfig(ctx, node.expression) && node.name.text === 'stackName'
+  if (!ts.isIdentifier(node)) return false
+  const declarations = declarationsOf(ctx, node)
+  return declarations.length === 1 && ts.isBindingElement(declarations[0])
+    ? configKeyOfBinding(ctx, declarations[0]) === 'stackName'
+    : false
+}
+
+const isConstDeclaration = (declaration: ts.Declaration): declaration is ts.VariableDeclaration =>
+  ts.isVariableDeclaration(declaration) && Boolean(ts.getCombinedNodeFlags(declaration) & ts.NodeFlags.Const)
+
+/**
+ * The name one element of a `getSSMParams` list stands for: a string, a template whose every
+ * substitution is the stack's name (written `${AWS::StackName}`, as the template's `!Sub` writes it),
+ * or a `const` holding either. Anything else is refused.
+ */
+const parameterName = (ctx: Context, node: ts.Expression): string => {
+  const expression = unwrap(node)
+  if (ts.isStringLiteralLike(expression)) return expression.text
+  if (ts.isTemplateExpression(expression)) {
+    const spans = expression.templateSpans.map((span) =>
+      isStackName(ctx, unwrap(span.expression))
+        ? `\${AWS::StackName}${span.literal.text}`
+        : cannotTellParameter(span.expression)
+    )
+    return expression.head.text + spans.join('')
+  }
+  const declarations = ts.isIdentifier(expression) ? declarationsOf(ctx, expression) : []
+  if (declarations.length === 1 && isConstDeclaration(declarations[0]) && declarations[0].initializer) {
+    return parameterName(ctx, declarations[0].initializer)
+  }
+  return cannotTellParameter(expression)
+}
+
+/** The parameters a `getSSMParams` call reads: its first argument, an array written out in the call. */
+const parameterNames = (ctx: Context, call: ts.CallExpression): string[] => {
+  const list = call.arguments[0] ? unwrap(call.arguments[0]) : undefined
+  if (!list || !ts.isArrayLiteralExpression(list)) return cannotTellParameter(call)
+  return list.elements.map((element) =>
+    ts.isSpreadElement(element) || ts.isOmittedExpression(element)
+      ? cannotTellParameter(element)
+      : parameterName(ctx, element)
+  )
+}
+
 /** The final pass: every client call and every transaction item's `TableName` in a unit that runs. */
-const collect = (ctx: Context, state: HandlerState, unit: Unit, info: UnitInfo, { environment, uses }: HandlerUse) => {
+const collect = (ctx: Context, state: HandlerState, unit: Unit, info: UnitInfo, found: HandlerUse) => {
+  const { commands, environment, parameters, uses } = found
   const clientCalls = [
     ...info.clientCalls,
     ...info.elementCalls.flatMap((call) => elementClientCalls(ctx, state, call)),
@@ -1166,12 +1275,11 @@ const collect = (ctx: Context, state: HandlerState, unit: Unit, info: UnitInfo, 
     }
   }
   for (const literal of info.tableNameLiterals) collectItem(ctx, state, unit, literal, uses)
-  for (const { node, variable } of info.environmentReads) {
-    const known = environment.get(variable) ?? []
-    const where = location(node)
-    if (!known.some((entry) => entry.startsWith(`${where} (`))) known.push(`${where} (${chain(state, unit)})`)
-    environment.set(variable, known)
+  for (const { node, variable } of info.environmentReads) recordNamed(state, environment, variable, node, unit)
+  for (const call of info.parameterReads) {
+    for (const name of parameterNames(ctx, call)) recordNamed(state, parameters, name, call, unit)
   }
+  for (const { command, node } of info.commands) recordNamed(state, commands, command, node, unit)
 }
 
 /** The table a transaction item names; one that only a computed key may give it can also be absent. */
@@ -1370,7 +1478,7 @@ const analyzeHandler = (ctx: Context, file: ts.SourceFile): HandlerUse => {
     state.memo.clear()
     step(ctx, state, imported)
   }
-  const found: HandlerUse = { environment: new Map(), uses: new Map() }
+  const found: HandlerUse = { commands: new Map(), environment: new Map(), parameters: new Map(), uses: new Map() }
   for (const unit of state.via.keys()) collect(ctx, state, unit, unitInfo(ctx, unit), found)
   for (const statement of runsOnlyAtImport(state, imported)) {
     collect(ctx, state, statement, importView(ctx, statement), found)
@@ -1391,7 +1499,7 @@ const compilerOptions = (): ts.CompilerOptions => {
   return { ...options, types: ['node'] }
 }
 
-const findDeclaration = <T extends ts.ClassDeclaration | ts.VariableDeclaration>(
+const findDeclaration = <T extends ts.ClassDeclaration | ts.FunctionDeclaration | ts.VariableDeclaration>(
   file: ts.SourceFile,
   test: (node: ts.Node) => node is T,
   name: string
@@ -1414,7 +1522,10 @@ const createContext = (program: ts.Program): Context => {
   const files = program.getSourceFiles()
   const configFile = files.find((f) => CONFIG_FILE.test(f.fileName))
   const clientFile = files.find((f) => CLIENT_FILE.test(f.fileName))
-  if (!configFile || !clientFile) throw new Error('config.ts or CustomDynamoClient.ts is not in the program')
+  const secretsFile = files.find((f) => SECRETS_FILE.test(f.fileName))
+  if (!configFile || !clientFile || !secretsFile) {
+    throw new Error('config.ts, CustomDynamoClient.ts or lib/secrets.ts is not in the program')
+  }
   return {
     checker: program.getTypeChecker(),
     clientClass: findDeclaration(clientFile, ts.isClassDeclaration, CLIENT_CLASS),
@@ -1425,6 +1536,7 @@ const createContext = (program: ts.Program): Context => {
     importViews: new Map(),
     literalProperties: new Map(),
     nodes: new Map(),
+    parameterReader: findDeclaration(secretsFile, ts.isFunctionDeclaration, PARAMETER_READER),
     symbols: new Map(),
     units: new Map(),
   }
@@ -1455,14 +1567,18 @@ interface TableAnalysis {
   /** Handler file to the CONFIG keys its code reaches. */
   uses: Map<string, TableUse>
   /** Handler file to the environment variables its code reads. */
-  environment: Map<string, EnvironmentUse>
+  environment: Map<string, NamedUse>
+  /** Handler file to the SSM parameters its code reads. */
+  parameters: Map<string, NamedUse>
+  /** Handler file to the AWS SDK commands its code builds. */
+  commands: Map<string, NamedUse>
   /** CONFIG key (`eventTable`) to the environment variable config.ts reads it from (`EVENT_TABLE_NAME`). */
   environmentVariables: Map<string, string>
 }
 
 interface TableUseAnalyzer {
   environmentVariables: Map<string, string>
-  /** The tables and environment variables one of the handlers reaches; throws on the first use it cannot name. */
+  /** The tables, environment variables, SSM parameters and SDK commands one of the handlers reaches; throws on the first use it cannot name. */
   analyze: (handlerFile: string) => HandlerUse
   /** The tables one of the handlers reaches. */
   usesOf: (handlerFile: string) => TableUse
@@ -1487,15 +1603,22 @@ export const createTableUseAnalyzer = (handlerFiles: string[]): TableUseAnalyzer
   }
 }
 
-/** The tables and environment variables each handler can reach, by following calls from its default export. */
+/** What each handler can reach, by following calls from its default export. */
 export const analyzeTableUse = (handlerFiles: string[]): TableAnalysis => {
   const analyzer = createTableUseAnalyzer(handlerFiles)
-  const uses = new Map<string, TableUse>()
-  const environment = new Map<string, EnvironmentUse>()
+  const analysis: TableAnalysis = {
+    commands: new Map(),
+    environment: new Map(),
+    environmentVariables: analyzer.environmentVariables,
+    parameters: new Map(),
+    uses: new Map(),
+  }
   for (const file of handlerFiles) {
     const found = analyzer.analyze(file)
-    uses.set(file, found.uses)
-    environment.set(file, found.environment)
+    analysis.uses.set(file, found.uses)
+    analysis.environment.set(file, found.environment)
+    analysis.parameters.set(file, found.parameters)
+    analysis.commands.set(file, found.commands)
   }
-  return { environment, environmentVariables: analyzer.environmentVariables, uses }
+  return analysis
 }

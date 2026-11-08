@@ -3,13 +3,24 @@
  * (KOE-1492): the SAM policy templates, inline statements with `dynamodb:` actions, and `!Ref`s to
  * managed policies (`WebSocketPolicy`, `AuthorizePolicy`). Anything else that names DynamoDB is an
  * error, so a new policy shape is classified before it is trusted.
+ *
+ * Every statement of an inline or managed policy is also kept as written, its actions and resources,
+ * for the checks on the other services (KOE-1617). A statement that is not Allow is an error.
  */
 import type { Action } from './dynamoActions'
 import { parse } from 'yaml'
 import { indexKey, READ_ACTIONS, tableOfKey, WRITE_ACTIONS } from './dynamoActions'
 
+/** One statement of a function's inline or managed policy: its actions and resources as written, an intrinsic as its source text (`!Sub arn:...`). */
+interface PolicyStatement {
+  actions: string[]
+  resources: string[]
+}
+
 interface FunctionGrants {
   codeUri: string
+  /** Every statement of the function's inline and managed policies; the SAM policy templates are not in here. */
+  statements: PolicyStatement[]
   /** Table logical id, or `X/index/<name>`, to the actions the function's policies allow on it (`*` for all). */
   grants: Map<string, Set<Action>>
   /** The variables the function's own `Environment` sets, beside the Globals' (KOE-1605). */
@@ -95,17 +106,26 @@ const grant = (grants: FunctionGrants, key: string, actions: Action[]) => {
   grants.grants.set(key, granted)
 }
 
+/** A resource as the template writes it: a string, or an intrinsic as its tag and text. */
+const resourceText = (resource: unknown, where: string): string => {
+  if (typeof resource === 'string') return resource
+  const [tag] = isRecord(resource) ? Object.keys(resource) : []
+  const text = tag === undefined || !isRecord(resource) ? undefined : stringField(resource, tag)
+  if (text === undefined) throw new Error(`${where}: resource ${JSON.stringify(resource)} is not one this check reads`)
+  return `!${tag} ${text}`
+}
+
 const grantStatements = (grants: FunctionGrants, statements: unknown[], tables: Set<string>, where: string) => {
   for (const statement of statements) {
     if (!isRecord(statement)) throw new Error(`${where}: statement is not a map`)
     const actions = listField(statement, 'Action')
     if (!isStringArray(actions)) throw new Error(`${where}: actions are not strings`)
+    if (stringField(statement, 'Effect') !== 'Allow') throw new Error(`${where}: a statement that is not Allow`)
+    const resources = listField(statement, 'Resource')
+    grants.statements.push({ actions, resources: resources.map((resource) => resourceText(resource, where)) })
     const dynamo = actions.filter((action) => action.startsWith('dynamodb:'))
     if (!dynamo.length) continue
-    if (stringField(statement, 'Effect') !== 'Allow') {
-      throw new Error(`${where}: a dynamodb statement that is not Allow`)
-    }
-    for (const resource of listField(statement, 'Resource')) {
+    for (const resource of resources) {
       const key = keyOfResource(resource, where)
       if (!tables.has(tableOfKey(key))) throw new Error(`${where}: ${key} is not a table`)
       grant(grants, key, actionsOf(dynamo, where))
@@ -196,6 +216,7 @@ export const templateTables = (templateText: string): TemplateTables => {
       codeUri: stringField(properties, 'CodeUri') ?? '',
       environment: new Set(Object.keys(recordField(recordField(properties, 'Environment'), 'Variables'))),
       grants: new Map(),
+      statements: [],
     }
     for (const policy of listField(properties, 'Policies')) grantPolicy(grants, policy, resources, tables, name)
     functions.set(name, grants)

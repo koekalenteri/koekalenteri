@@ -34,12 +34,14 @@ Resources:
 ${policies}
 `
 
-const grantsOf = (policies: string) => {
+const functionOf = (policies: string) => {
   const { functions } = templateTables(template(policies))
   const one = functions.get('OneFunction')
   if (!one) throw new Error('no function')
-  return one.grants
+  return one
 }
+
+const grantsOf = (policies: string) => functionOf(policies).grants
 
 describe('templateTables', () => {
   it('maps the table variables of the Globals to their tables', () => {
@@ -81,6 +83,30 @@ describe('templateTables', () => {
     expect(isGranted(grants, 'AuditTable', 'DeleteItem')).toBe(false)
   })
 
+  // KOE-1617: the other services' statements are compared in template.test.ts as written.
+  it('keeps every statement of the inline and managed policies, intrinsics as their source', () => {
+    const { statements } = functionOf(`        - !Ref AuthorizePolicy
+        - CloudWatchPutMetricPolicy: {}
+        - Statement:
+            - Effect: Allow
+              Action: ses:SendTemplatedEmail
+              Resource:
+                - '*'
+                - !Sub arn:\${AWS::Partition}:ses:\${AWS::Region}:\${AWS::AccountId}:configuration-set/Koekalenteri`)
+
+    expect(statements).toEqual([
+      { actions: ['dynamodb:GetItem'], resources: ['!GetAtt UserTable.Arn'] },
+      { actions: ['dynamodb:Query'], resources: [`!Sub \${UserTable.Arn}/index/gsiEmail`] },
+      {
+        actions: ['ses:SendTemplatedEmail'],
+        resources: [
+          '*',
+          `!Sub arn:\${AWS::Partition}:ses:\${AWS::Region}:\${AWS::AccountId}:configuration-set/Koekalenteri`,
+        ],
+      },
+    ])
+  })
+
   it('grants what the SAM policy templates grant, on the table and its indexes', () => {
     const grants = grantsOf(`        - DynamoDBWritePolicy:
             TableName: !Ref AuditTable
@@ -120,6 +146,16 @@ describe('templateTables', () => {
       'a statement that is not Allow',
       '        - Statement:\n            - Effect: Deny\n              Action: dynamodb:GetItem\n              Resource: !GetAtt UserTable.Arn',
       /not Allow/,
+    ],
+    [
+      'a statement of another service that is not Allow',
+      '        - Statement:\n            - Effect: Deny\n              Action: ses:SendTemplatedEmail\n              Resource: "*"',
+      /not Allow/,
+    ],
+    [
+      'a resource it cannot read as written',
+      '        - Statement:\n            - Effect: Allow\n              Action: ses:SendTemplatedEmail\n              Resource: !Join [":", [a, b]]',
+      /is not one this check reads/,
     ],
     [
       'a resource that is not a table',
