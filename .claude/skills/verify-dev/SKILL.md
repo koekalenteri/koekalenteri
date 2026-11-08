@@ -13,7 +13,7 @@ only those. The release decision stays with the user.
   allowlist keeps it on dev (`e2e/README.md`, "The allowlist"). Never use another browser for
   this, and never touch production, not even to read.
 - **No AWS.** Signing in, data and every check go through the dev UI. Jira is used through its
-  REST API, GitHub through `gh`.
+  REST API (comments through the Atlassian MCP tool, step 5), GitHub through `gh`.
 - **Test data** (accounts, organizers J1 and J2, events, email addresses, dogs, payments, results
   to Kennelliitto) follows `.claude/skills/verify-dev/test-data.md`. Read it before the first step;
   its rules (nothing is deleted, no Kopioi ympäristöön, the allowlist is not edited mid-run) hold
@@ -30,26 +30,24 @@ only those. The release decision stays with the user.
   `scripts/playwright-mcp.mjs` was in its checkout, or without the keys in `.env`. Stop the run
   and tell the user to start a new session from the main checkout with main pulled (and to fill in
   `.env` if the server's log says the keys are missing); never work around it by reading `.env`.
-- **Signing in and the admin side** (until KOE-1734 is fixed). A page that checks for admin
-  access sends a signed-in account without it (no global admin flag and no organizer role, or a
-  failed `/user` fetch) to the login page, which signs it straight back in and returns it to the
-  same page, over and over: the browser hangs. These pages are `/admin` and everything under it
-  (`/admin/event/startlist/<id>` and `/admin/event/startlist-preview/<id>` among them) and
-  `/stats` (`src/routeConfig.ts`). An account with any role cannot loop there. So:
-  - Sign in at https://dev.koekalenteri.snj.fi/login directly, never by opening one of those pages
-    first; signing in from one also stores it as the page to return to. Before judging anything,
-    wait until the sign-in has finished: the address has left `/login` and the snackbar "Tervetuloa,
-    <name>!" has shown, or the header shows the account's menu. Until then the user is still
-    loading and the header has no Ylläpito for anyone.
+- **Signing in and the admin side.** The pages that check for admin access are `/admin` and
+  everything under it (`/admin/event/startlist/<id>` and `/admin/event/startlist-preview/<id>`
+  among them) and `/stats` (`src/routeConfig.ts`, `src/pages/components/AdminAccessGuard.tsx`).
+  - Sign in at https://dev.koekalenteri.snj.fi/login. Before judging anything, wait until the
+    sign-in has finished: the address has left `/login` and the snackbar "Tervetuloa, <name>!" has
+    shown, or the header shows the account's menu. Until then the user is still loading and the
+    header has no Ylläpito for anyone.
   - Ylläpito shows in the header only to an account with admin access (global admin or any
-    organizer role). An account without it (`ILMOITTAJA`) never opens one of those addresses,
-    typed or followed.
-  - An account with Ylläpito may type an `/admin/...` address, such as an admin-only page's for
-    the negative case below. Otherwise enter the admin side by clicking Ylläpito and move inside it
-    through the side menu. The public start list (`/startlist/<id>`) has no access check.
-  - If a page keeps showing only the loading indicator, or the address flips between `/admin` and
-    `/login`, call `browser_close` at once, record "KOE-1734 loop" in the run summary with the
-    account and the page, and do not try that path again in the run.
+    organizer role). Enter the admin side by clicking it and move inside it through the side
+    menu; type an `/admin/...` address only for a case that needs it, such as an access check.
+    The public start list (`/startlist/<id>`) has no access check.
+  - On one of those pages, a signed-out visitor is sent to the login page and returned to the page
+    after signing in. A signed-in account without admin access sees "Ei käyttöoikeutta" with
+    Etusivulle, and the address stays. When the `/user` fetch fails, the page shows "Käyttäjätietojasi
+    ei saatu ladattua." with Yritä uudelleen. Any of these is the refused state, not a finding.
+  - An organizer account (`SIHTEERI`, `SIHTEERI_2`, `YHDISTYS_ADMIN`) with no Ylläpito after the
+    sign-in has finished has no role on the record its sign-in reaches, whatever Käyttäjät shows.
+    Its organizer cases cannot run: name the account in the run summary and skip them.
 - **Admin-only pages** are the side menu's lower group, shown only to a global admin
   (`isAdminAtom`, `src/pages/components/SideMenu.tsx`). For an organizer account (`SIHTEERI`,
   `YHDISTYS_ADMIN`) the menu hides them, but only Tapahtumat, paikat ja startit has a route guard.
@@ -172,7 +170,8 @@ Test the issues one at a time, in the order listed.
 - Sign in at the login page with the account the case needs, typing its
   `E2E_DEV_<KEY>_EMAIL` and `E2E_DEV_<KEY>_PASSWORD`, and reach admin pages only as "Signing in
   and the admin side" says. An account with no access at all (`ILMOITTAJA`) passes an admin-page
-  case when its header has no Ylläpito; never type the page's address to try it. An organizer
+  case when its header has no Ylläpito and the page's address, typed, shows "Ei käyttöoikeutta".
+  An organizer
   account is tried on an admin-only page by typing its address and judged by "Admin-only pages"
   above. To switch account, close the browser (`browser_close`) and sign in again; the profile
   keeps nothing between them.
@@ -193,9 +192,13 @@ Test the issues one at a time, in the order listed.
 
 Every comment is in Finnish, the app's own terms from `translation.json`, with every issue key,
 commit and file as a Markdown link (`AGENTS.md`, "Every reference in a Jira comment is a link").
-Post with `contentFormat: "markdown"`. Attach the screenshots from `.playwright-mcp/<KEY>/`
-first (`POST /rest/api/3/issue/<KEY>/attachments`, header `X-Atlassian-Token: no-check`, the
-file as the multipart field `file`) and name them in the comment.
+Attach the screenshots from `.playwright-mcp/<KEY>/` first
+(`POST /rest/api/3/issue/<KEY>/attachments`, header `X-Atlassian-Token: no-check`, the file as
+the multipart field `file`) and name them in the comment. Post the comment with the Atlassian MCP
+tool `addCommentToJiraIssue` (`cloudId` `koekalenteri.atlassian.net`, `contentFormat:
+"markdown"`): the REST endpoint `POST /rest/api/3/issue/<KEY>/comment` takes only ADF and answers
+a Markdown body with 400 "Comment body is not valid!". Move the issue only after the comment is
+in.
 
 - **Works:** a comment with what was tried, with which accounts, and the screenshots as evidence;
   then move it to Done.
