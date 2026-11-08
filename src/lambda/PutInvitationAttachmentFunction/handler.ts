@@ -15,6 +15,7 @@ import { publishAdminEventPatch } from '../lib/ws/actions'
  * because it was already sent or read, or because it is the one an invitation yet to be sent used.
  */
 const findStaleAttachment = async (
+  event: JsonConfirmedEvent,
   eventId: string,
   oldAttachment: string | undefined,
   className: string | undefined
@@ -26,7 +27,7 @@ const findStaleAttachment = async (
       registration.invitationAttachmentSent === oldAttachment ||
       registration.invitationAttachmentRead === oldAttachment ||
       (!registration.invitationAttachmentSent &&
-        (!className || getRegistrationClass(registration) === className) &&
+        (!className || getRegistrationClass(registration, event) === className) &&
         (registration.messagesSent?.invitation || registration.invitationRead))
   )
   return referenced ? undefined : oldAttachment
@@ -73,7 +74,7 @@ const putInvitationAttachmentLambda = lambda('putInvitationAttachment', async (e
 
   const existingClassAttachments = existing.invitationAttachments ?? {}
   const oldAttachment = className ? existingClassAttachments[className] : existing.invitationAttachment
-  const staleAttachment = await findStaleAttachment(eventId, oldAttachment, className)
+  const staleAttachment = await findStaleAttachment(existing, eventId, oldAttachment, className)
   const key = nanoid()
   await uploadFile(key, file.data)
   const uploadedAt = new Date().toISOString()

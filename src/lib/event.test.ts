@@ -35,6 +35,8 @@ import {
   FINISHED_DAYS_AFTER_TRIAL,
   finnishDaySpan,
   foldDayScope,
+  formatClasses,
+  formatTypeOf,
   getEventClassesByDays,
   getEventDays,
   getEventProgress,
@@ -60,6 +62,7 @@ import {
   hasSharedReserveList,
   haveInvitationsLapsed,
   INVITATION_ATTACHMENT_FIELDS,
+  isClassShapeChange,
   isDetaultEntryEndDate,
   isDetaultEntryStartDate,
   isEntryClosing,
@@ -91,6 +94,7 @@ import {
   KENNELLIITTO_LINK_FIELDS,
   localizedEventDescription,
   localizedEventName,
+  moveClasslessKey,
   newEventDates,
   newEventStartDay,
   placesForClass,
@@ -3110,5 +3114,90 @@ describe('the order of a trial class list (KOE-1596)', () => {
       new Date('2026-09-20')
     )
     expect(progress.eventClasses).toEqual(['ALO', 'VOI'])
+  })
+})
+
+describe('formatTypeOf (KOE-1718)', () => {
+  it.each([
+    ['an official event, by its own type', { eventType: 'NOME-B' }, 'NOME-B'],
+    [
+      'an official event by its own type, whatever a stored field says',
+      { eventType: 'NOME-B', officialFormat: 'NOWT' as const },
+      'NOME-B',
+    ],
+    ['an unofficial event that follows no official type, by its own type', { eventType: 'Harjoitus' }, 'Harjoitus'],
+    [
+      'an unofficial event, by the official type it follows',
+      { eventType: 'WT-harjoitus', officialFormat: 'NOWT' as const },
+      'NOWT',
+    ],
+  ])('reads %s', (_name, event, expected) => {
+    expect(formatTypeOf(event)).toEqual(expected)
+  })
+
+  it('has no format for an event form with no type yet', () => {
+    expect(formatTypeOf({})).toBeUndefined()
+    expect(formatTypeOf({ officialFormat: 'NOU' })).toBeUndefined()
+  })
+})
+
+describe('formatClasses (KOE-1718)', () => {
+  it.each([
+    [{ eventType: 'NOME-B' }, ['ALO', 'AVO', 'VOI']],
+    [{ eventType: 'NOU' }, []],
+    [{ eventType: 'Harjoitus' }, ['ALO', 'AVO', 'VOI']],
+    [{ eventType: 'Harjoitus', officialFormat: 'NOME-A' as const }, []],
+    [{ eventType: 'Harjoitus', officialFormat: 'NOWT' as const }, ['ALO', 'AVO', 'VOI']],
+  ])('offers %o the classes %o', (event, expected) => {
+    expect(formatClasses(event)).toEqual(expected)
+  })
+})
+
+describe('isClassShapeChange (KOE-1718)', () => {
+  const classless = { classes: [], eventType: 'Harjoitus' }
+  const classful = { classes: [{ class: 'ALO' }], eventType: 'Harjoitus' }
+
+  it.each([
+    ['classless to a format with classes', classless, { ...classless, officialFormat: 'NOWT' as const }, true],
+    ['classless to a format without', classless, { ...classless, officialFormat: 'NOU' as const }, false],
+    ['with classes to a format without', classful, { ...classful, officialFormat: 'NOME-A' as const }, true],
+    ['with classes to a format with', classful, { ...classful, officialFormat: 'NOME-B' as const }, false],
+    ['a format with classes back to none', { ...classless, officialFormat: 'NOWT' as const }, classless, true],
+    ['a format without classes back to none', { ...classless, officialFormat: 'NOU' as const }, classless, false],
+  ])('tells %s', (_name, before, after, expected) => {
+    expect(isClassShapeChange(before, after)).toBe(expected)
+  })
+})
+
+describe('moveClasslessKey (KOE-1718)', () => {
+  const uploadedAt = '2026-05-01T10:00:00.000Z'
+  const event = {
+    classes: [],
+    invitationAttachmentHistory: {
+      common: { uploadedAt },
+      own: { className: 'NOU-harjoitus', uploadedAt },
+    },
+    invitationAttachments: { 'NOU-harjoitus': 'own' },
+    startNumberLinkVersions: { 'NOU-harjoitus': 2 },
+  }
+
+  it('moves the link version, the attachment and its history to the new key', () => {
+    expect(moveClasslessKey(event, 'NOU-harjoitus', 'NOU')).toEqual({
+      classes: [],
+      invitationAttachmentHistory: {
+        common: { uploadedAt },
+        own: { className: 'NOU', uploadedAt },
+      },
+      invitationAttachments: { NOU: 'own' },
+      startNumberLinkVersions: { NOU: 2 },
+    })
+  })
+
+  it('leaves a trial with classes, the same key, and a trial with nothing under the key as they are', () => {
+    const classful = { ...event, classes: [{ class: 'ALO' as const, date: '2026-06-01' as const }] }
+
+    expect(moveClasslessKey(classful, 'NOU-harjoitus', 'NOU')).toBe(classful)
+    expect(moveClasslessKey(event, 'NOU', 'NOU')).toBe(event)
+    expect(moveClasslessKey({ classes: [] }, 'NOU-harjoitus', 'NOU')).toEqual({ classes: [] })
   })
 })

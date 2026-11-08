@@ -4,6 +4,7 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
 import { eventWithStations, registrationsToEventWithStations } from '@/__mockData__/resultsEvent'
+import { getRegistrationClass } from '@/lib/registration'
 import { placementsFor, resolveEventResult } from '@/lib/results'
 import { dogRound, roundColumns } from '@/lib/resultTasks'
 import { rotationDogOf } from '@/lib/rotation'
@@ -47,7 +48,7 @@ const renderTable = (
       defaultJudges={{}}
       edits={edits}
       eventClass="ALO"
-      eventType="NOWT"
+      event={{ eventType: 'NOWT' }}
       fullRoundFor={roundOf}
       judgesFor={() => judges}
       onChange={() => {}}
@@ -102,13 +103,13 @@ describe('ResultsTable layout', () => {
 
 describe('ResultsTable placement', () => {
   it('shows a rank under the prize of each awarded dog', () => {
-    renderTable({}, placementsFor(registrations))
+    renderTable({}, placementsFor(registrations, { eventType: 'NOWT' }))
 
     expect(screen.getAllByText(/results\.placement/)).toHaveLength(2)
   })
 
   it('shows none on the row that has an unsaved edit, and keeps the others', () => {
-    renderTable({ [first.id]: { tasks: [] } }, placementsFor(registrations))
+    renderTable({ [first.id]: { tasks: [] } }, placementsFor(registrations, { eventType: 'NOWT' }))
 
     expect(screen.getAllByText(/results\.placement/)).toHaveLength(1)
   })
@@ -136,7 +137,7 @@ const renderGroups = (orders: [string[], string[]]) => {
       defaultJudges={{}}
       edits={{}}
       eventClass="ALO"
-      eventType="NOWT"
+      event={{ eventType: 'NOWT' }}
       judgesFor={() => []}
       onChange={() => {}}
       onJudgeChange={() => {}}
@@ -157,7 +158,7 @@ describe('ResultsTable rotation groups (KOE-1665)', () => {
         defaultJudges={{}}
         edits={{}}
         eventClass="ALO"
-        eventType="NOWT"
+        event={{ eventType: 'NOWT' }}
         judgesFor={() => []}
         onChange={() => {}}
         onJudgeChange={() => {}}
@@ -204,7 +205,7 @@ describe('ResultsTable result spelling', () => {
         defaultJudges={{}}
         edits={{}}
         eventClass="NOME-A"
-        eventType="NOME-A"
+        event={{ eventType: 'NOME-A' }}
         judgesFor={() => []}
         onChange={() => {}}
         onJudgeChange={() => {}}
@@ -218,6 +219,45 @@ describe('ResultsTable result spelling', () => {
 
     expect(screen.getByText('A1')).toBeInTheDocument()
     expect(screen.queryByText('NOME-A1')).not.toBeInTheDocument()
+  })
+
+  // KOE-1718: an unofficial trial that follows an official type spells and offers its results by that type.
+  it('spells and offers the results of an unofficial trial by the official type it follows', async () => {
+    const event = { eventType: 'NOU-harjoitus', officialFormat: 'NOU' as const }
+    const nou: Registration[] = [
+      {
+        ...first,
+        class: undefined,
+        eventResult: { result: 'NOU1', updatedAt: at, updatedBy: 'Sihteeri' },
+        eventType: 'NOU-harjoitus',
+      },
+    ]
+    render(
+      <ResultsTable
+        defaultJudges={{}}
+        edits={{}}
+        event={event}
+        eventClass={getRegistrationClass(nou[0], event)}
+        judgesFor={() => []}
+        onChange={() => {}}
+        onJudgeChange={() => {}}
+        registrations={nou}
+        round={[]}
+        roundFor={() => []}
+        wholeRoundFor={() => []}
+        stations={[]}
+      />
+    )
+
+    const result = screen.getByRole('combobox', { name: 'results.column.result' })
+    expect(result).toHaveTextContent('NOU1')
+    await userEvent.click(result)
+    // A pass or a fail, as NOU awards, and no prize or dash.
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual([
+      'results.resultNone',
+      'NOU1',
+      'NOU0',
+    ])
   })
 })
 
@@ -240,7 +280,7 @@ describe('ResultsTable judge of a dog judged as a whole (KOE-1706)', () => {
         defaultJudges={{ event: classJudge }}
         edits={edits}
         eventClass="ALO"
-        eventType="NOME-B"
+        event={{ eventType: 'NOME-B' }}
         judges={[classJudge, dogsJudge]}
         judgesFor={() => []}
         onChange={(id, edit, isClean) => {
@@ -295,7 +335,7 @@ describe('ResultsTable after a round that ended early (KOE-1669)', () => {
         defaultJudges={{}}
         edits={{ [first.id]: edit }}
         eventClass="ALO"
-        eventType="NOWT"
+        event={{ eventType: 'NOWT' }}
         fullRoundFor={scope ? undefined : roundOf}
         judgesFor={() => []}
         onChange={() => {}}
@@ -356,7 +396,7 @@ describeWithTranslations('fi', () => {
         defaultJudges={{}}
         edits={{ [first.id]: { retirement, tasks } }}
         eventClass="ALO"
-        eventType="NOWT"
+        event={{ eventType: 'NOWT' }}
         fullRoundFor={roundOf}
         judgesFor={() => []}
         onChange={() => {}}

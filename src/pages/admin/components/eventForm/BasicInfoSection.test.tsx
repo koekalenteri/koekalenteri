@@ -1,4 +1,4 @@
-import type { DayKey } from '@/types'
+import type { DayKey, EventType } from '@/types'
 import type { Props } from './BasicInfoSection'
 import type { PartialEvent } from './types'
 import { LocalizationProvider } from '@mui/x-date-pickers'
@@ -8,7 +8,7 @@ import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { locales } from '@/i18n'
 import { formatDate } from '@/i18n/dates'
 import { addDays, TIME_ZONE, toDayKey } from '@/lib/day'
-import { defaultEntryEndDate, defaultEntryStartDate } from '@/lib/event'
+import { defaultEntryEndDate, defaultEntryStartDate, EVENT_TYPE_CLASSES } from '@/lib/event'
 import { idTokenAtom } from '@/pages/state'
 import { finnishDayOf } from '@/test-utils/finnishDays'
 import { describeInTimeZone } from '@/test-utils/timeZone'
@@ -36,6 +36,107 @@ const newEventStartDate: DayKey = '2099-06-06'
 describe('BasicInfoSection', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+  })
+
+  describe('the official type an unofficial trial follows (KOE-1718)', () => {
+    const unofficial: PartialEvent = {
+      classes: [{ class: 'ALO', date: newEventStartDate }],
+      endDate: newEventStartDate,
+      eventType: 'Harjoitus',
+      judges: [],
+      startDate: newEventStartDate,
+    }
+    const harjoitus: EventType = {
+      active: true,
+      createdAt: new Date('2026-01-01T00:00:00Z'),
+      createdBy: 'test',
+      description: { en: 'Training', fi: 'Harjoitus', sv: 'Övning' },
+      eventType: 'Harjoitus',
+      modifiedAt: new Date('2026-01-01T00:00:00Z'),
+      modifiedBy: 'test',
+      official: false,
+    }
+    const field = () => screen.queryByRole('combobox', { name: 'event.officialFormat' })
+
+    it.each<[string, PartialEvent, EventType | undefined]>([
+      ['an official type', { ...unofficial, eventType: 'NOME-B' }, undefined],
+      ['a type the Kennel Club knows', unofficial, { ...harjoitus, official: true }],
+      ['an event with no type yet', { ...unofficial, eventType: undefined }, undefined],
+    ])('is not offered for %s', (_name, event, selectedEventType) => {
+      renderComponent({ event, open: true, selectedEventType })
+
+      expect(field()).not.toBeInTheDocument()
+    })
+
+    it('runs the classes of the type chosen', async () => {
+      const changeHandler = vi.fn()
+      const { user } = renderComponent({
+        event: unofficial,
+        eventTypeClasses: EVENT_TYPE_CLASSES,
+        onChange: changeHandler,
+        open: true,
+        selectedEventType: harjoitus,
+      })
+
+      await user.click(screen.getByRole('combobox', { name: 'event.officialFormat' }))
+      await user.click(screen.getByRole('option', { name: 'NOU' }))
+
+      // NOU runs no classes, so the trial's ALO goes with the choice.
+      expect(changeHandler).toHaveBeenCalledWith({ classes: [], officialFormat: 'NOU' })
+    })
+
+    it('chooses again when the trial changes type', async () => {
+      const changeHandler = vi.fn()
+      const { user } = renderComponent({
+        event: { ...unofficial, officialFormat: 'NOWT' },
+        eventTypes: ['Harjoitus', 'Koulutus'],
+        onChange: changeHandler,
+        open: true,
+        selectedEventType: harjoitus,
+      })
+
+      await user.click(screen.getByRole('combobox', { name: 'event.eventType' }))
+      await user.click(screen.getByRole('option', { name: 'Koulutus' }))
+
+      expect(changeHandler).toHaveBeenCalledWith(
+        expect.objectContaining({ eventType: 'Koulutus', officialFormat: null })
+      )
+    })
+
+    it('is locked once a result or a turn is saved', () => {
+      renderComponent({
+        event: { ...unofficial, officialFormat: 'NOWT' },
+        officialFormatLocked: true,
+        open: true,
+        selectedEventType: harjoitus,
+      })
+
+      expect(field()).toBeDisabled()
+      expect(screen.getByText('event.officialFormatLocked')).toBeInTheDocument()
+    })
+
+    it('offers only the types that keep the classes once the event has entries', async () => {
+      const changeHandler = vi.fn()
+      const { user } = renderComponent({
+        event: { ...unofficial, entries: 2 },
+        eventTypeClasses: EVENT_TYPE_CLASSES,
+        onChange: changeHandler,
+        open: true,
+        selectedEventType: harjoitus,
+      })
+
+      expect(screen.getByText('event.officialFormatClassShape')).toBeInTheDocument()
+      await user.click(screen.getByRole('combobox', { name: 'event.officialFormat' }))
+
+      expect(screen.getByRole('option', { name: 'NOU' })).toHaveAttribute('aria-disabled', 'true')
+      expect(screen.getByRole('option', { name: 'NOME-A' })).toHaveAttribute('aria-disabled', 'true')
+      await user.click(screen.getByRole('option', { name: 'NOWT' }))
+      // A one-day NOWT runs its classes the whole day, as a trial of that type does.
+      expect(changeHandler).toHaveBeenCalledWith({
+        classes: [{ class: 'ALO', date: newEventStartDate, groups: ['kp'] }],
+        officialFormat: 'NOWT',
+      })
+    })
   })
 
   it('should render', () => {

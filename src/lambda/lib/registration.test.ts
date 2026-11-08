@@ -411,7 +411,7 @@ describe('registration', () => {
         { class: 'ALO', id: '3' },
       ])
 
-      const result = groupRegistrationsByClass(registrations)
+      const result = groupRegistrationsByClass(registrations, { eventType: 'NOME-B' })
 
       expect(Object.keys(result)).toEqual(['ALO', 'AVO'])
       expect(result.ALO).toHaveLength(2)
@@ -421,22 +421,23 @@ describe('registration', () => {
       expect(result.AVO).toContainEqual(expect.objectContaining({ id: '2' }))
     })
 
-    it('should use eventType when class is not available', () => {
+    it("should use the event's format when class is not available", () => {
       const registrations = asJsonRegistrations([
-        { eventType: 'NOME', id: '1' },
+        { eventType: 'NOU-harjoitus', id: '1' },
         { class: 'AVO', id: '2' },
-        { eventType: 'NOME', id: '3' },
+        { eventType: 'NOU-harjoitus', id: '3' },
       ])
 
-      const result = groupRegistrationsByClass(registrations)
+      // KOE-1718: a classless trial is keyed by the official type it follows.
+      const result = groupRegistrationsByClass(registrations, { eventType: 'NOU-harjoitus', officialFormat: 'NOU' })
 
-      expect(Object.keys(result)).toEqual(['NOME', 'AVO'])
-      expect(result.NOME).toHaveLength(2)
+      expect(Object.keys(result)).toEqual(['NOU', 'AVO'])
+      expect(result.NOU).toHaveLength(2)
       expect(result.AVO).toHaveLength(1)
     })
 
     it('should handle empty array', () => {
-      const result = groupRegistrationsByClass([])
+      const result = groupRegistrationsByClass([], { eventType: 'NOME-B' })
       expect(result).toEqual({})
     })
   })

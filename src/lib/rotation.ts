@@ -11,7 +11,6 @@ import type { SortableRegistration } from './registration'
 import { compareRegistrationClasses } from './event'
 import { stationDogsAtOnce } from './liveFormat'
 import {
-  getRegistrationClass,
   getRegistrationGroupDay,
   getRegistrationPlacement,
   sortRegistrationsByDateClassTimeAndNumber,
@@ -132,7 +131,7 @@ interface RotationVisit extends StationVisitLayout {
 
 /**
  * A group as the readers see it. A stored group names one of the classes; the default group of a
- * classless type is named by its event type, as its dogs' class is (`getRegistrationClass`).
+ * classless type is named by its event type, as its dogs' class is (`rotationDogOf`).
  */
 type RotationGroup = Omit<EventRotationGroup, 'class'> & { class: string }
 
@@ -142,11 +141,17 @@ interface StationArrival extends RotationVisit {
 
 type Registrationish = SortableRegistration
 
-/** A registration's place in the rotation: the frozen placement wins over the working order. */
+/**
+ * A registration's place in the rotation: the frozen placement wins over the working order.
+ *
+ * The class is the dog's own, or for a classless dog its entry's event type. Rotations run only where
+ * posts score (NOWT, which has classes), and a classless dog's key is only compared with the default
+ * group made of the same dogs, so it needs no format (`getRegistrationClass`, KOE-1718).
+ */
 export const rotationDogOf = (registration: Registrationish): RotationDog => {
   const placement = getRegistrationPlacement(registration)
   return {
-    class: getRegistrationClass(registration),
+    class: registration.class ?? registration.eventType,
     day: getRegistrationGroupDay(placement?.date),
     number: placement?.number,
   }

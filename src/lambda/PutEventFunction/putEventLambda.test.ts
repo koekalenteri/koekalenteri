@@ -48,6 +48,7 @@ vi.doMock('../lib/event', () => ({
   findQualificationStartDate: vi.fn(),
   getEvent: vi.fn(),
   patchEvent: vi.fn(),
+  repairReadyRegistrationGroups: vi.fn().mockResolvedValue([]),
   saveEvent: vi.fn(),
   updateRegistrations: vi.fn(),
 }))
@@ -116,9 +117,13 @@ const {
   findQualificationStartDate,
   getEvent,
   patchEvent,
+  repairReadyRegistrationGroups,
   saveEvent,
   updateRegistrations,
 } = await import('../lib/event')
+const repairReadyRegistrationGroupsMock = repairReadyRegistrationGroups as import('vitest').Mock<
+  typeof repairReadyRegistrationGroups
+>
 const findEventWithKcGuidMock = findEventWithKcGuid as import('vitest').Mock<typeof findEventWithKcGuid>
 const findEventWithKcIdMock = findEventWithKcId as import('vitest').Mock<typeof findEventWithKcId>
 const findQualificationStartDateMock = findQualificationStartDate as import('vitest').Mock<
@@ -1986,6 +1991,221 @@ describe('putEventLambda', () => {
     })
   })
 
+  describe('the official type an unofficial trial follows (KOE-1718)', () => {
+    const unofficial: JsonDogEvent = { ...mockEvent, eventType: 'NOU-harjoitus', officialFormat: 'NOU' }
+    const ready = { id: 'a', state: 'ready' }
+    const resulted = {
+      ...ready,
+      eventResult: { result: 'NOU1', updatedAt: '2025-06-01T10:00:00.000Z', updatedBy: 'Test User' },
+    }
+    /** A span the post's link recorded: the live timeline is on the event itself. */
+    const turned: JsonDogEvent = {
+      ...unofficial,
+      turns: [
+        { dogs: [], id: 'turn-1', registrationIds: ['a'], startedAt: '2025-06-01T09:00:00.000Z', stationId: '1' },
+      ],
+    }
+
+    beforeEach(() => mockReadEventRegistrations.mockReset())
+
+    const put = async (stored: JsonDogEvent, change: Patch<JsonDogEvent>, method: 'PATCH' | 'PUT' = 'PATCH') => {
+      signIn(mockSecretary)
+      getEventMock.mockResolvedValueOnce(stored)
+      return putEventLambda(constructAPIGwEvent<Patch<JsonDogEvent>>({ id: 'existing', ...change }, { method }))
+    }
+
+    it.each<[string, Patch<JsonDogEvent>]>([
+      ['changes', { officialFormat: 'NOME-A' }],
+      ['clears', { officialFormat: null }],
+    ])('saves a request that %s it while no result or turn is saved', async (_name, change) => {
+      mockReadEventRegistrations.mockResolvedValue([ready])
+
+      const res = await put(unofficial, change)
+
+      expect(res.statusCode).toEqual(200)
+      expect(patchEventMock).toHaveBeenCalled()
+    })
+
+    it.each<[string, Patch<JsonDogEvent>, 'PATCH' | 'PUT']>([
+      ['a change', { officialFormat: 'NOME-A' }, 'PATCH'],
+      ['clearing it', { officialFormat: null }, 'PATCH'],
+      ['a whole event with another one', { ...unofficial, officialFormat: 'NOME-A' }, 'PUT'],
+    ])('refuses %s once a result is saved', async (_name, change, method) => {
+      mockReadEventRegistrations.mockResolvedValue([resulted])
+
+      const res = await put(unofficial, change, method)
+
+      expect(res.statusCode).toEqual(409)
+      expect(JSON.parse(res.body)).toMatchObject({ error: 'officialFormatLocked' })
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    it('refuses a change once a post has recorded a turn, without reading the registrations', async () => {
+      const res = await put(turned, { officialFormat: 'NOME-A' })
+
+      expect(res.statusCode).toEqual(409)
+      expect(JSON.parse(res.body)).toMatchObject({ error: 'officialFormatLocked' })
+      expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    it('saves a request repeating the stored type once a result is saved', async () => {
+      mockReadEventRegistrations.mockResolvedValue([resulted])
+
+      const res = await put(unofficial, { name: 'renamed', officialFormat: 'NOU' })
+
+      expect(res.statusCode).toEqual(200)
+    })
+
+    it('refuses one on an official event type', async () => {
+      const res = await put({ ...mockEvent, eventType: 'NOME-B' }, { officialFormat: 'NOU' })
+
+      expect(res.statusCode).toEqual(400)
+      expect(JSON.parse(res.body)).toMatchObject({ error: 'officialFormatOnOfficialType' })
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    it('refuses a value that is none of the four types', async () => {
+      signIn(mockSecretary)
+      getEventMock.mockResolvedValueOnce(unofficial)
+
+      // A body as a browser could send it, outside the types.
+      const res = await putEventLambda(
+        constructAPIGwEvent({ id: 'existing', officialFormat: 'harjoitus' }, { method: 'PATCH' })
+      )
+
+      expect(res.statusCode).toEqual(400)
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    it('refuses NOWT on an event whose stored rotation groups do not fit its posts', async () => {
+      mockReadEventRegistrations.mockResolvedValue([])
+
+      const res = await put(
+        {
+          ...mockEvent,
+          eventType: 'WT-harjoitus',
+          rotations: [{ class: 'ALO', exercises: [{ stationId: 'post-1' }, { stationId: 'gone' }] }],
+          stations: [{ date: '2025-06-01', id: 'post-1', number: 1 }],
+        },
+        { officialFormat: 'NOWT' }
+      )
+
+      expect(res.statusCode).toEqual(400)
+      expect(JSON.parse(res.body)).toMatchObject({
+        error: 'invalidRotation',
+        errors: [{ group: 0, kind: 'unknownPost', stationId: 'gone' }],
+      })
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    // The entries keep the class they were made in, so the classes come and go only while there are none.
+    it.each<[string, JsonDogEvent, Patch<JsonDogEvent>]>([
+      [
+        'gives a classless trial classes',
+        { ...mockEvent, entries: 2, eventType: 'NOU-harjoitus' },
+        { officialFormat: 'NOWT' },
+      ],
+      [
+        'takes the classes of a trial away',
+        { ...mockEvent, classes: [{ class: 'ALO', date: '2025-06-01' }], entries: 2, eventType: 'WT-harjoitus' },
+        { officialFormat: 'NOU' },
+      ],
+      [
+        'stops following the type that gave it classes',
+        { ...unofficial, entries: 2, officialFormat: 'NOWT' },
+        { officialFormat: null },
+      ],
+    ])('refuses a change that %s once the event has entries', async (_name, stored, change) => {
+      mockReadEventRegistrations.mockResolvedValue([ready])
+
+      const res = await put(stored, change)
+
+      expect(res.statusCode).toEqual(409)
+      expect(JSON.parse(res.body)).toMatchObject({ error: 'officialFormatClassShape' })
+      expect(patchEventMock).not.toHaveBeenCalled()
+      expect(repairReadyRegistrationGroupsMock).not.toHaveBeenCalled()
+    })
+
+    it('saves a change that gives a classless trial classes while it has no entries', async () => {
+      mockReadEventRegistrations.mockResolvedValue([])
+
+      const res = await put({ ...mockEvent, eventType: 'NOU-harjoitus' }, { officialFormat: 'NOWT' })
+
+      expect(res.statusCode).toEqual(200)
+    })
+
+    it('moves what a classless trial keeps under its key to the key of the type it now follows', async () => {
+      mockReadEventRegistrations.mockResolvedValue([ready])
+      const uploadedAt = '2025-05-01T10:00:00.000Z'
+      const stored: JsonDogEvent = {
+        ...mockEvent,
+        entries: 2,
+        eventType: 'NOU-harjoitus',
+        invitationAttachmentHistory: {
+          'class-key': { className: 'NOU-harjoitus', uploadedAt },
+          'common-key': { uploadedAt },
+        },
+        invitationAttachments: { 'NOU-harjoitus': 'class-key' },
+        startNumberLinkVersions: { 'NOU-harjoitus': 3 },
+      }
+
+      const res = await put(stored, { officialFormat: 'NOU' })
+
+      expect(res.statusCode).toEqual(200)
+      expect(patchEventMock).toHaveBeenCalledWith(
+        'existing',
+        expect.anything(),
+        expect.objectContaining({
+          invitationAttachmentHistory: {
+            'class-key': { className: 'NOU', uploadedAt },
+            'common-key': { uploadedAt },
+          },
+          invitationAttachments: { NOU: 'class-key' },
+          officialFormat: 'NOU',
+          startNumberLinkVersions: { NOU: 3 },
+        })
+      )
+    })
+
+    it('numbers the reserves anew when the trial starts or stops sharing one reserve list', async () => {
+      mockReadEventRegistrations.mockResolvedValue([ready])
+      const stored: JsonDogEvent = {
+        ...mockEvent,
+        classes: [{ class: 'ALO', date: '2025-06-01' }],
+        entries: 2,
+        eventType: 'WT-harjoitus',
+      }
+
+      const res = await put(stored, { officialFormat: 'NOWT' })
+
+      expect(res.statusCode).toEqual(200)
+      expect(repairReadyRegistrationGroupsMock).toHaveBeenCalledWith(
+        'existing',
+        expect.objectContaining({ eventType: 'WT-harjoitus', officialFormat: 'NOWT' }),
+        mockSecretary
+      )
+    })
+
+    it('neither moves keys nor numbers anew when the type followed stays', async () => {
+      const stored: JsonDogEvent = {
+        ...unofficial,
+        startNumberLinkVersions: { NOU: 2 },
+      }
+
+      const res = await put(stored, { name: 'renamed' })
+
+      expect(res.statusCode).toEqual(200)
+      expect(repairReadyRegistrationGroupsMock).not.toHaveBeenCalled()
+      expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+      expect(patchEventMock).toHaveBeenCalledWith(
+        'existing',
+        expect.anything(),
+        expect.objectContaining({ startNumberLinkVersions: { NOU: 2 } })
+      )
+    })
+  })
+
   describe('the stored results when the posts change (KOE-1666)', () => {
     const day = '2025-06-01'
     const judge = { id: 1000001, name: 'Pääty Tuomari' }
@@ -2049,7 +2269,7 @@ describe('putEventLambda', () => {
       }
     }
     const kcSent = (registrations: JsonRegistration[], event: JsonConfirmedEvent) => {
-      const placements = placementsFor(registrations)
+      const placements = placementsFor(registrations, event)
       return registrations.map((registration) => {
         const outcome = buildKcResult(event, registration, koemuotoNOWT, placements.get(registration.id))
         if (!outcome.ok) throw new Error(`not sendable: ${outcome.problems.map((p) => p.code).join(',')}`)
@@ -2091,7 +2311,7 @@ describe('putEventLambda', () => {
       // Two exercises at the first post, one at the second: A 8 + 12 + 20 = 40/60 (66.7 %, so ALO2),
       // B 12 + 12 + 12 = 36/60 (60 %, ALO3). A places first.
       await record(nowtEvent, { 'dog-a': scores([8, 12], 20), 'dog-b': scores([12, 12], 12) })
-      expect(placementsFor(stored())).toEqual(
+      expect(placementsFor(stored(), nowtEvent)).toEqual(
         new Map([
           ['dog-a', 1],
           ['dog-b', 2],
@@ -2127,8 +2347,8 @@ describe('putEventLambda', () => {
       expect(stored().map((registration) => registration.eventResult?.result)).toEqual(['ALO3', 'ALO3'])
       // Exercises 1 and 2, both at the first post, keep their scores (KOE-1665).
       expect(eventResultOf('dog-a')?.tasks?.map((task) => task.exercise)).toEqual([1, 2])
-      expect(placementsFor(stored())).toEqual(placementsFor(shown))
-      expect(placementsFor(stored()).get('dog-b')).toEqual(1)
+      expect(placementsFor(stored(), nowtEvent)).toEqual(placementsFor(shown, nowtEvent))
+      expect(placementsFor(stored(), nowtEvent).get('dog-b')).toEqual(1)
       expect(kcSent(stored(), changed)).toEqual(kcSent(shown, changed))
       expect(eventResultOf('dog-a')).toMatchObject({ updatedAt: '2025-03-22T10:45:33.000Z', updatedBy: 'Test User' })
       expect(auditMock).toHaveBeenCalledWith(

@@ -209,7 +209,7 @@ describe('useDnDHandlers', () => {
         }
         const { result } = renderHook(() => useDnDHandlers({ ...defaultProps, registrations, saveGroups }))
         await result.current.handleDrop(group)(item)
-        return applyRegistrationGroupMoves(registrations, moves)
+        return applyRegistrationGroupMoves(registrations, moves, defaultProps.event)
       }
 
       it('drops a start before another start of its group', async () => {

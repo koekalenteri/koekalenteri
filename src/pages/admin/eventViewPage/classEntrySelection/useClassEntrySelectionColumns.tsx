@@ -16,7 +16,7 @@ import { GridActionsCellItem } from '@mui/x-data-grid'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { breedAbbreviation } from '@/lib/dog'
-import { eventDayKey, isEventOngoing, isEventOver, registrationDatesOutsideClass } from '@/lib/event'
+import { eventDayKey, formatTypeOf, isEventOngoing, isEventOver, registrationDatesOutsideClass } from '@/lib/event'
 import { scoresAtPosts } from '@/lib/liveFormat'
 import { getPaymentPicture } from '@/lib/payment'
 import {
@@ -380,7 +380,7 @@ export function useClassEntrySelectionColumns(
         field: 'class',
         headerName: t('startListExport.class'),
         minWidth: 56,
-        valueGetter: (_value, row) => getRegistrationClass(row),
+        valueGetter: (_value, row) => getRegistrationClass(row, event),
         width: 56,
       })
     }
@@ -392,7 +392,7 @@ export function useClassEntrySelectionColumns(
     })) as GridColDef<Registration>[]
   }, [available, callbacks, drawnDates, event, showClass, t])
 
-  const placements = useMemo(() => placementsFor(registrations), [registrations])
+  const placements = useMemo(() => placementsFor(registrations, event), [event, registrations])
 
   return useMemo(() => {
     const entryColumns = createColumnDefinitions()
@@ -409,11 +409,11 @@ export function useClassEntrySelectionColumns(
         sortable: false,
         // Kennelliitto's spelling, as KoiraNet lists it: `A1` fits the column where `NOME-A1` did not (KOE-1592).
         valueGetter: (_value, row) =>
-          shownEventResult(row.eventResult?.result, event.eventType, row.class ?? undefined) ?? '',
+          shownEventResult(row.eventResult?.result, formatTypeOf(event), row.class ?? undefined) ?? '',
         width: 70,
       })
       // Derived from the registrations held here, so it follows every move without being stored.
-      if (scoresAtPosts(event.eventType)) {
+      if (scoresAtPosts(formatTypeOf(event))) {
         participantColumns.splice(-2, 0, {
           field: 'placement',
           headerName: t('results.column.placement'),

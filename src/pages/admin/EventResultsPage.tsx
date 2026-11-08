@@ -32,6 +32,7 @@ import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning'
 import { reportError } from '../../lib/client/error'
 import { resultConflictResponse } from '../../lib/client/resultConflict'
 import { errorSnackbarOptions } from '../../lib/client/snackbar'
+import { formatTypeOf, UNLOADED_EVENT } from '../../lib/event'
 import { liveViewEnabled } from '../../lib/features'
 import { makeArray } from '../../lib/judge'
 import { countSentResults, kcResultBadges } from '../../lib/kennelliittoResults'
@@ -92,36 +93,41 @@ export default function EventResultsPage() {
   const compact = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
 
   const scorable = useMemo(() => registrations.filter(isScorableRegistration), [registrations])
+  // The trial runs by its format: the official type an unofficial trial follows, if any (KOE-1718).
+  const formatOwner = event ?? UNLOADED_EVENT
+  const formatType = formatTypeOf(formatOwner)
   const [pickedScope, setPickedScope] = useState<string>(WHOLE_ROUND)
   const [defaultJudges, setDefaultJudges] = useState<Record<string, PublicJudge | undefined>>({})
   const [conflicts, setConflicts] = useState<EventResultConflict[]>([])
   const [choices, setChoices] = useState<Record<string, ConflictChoice>>({})
 
   const stations: EventStation[] = useMemo(
-    () => (scoresAtPosts(event?.eventType) ? (event?.stations ?? []) : []),
-    [event?.eventType, event?.stations]
+    () => (scoresAtPosts(formatType) ? (event?.stations ?? []) : []),
+    [formatType, event?.stations]
   )
 
   // A multi-day trial is scored one day at a time, the same way its numbers are drawn (KOE-1353).
-  const { classes, day, dayRegistrations, days, eventClass, setSelectedClass, setSelectedDay } =
-    useStartDayClasses(scorable)
+  const { classes, day, dayRegistrations, days, eventClass, setSelectedClass, setSelectedDay } = useStartDayClasses(
+    scorable,
+    formatOwner
+  )
 
   // The dogs of the class being scored, and — for the conflict dialog — every dog of it: edits
   // survive a day switch, so a disputed dog may no longer be on screen when the answer comes back.
   const classRegistrations = useMemo(
     () =>
       scorable
-        .filter((reg) => getRegistrationClass(reg) === eventClass)
+        .filter((reg) => getRegistrationClass(reg, formatOwner) === eventClass)
         .sort(sortRegistrationsByDateClassTimeAndNumber),
-    [eventClass, scorable]
+    [eventClass, formatOwner, scorable]
   )
 
   const rows = useMemo(
     () =>
       dayRegistrations
-        .filter((reg) => getRegistrationClass(reg) === eventClass)
+        .filter((reg) => getRegistrationClass(reg, formatOwner) === eventClass)
         .sort(sortRegistrationsByDateClassTimeAndNumber),
-    [dayRegistrations, eventClass]
+    [dayRegistrations, eventClass, formatOwner]
   )
 
   // The posts of the day on screen: a dog's round is made of its own day's posts (KOE-1665), so another
@@ -131,7 +137,7 @@ export default function EventResultsPage() {
   const scope = dayPosts.some((station) => station.id === pickedScope) ? pickedScope : WHOLE_ROUND
 
   // Ranked over every dog of the event, so a class's other day cannot leak into this one's ranks.
-  const placements = useMemo(() => placementsFor(registrations), [registrations])
+  const placements = useMemo(() => placementsFor(registrations, formatOwner), [formatOwner, registrations])
 
   // Each dog's round is its rotation group's (KOE-1665): the dogs of one class may differ when it splits
   // by start number, so the round is asked per dog, and the columns are what any of them has.
@@ -149,7 +155,7 @@ export default function EventResultsPage() {
   const scoped = scope !== WHOLE_ROUND
   // A format that runs its day at one post has no scope to pick, but that one post has its own view
   // all the same: the live clock and the queue are what the day is run from (KOE-1259).
-  const singlePost = liveFormat(event?.eventType).posts === 'one'
+  const singlePost = liveFormat(formatType).posts === 'one'
   const stationViewId = scoped ? scope : IMPLICIT_STATION_ID
   const roundFor = useCallback(
     (registration: Registration) => {
@@ -245,7 +251,7 @@ export default function EventResultsPage() {
     keepDogs,
     rebasedEdit,
     settleEdits: settleDrafts,
-  } = useResultDrafts(registrations, event?.eventType, scoped ? exercisesHere : undefined)
+  } = useResultDrafts(registrations, formatOwner, scoped ? exercisesHere : undefined)
   // A whole round's scores can ride on these edits; one stray swipe must not discard them (KOE-1283).
   useUnsavedChangesWarning(Object.keys(edits).length > 0)
 
@@ -523,8 +529,8 @@ export default function EventResultsPage() {
           compact={compact}
           disabled={locked}
           edits={edits}
+          event={event}
           eventClass={eventClass}
-          eventType={event.eventType}
           fullRoundFor={scoped ? undefined : fullRoundFor}
           onChange={changeEdit}
           placements={scoped ? undefined : placements}
@@ -569,7 +575,7 @@ export default function EventResultsPage() {
       <ConflictDialog
         choices={choices}
         conflicts={conflicts}
-        eventType={event.eventType}
+        event={event}
         exercisesOf={scoped ? exercisesOfDog : undefined}
         onChoose={(id, choice) => setChoices((prev) => ({ ...prev, [id]: choice }))}
         onClose={() => setConflicts([])}

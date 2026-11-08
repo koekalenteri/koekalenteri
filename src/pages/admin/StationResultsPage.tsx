@@ -13,6 +13,7 @@ import { getStationLink } from '../../api/station'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { reportError } from '../../lib/client/error'
 import { isStoredEventResult } from '../../lib/client/resultConflict'
+import { formatTypeOf } from '../../lib/event'
 import { liveFormat, resolveStation } from '../../lib/liveFormat'
 import { isScorableRegistration } from '../../lib/registration'
 import { stationDogsInOrder } from '../../lib/results'
@@ -119,7 +120,7 @@ export default function StationResultsPage() {
   if (!event?.id || !station) return <EventNotFound />
 
   // A format whose phases are the post's own gets them written here, at the post, on the day.
-  const format = liveFormat(event.eventType)
+  const format = liveFormat(formatTypeOf(event))
   const ownPhases = format.tasks === 'phases' && !format.phases
   // Where the day runs at one post, "Suorituspaikka 1" names nothing anyone calls it.
   const title = format.posts === 'one' ? t('results.title') : `${t('event.station')} ${station.number}`
@@ -153,7 +154,7 @@ export default function StationResultsPage() {
       </Stack>
       <StationScoring
         classes={event.classes}
-        eventType={event.eventType}
+        event={event}
         header={
           // The event secretary came from the results page and goes back there; the token link has no such page.
           <EntryPageHeader

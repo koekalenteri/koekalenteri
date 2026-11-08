@@ -93,6 +93,7 @@ export default function EventStartNumbersPage() {
       sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, maxHeight: '100%', maxWidth: '100%' }}
     >
       <StartNumbersEntry
+        event={event}
         header={
           <EntryPageHeader event={event} title={t('startNumbers.title')}>
             <Typography

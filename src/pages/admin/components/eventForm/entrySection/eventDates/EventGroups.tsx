@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAdminEventDatesOptions } from '@/hooks/useAdminEventDatesOptions'
 import { useAdminEventRegistrationDates } from '@/hooks/useAdminEventRegistrationDates'
-import { applyNewGroupsToDogEventDates } from '@/lib/event'
+import { applyNewGroupsToDogEventDates, formatTypeOf } from '@/lib/event'
 import { adminEventTypeGroupsAtom } from '@/pages/admin/state'
 import AutocompleteMulti from '@/pages/components/AutocompleteMulti'
 
@@ -18,7 +18,7 @@ export const EventGroups = ({ disabled, event, onChange }: Readonly<Props>) => {
   const { t } = useTranslation()
   const options = useAdminEventDatesOptions(event)
   const defaultDates = useAdminEventRegistrationDates(event)
-  const typeGroups = useAtomValue(adminEventTypeGroupsAtom(event.eventType))
+  const typeGroups = useAtomValue(adminEventTypeGroupsAtom(formatTypeOf(event)))
   const defaultGroups = useMemo(() => typeGroups.filter((g) => g !== 'kp'), [typeGroups])
 
   const value: RegistrationDate[] = useMemo(

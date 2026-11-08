@@ -2,6 +2,7 @@ import type { DayKey } from '../../types/Day'
 import type { PublicConfirmedEvent } from '../../types/Event'
 import TableCell from '@mui/material/TableCell'
 import { useTranslation } from 'react-i18next'
+import { formatTypeOf } from '../../lib/event'
 import { scoresAtPosts } from '../../lib/liveFormat'
 import { rotationStartLines } from '../../lib/rotation'
 import { StyledTableRow } from './StyledTableRow'
@@ -21,7 +22,7 @@ interface RotationHeaderProps {
  */
 export const RotationHeader = ({ event, classValue, date, numbersPublished }: RotationHeaderProps) => {
   const { t } = useTranslation()
-  if (!scoresAtPosts(event.eventType)) return null
+  if (!scoresAtPosts(formatTypeOf(event))) return null
 
   return rotationStartLines(event, classValue, date, numbersPublished, t).map((line) => (
     <StyledTableRow key={line}>

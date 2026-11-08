@@ -183,8 +183,11 @@ graph LR
 
 `adminEventTypesAtom` is `adminEventTypesRemoteAtom` under a second name, a cached collection
 ([cached/README.md](cached/README.md)). `adminEventTypeClassesAtom` and `adminEventTypeGroupsByTypeAtom` are constant
-tables, the classes and the registration times each event type offers; `adminEventTypeGroupsAtom(eventType)` picks the
-times of one type, with the unofficial events' times for a type that is not official.
+tables, the classes and the registration times each event type offers (the classes are `EVENT_TYPE_CLASSES` of
+`src/lib/event.ts`, which the rule of a followed type's classes reads too); `adminEventTypeGroupsAtom(eventType)` picks
+the times of one type, with the unofficial events' times for a type that is not official. Its readers pass the
+event's format, `formatTypeOf(event)`, so an unofficial trial that follows an official type gets that type's times
+(KOE-1718).
 
 ```mermaid
 graph LR
@@ -334,6 +337,9 @@ graph LR
 
   adminEventRegistrationAtom-->adminEventRegistrationsAtom
   adminEventPaymentLockedAtom-->adminEventRegistrationsAtom
+  adminEventOfficialFormatLockedAtom-->adminEventAtom
+  adminEventOfficialFormatLockedAtom-->adminEventRegistrationsAtom
+  adminProjectedEventRegistrationsAtom-->adminEventAtom
   adminProjectedEventRegistrationsAtom-->adminEventRegistrationsAtom
   adminProjectedEventRegistrationsAtom-->adminPendingRegistrationGroupMovesAtom
 

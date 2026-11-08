@@ -36,7 +36,7 @@ import {
   kcResultDay,
   kcTextKey,
 } from '../../lib/kennelliittoResults'
-import { getRegistrationClass, isScorableRegistration } from '../../lib/registration'
+import { isScorableRegistration } from '../../lib/registration'
 import { kcFormatOfEventType, placementsFor, withStoredTotals } from '../../lib/results'
 import { withEffectiveJudges } from '../../lib/resultTasks'
 import { mapWithConcurrency } from '../../lib/utils'
@@ -283,10 +283,13 @@ const openKcTrial = async (req: KcRequest, { findGuid }: { findGuid: boolean }):
   }
 }
 
+/** The class a report names: Kennelliitto knows only official trials, which run by their own type. */
+const kcClassOf = (registration: JsonRegistration): string | undefined => registration.class ?? registration.eventType
+
 const dogReport = (registration: JsonRegistration, status: KcDogStatus, problems: KcProblem[] = []): KcDogReport => ({
   ...(registration.kcResult?.errors ? { errors: registration.kcResult.errors } : {}),
   ...(registration.kcResult?.pointsByHand === undefined ? {} : { pointsByHand: registration.kcResult.pointsByHand }),
-  ...(getRegistrationClass(registration) ? { eventClass: getRegistrationClass(registration) } : {}),
+  ...(kcClassOf(registration) ? { eventClass: kcClassOf(registration) } : {}),
   id: registration.id,
   name: registration.dog.name ?? '',
   problems,
@@ -366,7 +369,7 @@ const evaluateAll = (
 ): Evaluated[] => {
   // Each score judged by the judges of its exercise's post as the event stands (KOE-1665).
   const registrations = stored.map((registration) => withStoredTotals(event, withEffectiveJudges(event, registration)))
-  const placements = placementsFor(registrations)
+  const placements = placementsFor(registrations, event)
   const chosen = ids ? registrations.filter((registration) => ids.includes(registration.id)) : registrations
   return chosen.flatMap(
     (registration) => evaluateKcDog(event, registration, koemuoto, now, placements.get(registration.id)) ?? []

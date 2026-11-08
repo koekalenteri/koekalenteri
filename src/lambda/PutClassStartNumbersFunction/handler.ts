@@ -32,7 +32,7 @@ const putClassStartNumbersLambda = lambda('putClassStartNumbers', async (event) 
   let patches: Patch<JsonRegistration>[] = []
   try {
     const registrations = await readEventRegistrations(eventId)
-    assertEntriesInClassSpace(registrations, eventClass, numbers)
+    assertEntriesInClassSpace(confirmedEvent, registrations, eventClass, numbers)
 
     patches = await assignStartNumbers(eventId, registrations, numbers, user)
     await audit({

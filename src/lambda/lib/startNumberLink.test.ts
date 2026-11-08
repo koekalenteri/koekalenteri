@@ -1,5 +1,6 @@
 import type { JsonRegistration, RegistrationClass } from '../../types'
 import type { LambdaError } from '../lib/lambda'
+import { moveClasslessKey } from '../../lib/event'
 import { asJsonConfirmedEvent, asJsonRegistration } from '../test-utils/helpers'
 import {
   assertEntriesInClassSpace,
@@ -78,25 +79,46 @@ describe('startNumberLink', () => {
       expect(startNumberLinkClasses(confirmedEvent)).toEqual(['ALO', 'AVO'])
       expect(startNumberLinkClasses({ classes: [], eventType: 'NOU' })).toEqual(['NOU'])
     })
+
+    // KOE-1718: a classless trial's link is for the official type it follows; a change of that type moves
+    // the version with it (`moveClasslessKey`), and a link issued again opens under the new key.
+    it('opens a classless trial under the type it follows, with the version the change moved', () => {
+      const own = {
+        ...confirmedEvent,
+        classes: [],
+        eventType: 'NOU-harjoitus',
+        startNumberLinkVersions: { 'NOU-harjoitus': 3 },
+      }
+      const followed = moveClasslessKey({ ...own, officialFormat: 'NOU' as const }, 'NOU-harjoitus', 'NOU')
+      const sent = getStartNumberLinkToken('event-1', own, 'NOU-harjoitus')
+      const reissued = getStartNumberLinkToken('event-1', followed, 'NOU')
+
+      expect(startNumberLinkClasses(followed)).toEqual(['NOU'])
+      expect(followed.startNumberLinkVersions).toEqual({ NOU: 3 })
+      expect(authorizeStartNumberLink(headers(reissued), 'event-1', followed, 'NOU')).toBe('NOU')
+      // The link sent before the change carries the old key and must be sent again.
+      expect(() => authorizeStartNumberLink(headers(sent), 'event-1', followed, 'NOU')).toThrow('not found')
+      expect(() => authorizeStartNumberLink(headers(sent), 'event-1', followed, 'NOU-harjoitus')).toThrow('not found')
+    })
   })
 
   describe('classNumberSpace', () => {
     it('is the working order numbers the class holds', () => {
-      expect(classNumberSpace(registrations, 'ALO')).toEqual([1, 2])
-      expect(classNumberSpace(registrations, 'AVO')).toEqual([3, 4])
+      expect(classNumberSpace(confirmedEvent, registrations, 'ALO')).toEqual([1, 2])
+      expect(classNumberSpace(confirmedEvent, registrations, 'AVO')).toEqual([3, 4])
     })
 
     it('leaves out a dog that is not running: a reserve has no slot to draw for', () => {
       const reserve = dog('alo-3', 'ALO', 3, { group: { key: 'reserve', number: 1 } })
 
-      expect(classNumberSpace([...registrations, reserve], 'ALO')).toEqual([1, 2])
+      expect(classNumberSpace(confirmedEvent, [...registrations, reserve], 'ALO')).toEqual([1, 2])
     })
   })
 
   describe('assertEntriesInClassSpace', () => {
     it('accepts the class drawing its own numbers among its own dogs', () => {
       expect(() =>
-        assertEntriesInClassSpace(registrations, 'ALO', [
+        assertEntriesInClassSpace(confirmedEvent, registrations, 'ALO', [
           { id: 'alo-1', startNumber: 2 },
           { id: 'alo-2', startNumber: 1 },
         ])
@@ -108,7 +130,7 @@ describe('startNumberLink', () => {
     it('refuses a number that belongs to another class, and names it', () => {
       const refused = (() => {
         try {
-          assertEntriesInClassSpace(registrations, 'ALO', [{ id: 'alo-1', startNumber: 3 }])
+          assertEntriesInClassSpace(confirmedEvent, registrations, 'ALO', [{ id: 'alo-1', startNumber: 3 }])
         } catch (error) {
           return error as LambdaError
         }
@@ -123,9 +145,9 @@ describe('startNumberLink', () => {
     })
 
     it("refuses another class's dog", () => {
-      expect(() => assertEntriesInClassSpace(registrations, 'ALO', [{ id: 'avo-1', startNumber: 1 }])).toThrow(
-        'does not run in ALO'
-      )
+      expect(() =>
+        assertEntriesInClassSpace(confirmedEvent, registrations, 'ALO', [{ id: 'avo-1', startNumber: 1 }])
+      ).toThrow('does not run in ALO')
     })
   })
 
@@ -140,17 +162,23 @@ describe('startNumberLink', () => {
      * already drawn, and her link shows no AVO dog to explain it (KOE-1267).
      */
     it('names each number another class has drawn, and the class holding it', () => {
-      const reserved = reservedStartNumbers([dog('alo-1', 'ALO', 1), drawn('avo-1', 'AVO', 3, 1)], 'ALO')
+      const reserved = reservedStartNumbers(
+        confirmedEvent,
+        [dog('alo-1', 'ALO', 1), drawn('avo-1', 'AVO', 3, 1)],
+        'ALO'
+      )
 
       expect(reserved).toEqual([{ eventClass: 'AVO', number: 1 }])
     })
 
     it("leaves out the class's own dogs, which are on the sheet already", () => {
-      expect(reservedStartNumbers([drawn('alo-1', 'ALO', 1, 2), drawn('alo-2', 'ALO', 2, 1)], 'ALO')).toEqual([])
+      expect(
+        reservedStartNumbers(confirmedEvent, [drawn('alo-1', 'ALO', 1, 2), drawn('alo-2', 'ALO', 2, 1)], 'ALO')
+      ).toEqual([])
     })
 
     it('leaves out a number nobody has drawn yet', () => {
-      expect(reservedStartNumbers(registrations, 'ALO')).toEqual([])
+      expect(reservedStartNumbers(confirmedEvent, registrations, 'ALO')).toEqual([])
     })
 
     // What keeps this list exactly as strict as the write it predicts: a cancelled holder yields its
@@ -158,7 +186,7 @@ describe('startNumberLink', () => {
     it('leaves out a cancelled holder, whose number the save would yield anyway', () => {
       const cancelled = drawn('avo-1', 'AVO', 3, 1)
 
-      expect(reservedStartNumbers([{ ...cancelled, cancelled: true }], 'ALO')).toEqual([])
+      expect(reservedStartNumbers(confirmedEvent, [{ ...cancelled, cancelled: true }], 'ALO')).toEqual([])
     })
 
     /**
@@ -169,7 +197,7 @@ describe('startNumberLink', () => {
     it('leaves out a reserve, whose number is a place in the queue and not a start number', () => {
       const waiting = dog('avo-1', 'AVO', 3, { group: { key: 'reserve', number: 1 } })
 
-      expect(reservedStartNumbers([waiting], 'ALO')).toEqual([])
+      expect(reservedStartNumbers(confirmedEvent, [waiting], 'ALO')).toEqual([])
     })
 
     /**
@@ -180,7 +208,7 @@ describe('startNumberLink', () => {
     it('leaves out a number left behind by a dog moved back to the reserve list', () => {
       const demoted = { ...drawn('avo-1', 'AVO', 3, 1), group: { key: 'reserve', number: 1 } }
 
-      expect(reservedStartNumbers([demoted], 'ALO')).toEqual([])
+      expect(reservedStartNumbers(confirmedEvent, [demoted], 'ALO')).toEqual([])
     })
   })
 

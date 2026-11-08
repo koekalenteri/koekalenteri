@@ -3,6 +3,10 @@ import { legacyDayValue } from '../test-utils/finnishDays'
 import { GROUP_KEY_CANCELLED } from './registration'
 import { applyRegistrationGroupMoves, normalizeRegistrationGroups } from './registrationGroups'
 
+/** The event the snapshots belong to: its format decides how the reserves are numbered. */
+const NOME_B = { eventType: 'NOME-B' }
+const NOWT = { eventType: 'NOWT' }
+
 const registration = (id: string, number: number): JsonRegistration =>
   ({
     cancelled: false,
@@ -17,7 +21,8 @@ describe('applyRegistrationGroupMoves', () => {
   it('inserts before an anchor and normalizes the complete snapshot', () => {
     const result = applyRegistrationGroupMoves(
       [registration('a', 1), registration('b', 2), registration('c', 3)],
-      [{ beforeId: 'a', group: { key: 'reserve' }, id: 'c' }]
+      [{ beforeId: 'a', group: { key: 'reserve' }, id: 'c' }],
+      NOME_B
     )
 
     expect(result.invalid).toEqual([])
@@ -31,7 +36,7 @@ describe('applyRegistrationGroupMoves', () => {
   it('reports an invalid anchor without changing the snapshot', () => {
     const source = [registration('a', 1)]
     const move = { beforeId: 'missing', group: { key: 'reserve' }, id: 'a' }
-    const result = applyRegistrationGroupMoves(source, [move])
+    const result = applyRegistrationGroupMoves(source, [move], NOME_B)
 
     expect(result.invalid).toEqual([move])
     expect(result.items).toEqual(source)
@@ -41,7 +46,7 @@ describe('applyRegistrationGroupMoves', () => {
     const source = [registration('alo', 1), { ...registration('avo', 1), class: 'AVO' as const }]
     const move = { beforeId: 'avo', group: { key: 'reserve' }, id: 'alo' }
 
-    const result = applyRegistrationGroupMoves(source, [move])
+    const result = applyRegistrationGroupMoves(source, [move], NOME_B)
 
     expect(result.invalid).toEqual([move])
     expect(result.items).toEqual(source)
@@ -64,7 +69,7 @@ describe('applyRegistrationGroupMoves', () => {
       id: 'target',
     }
 
-    const result = applyRegistrationGroupMoves(source, [move])
+    const result = applyRegistrationGroupMoves(source, [move], NOME_B)
 
     expect(result.invalid).toEqual([move])
     expect(result.items.find((item) => item.id === 'target')?.group).toEqual(source[0].group)
@@ -73,7 +78,7 @@ describe('applyRegistrationGroupMoves', () => {
   it('keeps registrations without a group in the reserve group', () => {
     const source = [{ ...registration('unassigned', 1), group: undefined }, registration('moved', 1)]
 
-    const result = applyRegistrationGroupMoves(source, [{ group: { key: 'reserve' }, id: 'moved' }])
+    const result = applyRegistrationGroupMoves(source, [{ group: { key: 'reserve' }, id: 'moved' }], NOME_B)
 
     expect(result.items.find((item) => item.id === 'unassigned')?.group?.key).toBe('reserve')
   })
@@ -84,7 +89,7 @@ describe('applyRegistrationGroupMoves', () => {
       registration('moved', 1),
     ]
 
-    const result = applyRegistrationGroupMoves(source, [{ group: { key: 'reserve' }, id: 'moved' }])
+    const result = applyRegistrationGroupMoves(source, [{ group: { key: 'reserve' }, id: 'moved' }], NOME_B)
 
     expect(result.items.find((item) => item.id === 'cancelled')?.group?.key).toBe(GROUP_KEY_CANCELLED)
   })
@@ -99,7 +104,7 @@ describe('applyRegistrationGroupMoves', () => {
       },
     ]
 
-    const result = applyRegistrationGroupMoves(source, [{ group: { key: 'reserve' }, id: 'cancelled' }])
+    const result = applyRegistrationGroupMoves(source, [{ group: { key: 'reserve' }, id: 'cancelled' }], NOME_B)
 
     expect(result.items[0]).toMatchObject({ cancelled: false, group: { key: 'reserve' } })
     expect(result.items[0]).not.toHaveProperty('cancelReason')
@@ -113,7 +118,7 @@ describe('applyRegistrationGroupMoves', () => {
       { ...registration('moved', 3), class: undefined, eventType: 'ZZZ', group: { ...participantGroup, number: 3 } },
     ]
 
-    const result = applyRegistrationGroupMoves(source, [{ group: participantGroup, id: 'moved' }])
+    const result = applyRegistrationGroupMoves(source, [{ group: participantGroup, id: 'moved' }], NOME_B)
 
     expect(result.items.map((item) => [item.id, item.group?.number])).toEqual([
       ['first', 1],
@@ -128,9 +133,11 @@ describe('applyRegistrationGroupMoves', () => {
       { ...registration('participant', 1), group: { key: '2026-01-01-ap', number: 1 } },
     ]
 
-    const result = applyRegistrationGroupMoves(source, [
-      { beforeId: 'participant', group: { key: '2026-01-01-ap' }, id: 'reserve' },
-    ])
+    const result = applyRegistrationGroupMoves(
+      source,
+      [{ beforeId: 'participant', group: { key: '2026-01-01-ap' }, id: 'reserve' }],
+      NOME_B
+    )
 
     expect(result.items.find((item) => item.id === 'reserve')).toMatchObject({
       cancelled: false,
@@ -141,7 +148,8 @@ describe('applyRegistrationGroupMoves', () => {
   it('moves a registration to cancelled with its reason', () => {
     const result = applyRegistrationGroupMoves(
       [registration('a', 1)],
-      [{ cancelReason: 'withdrawn', group: { key: GROUP_KEY_CANCELLED }, id: 'a' }]
+      [{ cancelReason: 'withdrawn', group: { key: GROUP_KEY_CANCELLED }, id: 'a' }],
+      NOME_B
     )
 
     expect(result.items[0]).toMatchObject({
@@ -161,7 +169,7 @@ describe('applyRegistrationGroupMoves', () => {
       { ...registration('a', 1), group: { ...startGroup, number: 1 } },
       { ...registration('b', 2), group: { ...startGroup }, startGroup },
     ]
-    const result = applyRegistrationGroupMoves(source, [{ group: { key: 'reserve' }, id: 'b' }])
+    const result = applyRegistrationGroupMoves(source, [{ group: { key: 'reserve' }, id: 'b' }], NOME_B)
 
     expect(result.invalid).toEqual([])
     expect(result.items.find((item) => item.id === 'b')).toMatchObject({ group: { key: 'reserve', number: 1 } })
@@ -177,22 +185,28 @@ describe('applyRegistrationGroupMoves', () => {
       { ...registration('b', 2), group: { ...startGroup }, startGroup },
     ]
 
-    const cancelled = applyRegistrationGroupMoves(source, [{ group: { key: GROUP_KEY_CANCELLED }, id: 'b' }])
+    const cancelled = applyRegistrationGroupMoves(source, [{ group: { key: GROUP_KEY_CANCELLED }, id: 'b' }], NOME_B)
     expect(cancelled.items.find((item) => item.id === 'b')?.startGroup).toEqual(startGroup)
 
-    const moved = applyRegistrationGroupMoves(source, [
-      { beforeId: 'a', group: { date: '2026-09-12' as const, key: 'ALO-AP', time: 'ap' as const }, id: 'b' },
-    ])
+    const moved = applyRegistrationGroupMoves(
+      source,
+      [{ beforeId: 'a', group: { date: '2026-09-12' as const, key: 'ALO-AP', time: 'ap' as const }, id: 'b' }],
+      NOME_B
+    )
     expect(moved.items.find((item) => item.id === 'b')?.startGroup).toEqual(startGroup)
   })
 
   it('applies a batch of moves before normalizing all affected groups', () => {
     const source = [registration('a', 1), registration('b', 2), registration('c', 3)]
 
-    const result = applyRegistrationGroupMoves(source, [
-      { beforeId: 'a', group: { key: 'reserve' }, id: 'c' },
-      { group: { key: 'reserve' }, id: 'b' },
-    ])
+    const result = applyRegistrationGroupMoves(
+      source,
+      [
+        { beforeId: 'a', group: { key: 'reserve' }, id: 'c' },
+        { group: { key: 'reserve' }, id: 'b' },
+      ],
+      NOME_B
+    )
 
     expect(result.items.map((item) => [item.id, item.group?.number])).toEqual([
       ['c', 1],
@@ -204,10 +218,14 @@ describe('applyRegistrationGroupMoves', () => {
   it('preserves move order when multiple moves share an anchor', () => {
     const source = [registration('a', 1), registration('b', 2), registration('c', 3), registration('d', 4)]
 
-    const result = applyRegistrationGroupMoves(source, [
-      { beforeId: 'a', group: { key: 'reserve' }, id: 'c' },
-      { beforeId: 'a', group: { key: 'reserve' }, id: 'd' },
-    ])
+    const result = applyRegistrationGroupMoves(
+      source,
+      [
+        { beforeId: 'a', group: { key: 'reserve' }, id: 'c' },
+        { beforeId: 'a', group: { key: 'reserve' }, id: 'd' },
+      ],
+      NOME_B
+    )
 
     expect(result.items.map((item) => [item.id, item.group?.number])).toEqual([
       ['c', 1],
@@ -229,13 +247,36 @@ describe("a WT trial's shared reserve list", () => {
       id,
     }) as JsonRegistration
 
-  it('numbers every class into one queue (KOE-912)', () => {
-    const items = normalizeRegistrationGroups([
-      wtRegistration('alo-1', 'ALO', 1),
-      wtRegistration('avo-1', 'AVO', 1),
-      wtRegistration('voi-1', 'VOI', 1),
-      wtRegistration('alo-2', 'ALO', 2),
+  // KOE-1718: an unofficial trial that follows NOWT numbers its reserves as NOWT does.
+  it('numbers the reserves of an unofficial trial that follows NOWT into one queue', () => {
+    const items = normalizeRegistrationGroups([wtRegistration('alo-1', 'ALO', 1), wtRegistration('avo-1', 'AVO', 1)], {
+      eventType: 'WT-harjoitus',
+      officialFormat: 'NOWT',
+    })
+    const own = normalizeRegistrationGroups([wtRegistration('alo-1', 'ALO', 1), wtRegistration('avo-1', 'AVO', 1)], {
+      eventType: 'WT-harjoitus',
+    })
+
+    expect(items.map((item) => [item.id, item.group?.number])).toEqual([
+      ['alo-1', 1],
+      ['avo-1', 2],
     ])
+    expect(own.map((item) => [item.id, item.group?.number])).toEqual([
+      ['alo-1', 1],
+      ['avo-1', 1],
+    ])
+  })
+
+  it('numbers every class into one queue (KOE-912)', () => {
+    const items = normalizeRegistrationGroups(
+      [
+        wtRegistration('alo-1', 'ALO', 1),
+        wtRegistration('avo-1', 'AVO', 1),
+        wtRegistration('voi-1', 'VOI', 1),
+        wtRegistration('alo-2', 'ALO', 2),
+      ],
+      NOWT
+    )
 
     expect(items.map((item) => [item.id, item.group?.number])).toEqual([
       ['alo-1', 1],
@@ -248,7 +289,8 @@ describe("a WT trial's shared reserve list", () => {
   it('closes the gap in the other classes when a dog is raised into its own class', () => {
     const result = applyRegistrationGroupMoves(
       [wtRegistration('alo-1', 'ALO', 1), wtRegistration('avo-1', 'AVO', 2), wtRegistration('voi-1', 'VOI', 3)],
-      [{ group: { date: '2021-02-10' as const, key: '2021-02-10-kp', time: 'kp' }, id: 'alo-1' }]
+      [{ group: { date: '2021-02-10' as const, key: '2021-02-10-kp', time: 'kp' }, id: 'alo-1' }],
+      NOWT
     )
 
     expect(result.invalid).toEqual([])
@@ -267,13 +309,14 @@ describe('normalizeRegistrationGroups', () => {
       { ...registration('unassigned', 1), group: { key: 'reserve' } as JsonRegistration['group'] },
     ]
 
-    const normalized = normalizeRegistrationGroups(source)
+    const normalized = normalizeRegistrationGroups(source, NOWT)
     const moved = applyRegistrationGroupMoves(
       [
         registration('numbered', 1000),
         { ...registration('unassigned', 1), group: { key: 'reserve' } as JsonRegistration['group'] },
       ],
-      [{ group: { key: 'reserve' }, id: 'numbered' }]
+      [{ group: { key: 'reserve' }, id: 'numbered' }],
+      NOWT
     ).items
 
     expect(normalized.map((item) => item.id)).toEqual(['numbered', 'unassigned'])
@@ -302,7 +345,8 @@ describe('a start stored with the UTC day key', () => {
   it('accepts a start with the UTC key as the anchor of a move', () => {
     const result = applyRegistrationGroupMoves(
       [start('a', 1), start('b', 2, HELSINKI_KEY), reserve('c')],
-      [{ beforeId: 'a', group: HELSINKI_GROUP, id: 'c' }]
+      [{ beforeId: 'a', group: HELSINKI_GROUP, id: 'c' }],
+      NOWT
     )
 
     expect(result.invalid).toEqual([])
@@ -316,7 +360,8 @@ describe('a start stored with the UTC day key', () => {
   it('accepts a payload that still names the UTC day (a cached client)', () => {
     const result = applyRegistrationGroupMoves(
       [start('a', 1), start('b', 2), reserve('c')],
-      [{ beforeId: 'b', group: { ...HELSINKI_GROUP, key: '2026-08-14-ap' }, id: 'c' }]
+      [{ beforeId: 'b', group: { ...HELSINKI_GROUP, key: '2026-08-14-ap' }, id: 'c' }],
+      NOWT
     )
 
     expect(result.invalid).toEqual([])
@@ -327,7 +372,8 @@ describe('a start stored with the UTC day key', () => {
   it('puts a dog moved to the end of the group last, after the UTC-keyed starts', () => {
     const result = applyRegistrationGroupMoves(
       [start('a', 1), start('b', 2), reserve('c')],
-      [{ group: HELSINKI_GROUP, id: 'c' }]
+      [{ group: HELSINKI_GROUP, id: 'c' }],
+      NOWT
     )
 
     expect(result.invalid).toEqual([])
@@ -341,7 +387,8 @@ describe('a start stored with the UTC day key', () => {
   it('moves a UTC-keyed start before another start of its group', () => {
     const result = applyRegistrationGroupMoves(
       [start('a', 1), start('b', 2), start('c', 3)],
-      [{ beforeId: 'a', group: HELSINKI_GROUP, id: 'c' }]
+      [{ beforeId: 'a', group: HELSINKI_GROUP, id: 'c' }],
+      NOWT
     )
 
     expect(result.invalid).toEqual([])
@@ -351,7 +398,8 @@ describe('a start stored with the UTC day key', () => {
   it('treats two instants of the same Helsinki day and time as one group', () => {
     const result = applyRegistrationGroupMoves(
       [start('a', 1), start('b', 2, HELSINKI_KEY, legacyDayValue('2026-08-15T00:00:00.000Z')), reserve('c')],
-      [{ group: HELSINKI_GROUP, id: 'c' }]
+      [{ group: HELSINKI_GROUP, id: 'c' }],
+      NOWT
     )
 
     expect(result.invalid).toEqual([])
@@ -365,7 +413,8 @@ describe('a start stored with the UTC day key', () => {
   it('accepts as the anchor a start whose date is another instant of the same day', () => {
     const result = applyRegistrationGroupMoves(
       [start('a', 1), start('b', 2, HELSINKI_KEY, legacyDayValue('2026-08-15T00:00:00.000Z')), reserve('c')],
-      [{ beforeId: 'b', group: HELSINKI_GROUP, id: 'c' }]
+      [{ beforeId: 'b', group: HELSINKI_GROUP, id: 'c' }],
+      NOWT
     )
 
     expect(result.invalid).toEqual([])
@@ -379,11 +428,11 @@ describe('a start stored with the UTC day key', () => {
     }
     const move = { beforeId: 'x', group: HELSINKI_GROUP, id: 'c' }
 
-    expect(applyRegistrationGroupMoves([other, reserve('c')], [move]).invalid).toEqual([move])
+    expect(applyRegistrationGroupMoves([other, reserve('c')], [move], NOWT).invalid).toEqual([move])
   })
 
   it('has its key respelled by normalization, keeping the order and numbers', () => {
-    const normalized = normalizeRegistrationGroups([start('a', 1), start('b', 2)])
+    const normalized = normalizeRegistrationGroups([start('a', 1), start('b', 2)], NOWT)
 
     expect(normalized.map((item) => [item.id, item.group?.key, item.group?.number])).toEqual([
       ['a', HELSINKI_KEY, 1],
@@ -398,7 +447,7 @@ describe('a start stored with the UTC day key', () => {
     }
     const cancelled = { ...start('k', 1), cancelled: true }
 
-    const normalized = normalizeRegistrationGroups([noTime, cancelled])
+    const normalized = normalizeRegistrationGroups([noTime, cancelled], NOWT)
 
     expect(normalized.find((item) => item.id === 'n')?.group?.key).toBe('x-key')
     expect(normalized.find((item) => item.id === 'k')?.group?.key).toBe(GROUP_KEY_CANCELLED)
