@@ -102,7 +102,8 @@ takes away. Findings:
   domain would do;
 - a stored field, flag or config that can be derived from what is already stored;
 - a fix that grew past the cause: more files, readers or concepts than the issue needs;
-- code the diff writes that existing code already does. When `semindex` is on PATH, run
+- code the diff writes that existing code already does. When
+  [semindex](https://github.com/kurkle/semindex) is on PATH, run
   `semindex diff origin/main` in your worktree first: it lists each new or changed function with
   the existing functions it resembles, in any folder. A score is a lead: read the match and show
   it computes the same thing before you name it. Then, with or without semindex, for each new
