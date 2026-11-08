@@ -276,10 +276,13 @@
     "entryNotOpen": "Entry is not open",
     "eventMayHaveBeenDeleted": "The event may have been deleted or access is denied.",
     "eventNotFound": "Event not found.",
+    "noAdminAccess": "No access",
+    "noAdminAccessInfo": "Your account has no rights to this page. Your club's administrator grants the admin rights.",
     "registrationNotFound": "Registration not found.",
     "somethingWentWrong": "Something went wrong.",
     "startListNotAvailable": "The start list is not available for this event.",
-    "tryAgain": "Try again"
+    "tryAgain": "Try again",
+    "userUnavailable": "Your user details could not be loaded."
   },
   "event": {
     "attachments": "Attachments",

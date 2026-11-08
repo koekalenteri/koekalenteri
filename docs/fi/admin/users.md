@@ -11,6 +11,10 @@ Koekalenteriin ei luoda tunnuksia: käyttöoikeus annetaan sähköpostiosoitteel
 kirjautuu joko sillä osoitteella tai Google-tilillä, jonka osoite on sama. Oikeus on aina
 yhdistyskohtainen, ja samalla henkilöllä voi olla rooli useassa yhdistyksessä.
 
+Tunnus, jolla ei ole yhtään roolia eikä koekalenterin pääkäyttäjän oikeutta, näkee ylläpidon
+sivuilla ja tilastoissa ilmoituksen *{t:error.noAdminAccess}* ja linkin etusivulle. Roolin antaa
+yhdistyksen pääkäyttäjä tai koekalenterin pääkäyttäjä, kuten alla kerrotaan.
+
 ## Roolit
 
 | Rooli | Mitä sillä voi tehdä |

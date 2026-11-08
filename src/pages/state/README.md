@@ -118,7 +118,11 @@ graph LR
 
 The signed-in user. `idTokenAtom` is the stored token and `validIdTokenAtom` the same token while it is valid;
 `useAuthSessionRefresh` bumps `tokenValidityRevisionAtom` so an expired token is noticed. `userAtom` fetches the user
-through `getCurrentUser` (`getUser`), again whenever `userRefreshAtom` is bumped. `languageAtom` is the UI language,
+through `getCurrentUser` (`getUser`), again whenever `userRefreshAtom` is bumped. `adminAccessAtom` is what an admin
+page does with the visitor (`adminAccessOf` in `src/lib/user.ts`): `signedOut` goes to login, `denied` (no admin flag,
+no organizer role) and `unavailable` (a valid token whose user could not be loaded) get a message from
+`AdminAccessGuard`, `granted` gets the page; it suspends while the user loads. `hasAdminAccessAtom`, the header's
+admin buttons, is the same answer as a boolean. `languageAtom` is the UI language,
 `loginPathAtom` where to return after signing in, `openedEventAtom(eventId)` whether an event is expanded in the
 calendar, and `spaAtom` whether the search page has been shown in this load, so a registration page can offer "back to
 search" instead of a link home.
@@ -145,7 +149,9 @@ graph LR
 
   isAdminAtom-->userAtom
   isOrgAdminAtom-->userAtom
-  hasAdminAccessAtom-->userAtom
+  adminAccessAtom-->userAtom
+  adminAccessAtom-->validIdTokenAtom
+  hasAdminAccessAtom-->adminAccessAtom
   adminUserOrgIdsAtom-->userAtom
 
   aws[(cloud)]

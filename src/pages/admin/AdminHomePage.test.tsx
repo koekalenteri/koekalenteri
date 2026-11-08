@@ -1,11 +1,15 @@
 import type { TestStore } from 'test-utils/AtomProvider'
 import { Authenticator } from '@aws-amplify/ui-react'
 import { ThemeProvider } from '@mui/material'
-import { act, screen } from '@testing-library/react'
+import { act, fireEvent, screen } from '@testing-library/react'
 import { Suspense } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
+import { MOCK_NO_ROLE_USER } from '../../api/__mocks__/user'
+import { getUser } from '../../api/user'
 import theme from '../../assets/Theme'
+import { useAdminSubscription } from '../../hooks/useAdminSubscription'
 import { Path } from '../../routeConfig'
+import { expectConsoleOutput } from '../../test-utils/consoleGuard'
 import {
   DataMemoryRouter,
   flushPromises,
@@ -95,6 +99,60 @@ describe('AdminHomePage', () => {
     await flushPromises()
     expect(screen.getByRole('banner')).toBeInTheDocument()
     expect(screen.getByText('ADMIN DEFAULT PAGE CONTENT')).toBeInTheDocument()
+  })
+
+  const renderSignedIn = () =>
+    renderSuspended(
+      <ThemeProvider theme={theme}>
+        <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
+          <AppSnackbarProvider>
+            <Authenticator.Provider>
+              <Suspense fallback={<div>loading...</div>}>
+                <DataMemoryRouter
+                  initialEntries={[Path.admin.root]}
+                  routes={[
+                    { element: <AdminHomePage />, path: Path.admin.root },
+                    { element: <>Login</>, path: Path.login },
+                  ]}
+                />
+              </Suspense>
+            </Authenticator.Provider>
+          </AppSnackbarProvider>
+        </Provider>
+      </ThemeProvider>
+    )
+
+  // Sending a signed-in user to /login only brought them back here: the Authenticator is already
+  // signed in, and LoginPage returns to the saved path at once (KOE-1734).
+  it('tells a signed-in user without a role that they have no rights, instead of sending them to login', async () => {
+    vi.mocked(getUser).mockResolvedValueOnce(MOCK_NO_ROLE_USER)
+
+    await renderSignedIn()
+    await flushPromises()
+
+    expect(screen.queryByText('Login')).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'error.noAdminAccess' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'goHome' })).toHaveAttribute('href', Path.home)
+    // The admin pages' change feed is not opened for a user who may not read it.
+    expect(useAdminSubscription).not.toHaveBeenCalled()
+  })
+
+  it('offers a retry when the signed-in user could not be loaded, instead of sending them to login', async () => {
+    expectConsoleOutput(/auth: \/user request failed/, /reportError/)
+    vi.mocked(getUser).mockRejectedValueOnce(new Error('network down'))
+
+    await renderSignedIn()
+    await flushPromises()
+
+    expect(screen.queryByText('Login')).not.toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'error.userUnavailable' })).toBeInTheDocument()
+
+    // The retry fetches the user again; the page waits for it like the first load did.
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'error.tryAgain' })))
+    await flushPromises()
+
+    expect(screen.getByRole('banner')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'error.userUnavailable' })).not.toBeInTheDocument()
   })
 
   it('keeps the shell mounted when the id token is refreshed', async () => {

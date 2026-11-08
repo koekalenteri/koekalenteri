@@ -5,12 +5,16 @@ order: 50
 covers:
   - src/pages/admin/UsersPage.tsx
   - src/pages/admin/usersPage/**
-sourceHash: e8feff
+sourceHash: 883ee9
 ---
 
 No accounts are created in the calendar: access is granted to an email address, and its holder
 logs in either with that address or with a Google account that has the same address. Access is
 always per club, and the same person can have a role in several clubs.
+
+An account with no role and no calendar administrator right sees *{t:error.noAdminAccess}* and a
+link to the front page on the admin pages and the statistics. A club administrator or the calendar
+administrator gives the role, as described below.
 
 ## Roles
 

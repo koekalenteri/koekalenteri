@@ -13,7 +13,7 @@ import { idTokenAtom } from '../state'
 import StartListPage from './StartListPage'
 import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
 
-// The list needs an admin user to render at all (hasAdminAccessAtom); give it one instead of
+// The list needs an admin user to render at all (AdminAccessGuard); give it one instead of
 // hitting the network, the way EventListPage.visual.test.tsx does for this page family.
 vi.mock(import('../../api/user'), async (importOriginal) => ({
   ...(await importOriginal()),

@@ -10,6 +10,7 @@ import { useLocation, useSearchParams } from 'react-router'
 import { HEADER_HEIGHT } from '../assets/Theme'
 import { recordPageView } from '../lib/client/rum'
 import { currentYear, TIME_ZONE } from '../lib/day'
+import { AdminAccessGuard } from './components/AdminAccessGuard'
 import Header from './components/Header'
 import BreedDistributionChart from './components/stats/BreedDistributionChart'
 import BreedStartRateChart from './components/stats/BreedStartRateChart'
@@ -21,26 +22,28 @@ import FillRateChart from './components/stats/FillRateChart'
 import ParticipationTrendChart from './components/stats/ParticipationTrendChart'
 import RetentionChart from './components/stats/RetentionChart'
 import YearSelector from './components/stats/YearSelector'
-import { allYearlyStatsAtom, capacityStatsAtom, hasAdminAccessAtom, useUserActions } from './state'
+import { allYearlyStatsAtom, capacityStatsAtom } from './state'
 
 const emptyYearStats = (year: number): YearlyStatsResponse => ({ dogHandlerBuckets: [], totals: [], year })
 
 export function Component() {
+  return (
+    <AdminAccessGuard>
+      <StatsView />
+    </AdminAccessGuard>
+  )
+}
+
+function StatsView() {
   const { t } = useTranslation()
   const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
   const thisYear = currentYear(TIME_ZONE)
   const selectedYear = Number(searchParams.get('year')) || thisYear
-  const actions = useUserActions()
-  const hasAccess = useAtomValue(hasAdminAccessAtom)
 
   useEffect(() => {
     recordPageView(location.pathname)
   }, [location])
-
-  useEffect(() => {
-    if (!hasAccess) actions.login()
-  }, [actions, hasAccess])
 
   // The all-years response already carries every year's breakdowns, so picking the selected
   // year out of it avoids a second request that would recompute what we just received.
@@ -51,8 +54,6 @@ export function Component() {
     [allStats.stats, selectedYear]
   )
   const years = allStats.years.includes(thisYear) ? allStats.years : [...allStats.years, thisYear]
-
-  if (!hasAccess) return null
 
   return (
     <>
