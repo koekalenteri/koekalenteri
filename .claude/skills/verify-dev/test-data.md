@@ -1,30 +1,28 @@
 # Test data on dev
 
 How `/verify-dev` makes and finds the data it tests with on https://dev.koekalenteri.snj.fi.
-Everything goes through the dev UI in the project's Playwright browser (`e2e/README.md`, "Playwright
-MCP"). The skill has no AWS access: it never reads or writes DynamoDB, never calls the API by hand
-and never changes what a test account may do.
+Everything goes through the dev UI in the project's Playwright browser (`e2e/README.md`, "Claude's
+browser on dev"). The skill has no AWS access: it never reads or writes DynamoDB, never calls the
+API by hand and never changes what a test account may do.
 
 ## Accounts
 
-Five Cognito users on dev, one role each. Their credentials are in the `.env` of the main checkout
-(`/Volumes/Code/koekalenteri/.env`), not in a worktree, as `E2E_DEV_<KEY>_EMAIL` and
-`E2E_DEV_<KEY>_PASSWORD`. Read them from there and never print them: not in a reply, a Jira
-comment, a screenshot or a log line.
+The test accounts, their keys and roles, and how to switch between them are in `e2e/README.md`,
+"Claude's browser on dev". Their credentials are in the `.env` of the main checkout (the first
+entry of `git worktree list`), not a worktree's. Read them from there and never print them: not in
+a reply, a Jira comment, a screenshot or a log line.
 
-| KEY              | Role                        | Used for                                        |
-| ---------------- | --------------------------- | ----------------------------------------------- |
-| `PAAKAYTTAJA`    | global admin                | Admin-only pages, looking across organizers     |
-| `YHDISTYS_ADMIN` | admin of the organizer J1   | Organizer admin views of J1                     |
-| `SIHTEERI`       | secretary of J1             | Creating and running test events                |
-| `SIHTEERI_2`     | secretary of J2             | Checking that J1's data stays out of sight      |
-| `ILMOITTAJA`     | no role, a plain registrant | Registering, the registrant's own pages         |
+| KEY              | Used for                                    |
+| ---------------- | ------------------------------------------- |
+| `PAAKAYTTAJA`    | Admin-only pages, looking across organizers |
+| `YHDISTYS_ADMIN` | Organizer admin views of J1                 |
+| `SIHTEERI`       | Creating and running test events            |
+| `SIHTEERI_2`     | Checking that J1's data stays out of sight  |
+| `ILMOITTAJA`     | Registering, the registrant's own pages     |
 
 - The user gives the roles on dev's Käyttäjät page (`/admin/users`). The skill never opens a role
   dialog there. An account that lacks a role it needs is a blocker for the user, not something to
   fix.
-- To switch accounts, close the browser (`browser_close`) and sign in again through the form. The
-  profile is in memory, so nothing carries over.
 - Do not open `/admin` as `ILMOITTAJA` until KOE-1734 is fixed: a user with no role loops there and
   hangs the browser.
 
@@ -35,7 +33,7 @@ comment, a screenshot or a log line.
 | ACTION DOGS RY  | J1   | Owns every test event                                               |
 | ACTION RY       | J2   | Its secretary checks that an organizer role does not see J1's data  |
 
-The user chose these on 8.11.2026. Pick the organizer by its full name in the event form's
+Pick the organizer by its full name in the event form's
 Järjestäjä field: the two names differ by one word.
 
 ## Events
@@ -84,7 +82,9 @@ registration's Muutoshistoria shows "Viesti estetty testiympäristössä".
 Dev uses Paytrail's test environment. Pay with the test bank Nordea, and on its page choose
 "palauta hyväksytty maksu" for a paid registration or "palauta hylätty maksu" for a failed one.
 When the bank page does not load, its origin is missing from the browser's allowlist
-(`.claude/playwright-mcp.json`): that is a change to propose, never a reason to pay elsewhere.
+(`e2e/README.md`, "The allowlist"), which takes a new origin in the change that needs it. The run
+stops there: report the missing origin as a blocker for a PR, and never edit
+`.claude/playwright-mcp.json` mid-run or pay some other way.
 
 ## Results to Kennelliitto
 
