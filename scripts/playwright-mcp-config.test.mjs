@@ -56,6 +56,17 @@ describe('the allowlist checks', () => {
   })
 })
 
+// The server resolves a relative outputDir against its working directory, the repository root
+// where Claude Code starts it, so its own files (snapshots, console logs) land in the folder git
+// ignores and never in the root.
+describe('Playwright MCP output', () => {
+  it('goes to the git-ignored .playwright-mcp folder', () => {
+    expect(JSON.parse(readFileSync(CONFIG, 'utf8')).outputDir).toBe('.playwright-mcp')
+    const ignored = readFileSync(path.join(import.meta.dirname, '..', '.gitignore'), 'utf8').split('\n')
+    expect(ignored).toContain('/.playwright-mcp/')
+  })
+})
+
 describe('Playwright MCP allowlist', () => {
   it('lists origins', () => {
     expect(allowedOrigins().length).toBeGreaterThan(0)
