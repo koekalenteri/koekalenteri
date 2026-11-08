@@ -1,5 +1,6 @@
 import type { TFunction } from 'i18next'
 import type React from 'react'
+import type { StartListTeamDay } from '../../lib/startList'
 import type { DayKey } from '../../types/Day'
 import type { EventClass, PublicConfirmedEvent } from '../../types/Event'
 import type { PublicRegistration } from '../../types/Registration'
@@ -9,6 +10,8 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import { enqueueSnackbar } from 'notistack'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -25,12 +28,13 @@ import {
 import { startListFileName } from '../../lib/fileName'
 import { judgeName } from '../../lib/judge'
 import { formatResultLine } from '../../lib/results'
-import { startListColumnWidths, startListSpreadsheetRows } from '../../lib/startList'
+import { startListColumnWidths, startListSpreadsheetRows, startListTeamDays, teamRowPrefix } from '../../lib/startList'
 import { CancelledRegistration } from './CancelledRegistration'
 import { ClassHeader } from './ClassHeader'
 import { DateHeader } from './DateHeader'
 import { RegistrationDetails } from './RegistrationDetails'
 import { RotationHeader } from './RotationHeader'
+import { TeamStartList } from './TeamStartList'
 import { TimeHeader } from './TimeHeader'
 
 interface ParticipantListProps {
@@ -40,9 +44,14 @@ interface ParticipantListProps {
   showExportActions?: boolean
 }
 
-type StartListItem =
-  | { date: DayKey; order: number; registration: PublicRegistration; type: 'registration' }
-  | { date: DayKey; eventClass: EventClass; order: number; type: 'emptyClass' }
+type RegistrationItem = { date: DayKey; order: number; registration: PublicRegistration; type: 'registration' }
+
+type StartListItem = RegistrationItem | { date: DayKey; eventClass: EventClass; order: number; type: 'emptyClass' }
+
+/** The two views of a team competition's list (KOE-1715): by team, or the running order. */
+type StartListView = 'order' | 'team'
+
+const isRegistrationItem = (item: StartListItem): item is RegistrationItem => item.type === 'registration'
 
 export const ParticipantList = ({
   participants,
@@ -52,16 +61,26 @@ export const ParticipantList = ({
 }: ParticipantListProps) => {
   const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
+  // A team competition opens by team (KOE-1715); the running order is the other view, not remembered.
+  const [view, setView] = useState<StartListView>('team')
   const visibleParticipants = useMemo(
     () => getVisibleStartListParticipants(participants, event, includeUnpublished),
     [event, includeUnpublished, participants]
   )
-  const copyText = useMemo(() => formatStartList(visibleParticipants, event, t), [event, t, visibleParticipants])
   const spreadsheetRows = useMemo(
     () => startListSpreadsheetRows(visibleParticipants, event, t),
     [event, t, visibleParticipants]
   )
   const startListItems = useMemo(() => getStartListItems(visibleParticipants, event), [event, visibleParticipants])
+  // The team view reads the running order's rows as they are sorted, so both list a day's dogs alike.
+  const teamDays = useMemo(() => startListTeamDays(startListItems.filter(isRegistrationItem)), [startListItems])
+  // The public event has no teams; a row that carries one is what says the list has them.
+  const hasTeams = teamDays.some((day) => day.teams.length > 0)
+  const byTeam = hasTeams && view === 'team'
+  const copyText = useMemo(
+    () => (byTeam ? formatTeamStartList(teamDays, t) : formatStartList(visibleParticipants, event, t)),
+    [byTeam, event, t, teamDays, visibleParticipants]
+  )
   // Preview only (KOE-1218): where a class+day has drawn numbers, an undrawn dog's working-order
   // number can collide with a drawn one — those rows get a warning marker.
   const drawnClassDates = useMemo(() => {
@@ -71,6 +90,8 @@ export const ParticipantList = ({
     }
     return keys
   }, [event.startDate, participants])
+  const warnNumberPending = (reg: PublicRegistration, date: DayKey) =>
+    reg.numberProvisional === true && drawnClassDates.has(classDateKey(reg.class, date))
   let lastDate: DayKey | undefined
   let lastClass: PublicRegistration['class']
   let lastGroup: string | undefined
@@ -78,155 +99,173 @@ export const ParticipantList = ({
 
   return (
     <>
-      {showExportActions && (
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
-          <Button
-            onClick={async () => {
-              try {
-                await navigator.clipboard.writeText(copyText)
-                setCopied(true)
-              } catch {
-                // A missing clipboard API (insecure context, webview) throws here too.
-                enqueueSnackbar(t('startListCopyFailed'), { variant: 'error' })
-              }
-            }}
-            size="small"
-            startIcon={<ContentCopyOutlined />}
-            variant="outlined"
-          >
-            {copied ? t('startListCopied') : t('copyStartList')}
-          </Button>
-          <Button
-            onClick={() => {
-              downloadXlsx({
-                columnWidths: startListColumnWidths,
-                fileName: startListFileName(event),
-                rows: spreadsheetRows,
-                sheetName: t('startListExport.sheetName'),
-              }).catch(reportError)
-            }}
-            size="small"
-            startIcon={<DownloadOutlined />}
-            sx={{ ml: 1 }}
-            variant="outlined"
-          >
-            {t('downloadStartList')}
-          </Button>
+      {(hasTeams || showExportActions) && (
+        <Box sx={{ alignItems: 'center', display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
+          {hasTeams && (
+            <ToggleButtonGroup
+              aria-label={t('startList.view')}
+              color="primary"
+              exclusive
+              onChange={(_event, next: StartListView | null) => next && setView(next)}
+              size="small"
+              value={view}
+            >
+              <ToggleButton value="team">{t('startList.byTeam')}</ToggleButton>
+              <ToggleButton value="order">{t('startList.byOrder')}</ToggleButton>
+            </ToggleButtonGroup>
+          )}
+          {showExportActions && (
+            <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
+              <Button
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(copyText)
+                    setCopied(true)
+                  } catch {
+                    // A missing clipboard API (insecure context, webview) throws here too.
+                    enqueueSnackbar(t('startListCopyFailed'), { variant: 'error' })
+                  }
+                }}
+                size="small"
+                startIcon={<ContentCopyOutlined />}
+                variant="outlined"
+              >
+                {copied ? t('startListCopied') : t('copyStartList')}
+              </Button>
+              <Button
+                onClick={() => {
+                  downloadXlsx({
+                    columnWidths: startListColumnWidths,
+                    fileName: startListFileName(event),
+                    rows: spreadsheetRows,
+                    sheetName: t('startListExport.sheetName'),
+                  }).catch(reportError)
+                }}
+                size="small"
+                startIcon={<DownloadOutlined />}
+                variant="outlined"
+              >
+                {t('downloadStartList')}
+              </Button>
+            </Box>
+          )}
         </Box>
       )}
       <Table size="small">
         <TableBody>
-          {startListItems.map((item) => {
-            const result: React.JSX.Element[] = []
-            const date = item.date
+          {byTeam ? (
+            <TeamStartList days={teamDays} warnNumberPending={warnNumberPending} />
+          ) : (
+            startListItems.map((item) => {
+              const result: React.JSX.Element[] = []
+              const date = item.date
 
-            // Add date header if date changed
-            if (startListDateKey(date) !== startListDateKey(lastDate)) {
-              result.push(<DateHeader key={date} date={date} />)
-              // A classless event never gets a class header, so its publishing notes hang off the date.
-              if (item.type === 'registration' && !item.registration.class) {
-                const published = isStartListAvailableForRegistration(event, item.registration)
-                const numbersPublished = isStartNumbersAvailableForRegistration(event, item.registration)
-                if (!published || !numbersPublished) {
+              // Add date header if date changed
+              if (startListDateKey(date) !== startListDateKey(lastDate)) {
+                result.push(<DateHeader key={date} date={date} />)
+                // A classless event never gets a class header, so its publishing notes hang off the date.
+                if (item.type === 'registration' && !item.registration.class) {
+                  const published = isStartListAvailableForRegistration(event, item.registration)
+                  const numbersPublished = isStartNumbersAvailableForRegistration(event, item.registration)
+                  if (!published || !numbersPublished) {
+                    result.push(
+                      <ClassHeader
+                        key={`notes-${date}`}
+                        classValue=""
+                        event={event}
+                        lastDate={date}
+                        published={published}
+                        numbersPublished={numbersPublished}
+                      />
+                    )
+                  }
+                }
+                lastDate = date
+                lastClass = undefined
+                lastGroup = undefined
+                index = 0
+              }
+
+              if (item.type === 'emptyClass') {
+                result.push(
+                  <ClassHeader
+                    key={`empty-${item.eventClass.class}-${item.date}`}
+                    classValue={item.eventClass.class}
+                    event={event}
+                    lastDate={item.date}
+                    published={isStartListAvailableForClass(event, item.eventClass)}
+                    numbersPublished={isStartNumbersAvailableForClass(event, item.eventClass)}
+                  />
+                )
+                lastClass = item.eventClass.class
+                lastGroup = undefined
+                index = 0
+                return result
+              }
+
+              const reg = item.registration
+
+              // Add class header if class changed
+              if (lastClass !== reg.class) {
+                if (reg.class) {
                   result.push(
                     <ClassHeader
-                      key={`notes-${date}`}
-                      classValue=""
+                      key={`${reg.class}-${date}`}
+                      classValue={reg.class}
                       event={event}
-                      lastDate={date}
-                      published={published}
-                      numbersPublished={numbersPublished}
+                      lastDate={lastDate}
+                      published={isStartListAvailableForRegistration(event, reg)}
+                      numbersPublished={isStartNumbersAvailableForRegistration(event, reg)}
+                    />,
+                    <RotationHeader
+                      classValue={reg.class}
+                      date={date}
+                      event={event}
+                      key={`rotation-${reg.class}-${date}`}
+                      numbersPublished={isStartNumbersAvailableForRegistration(event, reg)}
                     />
                   )
                 }
+                lastClass = reg.class
+                index = 0
               }
-              lastDate = date
-              lastClass = undefined
-              lastGroup = undefined
-              index = 0
-            }
 
-            if (item.type === 'emptyClass') {
-              result.push(
-                <ClassHeader
-                  key={`empty-${item.eventClass.class}-${item.date}`}
-                  classValue={item.eventClass.class}
-                  event={event}
-                  lastDate={item.date}
-                  published={isStartListAvailableForClass(event, item.eventClass)}
-                  numbersPublished={isStartNumbersAvailableForClass(event, item.eventClass)}
-                />
-              )
-              lastClass = item.eventClass.class
-              lastGroup = undefined
-              index = 0
-              return result
-            }
+              // Add time header if time changed
+              const group = startListGroupKey(date, reg.group.time)
+              if (lastGroup !== group) {
+                if (reg.group.time) {
+                  result.push(
+                    <TimeHeader key={`${lastDate} ${reg.group.time}`} time={reg.group.time} lastDate={lastDate} />
+                  )
+                }
+                lastGroup = group
+                index = 0
+              }
 
-            const reg = item.registration
-
-            // Add class header if class changed
-            if (lastClass !== reg.class) {
-              if (reg.class) {
+              // Add registration details
+              if (reg.cancelled) {
                 result.push(
-                  <ClassHeader
-                    key={`${reg.class}-${date}`}
-                    classValue={reg.class}
-                    event={event}
-                    lastDate={lastDate}
-                    published={isStartListAvailableForRegistration(event, reg)}
-                    numbersPublished={isStartNumbersAvailableForRegistration(event, reg)}
-                  />,
-                  <RotationHeader
-                    classValue={reg.class}
-                    date={date}
-                    event={event}
-                    key={`rotation-${reg.class}-${date}`}
-                    numbersPublished={isStartNumbersAvailableForRegistration(event, reg)}
+                  <CancelledRegistration
+                    key={`cancelled-${reg.dog.regNo}-${reg.group.number}`}
+                    groupNumber={reg.group.number}
+                    index={index}
+                  />
+                )
+              } else {
+                result.push(
+                  <RegistrationDetails
+                    key={`reg-${reg.dog.regNo}-${reg.group.number}`}
+                    registration={reg}
+                    index={index}
+                    warnNumberPending={warnNumberPending(reg, date)}
                   />
                 )
               }
-              lastClass = reg.class
-              index = 0
-            }
+              index++
 
-            // Add time header if time changed
-            const group = startListGroupKey(date, reg.group.time)
-            if (lastGroup !== group) {
-              if (reg.group.time) {
-                result.push(
-                  <TimeHeader key={`${lastDate} ${reg.group.time}`} time={reg.group.time} lastDate={lastDate} />
-                )
-              }
-              lastGroup = group
-              index = 0
-            }
-
-            // Add registration details
-            if (reg.cancelled) {
-              result.push(
-                <CancelledRegistration
-                  key={`cancelled-${reg.dog.regNo}-${reg.group.number}`}
-                  groupNumber={reg.group.number}
-                  index={index}
-                />
-              )
-            } else {
-              result.push(
-                <RegistrationDetails
-                  key={`reg-${reg.dog.regNo}-${reg.group.number}`}
-                  registration={reg}
-                  index={index}
-                  warnNumberPending={
-                    reg.numberProvisional === true && drawnClassDates.has(classDateKey(reg.class, date))
-                  }
-                />
-              )
-            }
-            index++
-
-            return result
-          })}
+              return result
+            })
+          )}
         </TableBody>
       </Table>
     </>
@@ -375,7 +414,26 @@ function formatClassJudges(event: PublicConfirmedEvent, eventClass: string, date
     .join(', ')
 }
 
-function formatRegistration(reg: PublicRegistration, t: TFunction) {
+/** The copied list by team (KOE-1715), read from the same days as the screen shows. */
+function formatTeamStartList(days: readonly StartListTeamDay[], t: TFunction) {
+  const lines: string[] = []
+  const group = (heading: string[], rows: readonly PublicRegistration[], showClass: boolean) => {
+    lines.push('', ...heading, ...rows.map((reg) => formatRegistration(reg, t, teamRowPrefix(reg, showClass))))
+  }
+
+  days.forEach(({ date, noTeam, showClass, teams }) => {
+    if (lines.length) lines.push('')
+    lines.push(`${t('dateFormat.weekday', { date })} ${t('dateFormat.date', { date })}`)
+    for (const team of teams) {
+      group([t('startList.team', { number: team.number }), ...(team.name ? [team.name] : [])], team.rows, showClass)
+    }
+    if (noTeam.length) group([t('startList.noTeam')], noTeam, showClass)
+  })
+
+  return lines.join('\n')
+}
+
+function formatRegistration(reg: PublicRegistration, t: TFunction, prefix = '') {
   if (reg.cancelled) return `${reg.group.number}. ${t('startList.absent')}`
 
   const breed = breedAbbreviation(t, reg.dog.breedCode, reg.dog.gender)
@@ -386,7 +444,8 @@ function formatRegistration(reg: PublicRegistration, t: TFunction) {
   const sire = formatDogName(reg.dog.sire)
   const dam = formatDogName(reg.dog.dam)
   // A withheld number leaves the row unnumbered rather than lying about the order.
-  const numberPrefix = reg.group.number != null ? `${reg.group.number}. ` : ''
+  const number = reg.group.number != null ? `${reg.group.number}. ` : ''
+  const numberPrefix = prefix ? `${prefix} ${number}` : number
 
   return [
     `${numberPrefix}${dog} ${t('startList.born')} ${reg.dog.dob ? t('dateFormat.date', { date: reg.dog.dob }) : '?'}`,

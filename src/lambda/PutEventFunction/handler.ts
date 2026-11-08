@@ -25,7 +25,7 @@ import { isOfficialFormatLocked } from '../../lib/results'
 import { rotationShapeErrors } from '../../lib/rotation'
 import { eventBodySchema } from '../../lib/schema/event'
 import { legacyEventDay, rekeyEventDays, requestDay } from '../../lib/storedDays'
-import { teamErrors } from '../../lib/team'
+import { teamErrors, teamsDiffer } from '../../lib/team'
 import { patchMerge } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { audit, eventAuditKey, getEventAuditMessages } from '../lib/audit'
@@ -535,10 +535,9 @@ const putEventLambda = lambda('putEvent', async (event) => {
 
   // Update registrations in case the secretary version was out of date.
   const result = await persistEventWithRegistrations(stored, data)
-  if (resultPatches.length) {
-    await publishRegistrationPatches(data.id, resultPatches, data.organizer.id)
-    await publishPublicStartList(data.id)
-  }
+  if (resultPatches.length) await publishRegistrationPatches(data.id, resultPatches, data.organizer.id)
+  // The public rows carry each dog's team (KOE-1715), so a teams change reaches open pages as new results do.
+  if (resultPatches.length || teamsDiffer(existing?.teams, data.teams)) await publishPublicStartList(data.id)
   if (renumber) await renumberReserves(data, user)
 
   await auditEventChanges(existing, item, result, user.name)

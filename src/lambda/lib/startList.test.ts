@@ -364,4 +364,75 @@ describe('readPublishedStartList (KOE-1516)', () => {
       for (const key of ['points', 'maxPoints', 'percentage']) expect(participants[0]).not.toHaveProperty(key)
     })
   })
+
+  // KOE-1715: the public sees the dogs by team. The teams name their dogs by registration id, so the
+  // event's teams never leave the server; each published row carries its own team instead.
+  describe('teams', () => {
+    const member = (id: string, name: string, number: number) =>
+      asJsonRegistration({
+        ...registration,
+        dog: { name, regNo: `REG-${id}` },
+        group: { date: '2025-01-01', key: 'ALO', number },
+        id,
+        startGroup: { date: '2025-01-01', key: 'ALO', number },
+      })
+    // A reserve: entered, but on no list.
+    const reserve = asJsonRegistration({ ...registration, group: undefined, id: 'reserve', startGroup: undefined })
+    const cancelled = asJsonRegistration({ ...member('gone', 'Poissa', 3), cancelled: true })
+
+    const teamEvent = {
+      ...publishedEvent,
+      teams: [{ name: 'Team Finland 1', registrationIds: ['a', 'reserve', 'b'] }, { registrationIds: ['gone', 'c'] }],
+    }
+
+    const sent = async () => {
+      const { participants } = await readPublishedStartList('event-1')
+      return JSON.parse(JSON.stringify(participants))
+    }
+
+    beforeEach(() => {
+      mockGetLiveEvent.mockResolvedValue(teamEvent)
+      mockReadEventRegistrations.mockResolvedValue([
+        member('a', 'Aapo', 1),
+        member('b', 'Bella', 2),
+        cancelled,
+        member('c', 'Cesar', 4),
+        member('d', 'Dora', 5),
+        reserve,
+      ])
+    })
+
+    it('gives each published member its team number, name and code', async () => {
+      const rows = await sent()
+
+      expect(rows.map((row: { dog: { name: string }; team?: unknown }) => [row.dog.name, row.team])).toEqual([
+        ['Aapo', { code: '1A', name: 'Team Finland 1', number: 1 }],
+        // The reserve keeps its letter, as on the teams page: Bella is 1C, not 1B.
+        ['Bella', { code: '1C', name: 'Team Finland 1', number: 1 }],
+        ['', undefined],
+        ['Cesar', { code: '2B', number: 2 }],
+        ['Dora', undefined],
+      ])
+    })
+
+    it('gives a cancelled dog no team, so its narrow row says no more than its number', async () => {
+      const rows = await sent()
+
+      expect(rows.find((row: { cancelled?: boolean }) => row.cancelled)).not.toHaveProperty('team')
+    })
+
+    it('sends neither the teams nor a registration id', async () => {
+      const text = JSON.stringify(await sent())
+
+      for (const id of ['"a"', 'reserve', 'gone', 'registrationIds']) expect(text).not.toContain(id)
+    })
+
+    it('gives the rows of an event without teams none', async () => {
+      mockGetLiveEvent.mockResolvedValue(publishedEvent)
+
+      const rows = await sent()
+
+      for (const row of rows) expect(row).not.toHaveProperty('team')
+    })
+  })
 })

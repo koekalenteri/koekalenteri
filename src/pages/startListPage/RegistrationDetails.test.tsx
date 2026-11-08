@@ -163,4 +163,29 @@ describe('RegistrationDetails', () => {
     const row = container.querySelector('.top-border')
     expect(row).toBeInTheDocument()
   })
+
+  // KOE-1715: the team view puts the class and the team code in front of the number.
+  it('names its team prefix in front of the number', () => {
+    render(
+      <table>
+        <tbody>
+          <RegistrationDetails registration={mockRegistration} index={0} teamPrefix="AVO 1A" />
+        </tbody>
+      </table>
+    )
+
+    expect(screen.getByRole('row')).toHaveTextContent(/^AVO 1A 123\. 111\.M CH Test Dog/)
+  })
+
+  it('names no prefix without one', () => {
+    render(
+      <table>
+        <tbody>
+          <RegistrationDetails registration={mockRegistration} index={0} />
+        </tbody>
+      </table>
+    )
+
+    expect(screen.getByRole('row')).toHaveTextContent(/^123\. 111\.M CH Test Dog/)
+  })
 })

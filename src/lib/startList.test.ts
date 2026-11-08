@@ -1,4 +1,5 @@
 import type { TFunction } from 'i18next'
+import type { DayKey } from '../types/Day'
 import type { PublicConfirmedEvent } from '../types/Event'
 import type { PublicRegistration } from '../types/Registration'
 import i18n from 'i18next'
@@ -11,7 +12,9 @@ import {
   parseStartListVersion,
   startListColumnWidths,
   startListSpreadsheetRows,
+  startListTeamDays,
   startListVersionOf,
+  teamRowPrefix,
 } from './startList'
 import { toPublicRegistration } from './wire'
 
@@ -262,5 +265,110 @@ describe.each(['Europe/Helsinki', 'America/New_York', 'Asia/Tokyo'])("the dog's 
 
       expect(row[6]).toEqual(new Date(2021, 0, 1, 12))
     })
+  })
+})
+
+// KOE-1715: the start list by team, read from the rows in the running order they are shown in.
+describe('startListTeamDays', () => {
+  const row = (name: string, date: DayKey, extra: Partial<PublicRegistration> = {}) => ({
+    date,
+    registration: {
+      breeder: '',
+      class: 'AVO',
+      dog: { name, regNo: name },
+      group: { date, key: 'AVO' },
+      handler: '',
+      owner: '',
+      ...extra,
+    },
+  })
+  const names = (rows: readonly PublicRegistration[]) => rows.map((reg) => reg.dog.name)
+  const DAY_1: DayKey = '2026-11-07'
+  const DAY_2: DayKey = '2026-11-08'
+
+  it('lists each day its teams in number order and their dogs by letter, then the rest in the order given', () => {
+    const days = startListTeamDays([
+      row('Dora', DAY_1),
+      row('Cesar', DAY_1, { team: { code: '2A', number: 2 } }),
+      row('Bella', DAY_1, { team: { code: '1B', name: 'Team Finland 1', number: 1 } }),
+      row('Aapo', DAY_1, { team: { code: '1A', name: 'Team Finland 1', number: 1 } }),
+      row('Eetu', DAY_1),
+      row('Fanni', DAY_2, { team: { code: '2B', number: 2 } }),
+    ])
+
+    expect(
+      days.map(({ date, noTeam, showClass, teams }) => ({
+        date,
+        noTeam: names(noTeam),
+        showClass,
+        teams: teams.map((team) => ({ name: team.name, number: team.number, rows: names(team.rows) })),
+      }))
+    ).toEqual([
+      {
+        date: DAY_1,
+        noTeam: ['Dora', 'Eetu'],
+        showClass: false,
+        teams: [
+          { name: 'Team Finland 1', number: 1, rows: ['Aapo', 'Bella'] },
+          { name: undefined, number: 2, rows: ['Cesar'] },
+        ],
+      },
+      { date: DAY_2, noTeam: [], showClass: false, teams: [{ name: undefined, number: 2, rows: ['Fanni'] }] },
+    ])
+  })
+
+  it('reads the team the server sent, as the page receives the rows', () => {
+    const team = { code: '1A', name: 'Team Finland 1', number: 1 }
+    const received = toPublicRegistration({ ...row('Aapo', DAY_1).registration, team })
+
+    expect(startListTeamDays([{ date: DAY_1, registration: received }])[0].teams).toEqual([
+      { name: 'Team Finland 1', number: 1, rows: [expect.objectContaining({ team })] },
+    ])
+  })
+
+  it('leaves a cancelled dog out', () => {
+    const [day] = startListTeamDays([row('Aapo', DAY_1, { cancelled: true }), row('Bella', DAY_1)])
+
+    expect(names(day.noTeam)).toEqual(['Bella'])
+  })
+
+  it('names the classes where the day teams hold more than one', () => {
+    const [day] = startListTeamDays([
+      row('Aapo', DAY_1, { team: { code: '1A', number: 1 } }),
+      row('Bella', DAY_1, { class: 'VOI', team: { code: '2A', number: 2 } }),
+    ])
+
+    expect(day.showClass).toBe(true)
+  })
+
+  it('reads only the team rows for the classes', () => {
+    const [day] = startListTeamDays([
+      row('Aapo', DAY_1, { team: { code: '1A', number: 1 } }),
+      row('Bella', DAY_1, { class: 'VOI' }),
+    ])
+
+    expect(day.showClass).toBe(false)
+  })
+})
+
+describe('teamRowPrefix', () => {
+  const reg = (extra: Partial<PublicRegistration>): PublicRegistration => ({
+    breeder: '',
+    class: 'AVO',
+    dog: { name: 'Aapo', regNo: 'FI1/26' },
+    group: { key: 'AVO' },
+    handler: '',
+    owner: '',
+    ...extra,
+  })
+
+  it.each([
+    ['the code', reg({ team: { code: '1A', number: 1 } }), false, '1A'],
+    ['the class and the code', reg({ team: { code: '1A', number: 1 } }), true, 'AVO 1A'],
+    ['the class of a dog in no team', reg({}), true, 'AVO'],
+    ['nothing for a dog in no team', reg({}), false, ''],
+    ['the code of a classless dog', reg({ class: null, team: { code: '1A', number: 1 } }), true, '1A'],
+  ])('names %s', (_what, registration, showClass, expected) => {
+    expect(teamRowPrefix(registration, showClass)).toBe(expected)
   })
 })
