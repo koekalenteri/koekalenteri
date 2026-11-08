@@ -9,16 +9,32 @@ export const MAX_TEAM_MEMBERS = MEMBER_LETTERS.length
  * Why a set of teams cannot be stored: a dog in two teams or twice in one, or a team with more dogs
  * than there are letters. `team` is the team's place in the list, from 0.
  */
-export type TeamError = { kind: 'twice'; registrationId: string } | { kind: 'tooMany'; team: number }
+type TeamError = { kind: 'twice'; registrationId: string } | { kind: 'tooMany'; team: number }
 
 /** A dog's identifier within its team (KOE-1714): the team's number and the dog's letter, "1B". */
-export const teamMemberCode = (teamNumber: number, place: number): string =>
-  `${teamNumber}${MEMBER_LETTERS.charAt(place)}`
+const teamMemberCode = (teamNumber: number, place: number): string => `${teamNumber}${MEMBER_LETTERS.charAt(place)}`
+
+/** One dog of a team as its readers show it: its code, its place in the team's list and its entry. */
+interface TeamMember<T> {
+  code: string
+  place: number
+  registration: T
+}
 
 /**
- * Every reason the teams cannot be stored, the same on the teams page and in the event save. Only the
- * shape is checked: which dogs the page offers is the page's business, and the readers skip an id the
- * event's registrations do not hold.
+ * A team's dogs in order, each with its code: the team's number and the dog's letter, the letter its
+ * place in `registrationIds` (KOE-1714). The one reading of the rule, for every view of the teams. An
+ * id the event's entries do not hold is skipped, and its letter stays taken.
+ */
+export const teamMembers = <T>(team: EventTeam, number: number, entries: ReadonlyMap<string, T>): TeamMember<T>[] =>
+  team.registrationIds.flatMap((id, place) => {
+    const registration = entries.get(id)
+    return registration === undefined ? [] : [{ code: teamMemberCode(number, place), place, registration }]
+  })
+
+/**
+ * Every reason the event save refuses the teams. Only the shape is checked: which dogs can be picked is
+ * the teams page's business, and the readers skip an id the event's registrations do not hold.
  */
 export const teamErrors = (teams: readonly EventTeam[] | null | undefined): TeamError[] => {
   const tooMany: TeamError[] = []

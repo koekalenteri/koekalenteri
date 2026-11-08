@@ -516,11 +516,12 @@ export interface EventRotationGroup {
 /**
  * A team ("joukkue") of a team competition (KOE-1714). Its number is its place in the event's `teams`,
  * from 1, and a member's letter is its place in `registrationIds`: the first is A, so the second dog
- * of team 1 is 1B (`teamMemberCode`). Neither is stored, so removing 1B makes the old 1C into 1B.
+ * of team 1 is 1B. Neither is stored, so removing 1B makes the old 1C into 1B. Every view reads them
+ * through `teamMembers` (src/lib/team.ts), which also skips an id that is not among the event's
+ * registrations.
  *
- * A dog is in one team at most (`teamErrors`). A member who cancels stays where the secretary put it
- * until the secretary removes it, and its letter with it. Every reader skips an id that is not among
- * the event's registrations.
+ * A dog is in one team at most, which the event save holds to (`teamErrors`). A member who cancels
+ * stays where the secretary put it until the secretary removes it, and its letter with it.
  */
 export interface EventTeam {
   /** The team's own name beside its number, such as "Team Finland 1". */

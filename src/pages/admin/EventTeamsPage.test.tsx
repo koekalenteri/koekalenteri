@@ -138,6 +138,44 @@ describe('EventTeamsPage', () => {
     expect(members(team)).toEqual(['1A Toinen', '1B Varalla' + 'teams.memberReserve'])
   })
 
+  it('moves a dog down, but not the last one', async () => {
+    const { user } = await renderPage({ ...eventWithStations, teams: [{ registrationIds: ['run-1', 'run-2'] }] })
+    await flushPromises()
+    const [team] = teamSections()
+
+    const [firstDown, lastDown] = within(team).getAllByRole('button', { name: 'teams.moveDown code' })
+    expect(lastDown).toBeDisabled()
+
+    await user.click(firstDown)
+    expect(members(team)).toEqual(['1A Toinen', '1B Ensimmainen'])
+    expect(within(team).getAllByRole('button', { name: 'teams.moveDown code' })[1]).toBeDisabled()
+  })
+
+  it('takes no more dogs into a team of 26, and says why', async () => {
+    const full = Array.from({ length: 26 }, (_, index) => `dog-${index}`)
+    await renderPage({ ...eventWithStations, teams: [{ registrationIds: full }, { registrationIds: [] }] })
+    await flushPromises()
+    const [fullTeam, other] = teamSections()
+
+    expect(within(fullTeam).getByRole('combobox', { name: 'teams.addDog' })).toBeDisabled()
+    expect(within(fullTeam).getByText('teams.addDogFull count')).toBeInTheDocument()
+    expect(within(other).getByRole('combobox', { name: 'teams.addDog' })).toBeEnabled()
+    expect(within(other).queryByText('teams.addDogFull count')).not.toBeInTheDocument()
+  })
+
+  it('leaves nothing to save when the count goes up and back to nought on an event without teams', async () => {
+    const { user } = await renderPage()
+    await flushPromises()
+
+    await setCount(user, '2')
+    expect(screen.getByRole('button', { name: 'save' })).toBeEnabled()
+
+    // An empty list would differ from the stored event, which has no teams key at all.
+    await setCount(user, '0')
+    expect(teamSections()).toHaveLength(0)
+    expect(screen.getByRole('button', { name: 'save' })).toBeDisabled()
+  })
+
   it('keeps a member who cancelled where it was, marked, until the secretary removes it', async () => {
     await renderPage({ ...eventWithStations, teams: [{ name: 'Joukkue', registrationIds: ['gone-1', 'run-1'] }] })
     await flushPromises()

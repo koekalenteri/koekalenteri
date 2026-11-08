@@ -14,7 +14,7 @@ import Typography from '@mui/material/Typography'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getHandlingPerson, isStarter } from '@/lib/registration'
-import { MAX_TEAM_MEMBERS, teamMemberCode } from '@/lib/team'
+import { MAX_TEAM_MEMBERS, teamMembers } from '@/lib/team'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 
 interface Props {
@@ -38,8 +38,8 @@ const memberState = (registration: Registration): 'memberCancelled' | 'memberRes
 }
 
 /**
- * One team of a team competition (KOE-1714): its number, its name and its dogs, each by the code the
- * dog's place gives it. A dog's place is its letter, so moving it is the only way to change one.
+ * One team of a team competition (KOE-1714): its number, its name and its dogs, each by its code
+ * (`teamMembers`). A dog's place is its letter, so moving it is the only way to change one.
  */
 export default function TeamCard({ number, team, entries, available, onChange }: Props) {
   const { t } = useTranslation()
@@ -90,16 +90,12 @@ export default function TeamCard({ number, team, entries, available, onChange }:
           </Typography>
         )}
         <List dense disablePadding>
-          {ids.map((id, at) => {
-            // The readers skip an id the event's entries do not hold; its letter stays taken.
-            const registration = entries.get(id)
-            if (!registration) return null
-            const code = teamMemberCode(number, at)
+          {teamMembers(team, number, entries).map(({ code, place: at, registration }) => {
             const state = memberState(registration)
             const handler = getHandlingPerson(registration)?.name
             return (
               <ListItem
-                key={id}
+                key={registration.id}
                 disableGutters
                 secondaryAction={
                   <>

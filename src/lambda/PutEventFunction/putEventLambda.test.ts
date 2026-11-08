@@ -1839,6 +1839,22 @@ describe('putEventLambda', () => {
 
       expect(res.statusCode).toEqual(200)
     })
+
+    it('removes the stored teams on a PATCH that sends them as null', async () => {
+      const stored = { ...mockEvent, teams: [{ registrationIds: ['a'] }] }
+      signIn(mockSecretary)
+      getEventMock.mockResolvedValueOnce(stored)
+
+      const res = await putEventLambda(constructAPIGwEvent({ id: 'existing', teams: null }, { method: 'PATCH' }))
+
+      expect(res.statusCode).toEqual(200)
+      expect(patchEventMock).toHaveBeenCalledWith(
+        'existing',
+        stored,
+        expect.not.objectContaining({ teams: expect.anything() })
+      )
+      expect(Object.hasOwn(JSON.parse(res.body), 'teams')).toBe(false)
+    })
   })
 
   describe('the payment terms once the event has registrations (KOE-1568)', () => {

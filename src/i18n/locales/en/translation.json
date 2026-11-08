@@ -1583,11 +1583,6 @@
     "addDog": "Add a dog",
     "addDogFull": "The team already has {{count}} dogs, so no more can be added.",
     "count": "Number of teams",
-    "error": {
-      "tooMany": "Team {{number}} has more than {{count}} dogs.",
-      "twice": "{{dog}} is in two teams."
-    },
-    "errorsTitle": "The teams cannot be saved",
     "handler": "handler {{name}}",
     "info": "The teams are numbered in order, and a dog's identifier in its team follows the order the dogs were added: 1A, 1B, 1C. To change a dog's identifier, move it up or down in the team.",
     "memberCancelled": "Cancelled",

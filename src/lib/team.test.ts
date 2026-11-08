@@ -1,16 +1,32 @@
 import type { EventTeam } from '../types'
-import { MAX_TEAM_MEMBERS, teamErrors, teamMemberCode } from './team'
+import { MAX_TEAM_MEMBERS, teamErrors, teamMembers } from './team'
 
 const ids = (count: number, prefix = 'dog') => Array.from({ length: count }, (_, index) => `${prefix}-${index}`)
 
-describe('teamMemberCode', () => {
-  it.each([
-    [1, 0, '1A'],
-    [1, 2, '1C'],
-    [12, 1, '12B'],
-    [3, MAX_TEAM_MEMBERS - 1, '3Z'],
-  ])('team %i, place %i reads %s', (number, place, code) => {
-    expect(teamMemberCode(number, place)).toEqual(code)
+describe('teamMembers', () => {
+  const entries = new Map(ids(MAX_TEAM_MEMBERS).map((id) => [id, { id }]))
+
+  it("codes each dog by the team's number and its place in the team", () => {
+    expect(teamMembers({ registrationIds: ['dog-2', 'dog-0', 'dog-1'] }, 12, entries)).toEqual([
+      { code: '12A', place: 0, registration: { id: 'dog-2' } },
+      { code: '12B', place: 1, registration: { id: 'dog-0' } },
+      { code: '12C', place: 2, registration: { id: 'dog-1' } },
+    ])
+  })
+
+  it('gives the last of a full team the last letter', () => {
+    expect(teamMembers({ registrationIds: ids(MAX_TEAM_MEMBERS) }, 3, entries).at(-1)?.code).toEqual('3Z')
+  })
+
+  it('skips an id the entries do not hold, and its letter stays taken', () => {
+    expect(teamMembers({ registrationIds: ['dog-0', 'gone', 'dog-1'] }, 1, entries)).toEqual([
+      { code: '1A', place: 0, registration: { id: 'dog-0' } },
+      { code: '1C', place: 2, registration: { id: 'dog-1' } },
+    ])
+  })
+
+  it('has no members for a team without dogs', () => {
+    expect(teamMembers({ registrationIds: [] }, 1, entries)).toEqual([])
   })
 })
 

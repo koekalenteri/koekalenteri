@@ -1,10 +1,6 @@
-import type { TFunction } from 'i18next'
-import type { TeamError } from '@/lib/team'
-import type { DogEvent, EventTeam, Registration } from '@/types'
+import type { DogEvent, EventTeam } from '@/types'
 import Cancel from '@mui/icons-material/Cancel'
 import Save from '@mui/icons-material/Save'
-import Alert from '@mui/material/Alert'
-import AlertTitle from '@mui/material/AlertTitle'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
@@ -16,7 +12,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
-import { MAX_TEAM_MEMBERS, teamErrors } from '@/lib/team'
 import { Path } from '@/routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
 import { EntryPageHeader } from './components/EntryPageHeader'
@@ -49,11 +44,6 @@ const typedCount = (value: string): number | undefined => {
   return value !== '' && Number.isInteger(count) && count >= 0 ? count : undefined
 }
 
-const teamErrorMessage = (error: TeamError, entries: ReadonlyMap<string, Registration>, t: TFunction) =>
-  error.kind === 'tooMany'
-    ? t('teams.error.tooMany', { count: MAX_TEAM_MEMBERS, number: error.team + 1 })
-    : t('teams.error.twice', { dog: entries.get(error.registrationId)?.dog.name ?? '' })
-
 /**
  * The teams of a team competition (KOE-1714), on a page of their own like the posts: any event can run
  * one, and the count is what turns it on. The draft is the event form's, so the secretary saves or
@@ -84,10 +74,8 @@ export default function EventTeamsPage() {
     const taken = new Set(teams.flatMap((team) => team.registrationIds))
     return registrations.filter((registration) => !registration.cancelled && !taken.has(registration.id))
   }, [registrations, teams])
-  const errors = useMemo(
-    () => teamErrors(teams).map((error) => teamErrorMessage(error, entries, t)),
-    [entries, teams, t]
-  )
+  // A team is its number, its place in the list: only the last ones come and go (KOE-1714).
+  const numbered = useMemo(() => teams.map((team, index) => ({ number: index + 1, team })), [teams])
 
   const setTeams = useCallback(
     (next: EventTeam[]) => {
@@ -133,40 +121,24 @@ export default function EventTeamsPage() {
             type="number"
             value={countText ?? teams.length}
           />
-          {teams.map((team, index) => (
+          {numbered.map(({ number, team }) => (
             <TeamCard
-              // A team is its place in the list: its number. Only the last ones come and go.
-              // biome-ignore lint/suspicious/noArrayIndexKey: the place is the team's identity (KOE-1714)
-              key={index}
+              key={number}
               available={available}
               entries={entries}
-              number={index + 1}
-              onChange={(changed) => setTeams(teams.map((item, at) => (at === index ? changed : item)))}
+              number={number}
+              onChange={(changed) => setTeams(teams.map((item, at) => (at === number - 1 ? changed : item)))}
               team={team}
             />
           ))}
         </Stack>
       </Box>
-      {errors.length > 0 && (
-        <Alert severity="error" sx={{ mx: 2 }}>
-          <AlertTitle>{t('teams.errorsTitle')}</AlertTitle>
-          {errors.map((message) => (
-            <div key={message}>{message}</div>
-          ))}
-        </Alert>
-      )}
       <Stack
         spacing={1}
         direction="row"
         sx={{ borderColor: '#bdbdbd', borderTop: '1px solid', justifyContent: 'flex-end', p: 1 }}
       >
-        <AsyncButton
-          color="primary"
-          disabled={!canSave || errors.length > 0}
-          startIcon={<Save />}
-          variant="contained"
-          onClick={handleSave}
-        >
+        <AsyncButton color="primary" disabled={!canSave} startIcon={<Save />} variant="contained" onClick={handleSave}>
           {t('save')}
         </AsyncButton>
         <Button startIcon={<Cancel />} variant="outlined" onClick={handleCancel}>

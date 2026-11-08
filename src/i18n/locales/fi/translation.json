@@ -1583,11 +1583,6 @@
     "addDog": "Lisää koira",
     "addDogFull": "Joukkueessa on jo {{count}} koiraa, joten siihen ei voi lisätä enempää.",
     "count": "Joukkueiden määrä",
-    "error": {
-      "tooMany": "Joukkueessa {{number}} on enemmän kuin {{count}} koiraa.",
-      "twice": "{{dog}} on kahdessa joukkueessa."
-    },
-    "errorsTitle": "Joukkueita ei voi tallentaa",
     "handler": "ohj. {{name}}",
     "info": "Joukkueet numeroidaan järjestyksessä, ja koira saa joukkueessa tunnuksen sen mukaan, missä järjestyksessä se on lisätty: 1A, 1B, 1C. Koiran tunnusta voi vaihtaa siirtämällä koiraa joukkueessa ylös tai alas.",
     "memberCancelled": "Peruttu",
