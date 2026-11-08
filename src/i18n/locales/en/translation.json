@@ -666,6 +666,7 @@
       "auditTrail": "Audit trail",
       "management": "Event management"
     },
+    "teams": "Teams",
     "upload": {
       "attached": "Invitation attached: {{fileName}}",
       "attachmentFailed": "Adding the invitation failed. Try again.",
@@ -1581,6 +1582,23 @@
   },
   "support": "Support",
   "supportContact": "Send feedback",
+  "teams": {
+    "addDog": "Add a dog",
+    "addDogFull": "The team already has {{count}} dogs, so no more can be added.",
+    "count": "Number of teams",
+    "handler": "handler {{name}}",
+    "info": "The teams are numbered in order, and a dog's identifier in its team follows the order the dogs were added: 1A, 1B, 1C. To change a dog's identifier, move it up or down in the team.",
+    "memberCancelled": "Cancelled",
+    "memberReserve": "Reserve",
+    "moveDown": "Move {{code}} down",
+    "moveUp": "Move {{code}} up",
+    "name": "Team name",
+    "noDogs": "The team has no dogs yet.",
+    "remove": "Remove {{code}} from the team",
+    "saved": "Teams saved",
+    "team": "Team {{number}}",
+    "title": "Teams"
+  },
   "templateEditor": {
     "editor": {
       "en": "Message template in English",

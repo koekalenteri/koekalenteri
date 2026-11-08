@@ -35,6 +35,15 @@ const rotationGroup = objectOf({
 })
 
 /**
+ * A team of a team competition (KOE-1714). That a dog is in one team only, and that a team has a letter
+ * for every dog, is checked on the merged event (`teamErrors`).
+ */
+const team = objectOf({
+  name: optional(str),
+  registrationIds: arrayOf(str),
+})
+
+/**
  * The shape of an event body on the wire, read the same partial, non-stripping way as
  * `registrationBodySchema`: one endpoint serves create, update and PATCH, so every field is optional.
  *
@@ -85,4 +94,5 @@ export const eventBodySchema = objectOf({
     oneOf(['draft', 'tentative', 'cancelled', 'confirmed', 'picked', 'invited', 'started', 'ended', 'completed'])
   ),
   stations: maybe(arrayOf(station)),
+  teams: maybe(arrayOf(team)),
 })

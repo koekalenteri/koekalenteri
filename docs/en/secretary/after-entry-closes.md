@@ -14,11 +14,13 @@ covers:
   - src/pages/admin/eventViewPage/MessageRecipientsDialog.tsx
   - src/pages/admin/EventStartNumbersPage.tsx
   - src/pages/admin/eventStartNumbersPage/**
+  - src/pages/admin/EventTeamsPage.tsx
+  - src/pages/admin/eventTeamsPage/**
   - src/pages/admin/StartListPage.tsx
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 3a3ff4
+sourceHash: e16ebf
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -178,6 +180,30 @@ afternoon's draw is still to come. On the public start list the afternoon's dogs
 without a number. Once both halves are published, the day is published as a whole.
 
 !shot[StartNumbersPublishing/start-numbers-publishing-half-day] The morning's numbers go out before the afternoon's draw
+
+## Teams
+
+A trial can run a team competition, whatever its type. The teams are set up with the
+**{t:eventManagement.teams}** button in the panel's *{t:eventManagement.actions}* section. Type how
+many teams the competition has in **{t:teams.count}**, and the page shows that many teams, numbered:
+Team 1, Team 2 and so on. Lowering the number removes teams from the end, and their dogs become free
+for the other teams. A number of zero means the trial has no team competition.
+
+A team can have a name besides its number, such as Team Finland 1, in **{t:teams.name}**. Dogs are
+added to a team from **{t:teams.addDog}**, which offers the trial's entries that have not cancelled
+and are not in a team already. A dog can therefore be in one team only, and a dog on the reserve
+list can be picked too. A team can hold at most 26 dogs.
+
+A dog's identifier in its team follows the order the dogs were added: the dogs of team 1 are 1A, 1B,
+1C and so on. To change an identifier, move the dog up or down with the arrows on its row; the bin
+removes it from the team. When a dog is removed, the dogs after it move up, so removing 1B makes the
+old 1C into 1B. If a team's dog cancels, it stays where it is, marked *{t:teams.memberCancelled}*,
+and the others keep their identifiers until you remove it yourself. A dog on the reserve list is
+marked *{t:teams.memberReserve}*.
+
+!shot[EventTeamsPage/teams] The teams with their dogs and identifiers
+
+**{t:save}** stores the changes. **{t:cancel}** goes back to the event without saving.
 
 ## Cancellations and refunds
 

@@ -1194,6 +1194,14 @@ describe('lib/event', () => {
       expect(copy.startNumbersPublished).toBe(false)
       expect(copy.resultsPublished).toBeUndefined()
     })
+    // The copy has no entries of its own, so the source's teams would name dogs it does not hold.
+    it('should not carry the teams of a team competition (KOE-1714)', () => {
+      const copy = copyNow({
+        ...eventWithParticipantsInvited,
+        teams: [{ name: 'Team Finland 1', registrationIds: ['run-1'] }],
+      })
+      expect(copy.teams).toBeUndefined()
+    })
     it('should not carry the link to a Kennelliitto trial (KOE-1534)', () => {
       const copy = copyNow({
         ...eventWithParticipantsInvited,
@@ -1804,6 +1812,14 @@ describe('sanitizeDogEvent', () => {
     }
 
     expect(sanitizeDogEvent(asDogEvent(event))).toEqual(event)
+  })
+
+  // The teams name their dogs by registration id; the public start list will say who runs in which team
+  // from its own rows (KOE-1715), so the event carries none of it out.
+  it('keeps the teams of a team competition off the public event (KOE-1714)', () => {
+    const event = { id: 'event-1', teams: [{ name: 'Team Finland 1', registrationIds: ['run-1'] }] }
+
+    expect(sanitizeDogEvent(asDogEvent(event))).toEqual({ id: 'event-1' })
   })
 
   it('should handle event with only private fields', () => {

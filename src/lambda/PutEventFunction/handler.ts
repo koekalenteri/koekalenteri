@@ -25,6 +25,7 @@ import { isOfficialFormatLocked } from '../../lib/results'
 import { rotationShapeErrors } from '../../lib/rotation'
 import { eventBodySchema } from '../../lib/schema/event'
 import { legacyEventDay, rekeyEventDays, requestDay } from '../../lib/storedDays'
+import { teamErrors } from '../../lib/team'
 import { patchMerge } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { audit, eventAuditKey, getEventAuditMessages } from '../lib/audit'
@@ -200,6 +201,17 @@ const invalidEventDateField = (data: JsonConfirmedEvent, item: Patch<JsonConfirm
   )
 
 /**
+ * Any event type may run a team competition (KOE-1714). Only the teams' shape is checked: the page
+ * offers the event's own entries, and the readers skip an id the registrations do not hold.
+ */
+const checkTeams = (data: JsonConfirmedEvent) => {
+  const errors = teamErrors(data.teams)
+  if (errors.length) {
+    throw httpError(400, { error: 'invalidTeams', errors, message: 'Bad request: the teams do not fit together' })
+  }
+}
+
+/**
  * Checks on the event as it would be saved; a failed one is thrown before anything is written. Every
  * saved event names its organizer: the club whose members may change it, and the key of its stats and
  * its change messages (KOE-1607).
@@ -235,6 +247,7 @@ const checkMergedEvent = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEve
       })
     }
   }
+  if (item.teams !== undefined) checkTeams(data)
 }
 
 const updateEventDerivedFields = async (data: JsonConfirmedEvent) => {

@@ -1793,6 +1793,75 @@ describe('putEventLambda', () => {
     expect(saveEventMock).not.toHaveBeenCalled()
   })
 
+  describe('the teams of a team competition (KOE-1714)', () => {
+    const putTeams = async (teams: unknown) => {
+      signIn(mockSecretary)
+      getEventMock.mockResolvedValueOnce(mockEvent)
+      return putEventLambda(constructAPIGwEvent({ id: 'existing', teams }, { method: 'PATCH' }))
+    }
+    const members = (count: number) => Array.from({ length: count }, (_, index) => `dog-${index}`)
+
+    it.each([
+      [
+        'a dog in two teams',
+        [{ registrationIds: ['a'] }, { registrationIds: ['a'] }],
+        { kind: 'twice', registrationId: 'a' },
+      ],
+      ['a team of 27 dogs', [{ registrationIds: members(27) }], { kind: 'tooMany', team: 0 }],
+    ])('refuses %s', async (_name, teams, error) => {
+      const res = await putTeams(teams)
+
+      expect(res.statusCode).toEqual(400)
+      expect(JSON.parse(res.body)).toMatchObject({ error: 'invalidTeams', errors: [error] })
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    it.each([
+      ['without a list of dogs', [{ name: 'Joukkue' }]],
+      ['with a name that is not text', [{ name: 1, registrationIds: [] }]],
+    ])('refuses a team %s', async (_name, teams) => {
+      const res = await putTeams(teams)
+
+      expect(res.statusCode).toEqual(400)
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    it('stores named teams, a full one and an empty one among them, without reading the entries', async () => {
+      const teams = [{ name: 'Team Finland 1', registrationIds: members(26) }, { registrationIds: [] }]
+
+      const res = await putTeams(teams)
+
+      expect(res.statusCode).toEqual(200)
+      expect(patchEventMock).toHaveBeenCalledWith('existing', mockEvent, expect.objectContaining({ teams }))
+      expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+    })
+
+    it('leaves the stored teams unchecked by a save that does not carry them', async () => {
+      signIn(mockSecretary)
+      getEventMock.mockResolvedValueOnce({ ...mockEvent, teams: [{ registrationIds: ['a', 'a'] }] })
+
+      const res = await putEventLambda(constructAPIGwEvent({ id: 'existing', name: 'Uusi nimi' }, { method: 'PATCH' }))
+
+      expect(res.statusCode).toEqual(200)
+    })
+
+    it('removes the stored teams on a PATCH that sends them as null', async () => {
+      const stored = { ...mockEvent, teams: [{ registrationIds: ['a'] }] }
+      signIn(mockSecretary)
+      getEventMock.mockResolvedValueOnce(stored)
+
+      const res = await putEventLambda(constructAPIGwEvent({ id: 'existing', teams: null }, { method: 'PATCH' }))
+
+      expect(res.statusCode).toEqual(200)
+      expect(patchEventMock).toHaveBeenCalledWith(
+        'existing',
+        stored,
+        expect.not.objectContaining({ teams: expect.anything() })
+      )
+      expect(Object.hasOwn(JSON.parse(res.body), 'teams')).toBe(false)
+    })
+  })
+
   describe('the payment terms once the event has registrations (KOE-1568)', () => {
     const earlyBird = { earlyBird: { cost: 30, days: 7 }, normal: 40 }
     const priced: JsonDogEvent = {

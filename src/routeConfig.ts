@@ -75,6 +75,7 @@ export const Path = {
       `${ADMIN_EVENTS}/results/${id}/station/${stationId}`,
     stations: (id: string = ':id') => `${ADMIN_EVENTS}/stations/${id}`,
     stats: `${ADMIN_ROOT}/stats`,
+    teams: (id: string = ':id') => `${ADMIN_EVENTS}/teams/${id}`,
     users: `${ADMIN_ROOT}/users`,
     viewEvent: (id: string = ':id') => `${ADMIN_EVENTS}/view/${id}`,
   },
