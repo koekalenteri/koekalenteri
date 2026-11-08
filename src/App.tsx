@@ -1,4 +1,6 @@
-import { Authenticator } from '@aws-amplify/ui-react'
+// The provider alone: `Authenticator.Provider` from @aws-amplify/ui-react is a property of the whole
+// Authenticator, which would put its screens and every language's dictionary into the first load.
+import { AuthenticatorProvider } from '@aws-amplify/ui-react-core'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
@@ -54,7 +56,7 @@ function App() {
               confirmationButtonProps: { autoFocus: true, variant: 'contained' },
             }}
           >
-            <Authenticator.Provider key={idToken ? 'authenticated' : 'anonymous'}>
+            <AuthenticatorProvider key={idToken ? 'authenticated' : 'anonymous'}>
               {authSessionInitialized ? (
                 <WebSocketProvider>
                   <Suspense fallback={<LoadingPage />}>
@@ -64,7 +66,7 @@ function App() {
               ) : (
                 <LoadingPage />
               )}
-            </Authenticator.Provider>
+            </AuthenticatorProvider>
           </ConfirmProvider>
         </AppSnackbarProvider>
       </LocalizationProvider>
