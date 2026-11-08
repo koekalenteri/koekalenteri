@@ -188,6 +188,12 @@ export interface JsonDogEvent extends JsonDbRecord {
    */
   rotations?: EventRotationGroup[]
   /**
+   * The teams of a team competition (KOE-1714), one set for the whole event, whatever its type. No
+   * teams, or none stored, means the event has no team competition. Kept off the public event: the
+   * teams name their dogs by registration id.
+   */
+  teams?: EventTeam[]
+  /**
    * The live timeline of the trial day (KOE-1259): every span a post has run, turns and breaks alike,
    * appended as the day goes. Server-owned — written only through the turn endpoint, never by an
    * event save — and stripped from the public event, which carries the derived `liveTurns` instead.
@@ -507,6 +513,23 @@ export interface EventRotationGroup {
   exercises?: EventExercise[]
 }
 
+/**
+ * A team ("joukkue") of a team competition (KOE-1714). Its number is its place in the event's `teams`,
+ * from 1, and a member's letter is its place in `registrationIds`: the first is A, so the second dog
+ * of team 1 is 1B. Neither is stored, so removing 1B makes the old 1C into 1B. Every view reads them
+ * through `teamMembers` (src/lib/team.ts), which also skips an id that is not among the event's
+ * registrations.
+ *
+ * A dog is in one team at most, which the event save holds to (`teamErrors`). A member who cancels
+ * stays where the secretary put it until the secretary removes it, and its letter with it.
+ */
+export interface EventTeam {
+  /** The team's own name beside its number, such as "Team Finland 1". */
+  name?: string
+  /** The team's dogs by registration id, in the order of their letters. */
+  registrationIds: string[]
+}
+
 export type KcEventInfo = {
   classes: string[]
   eventType: string
@@ -585,6 +608,7 @@ type NonPublicDogEventProperties =
   | 'registrationGroupsLock'
   | 'registrationPaymentsLock'
   | 'organizerId'
+  | 'teams'
   | 'turns'
 
 export type JsonPublicDogEvent = Omit<JsonDogEvent, NonPublicDogEventProperties> & {

@@ -663,6 +663,7 @@
       "auditTrail": "Muutoshistoria",
       "management": "Tapahtuman hallinta"
     },
+    "teams": "Joukkueet",
     "upload": {
       "attached": "Koekutsu liitetty: {{fileName}}",
       "attachmentFailed": "Koekutsun liittäminen epäonnistui. Yritä uudelleen.",
@@ -1578,6 +1579,23 @@
   },
   "support": "Tuki",
   "supportContact": "Lähetä palautetta",
+  "teams": {
+    "addDog": "Lisää koira",
+    "addDogFull": "Joukkueessa on jo {{count}} koiraa, joten siihen ei voi lisätä enempää.",
+    "count": "Joukkueiden määrä",
+    "handler": "ohj. {{name}}",
+    "info": "Joukkueet numeroidaan järjestyksessä, ja koira saa joukkueessa tunnuksen sen mukaan, missä järjestyksessä se on lisätty: 1A, 1B, 1C. Koiran tunnusta voi vaihtaa siirtämällä koiraa joukkueessa ylös tai alas.",
+    "memberCancelled": "Peruttu",
+    "memberReserve": "Varalla",
+    "moveDown": "Siirrä {{code}} alemmas",
+    "moveUp": "Siirrä {{code}} ylemmäs",
+    "name": "Joukkueen nimi",
+    "noDogs": "Joukkueessa ei ole vielä koiria.",
+    "remove": "Poista {{code}} joukkueesta",
+    "saved": "Joukkueet tallennettu",
+    "team": "Joukkue {{number}}",
+    "title": "Joukkueet"
+  },
   "templateEditor": {
     "editor": {
       "en": "Viestipohja englanniksi",

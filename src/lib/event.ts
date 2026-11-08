@@ -1480,6 +1480,7 @@ export function sanitizeDogEvent(
     registrationPaymentsLock: _registrationPaymentsLock,
     secretary: _secretary,
     official: _official,
+    teams: _teams,
     turns,
     ...publicFields
   } = event
@@ -1645,6 +1646,8 @@ export const copyDogEvent = (event: DogEvent, now = new Date()): DogEvent => {
   delete copy.entryOrigEndDate
   // A copy made here is this environment's own event, not a copy from another one (KOE-1639)
   delete copy.copiedFrom
+  // The copy starts without entries, so the source's teams would name dogs it does not hold (KOE-1714).
+  delete copy.teams
 
   return copy
 }
