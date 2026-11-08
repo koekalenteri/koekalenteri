@@ -27,7 +27,8 @@ admin only for `PAAKAYTTAJA`.
 - The roles are checked, and fixed only where they differ, by the setup check in `SKILL.md`,
   step 0; no other step opens a role dialog.
 - Every account signs in and reaches the admin side as `SKILL.md`, "Signing in and the admin
-  side", says: `ILMOITTAJA` has no Ylläpito in the header and never opens an admin page (KOE-1734).
+  side", says (KOE-1734); an organizer account's admin-only page case is judged by its "Admin-only
+  pages".
 
 ## Organizers
 
@@ -76,9 +77,9 @@ registration's Muutoshistoria shows "Viesti estetty testiympäristössä".
 
 - Fetching a dog from Kennelliitto on dev is allowed (Hae koiran tiedot on the registration form).
 - Prefer dogs dev registrations already use: their data is known to fetch, and they add no new
-  dogs to dev. To find one, sign in as `PAAKAYTTAJA`, open the admin event list (Ylläpito) with Näytä myös
-  valmiit tapahtumat on, open a few events' Ilmoittautumiset and take a registration number that
-  appears in several of them.
+  dogs to dev. To find one, sign in as `PAAKAYTTAJA`, open the admin event list (Ylläpito) with
+  Näytä myös valmiit tapahtumat on, open a few events' Ilmoittautumiset and take a registration
+  number that appears in several of them.
 
 ## Payments
 
