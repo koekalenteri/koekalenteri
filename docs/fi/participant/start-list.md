@@ -67,7 +67,8 @@ asti ne jakavat ensimmäisen sijan.
 
 Joukkueen sijoitus ja pisteet näkyvät joukkueen otsikossa, kun koesihteeri on julkaissut kaikkien
 joukkueiden koirien tulokset, esimerkiksi *2. sija, 170 pistettä*. Ennen sitä tulosta ei näytetä
-yhdellekään joukkueelle. Monipäiväisessä kokeessa sama rivi on joukkueen otsikossa jokaisen päivän
+yhdellekään joukkueelle. Tulosta ei näytetä myöskään silloin, kun joku joukkueiden koirista ei vielä
+ole listalla, esimerkiksi koska sen starttinumeroa ei ole syötetty. Monipäiväisessä kokeessa sama rivi on joukkueen otsikossa jokaisen päivän
 alla. Ensimmäisestä sijasta tasapisteissä olleiden joukkueiden rivillä lukee lisäksi
 *({t:startList.teamRunOff})*. Kokeessa, jossa ei jaeta pisteitä, joukkueilla ei ole tulosta.
 

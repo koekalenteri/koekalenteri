@@ -216,7 +216,8 @@ Tallennetut joukkueet näkyvät julkisella starttilistalla, joka avautuu joukkue
 ([Starttilista ja tulokset](/docs/participant/start-list)). Listalla näkyvät vain julkaistut koirat:
 varalla oleva tai vielä julkaisematon koira ei näy, eikä joukkuetta, jonka yhtäkään koiraa ei ole
 julkaistu, näytetä lainkaan. Joukkueiden sijoitukset ja pisteet näkyvät listalla, kun kaikkien
-joukkueiden koirien tulokset on julkaistu. Muutos joukkueisiin, uusintatehtävän voittajaan tai
+joukkueiden koirien tulokset on julkaistu ja kaikki koirat ovat listalla: koira, jonka starttinumeroa
+ei ole syötetty, pitää kaikkien joukkueiden tuloksen piilossa. Muutos joukkueisiin, uusintatehtävän voittajaan tai
 tuloksiin päivittyy avoimille starttilistoille itsestään.
 
 ## Peruutukset ja palautukset

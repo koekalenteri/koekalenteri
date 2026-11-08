@@ -20,7 +20,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 6ff4cd
+sourceHash: 08b4e9
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -219,7 +219,8 @@ The saved teams show on the public start list, which opens by team
 ([Start list and results](/docs/participant/start-list)). The list shows only published dogs: a dog
 on the reserve list or not yet published is not shown, and a team none of whose dogs is published
 is not shown at all. The teams' places and points show on the list once the results of every team's
-dogs are published. A change to the teams, to the run-off winner or to the results reaches open start
+dogs are published and every dog is on the list: a dog whose start number has not been entered keeps
+every team's result hidden. A change to the teams, to the run-off winner or to the results reaches open start
 lists by itself.
 
 ## Cancellations and refunds

@@ -107,7 +107,7 @@ const withTeams = (
 ): JsonPublicRegistration[] => {
   const { teams } = confirmedEvent
   const running = new Map(rows.filter(({ row }) => !row.cancelled).map((published) => [published.id, published]))
-  const standings = publishedStandings(confirmedEvent, registrations, preview)
+  const standings = publishedStandings(confirmedEvent, registrations, running, preview)
   const places = new Map<JsonPublicRegistration, PublicTeamPlace>()
   teams?.forEach((team, index) => {
     const number = index + 1
@@ -132,19 +132,24 @@ type PublishedStanding = Pick<PublicTeamPlace, 'placement' | 'points' | 'runOff'
 /**
  * Each team's standing over the trial, by the team's place in the list (KOE-1717). It is worked out once
  * per team and given to every row of it, so whichever row a reader takes it from says the same. The
- * standings are public only when every dog any team counts has its result published: a total holds its
- * dogs' points, and a placing compares it with every other team's, so one class or day still withheld
- * would leak through either. The release is read from the dog's `group` as `publicRow` reads it. The
- * preview shows them as they stand.
+ * standings are public only when every dog any team counts is on the published list with its result:
+ * a total holds its dogs' points, and a placing compares it with every other team's, so one dog still
+ * withheld would leak through either. A dog withheld is one whose class or day has no results out yet,
+ * and one whose row is not published at all (`publicRow` answers none: its list is not out, or it was
+ * added after the numbers went out and has none entered, KOE-1272). The release is read from the dog's
+ * `group` as `publicRow` reads it. The preview shows them as they stand.
  */
 const publishedStandings = (
   confirmedEvent: JsonDogEvent,
   registrations: readonly JsonRegistration[],
+  published: ReadonlyMap<string, unknown>,
   preview: boolean
 ): Map<number, PublishedStanding> => {
   const { teams } = confirmedEvent
   const released = (reg: JsonRegistration) =>
-    !!reg.group && isResultsAvailableForRegistration(confirmedEvent, { class: reg.class, group: reg.group })
+    published.has(reg.id) &&
+    !!reg.group &&
+    isResultsAvailableForRegistration(confirmedEvent, { class: reg.class, group: reg.group })
   const isPublic = preview || countedTeamMembers(teams, registrations).every((dogs) => dogs.every(released))
   if (!isPublic) return new Map()
 

@@ -151,7 +151,7 @@ describe('teamStandings', () => {
   })
 
   it('counts what a nought or a dash earned, and nothing of a round without a result yet', () => {
-    const teams: EventTeam[] = [{ registrationIds: ['a1', 'a2', 'a3', 'a4'] }]
+    const teams: EventTeam[] = [{ registrationIds: ['a1', 'a2', 'a3', 'a4', 'a5'] }]
     const entries = [
       dog('a1', 90),
       dog('a2', 40, {
@@ -160,6 +160,8 @@ describe('teamStandings', () => {
       dog('a3', 30, { eventResult: { maxPoints: 100, points: 30, result: 'AVO-', retirement: { cause: 'injury' } } }),
       // A half-entered scorecard: its points are not the dog's result yet.
       dog('a4', 50, { eventResult: { maxPoints: 100, points: 50 } }),
+      // A result stored without points adds none.
+      dog('a5', undefined, { eventResult: { result: 'AVO1' } }),
     ]
 
     expect(teamStandings(NOWT, teams, entries)).toEqual([{ placement: 1, points: 160, team: 0 }])

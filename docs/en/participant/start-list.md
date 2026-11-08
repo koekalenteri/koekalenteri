@@ -5,7 +5,7 @@ order: 30
 covers:
   - src/pages/StartListPage.tsx
   - src/pages/startListPage/**
-sourceHash: 8a701a
+sourceHash: d55a16
 ---
 
 The start list is the trial's public page, where the organizer publishes the participants, the
@@ -64,7 +64,8 @@ for first place is decided by a run-off task: its winner is first and the others
 place. Until then they share first place.
 
 A team's place and points show in its heading once the secretary has published the results of every
-team's dogs, for example *place 2, 170 points*. Before that no team shows a result. In a trial of
+team's dogs, for example *place 2, 170 points*. Before that no team shows a result, nor while one of the teams' dogs is not on the list yet, for
+example because its start number has not been entered. In a trial of
 several days, the same line heads the team under every day. The teams that were level for first
 place also show *({t:startList.teamRunOff})*. In a trial without points the teams have no result.
 

@@ -58,9 +58,8 @@ interface TeamStartListProps {
 /**
  * The start list by team (KOE-1715): under each day the notes of its classes whose list or numbers are
  * not out yet, which the running order shows in the class headings, then its teams, each with its
- * number, its name, its standing over the trial (KOE-1717) and its dogs in letter order, then the dogs in no
- * team. The rows are the running
- * order's own, the code in front of the number.
+ * number, its name, its standing over the trial (KOE-1717) and its dogs in letter order, then the dogs
+ * in no team. The rows are the running order's own, the code in front of the number.
  */
 export const TeamStartList = ({ days, event, warnNumberPending }: TeamStartListProps) => {
   const { t } = useTranslation()

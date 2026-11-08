@@ -564,5 +564,79 @@ describe('readPublishedStartList (KOE-1516)', () => {
 
       expect(teams['Dog a']).toEqual({ code: '1A', number: 1 })
     })
+
+    /** Whether any row carries a team's standing. */
+    const anyStanding = (teams: Record<string, unknown>) =>
+      Object.values(teams).some((team) => typeof team === 'object' && team !== null && 'points' in team)
+
+    // KOE-1272: a dog added after the numbers went out stays off the list until its number is entered.
+    // Its result is released with its class, but the team total would show what its hidden row withholds.
+    it('withholds every standing while a counted dog is off the list for a number not yet entered', async () => {
+      const late = { ...dog('e', 'AVO', 5, 60), startGroup: undefined }
+      mockGetLiveEvent.mockResolvedValue({
+        ...standingsEvent,
+        teams: [{ registrationIds: ['a', 'b', 'e'] }, standingsEvent.teams[1]],
+      })
+      mockReadEventRegistrations.mockResolvedValue([
+        dog('a', 'ALO', 1, 90),
+        dog('b', 'AVO', 2, 80),
+        dog('c', 'ALO', 3, 85),
+        dog('d', 'AVO', 4, 70),
+        late,
+      ])
+
+      const teams = await teamsOf()
+
+      expect(teams['Dog a']).toEqual({ code: '1A', number: 1 })
+      expect(anyStanding(teams)).toBe(false)
+    })
+
+    it('withholds every standing while a counted dog has no day to be listed on', async () => {
+      const undated = asJsonRegistration({
+        ...dog('e', 'AVO', 5, 60),
+        group: { key: 'participants', number: 5 },
+        startGroup: undefined,
+      })
+      mockGetLiveEvent.mockResolvedValue({
+        ...standingsEvent,
+        teams: [{ registrationIds: ['a', 'b', 'e'] }, standingsEvent.teams[1]],
+      })
+      mockReadEventRegistrations.mockResolvedValue([
+        dog('a', 'ALO', 1, 90),
+        dog('b', 'AVO', 2, 80),
+        dog('c', 'ALO', 3, 85),
+        dog('d', 'AVO', 4, 70),
+        undated,
+      ])
+
+      expect(anyStanding(await teamsOf())).toBe(false)
+    })
+
+    it('publishes the standings beside a cancelled and a reserve member of a class whose results are not out', async () => {
+      const voi = { class: 'VOI', state: 'ended' as const }
+      mockGetLiveEvent.mockResolvedValue({
+        ...standingsEvent,
+        classes: [...standingsEvent.classes, voi],
+        resultsPublished: { ...standingsEvent.resultsPublished, VOI: false },
+        teams: [{ registrationIds: ['a', 'b', 'x', 'r'] }, standingsEvent.teams[1]],
+      })
+      mockReadEventRegistrations.mockResolvedValue([
+        dog('a', 'ALO', 1, 90),
+        dog('b', 'AVO', 2, 80),
+        dog('c', 'ALO', 3, 85),
+        dog('d', 'AVO', 4, 70),
+        asJsonRegistration({ ...dog('x', 'AVO', 6, 99), cancelled: true, class: 'VOI' }),
+        asJsonRegistration({
+          ...dog('r', 'AVO', 7, 99),
+          class: 'VOI',
+          group: { key: 'reserve', number: 1 },
+          startGroup: undefined,
+        }),
+      ])
+
+      const teams = await teamsOf()
+
+      expect(teams['Dog a']).toEqual(expect.objectContaining({ placement: 1, points: 170 }))
+    })
   })
 })

@@ -235,8 +235,6 @@ describeInLanguage('en', () => {
   it("shows each team's points and placing once the results are out (KOE-1717)", async () => {
     // Taller than the default viewport, which would leave the last rows blank.
     await page.viewport(1000, 1200)
-    // Taller than the default viewport, which would leave the last rows blank.
-    await page.viewport(1000, 1200)
     const screen = await render(
       <Frame>
         <ParticipantList event={standingsTrial} participants={standingsDogs} />
