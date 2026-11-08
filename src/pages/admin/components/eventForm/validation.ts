@@ -227,7 +227,6 @@ export const VALIDATORS: EventValidators = {
 
     if (formatTypeOf(event) === 'NOWT') {
       // KOE-317 classes are required, but judges don't have to be assigned to classes
-
       return false
     }
 

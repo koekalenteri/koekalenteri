@@ -381,7 +381,6 @@ const handleSuccessfulPayment = async (
       // the payer's receipt or confirmation email. Incremental refresh is the
       // admin-side recovery path if this strict publication needs a retry.
       await publishSuccessfulPayment(confirmedEvent, registration, registrationId)
-
       await markPostPaymentPhase(transaction.transactionId, workflowClaim.token, 'postPaymentPublishedAt')
     }
 

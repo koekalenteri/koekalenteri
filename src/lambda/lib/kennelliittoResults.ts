@@ -370,7 +370,6 @@ const evaluateAll = (
   // Each score judged by the judges of its exercise's post as the event stands (KOE-1665).
   const registrations = stored.map((registration) => withStoredTotals(event, withEffectiveJudges(event, registration)))
   const placements = placementsFor(registrations, event)
-
   const chosen = ids ? registrations.filter((registration) => ids.includes(registration.id)) : registrations
   return chosen.flatMap(
     (registration) => evaluateKcDog(event, registration, koemuoto, now, placements.get(registration.id)) ?? []

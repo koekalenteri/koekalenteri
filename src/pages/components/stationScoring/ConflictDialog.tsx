@@ -97,7 +97,6 @@ export const ConflictDialog = ({
   const { t } = useTranslation()
   const eventType = formatTypeOf(event)
   const registrationOf = (id: string) => registrations.find((reg) => reg.id === id)
-
   const nameOf = (id: string) => registrationOf(id)?.dog?.name ?? id
   const classOf = (id: string) => registrationOf(id)?.class ?? undefined
 

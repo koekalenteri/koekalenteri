@@ -135,7 +135,6 @@ export const RoundOutcome = ({
 }: Props) => {
   const { t } = useTranslation()
   const eventType = event && formatTypeOf(event)
-
   const labels = outcomeLabelKeys()
   const outcome = outcomeOf(value)
   // A post's own view already knows where it happened; the whole-round view has to ask.

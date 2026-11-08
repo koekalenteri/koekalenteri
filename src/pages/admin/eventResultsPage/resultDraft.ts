@@ -18,7 +18,6 @@ export interface ResultDraft {
 /** How the stored string reads back as an edit: by the trial's format (`formatTypeOf`) and the dog's class. */
 interface ResultReading {
   eventType: string
-
   eventClass?: string
 }
 

@@ -47,7 +47,6 @@ const CONFLICT_NOTICES: Partial<Record<string, RefusalKey>> = {
   officialFormatClassShape: 'event.officialFormatClassShape',
   officialFormatLocked: 'event.officialFormatLocked',
   paymentLocked: 'event.paymentLocked',
-
   staleData: 'event.staleData',
 }
 

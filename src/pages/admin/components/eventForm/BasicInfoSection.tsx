@@ -206,7 +206,6 @@ function BasicInfoSection({
       const filterClasses = getTypeClasses(followedFormat, eventTypeClasses, event.mockTrial)
       const classes = applySingleDayNowtGroups(
         followedFormat,
-
         event.startDate,
         event.endDate,
         event.classes.filter((c) => filterClasses.includes(c.class))

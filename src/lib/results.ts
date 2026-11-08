@@ -410,7 +410,6 @@ export const hasJudgeStop = (eventType?: string): boolean =>
  *
  * A class equal to the event type is no class: the pages read a classless dog's class as its trial's
  * format (`getRegistrationClass`), the type given here, and `eventResultPrefix` stores both the same.
-
  */
 export const resultPrefixAsKennelClub = (eventType: string, eventClass?: string): string => {
   if (eventClass && eventClass !== eventType) return eventClass
@@ -604,7 +603,6 @@ export const placementsFor = (rows: readonly PlacementRow[], event: FormatOwner)
 
     const eventClass = getRegistrationClass(row, event)
     const code = parseEventResultCode(eventResult?.result, formatType, eventClass)
-
     if (code !== '1' && code !== '2' && code !== '3') continue
 
     const key = `${eventClass}|${day}`

@@ -70,7 +70,6 @@ export const eventBodySchema = objectOf({
   official: maybe(objectOf({})),
   /** One of the four official types, or an explicit null that stops following one (KOE-1718). */
   officialFormat: maybe(oneOf(OFFICIAL_FORMATS)),
-
   organizer: maybe(objectOf({ id: maybe(str), name: maybe(str) })),
   paymentTime: maybe(oneOf(['registration', 'confirmation'])),
   places: maybe(num),

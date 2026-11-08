@@ -83,7 +83,6 @@ const stationEntryDog = (
     group: registration.group,
     id: registration.id,
     ...(stored ? { eventResult: scopeResultToStation(stored, exercises, formatTypeOf(confirmedEvent)) } : {}),
-
     ...(registration.visit ? { visit: registration.visit } : {}),
   }
 }

@@ -776,7 +776,6 @@ export const hasPaymentPicture = <T extends Pick<Registration, 'payment'>>(
 /**
  * The picked participants by class, a classless event's under its format (`getRegistrationClass`): what
  * the publishing gates count on the panel and on the server alike (KOE-1466).
-
  */
 export const groupParticipantsByClass = <
   T extends Pick<JsonRegistration | Registration, 'cancelled' | 'class' | 'group'>,

@@ -10,7 +10,7 @@ covers:
   - src/pages/admin/EventCreatePage.tsx
   - src/pages/admin/EventEditPage.tsx
   - src/pages/admin/OrganizerListPage.tsx
-sourceHash: ffd44a
+sourceHash: 62415a
 ---
 
 Once a trial has been created in the calendar, the secretary's job before entry opens is to make
@@ -53,7 +53,6 @@ required is in place. Go through the sections and check in particular:
   first result or post turn is saved. Once the trial has entries, the choice cannot give the trial
   classes or take them away. If it is changed after entries, the post and start number links must be
   sent again, and the entry times the entrants chose stay as they are,
-
 - **the judges and the classes each of them judges**,
 - **{t:event.kcIdSectionTitle}**: the trial is linked to the Kennel Club event so that the results can be saved,
 - **contact details** — which of the chief officer's and the secretary's details entrants may see.

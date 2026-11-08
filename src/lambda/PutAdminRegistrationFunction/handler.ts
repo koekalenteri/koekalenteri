@@ -145,7 +145,6 @@ const createAdminRegistration = async (body: Patch<JsonRegistration>, request: A
   // The body is the whole registration the form built, now with the identity and the creation
   // fields initializeNewRegistration gave it; nothing stored is merged into a new one.
   const persisted = await saveAdminRegistration(registration as JsonRegistration, undefined, confirmedEvent, request)
-
   const completed = await completeNewRegistration({
     auditMessage: CREATED_AUDIT_MESSAGE,
     confirmedEvent,

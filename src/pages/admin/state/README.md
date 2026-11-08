@@ -343,7 +343,6 @@ graph LR
   adminProjectedEventRegistrationsAtom-->adminEventRegistrationsAtom
   adminProjectedEventRegistrationsAtom-->adminPendingRegistrationGroupMovesAtom
 
-
   adminEditableEventRegistrationByEventIdAndIdAtom-->sessionStorage
   adminEditableEventRegistrationByEventIdAndIdAtom-->adminEventRegistrationAtom
 

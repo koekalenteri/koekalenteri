@@ -472,7 +472,6 @@ export const groupRegistrationsByClass = (
 
   for (const reg of registrations) {
     const classKey = getRegistrationClass(reg, event)
-
     result[classKey] = result[classKey] || []
     result[classKey].push(reg)
   }

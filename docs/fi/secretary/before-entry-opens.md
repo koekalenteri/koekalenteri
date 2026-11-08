@@ -53,7 +53,6 @@ kun kaikki vaadittu on paikallaan. Käy osiot läpi ja tarkista erityisesti:
   vuoro. Kun kokeessa on jo ilmoittautumisia, valinta ei voi tuoda luokkia kokeeseen eikä poistaa
   niitä. Jos valintaa muuttaa ilmoittautumisten jälkeen, suorituspaikkojen ja starttinumeroiden
   linkit on lähetettävä uudelleen, ja ilmoittautujien valitsemat ajat jäävät ennalleen,
-
 - **tuomarit ja luokat, joita kukin arvostelee**,
 - **{t:event.kcIdSectionTitle}**: koe liitetään Kennelliiton kokeeseen, jotta tulokset voi tallentaa,
 - **yhteystiedot** — mitkä vastaavan koetoimitsijan ja koesihteerin tiedot ilmoittautuja saa nähdä.

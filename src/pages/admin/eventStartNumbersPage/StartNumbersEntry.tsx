@@ -107,7 +107,6 @@ export function StartNumbersEntry({ event, registrations, onSave, header, render
     () =>
       dayRegistrations
         .filter((reg) => getRegistrationClass(reg, event) === eventClass)
-
         .sort(sortRegistrationsByDateClassTimeAndNumber)
         .map((reg) => ({
           dog: { name: reg.dog.name, regNo: reg.dog.regNo },

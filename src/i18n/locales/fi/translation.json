@@ -380,7 +380,6 @@
     "officialFormatClassShape": "Kokeeseen on jo ilmoittautumisia, joten noudateltavaksi voi valita vain kokeen, jossa luokat pysyvät: luokallisen tilalle luokallisen ja luokattoman tilalle luokattoman.",
     "officialFormatLocked": "Kokeeseen on jo tallennettu tuloksia tai suorituspaikan vuoroja, joten noudateltavaa virallista koetta ei voi enää muuttaa.",
     "organizer": "Järjestäjä",
-
     "paymentLocked": "Kokeeseen on jo ilmoittautumisia, joten maksutietoja ei voi enää muuttaa. Lataa sivu uudelleen.",
     "paymentLockedReason": "Kokeeseen on jo ilmoittautumisia, joten hintoja ja maksuajankohtaa ei voi enää muuttaa.",
     "phase": "Kokeen vaihe",

@@ -185,7 +185,6 @@ export interface JsonDogEvent extends JsonDbRecord {
    * Versions the class secretaries' start number links (KOE-1267), keyed by the class the link opens,
    * or where the trial has no classes by its format (`getRegistrationClass`, KOE-1718), the key its dogs
    * are read under too.
-
    * Bumping a class's number revokes every link issued for it; absent reads as version 1, the way a
    * post's `tokenVersion` does.
    */

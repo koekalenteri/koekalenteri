@@ -56,7 +56,6 @@ export default function StartListPage() {
     const date = reg.group?.date ?? RESERVE_KEY
     const shared = date === RESERVE_KEY && hasSharedReserveList(formatTypeOf(event))
     const eventClass = shared ? SHARED_RESERVE_CLASS : getRegistrationClass(reg, event)
-
     const time = getRegistrationGroupTime(reg)
     acc[date] = acc[date] ?? {}
     acc[date][eventClass] = acc[date][eventClass] ?? {}

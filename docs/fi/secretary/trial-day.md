@@ -153,7 +153,6 @@ suorituspaikkojen ja starttinumeroiden sivuillakin. Monipäiväisessä kokeessa
 valitaan ensin päivä, ja luokat ovat omilla välilehdillään. Sivulla ovat vain osallistujiksi nostetut koirakot starttijärjestyksessä.
 Epävirallisen kokeen, joka noudattelee virallista koetta, tulokset syötetään kuten siinä kokeessa.
 
-
 **Rasteilla pisteytettävä koe (NOWT).** Jokaisella rastilla on oma sarakkeensa rastin numerolla,
 "Rasti 1", "Rasti 2" ja niin edelleen, riippumatta siitä, missä suorituspaikassa ryhmä rastin teki.
 Kahteen osaan jaetun rastin osat ovat omissa sarakkeissaan, esimerkiksi "Rasti 2, osa 1/2". Koiran

@@ -75,7 +75,6 @@ const putInvitationAttachmentLambda = lambda('putInvitationAttachment', async (e
   const existingClassAttachments = existing.invitationAttachments ?? {}
   const oldAttachment = className ? existingClassAttachments[className] : existing.invitationAttachment
   const staleAttachment = await findStaleAttachment(existing, eventId, oldAttachment, className)
-
   const key = nanoid()
   await uploadFile(key, file.data)
   const uploadedAt = new Date().toISOString()

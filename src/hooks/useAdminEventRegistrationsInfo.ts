@@ -95,7 +95,6 @@ export default function useAdminEventRegistrationInfo(
       return {}
     }
     const byClass: Record<string, EventState> = { [formatTypeOf(event)]: event.state }
-
     for (const c of event.classes) {
       byClass[c.class] = getEventStateForClass(event, c.class)
     }
