@@ -176,8 +176,12 @@ Test the issues one at a time, in the order listed.
   account is tried on an admin-only page by typing its address and judged by "Admin-only pages"
   above. To switch account, close the browser (`browser_close`) and sign in again; the profile
   keeps nothing between them.
-- Take a screenshot of every point you judge (`browser_take_screenshot`), saved under the
-  scratchpad in a folder named after the key. Name each file after what it shows.
+- Take a screenshot of every point you judge (`browser_take_screenshot`) with an explicit
+  `filename` under `.playwright-mcp/<KEY>/`, named after what it shows, e.g.
+  `.playwright-mcp/KOE-1674/sihteeri-tallennus-onnistui.png`. The browser writes only inside the
+  repository: a name is resolved against the repository root, so a bare `x.png` lands in the root,
+  and a path to the scratchpad is refused. `.playwright-mcp/` is git-ignored, and the server's own
+  output (snapshots, console logs) lands there too.
 - Read what the page shows, not what you expect it to show. When unsure whether something is a
   defect or works as designed, find out from the code (`git show origin/main:<path>`) before
   deciding, and say which in the comment.
@@ -189,9 +193,9 @@ Test the issues one at a time, in the order listed.
 
 Every comment is in Finnish, the app's own terms from `translation.json`, with every issue key,
 commit and file as a Markdown link (`AGENTS.md`, "Every reference in a Jira comment is a link").
-Post with `contentFormat: "markdown"`. Attach the screenshots first
-(`POST /rest/api/3/issue/<KEY>/attachments`, header `X-Atlassian-Token: no-check`, the file as
-the multipart field `file`) and name them in the comment.
+Post with `contentFormat: "markdown"`. Attach the screenshots from `.playwright-mcp/<KEY>/`
+first (`POST /rest/api/3/issue/<KEY>/attachments`, header `X-Atlassian-Token: no-check`, the
+file as the multipart field `file`) and name them in the comment.
 
 - **Works:** a comment with what was tried, with which accounts, and the screenshots as evidence;
   then move it to Done.
@@ -210,3 +214,7 @@ To the user, one list each, with links:
   **skipped** (the reason).
 - Every role change the setup check made, per account. "No changes" when there were none.
 - The deploy tested against, and its e2e state when it was not success.
+
+Before the summary, `git status --short` shows nothing new. A file the browser wrote outside
+`.playwright-mcp/` (a screenshot saved without the folder in its name) is moved under
+`.playwright-mcp/<KEY>/`, never committed.

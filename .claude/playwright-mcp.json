@@ -5,6 +5,7 @@
       "headless": true
     }
   },
+  "outputDir": ".playwright-mcp",
   "network": {
     "allowedOrigins": [
       "https://dev.koekalenteri.snj.fi",

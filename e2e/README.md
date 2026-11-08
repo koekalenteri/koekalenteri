@@ -115,7 +115,12 @@ needs `npm ci` first, or Claude Code shows the server as failed.
   the form.
 - It uses Playwright's Chromium when that is installed for the server's Playwright version, and
   Google Chrome otherwise.
-- Snapshots and console logs land in `.playwright-mcp/` at the repository root, which git ignores.
+- Snapshots and console logs land in `.playwright-mcp/` at the repository root, which git ignores:
+  `outputDir` in `.claude/playwright-mcp.json`, resolved against the server's working directory,
+  the repository root where Claude Code starts it. A file name the session gives, such as a
+  screenshot's `filename`, is resolved against the repository root instead, and a path outside
+  the repository is refused. `/verify-dev` names its screenshots
+  `.playwright-mcp/<KEY>/<what-it-shows>.png`.
 
 The test accounts are in `.env` as `E2E_DEV_<KEY>_EMAIL` and `E2E_DEV_<KEY>_PASSWORD`
 (`.env.sample` lists the names), each meant for one role on dev. A worktree without a `.env` of
