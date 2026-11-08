@@ -319,9 +319,9 @@ describe('service policies', () => {
   // CreateTemplate and UpdateTemplate take no resource type in the Service Authorization Reference,
   // so `*` is the only resource they can have.
   const WITHOUT_RESOURCE = [
-    { action: 'ses:createtemplate', function: 'PutEmailTemplateFunction' },
-    { action: 'ses:updatetemplate', function: 'PutEmailTemplateFunction' },
-  ].map((grant) => `${grant.function} ${grant.action}`)
+    'PutEmailTemplateFunction ses:createtemplate',
+    'PutEmailTemplateFunction ses:updatetemplate',
+  ]
 
   const arn = (service: string, resource: string) =>
     `!Sub arn:\${AWS::Partition}:${service}:\${AWS::Region}:\${AWS::AccountId}:${resource}`

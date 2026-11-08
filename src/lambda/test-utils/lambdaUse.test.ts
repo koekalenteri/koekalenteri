@@ -1020,6 +1020,12 @@ export default async (name: string) => getSSMParams([name])
 import { getSSMParams } from '../lib/secrets'
 export default async () => getSSMParams([\`\${String(Date.now())}-SECRET\`])
 `,
+  // SES v2 is authorized under the `ses:` prefix, not its package's name.
+  ParametersSesV2: `${COMMON}
+import { SESv2Client, SendEmailCommand } from '@aws-sdk/client-sesv2'
+const ses = new SESv2Client()
+export default async () => ses.send(new SendEmailCommand({}))
+`,
   ParametersSpread: `${COMMON}
 import { getSSMParams } from '../lib/secrets'
 const names = ['SECRET']
@@ -1518,6 +1524,10 @@ describe('createLambdaUseAnalyzer', () => {
     expect(parameters.get('PLAIN')).toEqual([expect.stringMatching(/lib\/secrets\.ts:\d+ \(getPaytrailConfig\)$/)])
     expect([...commands.keys()]).toEqual(['ses:SendEmail'])
     expect(commands.get('ses:SendEmail')).toEqual([expect.stringMatching(/ParametersFunction\/handler\.ts:11 \(\)$/)])
+  })
+
+  it('names an SES v2 command under the ses prefix IAM authorizes it with', () => {
+    expect([...analyzer.analyze(handlerFile('ParametersSesV2')).commands.keys()]).toEqual(['ses:SendEmail'])
   })
 
   it.each([

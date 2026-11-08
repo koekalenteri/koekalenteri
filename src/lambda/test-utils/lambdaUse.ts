@@ -18,8 +18,9 @@
  * parameter is read only through `getSSMParams` in lib/secrets.ts, and a call of it must write its
  * list out: strings, templates whose every substitution is the stack's name, or `const`s holding
  * either; anything else is refused. A command is a `new XCommand(...)` of a class imported by name
- * from an `@aws-sdk/client-*` package, named `<client>:<X>` (`ses:SendTemplatedEmail`). A command
- * class re-exported through a file of ours, or `getSSMParams` called through a value, is not seen.
+ * from an `@aws-sdk/client-*` package, named `<IAM prefix>:<X>` (`ses:SendTemplatedEmail`;
+ * client-sesv2 is `ses:` too). A command class re-exported through a file of ours, or
+ * `getSSMParams` called through a value, is not seen.
  *
  * The code side follows calls, not imports. Nearly every handler imports a module that opens a
  * client on some table at load (`lib/repositories/dataVersionRepository`, `lib/email`, `lib/ws/connectionRepository`),
@@ -89,7 +90,7 @@ interface HandlerUse {
   environment: NamedUse
   /** The SSM parameters the code reads through `getSSMParams`, `${AWS::StackName}` standing for the stack's name (KOE-1617). */
   parameters: NamedUse
-  /** The AWS SDK commands the code builds, as `<client>:<command>`: `ses:SendTemplatedEmail` (KOE-1617). */
+  /** The AWS SDK commands the code builds, as `<IAM prefix>:<command>`: `ses:SendTemplatedEmail` (KOE-1617). */
   commands: NamedUse
 }
 
@@ -133,6 +134,11 @@ const SECRETS_FILE = /[\\/]src[\\/]lambda[\\/]lib[\\/]secrets\.ts$/
 const PARAMETER_READER = 'getSSMParams'
 /** `@aws-sdk/client-ses` to `ses`: the package a command class is imported from names its client. */
 const SDK_CLIENT = /^@aws-sdk\/client-([\w-]+)$/
+/**
+ * The clients whose IAM prefix is not their package's name: IAM authorizes the SES v2 API under
+ * `ses:`, so a sender moved to `@aws-sdk/client-sesv2` is checked against the same grants.
+ */
+const IAM_PREFIXES = new Map([['sesv2', 'ses']])
 const COMMAND_SUFFIX = 'Command'
 
 /**
@@ -1036,8 +1042,9 @@ const environmentVariableRead = (node: ts.Node): string | undefined => {
 
 /**
  * The command a `new X(...)` builds, when X is imported by name from an `@aws-sdk/client-*` package
- * and ends in `Command`: `ses:SendTemplatedEmail` for `new SendTemplatedEmailCommand(...)`. The
- * import is read as written, so the walk needs no resolved declaration from node_modules.
+ * and ends in `Command`, under the client's IAM prefix: `ses:SendTemplatedEmail` for
+ * `new SendTemplatedEmailCommand(...)`, and `ses:SendEmail` for client-sesv2's `SendEmailCommand`.
+ * The import is read as written, so the walk needs no resolved declaration from node_modules.
  */
 const sdkCommand = (ctx: Context, node: ts.NewExpression): string | undefined => {
   const specifier = ctx.checker.getSymbolAtLocation(node.expression)?.declarations?.[0]
@@ -1046,7 +1053,7 @@ const sdkCommand = (ctx: Context, node: ts.NewExpression): string | undefined =>
   const client = ts.isStringLiteral(moduleSpecifier) ? SDK_CLIENT.exec(moduleSpecifier.text)?.[1] : undefined
   const name = (specifier.propertyName ?? specifier.name).text
   if (!client || !name.endsWith(COMMAND_SUFFIX)) return undefined
-  return `${client}:${name.slice(0, -COMMAND_SUFFIX.length)}`
+  return `${IAM_PREFIXES.get(client) ?? client}:${name.slice(0, -COMMAND_SUFFIX.length)}`
 }
 
 const isParameterRead = (ctx: Context, node: ts.CallExpression) =>
