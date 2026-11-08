@@ -30,6 +30,21 @@ only those. The release decision stays with the user.
   `scripts/playwright-mcp.mjs` was in its checkout, or without the keys in `.env`. Stop the run
   and tell the user to start a new session from the main checkout with main pulled (and to fill in
   `.env` if the server's log says the keys are missing); never work around it by reading `.env`.
+- **Signing in and the admin side** (until KOE-1734 is fixed). A page that checks for admin
+  access sends a signed-in account without it to the login page, which signs it straight back in
+  and returns it to the same page, over and over: the browser hangs. These pages are `/admin` and
+  everything under it (`/admin/event/startlist/<id>` and `/admin/event/startlist-preview/<id>`
+  among them) and `/stats` (`src/routeConfig.ts`). So:
+  - Sign in at https://dev.koekalenteri.snj.fi/login directly, never by opening one of those pages
+    first; signing in from one also stores it as the page to return to.
+  - Never type one of those addresses. Enter the admin side only by clicking Ylläpito in the
+    header after signing in, and move inside it through the side menu. The public start list
+    (`/startlist/<id>`) has no access check.
+  - Ylläpito shows in the header only to an account with admin access (global admin or any
+    organizer role). Without it, do not try the admin side as that account.
+  - If a page keeps showing only the loading indicator, or the address flips between `/admin` and
+    `/login`, call `browser_close` at once, record "KOE-1734 loop" in the run summary with the
+    account and the page, and do not try that path again in the run.
 - **Jira:** REST at https://koekalenteri.atlassian.net with `JIRA_USER_EMAIL` and
   `JIRA_API_TOKEN` from `.env` (the main checkout's from a worktree), loaded inside the command
   that calls Jira, as `candidates.mjs` does, and never printed. Status names are exact: "Ready
@@ -40,17 +55,19 @@ only those. The release decision stays with the user.
 
 Runs first on every run. When everything is in place, it costs one sign-in and opens no dialog.
 
-1. Sign in as `PAAKAYTTAJA` through the dev login form, typing `E2E_DEV_PAAKAYTTAJA_EMAIL` and
-   `E2E_DEV_PAAKAYTTAJA_PASSWORD` into its fields. The side menu shows Yhdistykset only to a
-   global admin. Without it, stop the run and tell the user to make the account a global admin by
-   hand (Käyttäjät, Muokkaa rooleja, Koekalenterin pääkäyttäjä): only an existing admin can, and
-   nothing below works without it.
-2. Open Käyttäjät (`/admin/users`), Yhdistys set to Kaikki. Find each of the other four accounts
+1. Sign in as `PAAKAYTTAJA` at the login page, typing `E2E_DEV_PAAKAYTTAJA_EMAIL` and
+   `E2E_DEV_PAAKAYTTAJA_PASSWORD` into its fields ("Signing in and the admin side" above). If the
+   header has no Ylläpito, the account has no access at all: stop the run and tell the user to
+   make it a global admin by hand (Käyttäjät, Muokkaa rooleja, Koekalenterin pääkäyttäjä). If it
+   is there, click it: the side menu shows Yhdistykset only to a global admin. Without Yhdistykset,
+   stop the run the same way. Only an existing admin can grant the role, and nothing below works
+   without it.
+2. Open Käyttäjät from the side menu, Yhdistys set to Kaikki. Find each of the other four accounts
    by typing its `E2E_DEV_<KEY>_EMAIL` into the search field; the browser types the address. A
    user appears on the page only after its first sign-in, so for each account whose row is
    missing: close the browser (`browser_close`), sign in once as that account, then sign in as
-   `PAAKAYTTAJA` again and come back. After signing in as `ILMOITTAJA`, do not open `/admin`
-   (KOE-1734, `test-data.md`).
+   `PAAKAYTTAJA` again and come back. The other accounts sign in at the login page too, and none
+   of them opens the admin side here.
 3. Compare each account's roles with the expected roles in `test-data.md`, "Accounts". The Roolit
    column's tooltip lists them: Koekalenterin pääkäyttäjä (global admin), then one line per
    organizer role, "Yhdistyksen pääkäyttäjä - <organizer>" (admin) or "Koesihteeri - <organizer>"
@@ -123,8 +140,10 @@ Test the issues one at a time, in the order listed.
   that must not succeed. A secretary's action is also tried as `ILMOITTAJA` and as `SIHTEERI_2`
   for a J1 event; an admin-only page as `SIHTEERI`; a registrant's own page as another registrant
   or signed out.
-- Sign in through the dev login form with the account the case needs, typing its
-  `E2E_DEV_<KEY>_EMAIL` and `E2E_DEV_<KEY>_PASSWORD`. To switch account, close the browser
+- Sign in at the login page with the account the case needs, typing its
+  `E2E_DEV_<KEY>_EMAIL` and `E2E_DEV_<KEY>_PASSWORD`, and reach admin pages only as "Signing in
+  and the admin side" says. An account that must not see an admin page passes that case when the
+  header has no Ylläpito; never type the page's address to try it. To switch account, close the browser
   (`browser_close`) and sign in again; the profile keeps nothing between them.
 - Take a screenshot of every point you judge (`browser_take_screenshot`), saved under the
   scratchpad in a folder named after the key. Name each file after what it shows.
