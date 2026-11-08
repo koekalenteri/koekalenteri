@@ -8,7 +8,7 @@ it by hand on the Viestipohjat page of each environment.
 ## Adding a template
 
 1. Add the id to `EmailTemplateId` (`src/types/Email.ts`) and to `EMAIL_TEMPLATE_IDS`
-   (`src/lib/emailTemplate.ts`, which the compiler keeps complete).
+   (`src/lib/emailTemplateIds.ts`, which the compiler keeps complete).
 2. Write its content in two files here, one per language: `<id>.fi.ts` and `<id>.en.ts`, each
    exporting the markdown as a template literal:
 

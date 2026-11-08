@@ -85,8 +85,9 @@ graph LR
 
 `adminEmailTemplatesAtom` is `adminEmailTemplatesRemoteAtom` under a second name, a cached collection
 ([cached/README.md](cached/README.md)) that always holds a template for every id the code knows, an empty one if the
-table has none yet. A template with defaults gets its row from the deploy, which bumps the version so the list is fetched
-again (`src/lambda/lib/emailTemplateDefaults/README.md`); the empty one is for the legacy ids. `adminEditableTemplateByIdAtom(templateId)` is the template being edited, kept in this tab;
+table has none yet. A template with defaults gets its row from the deploy, which bumps the version so the list is
+fetched again (`src/lambda/lib/emailTemplateDefaults/README.md`); the empty one is for the legacy ids.
+`adminEditableTemplateByIdAtom(templateId)` is the template being edited, kept in this tab;
 `useAdminEmailTemplatesActions().save` stores it with `putEmailTemplate`.
 
 ```mermaid

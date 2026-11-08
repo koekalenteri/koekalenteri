@@ -1,32 +1,6 @@
-import type {
-  EmailTemplate,
-  EmailTemplateContent,
-  EmailTemplateError,
-  EmailTemplateId,
-  TemplateSyntaxError,
-} from '../types'
+import type { EmailTemplate, EmailTemplateContent, EmailTemplateError, TemplateSyntaxError } from '../types'
 import Handlebars from 'handlebars/dist/cjs/handlebars.js'
 import { LANGUAGES } from '../types'
-import { exhaustiveStringTuple } from './typeGuards'
-
-/**
- * Every template id the code knows, which the compiler keeps complete: the templates page pads the
- * list with them, and the defaults' rule test reads them (KOE-1363).
- */
-export const EMAIL_TEMPLATE_IDS = exhaustiveStringTuple<EmailTemplateId>()(
-  'access',
-  'cancel-early',
-  'cancel-picked',
-  'cancel-reserve',
-  'invitation',
-  'message',
-  'payment-request',
-  'picked',
-  'receipt',
-  'refund',
-  'registration',
-  'reserve'
-)
 
 /**
  * A mismatched block ("if doesn't match each - 3:7") carries its position on the exception; the

@@ -1,7 +1,7 @@
 import type { EmailTemplate, EmailTemplateId, JsonEmailTemplate } from '@/types'
 import { getEmailTemplates } from '@/api/email'
 import { compareByLocalizedString } from '@/lib/client/sort'
-import { EMAIL_TEMPLATE_IDS } from '@/lib/emailTemplate'
+import { EMAIL_TEMPLATE_IDS } from '@/lib/emailTemplateIds'
 import { toEmailTemplate } from '@/lib/wire'
 import { atomWithCachedRemoteCollection } from '../cached/createCachedRemoteCollection'
 

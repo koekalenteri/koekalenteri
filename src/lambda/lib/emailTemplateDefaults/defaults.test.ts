@@ -1,5 +1,6 @@
 import type { EmailTemplateId } from '../../../types'
-import { EMAIL_TEMPLATE_IDS, findEmailTemplateError } from '../../../lib/emailTemplate'
+import { findEmailTemplateError } from '../../../lib/emailTemplate'
+import { EMAIL_TEMPLATE_IDS } from '../../../lib/emailTemplateIds'
 import { EMAIL_TEMPLATE_DEFAULTS } from './defaults'
 
 /**

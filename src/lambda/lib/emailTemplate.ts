@@ -6,7 +6,8 @@ import {
   TemplateDoesNotExistException,
   UpdateTemplateCommand,
 } from '@aws-sdk/client-ses'
-import { EMAIL_TEMPLATE_IDS, explainTemplateRejection, findEmailTemplateError } from '../../lib/emailTemplate'
+import { explainTemplateRejection, findEmailTemplateError } from '../../lib/emailTemplate'
+import { EMAIL_TEMPLATE_IDS } from '../../lib/emailTemplateIds'
 import { stageTitle } from '../../lib/env'
 import { mapWithConcurrency } from '../../lib/utils'
 import { CONFIG } from '../config'
@@ -106,8 +107,6 @@ export interface SeedReport {
   failed: SeedFailure[]
 }
 
-type SeedOutcome = { id: EmailTemplateId; outcome: 'seeded' | 'kept' } | { id: EmailTemplateId; failure: SeedFailure }
-
 const languageOf = (body: unknown): Language | undefined => {
   if (!body || typeof body !== 'object' || !('language' in body)) return undefined
   return body.language === 'fi' || body.language === 'en' ? body.language : undefined
@@ -121,7 +120,8 @@ const seedFailure = (id: EmailTemplateId, error: unknown): SeedFailure => {
   return { id, reason: error instanceof Error ? error.message : 'unknown error' }
 }
 
-const seedOne = async (id: EmailTemplateId, source: EmailTemplateSource, now: string): Promise<SeedOutcome> => {
+/** Puts one default in place and records in the report how it went. */
+const seedOne = async (report: SeedReport, id: EmailTemplateId, source: EmailTemplateSource, now: string) => {
   const row: JsonEmailTemplate = {
     createdAt: now,
     createdBy: 'system',
@@ -136,11 +136,15 @@ const seedOne = async (id: EmailTemplateId, source: EmailTemplateSource, now: st
     // SES first, as a save does: a failure there leaves no row, so the next deploy tries again.
     row.ses = await putSesTemplates(row)
   } catch (error) {
-    return { failure: seedFailure(id, error), id }
+    report.failed.push(seedFailure(id, error))
+    return
   }
-  if (await writeNewEmailTemplate(row)) return { id, outcome: 'seeded' }
+  if (await writeNewEmailTemplate(row)) {
+    report.seeded.push(id)
+    return
+  }
   logger.warn('email template saved while its default was seeded; the saved row stays', { id })
-  return { id, outcome: 'kept' }
+  report.kept.push(id)
 }
 
 /**
@@ -163,11 +167,8 @@ export const seedEmailTemplates = async (defaults: EmailTemplateDefaults): Promi
   }
 
   const now = new Date().toISOString()
-  const outcomes = await mapWithConcurrency(missing, 1, ([id, source]) => seedOne(id, source, now))
-  for (const result of outcomes) {
-    if ('failure' in result) report.failed.push(result.failure)
-    else report[result.outcome].push(result.id)
-  }
+  // One at a time, in order: SES limits the template calls (AGENTS.md, S9382: no await in a loop).
+  await mapWithConcurrency(missing, 1, ([id, source]) => seedOne(report, id, source, now))
 
   if (report.seeded.length) await publishAdminDataInvalidation(['emailTemplates'])
   return report

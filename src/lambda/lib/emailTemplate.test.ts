@@ -64,8 +64,8 @@ const fixtureDefault = {
   fi: '[subject]: # (Hei {{reg.handler.name}})\n\nTervetuloa',
 }
 
-/** The SES template names the run asked SES to update or create, in order. */
-const sesCalls = () => mockSend.mock.calls.map(([sent]) => `${sent.command} ${sent.input.Template.TemplateName}`)
+/** The SES calls the run made, as "<command> <template name>", in order; filled in by the send mock. */
+const sesCalls: string[] = []
 
 /** Runs the seeding to the end, through the pause it keeps between SES calls. */
 const seed = async (...args: Parameters<typeof seedEmailTemplates>) => {
@@ -80,8 +80,10 @@ describe('seedEmailTemplates', () => {
     vi.useFakeTimers({ now: new Date(NOW) })
     mockReadEmailTemplates.mockResolvedValue([stored('registration')])
     mockWriteNewEmailTemplate.mockResolvedValue(true)
+    sesCalls.length = 0
     // A new id has no SES template yet: the update is refused and the template is created.
-    mockSend.mockImplementation(async (sent: { command: string }) => {
+    mockSend.mockImplementation(async (sent: { command: string; input: { Template: EmailTemplateContent } }) => {
+      sesCalls.push(`${sent.command} ${sent.input.Template.TemplateName}`)
       if (sent.command === 'UpdateTemplate') throw new ses.TemplateDoesNotExistException({ $metadata: {}, message: '' })
       return {}
     })
@@ -95,7 +97,7 @@ describe('seedEmailTemplates', () => {
   it('writes the row and creates both SES templates of a default whose id has no row', async () => {
     const report = await seed({ access: fixtureDefault })
 
-    expect(sesCalls()).toEqual([
+    expect(sesCalls).toEqual([
       'UpdateTemplate access-stack-fi',
       'CreateTemplate access-stack-fi',
       'UpdateTemplate access-stack-en',
@@ -171,7 +173,7 @@ describe('seedEmailTemplates', () => {
       refund: fixtureDefault,
     })
 
-    expect(sesCalls().filter((call) => call.includes('access'))).toEqual([])
+    expect(sesCalls.filter((call) => call.includes('access'))).toEqual([])
     expect(mockWriteNewEmailTemplate).toHaveBeenCalledTimes(1)
     expect(mockWriteNewEmailTemplate).toHaveBeenCalledWith(expect.objectContaining({ id: 'refund' }))
     expect(report).toEqual({
