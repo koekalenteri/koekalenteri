@@ -1,0 +1,20 @@
+{
+  "browser": {
+    "isolated": true,
+    "launchOptions": {
+      "headless": true
+    }
+  },
+  "network": {
+    "allowedOrigins": [
+      "https://dev.koekalenteri.snj.fi",
+      "https://h1tkq96ib3.execute-api.eu-north-1.amazonaws.com",
+      "wss://b98joqlym3.execute-api.eu-north-1.amazonaws.com",
+      "https://cognito-idp.eu-north-1.amazonaws.com",
+      "https://cognito-identity.eu-north-1.amazonaws.com",
+      "https://sts.eu-north-1.amazonaws.com",
+      "https://dataplane.rum.eu-north-1.amazonaws.com",
+      "https://services.paytrail.com"
+    ]
+  }
+}
