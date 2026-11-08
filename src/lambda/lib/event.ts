@@ -28,7 +28,7 @@ import { legacyEventDay } from '../../lib/storedDays'
 import { mapWithConcurrency } from '../../lib/utils'
 import { isConditionalCheckFailure } from './api-gw'
 import { audit, registrationAuditKey } from './audit'
-import { retryOnConditionFailure } from './conditionalWrite'
+import { RESULTS_WRITE_ATTEMPTS, retryOnConditionFailure } from './conditionalWrite'
 import { httpError, LambdaError } from './lambda'
 import { createPatch } from './patch'
 import { createRegistrationPatches, getReadyRegistrationsByEventId } from './registration'
@@ -497,9 +497,6 @@ const writeResultsDay = async (
   if (!isResultsPublishedState(resultsPublished)) throw new Error('the written row holds no results flag')
   return { ...confirmedEvent, resultsPublished, updatedAt }
 }
-
-/** How many times a results write made from a reading is tried before it is a conflict: the flag's, a dog's. */
-export const RESULTS_WRITE_ATTEMPTS = 3
 
 /**
  * Publish or hide one day's results on the event record (KOE-1510). The request is a change of one

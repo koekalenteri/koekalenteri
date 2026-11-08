@@ -46,8 +46,8 @@ import { rotationDogOf, roundInputsOf } from '../../lib/rotation'
 import { mapWithConcurrency } from '../../lib/utils'
 import { isConditionalCheckFailure } from './api-gw'
 import { audit, registrationAuditKey } from './audit'
-import { retryOnConditionFailure } from './conditionalWrite'
-import { getEvent, RESULTS_WRITE_ATTEMPTS } from './event'
+import { RESULTS_WRITE_ATTEMPTS, retryOnConditionFailure } from './conditionalWrite'
+import { getEvent } from './event'
 import { parseJSONWithFallback } from './json'
 import { httpError, LambdaError } from './lambda'
 import { readEventRegistrations, readRegistration, writeEventResult } from './repositories/registrationRepository'
@@ -595,13 +595,6 @@ const planSubmission = (
   }
 }
 
-/** A save that kept losing to other writes, reported as a conflict with the result it last lost to. */
-const lostSave = (planned: PlannedSubmission, error: unknown): PlannedSubmission => {
-  const stored = planned.registration.eventResult
-  if (planned.outcome.kind !== 'save' || !stored) throw error
-  return { ...planned, outcome: { kind: 'conflict', stored, submitted: planned.outcome.eventResult } }
-}
-
 /**
  * Writes a dog's save over the result it was classified against (KOE-1490). Another request may have
  * written the dog since the batch read it: then the row is read again as last written and the same
@@ -615,7 +608,9 @@ const settleSubmission = async (
   received: ResultSubmission,
   planned: PlannedSubmission
 ): Promise<PlannedSubmission> => {
-  let last = planned
+  // The save as it last lost, a conflict with the result it was written over. Every attempt after the first
+  // works from a row read after a result was stored, so the last attempt always has one.
+  let lost: PlannedSubmission | undefined
   try {
     return await retryOnConditionFailure({
       exhausted: (error) => error,
@@ -623,17 +618,18 @@ const settleSubmission = async (
       maxAttempts: RESULTS_WRITE_ATTEMPTS,
       reread: async () => planSubmission(context, await readRegistration(eventId, received.id, true), received),
       work: async (current: PlannedSubmission) => {
-        last = current
         const { outcome, registration } = current
         if (outcome.kind === 'save') {
-          await writeEventResult(eventId, registration.id, outcome.eventResult, registration.eventResult?.updatedAt)
+          const stored = registration.eventResult
+          lost = stored && { ...current, outcome: { kind: 'conflict', stored, submitted: outcome.eventResult } }
+          await writeEventResult(eventId, registration.id, outcome.eventResult, stored?.updatedAt)
         }
         return current
       },
     })
   } catch (error) {
-    if (!isConditionalCheckFailure(error)) throw error
-    return lostSave(last, error)
+    if (!isConditionalCheckFailure(error) || !lost) throw error
+    return lost
   }
 }
 

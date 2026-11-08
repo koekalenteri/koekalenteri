@@ -1,4 +1,4 @@
-import type { JsonConfirmedEvent } from '../../types'
+import type { DeepPartial, JsonConfirmedEvent, JsonEventResult } from '../../types'
 import { asJsonConfirmedEvent } from '../test-utils/helpers'
 import { storedEvent, uniqueId } from '../test-utils/integration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -29,7 +29,7 @@ describe('processResultSubmissions against DynamoDB-local', () => {
   }
 
   /** A dog that ran, its result as given: a row may hold one older than the result's version. */
-  const storedDog = async (eventId: string, eventResult?: object) => {
+  const storedDog = async (eventId: string, eventResult?: DeepPartial<JsonEventResult>) => {
     const id = uniqueId('registration')
     await registrations.write({
       class: 'AVO',

@@ -15,7 +15,7 @@ vi.doMock('./repositories/registrationRepository', () => ({
   writeEventResult: mockWriteEventResult,
 }))
 vi.doMock('./audit', () => ({ audit: mockAudit, registrationAuditKey: vi.fn() }))
-vi.doMock('./event', () => ({ getEvent: mockGetEvent, RESULTS_WRITE_ATTEMPTS: 3 }))
+vi.doMock('./event', () => ({ getEvent: mockGetEvent }))
 
 const { processResultSubmissions, stationScopedSubmission } = await import('./eventResults')
 
@@ -147,16 +147,6 @@ describe('eventResults', () => {
       ])
       expect(answer.saved).toEqual([expect.objectContaining({ id: 'reg-2' })])
       expect(mockWriteEventResult).toHaveBeenCalledTimes(4)
-    })
-
-    it('lets the failure through when the save kept losing and no result was ever read', async () => {
-      registrations.store([dog('reg-1')])
-      const failure = conditionalCheckFailure()
-      mockWriteEventResult.mockRejectedValue(failure)
-
-      await expect(
-        process([dog('reg-1')], [{ eventResult: { tasks: [task(2, 18)] }, id: 'reg-1' }], 'post-2')
-      ).rejects.toBe(failure)
     })
 
     it('lets any other failure of the write through at once', async () => {

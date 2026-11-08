@@ -23,6 +23,12 @@ export const registrationStore = (rows = new Map<string, JsonRegistration>()) =>
       const row = rows.get(id)
       return row && structuredClone(row)
     },
+    /** The dog's result as stored now, its tasks read as none where it has none. Throws when there is none. */
+    resultOf: (id: string) => {
+      const result = rows.get(id)?.eventResult
+      if (!result) throw new Error(`no result stored for ${id}`)
+      return { ...result, tasks: result.tasks ?? [] }
+    },
     /** Replaces every stored row with these: fixtures, which may hold only what a test reads. */
     store: (registrations: readonly DeepPartial<JsonRegistration>[]) => {
       rows.clear()

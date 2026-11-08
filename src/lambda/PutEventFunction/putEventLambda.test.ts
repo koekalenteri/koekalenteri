@@ -49,7 +49,6 @@ vi.doMock('../lib/event', () => ({
   findQualificationStartDate: vi.fn(),
   getEvent: vi.fn(),
   patchEvent: vi.fn(),
-  RESULTS_WRITE_ATTEMPTS: 3,
   saveEvent: vi.fn(),
   updateRegistrations: vi.fn(),
 }))

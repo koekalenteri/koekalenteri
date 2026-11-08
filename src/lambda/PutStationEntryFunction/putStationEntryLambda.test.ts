@@ -36,7 +36,7 @@ vi.doMock('../lib/lambda', async () => ({
 }))
 
 vi.doMock('../lib/audit', () => ({ audit: mockAudit, registrationAuditKey: mockRegistrationAuditKey }))
-vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent, getLiveEvent: mockGetLiveEvent, RESULTS_WRITE_ATTEMPTS: 3 }))
+vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent, getLiveEvent: mockGetLiveEvent }))
 vi.doMock('../lib/repositories/registrationRepository', () => ({
   readEventRegistrations: mockReadEventRegistrations,
   readRegistration: mockReadRegistration,

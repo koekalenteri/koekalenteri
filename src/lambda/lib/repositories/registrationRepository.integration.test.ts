@@ -1,4 +1,4 @@
-import type { JsonKcResult, JsonRegistration } from '../../../types'
+import type { DeepPartial, JsonEventResult, JsonKcResult, JsonRegistration } from '../../../types'
 import { uniqueId } from '../../test-utils/integration'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
 import {
@@ -140,10 +140,14 @@ describe('writeEventResult against DynamoDB-local', () => {
   const client = new CustomDynamoClient('EventRegistrationTable')
   const result = (updatedAt: string, points: number) => ({ points, updatedAt, updatedBy: 'Sihteeri' })
 
-  const storedRegistration = async (eventResult?: object) => {
+  const group = { date: '2026-11-01', key: 'ALO-AP', number: 3 }
+  const storedRegistration = async (eventResult?: DeepPartial<JsonEventResult>) => {
+    // The rest of the row, which a result write leaves as it is.
     const registration = {
       eventId: uniqueId('event'),
+      group,
       id: uniqueId('registration'),
+      internalNotes: 'sihteerin muistiinpano',
       ...(eventResult ? { eventResult } : {}),
     }
     await client.write(registration)
@@ -158,6 +162,8 @@ describe('writeEventResult against DynamoDB-local', () => {
 
     await expect(readRegistration(eventId, id, true)).resolves.toMatchObject({
       eventResult: result('2026-11-01T11:00:00.000Z', 20),
+      group,
+      internalNotes: 'sihteerin muistiinpano',
     })
   })
 

@@ -41,7 +41,7 @@ vi.doMock('../lib/lambda', async () => ({
 vi.doMock('../lib/auth', () => ({ authorizeWithMemberOf: mockAuthorizeWithMemberOf }))
 vi.doMock('../lib/audit', () => ({ audit: mockAudit, registrationAuditKey: mockRegistrationAuditKey }))
 vi.doMock('../lib/eventAuth', () => ({ getAuthorizedEvent: mockGetAuthorizedEvent }))
-vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent, RESULTS_WRITE_ATTEMPTS: 3 }))
+vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent }))
 vi.doMock('../lib/repositories/registrationRepository', () => ({
   readEventRegistrations: mockReadEventRegistrations,
   readRegistration: mockReadRegistration,
@@ -124,7 +124,8 @@ describe('putEventResultsLambda', () => {
     ])
   })
 
-  const savedResult = () => mockWrittenResult.mock.calls[0][2]
+  // What the save left stored for the dog, as the table holds it.
+  const savedResult = (id = 'reg-1') => registrations.resultOf(id)
 
   it('derives the totals and the result from the submitted scores', async () => {
     await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
@@ -735,7 +736,7 @@ describe('putEventResultsLambda', () => {
         apiEvent([{ eventResult: { tasks: [{ exercise: 3, points: 18 }] }, id: 'reg-1', stationId: 'post-3' }])
       )
 
-      const stored = mockWrittenResult.mock.calls[0][2]
+      const stored = savedResult()
       expect(stored.tasks).toEqual([
         expect.objectContaining({ exercise: 1, points: 17 }),
         expect.objectContaining({ exercise: 3, part: 0, points: 18 }),
@@ -839,7 +840,7 @@ describe('putEventResultsLambda', () => {
       )
 
       expect(mockWrittenResult).toHaveBeenCalledTimes(1)
-      expect(mockWrittenResult.mock.calls[0][2]).toMatchObject({
+      expect(savedResult()).toMatchObject({
         elimination: { exercise: 1, fault: 'aggression' },
         result: 'AVO0',
       })
@@ -896,8 +897,8 @@ describe('putEventResultsLambda', () => {
     it('stores every post in one go', async () => {
       await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
 
-      expect(mockWrittenResult.mock.calls[0][2].tasks).toHaveLength(4)
-      expect(mockWrittenResult.mock.calls[0][2]).toMatchObject({ points: 65, result: 'AVO1' })
+      expect(savedResult().tasks).toHaveLength(4)
+      expect(savedResult()).toMatchObject({ points: 65, result: 'AVO1' })
     })
 
     it('builds on what a post already recorded, when working from the current version', async () => {
@@ -916,7 +917,7 @@ describe('putEventResultsLambda', () => {
         apiEvent([{ basedOn: '2026-09-12T10:00:00.000Z', eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }])
       )
 
-      expect(mockWrittenResult.mock.calls[0][2]).toMatchObject({ points: 65, result: 'AVO1' })
+      expect(savedResult()).toMatchObject({ points: 65, result: 'AVO1' })
     })
 
     it('will not silently overwrite a post it never saw', async () => {
@@ -942,7 +943,7 @@ describe('putEventResultsLambda', () => {
       // Whole round first, then one post rescored on its own.
       await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
 
-      const afterRound = mockWrittenResult.mock.calls[0][2]
+      const afterRound = savedResult()
       storeRows([{ ...registration('reg-1'), eventResult: afterRound }])
       mockWrittenResult.mockClear()
 
@@ -957,7 +958,7 @@ describe('putEventResultsLambda', () => {
         ])
       )
 
-      const afterPost = mockWrittenResult.mock.calls[0][2]
+      const afterPost = savedResult()
       expect(afterPost.tasks).toHaveLength(4)
       expect(afterPost.points).toBe(69)
     })
@@ -992,7 +993,7 @@ describe('putEventResultsLambda', () => {
       )
 
       expect(mockResponse.mock.calls[0][0]).toBe(200)
-      expect(mockWrittenResult.mock.calls[0][2].points).toBe(15)
+      expect(savedResult().points).toBe(15)
     })
 
     it('records a pass or fail for an event type with no posts at all', async () => {
@@ -1005,7 +1006,7 @@ describe('putEventResultsLambda', () => {
 
       await putEventResultsLambda(apiEvent([{ eventResult: { resultCode: '1' }, id: 'reg-1' }]))
 
-      expect(mockWrittenResult.mock.calls[0][2]).toMatchObject({ result: 'NOU1' })
+      expect(savedResult()).toMatchObject({ result: 'NOU1' })
     })
 
     it('stores a NOME-A result with its prefix and audits it as Kennelliitto lists it (KOE-1592)', async () => {
