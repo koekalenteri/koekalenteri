@@ -519,6 +519,62 @@ describe('putEventResultsLambda', () => {
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
   })
 
+  describe('a task list larger than the round (KOE-1616)', () => {
+    it('refuses the same exercise and part twice, and writes and audits nothing', async () => {
+      const request = putEventResultsLambda(
+        apiEvent([
+          {
+            eventResult: { tasks: [...scores(17, 18, 16, 14), { exercise: 2, part: 0, points: 5 }] },
+            id: 'reg-1',
+          },
+        ])
+      )
+
+      await expect(request).rejects.toMatchObject({ statusCode: 422 })
+      await expect(request).rejects.toThrow('Task exercise 2#0 is sent twice')
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockAudit).not.toHaveBeenCalled()
+    })
+
+    it('refuses the whole round sent many times over, which only repeats can make', async () => {
+      const tasks = Array.from({ length: 50 }, () => scores(17, 18, 16, 14)).flat()
+
+      await expect(putEventResultsLambda(apiEvent([{ eventResult: { tasks }, id: 'reg-1' }]))).rejects.toMatchObject({
+        statusCode: 422,
+      })
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockAudit).not.toHaveBeenCalled()
+    })
+
+    it('refuses a task for a type judged as a whole, which has none', async () => {
+      mockGetAuthorizedEvent.mockResolvedValue({ ...nowtEvent, eventType: 'NOME-B', stations: undefined })
+      mockReadEventRegistrations.mockResolvedValue([registration('reg-1', 'ALO')])
+
+      const request = putEventResultsLambda(
+        apiEvent([{ eventResult: { resultCode: '1', tasks: [{ exercise: 1, points: 10 }] }, id: 'reg-1' }])
+      )
+
+      await expect(request).rejects.toMatchObject({ statusCode: 422 })
+      await expect(request).rejects.toThrow('Tasks are not taken for NOME-B')
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockAudit).not.toHaveBeenCalled()
+    })
+
+    it('refuses the same dog twice in one request, which would write and audit it twice', async () => {
+      const request = putEventResultsLambda(
+        apiEvent([
+          { eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' },
+          { eventResult: { tasks: scores(10, 10, 10, 10) }, id: 'reg-1' },
+        ])
+      )
+
+      await expect(request).rejects.toMatchObject({ statusCode: 422 })
+      await expect(request).rejects.toThrow("Registration 'reg-1' is sent twice")
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockAudit).not.toHaveBeenCalled()
+    })
+  })
+
   it('refuses a result for a dog that is not in the event', async () => {
     await expect(
       putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(20, 20, 20, 20) }, id: 'stranger' }]))
