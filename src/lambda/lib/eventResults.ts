@@ -290,6 +290,14 @@ const refuseUnheldTasks = (tasks: readonly SubmittedTask[], eventType: string): 
   if (repeated) throw new LambdaError(422, `Task ${taskName(repeated)} is sent twice`)
 }
 
+/** A submission's tasks, each picked field by field, and the list refused where no round can hold it. */
+const pickTasks = (value: unknown, eventType: string, judges: PublicJudge[]): SubmittedTask[] | undefined => {
+  if (!Array.isArray(value)) return undefined
+  const tasks = value.map((task) => pickTask(task, judges))
+  refuseUnheldTasks(tasks, eventType)
+  return tasks
+}
+
 /**
  * The fields a client may write, picked one by one. Everything else in the payload is dropped here
  * and never stored: this path is shared with the widely shared tokenized station link (KOE-1258), so
@@ -320,8 +328,7 @@ const pickSubmittedResult = (
     )
   }
 
-  const tasks = Array.isArray(value.tasks) ? value.tasks.map((task) => pickTask(task, judges)) : undefined
-  if (tasks) refuseUnheldTasks(tasks, eventType)
+  const tasks = pickTasks(value.tasks, eventType, judges)
   const judge = resolveJudge(value.judge, judges)
 
   return {
