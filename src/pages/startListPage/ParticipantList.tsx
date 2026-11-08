@@ -263,33 +263,39 @@ export const ParticipantList = ({
   )
 }
 
-/** A classless event has no class heading, so its day carries the note: read from the day's first row. */
-function classlessDayNote(event: PublicConfirmedEvent, item: StartListItem): PublicationNote | undefined {
-  return isRegistrationItem(item) && !item.registration.class ? rowPublicationNote(event, item.registration) : undefined
+/** A classless day's publication: what the heading is told and the note it makes of it. */
+interface DayPublication {
+  note: PublicationNote
+  numbersPublished: boolean
+  published: boolean
+}
+
+/**
+ * A classless event has no class heading, so its day carries the note, read from the day's first row.
+ * Nothing for a day of classes or one whose list and numbers are out.
+ */
+function classlessDayNote(event: PublicConfirmedEvent, item: StartListItem): DayPublication | undefined {
+  if (!isRegistrationItem(item) || item.registration.class) return undefined
+  const published = isStartListAvailableForRegistration(event, item.registration)
+  const numbersPublished = isStartNumbersAvailableForRegistration(event, item.registration)
+  const note = publicationNote(published, numbersPublished)
+  return note && { note, numbersPublished, published }
 }
 
 /** The classless day's note as a row under the date, or nothing. */
 function classlessDayNoteRows(event: PublicConfirmedEvent, item: StartListItem): React.JSX.Element[] {
-  if (!isRegistrationItem(item) || !classlessDayNote(event, item)) return []
-  const { registration } = item
+  const day = classlessDayNote(event, item)
+  if (!day) return []
   return [
     <ClassHeader
       key={`notes-${item.date}`}
       classValue=""
       event={event}
       lastDate={item.date}
-      published={isStartListAvailableForRegistration(event, registration)}
-      numbersPublished={isStartNumbersAvailableForRegistration(event, registration)}
+      published={day.published}
+      numbersPublished={day.numbersPublished}
     />,
   ]
-}
-
-/** The note of a class the list shows only as a heading, by the same rule as the heading on screen. */
-function emptyClassNote(event: PublicConfirmedEvent, eventClass: EventClass): PublicationNote | undefined {
-  return publicationNote(
-    isStartListAvailableForClass(event, eventClass),
-    isStartNumbersAvailableForClass(event, eventClass)
-  )
 }
 
 /** A class's line in the copied list: the class, its judges and its note. */
@@ -310,7 +316,7 @@ function formatStartList(participants: PublicRegistration[], event: PublicConfir
       lines.push(`${t('dateFormat.weekday', { date })} ${t('dateFormat.date', { date })}`)
       // The classless event's notes, mirroring the on-screen list's date-level placement.
       const dayNote = classlessDayNote(event, item)
-      if (dayNote) lines.push(publicationNoteLine('', dayNote, t))
+      if (dayNote) lines.push(publicationNoteLine('', dayNote.note, t))
       lastDate = date
       lastClass = undefined
       lastGroup = undefined
@@ -318,7 +324,12 @@ function formatStartList(participants: PublicRegistration[], event: PublicConfir
 
     if (item.type === 'emptyClass') {
       const judges = formatClassJudges(event, item.eventClass.class, item.date, t)
-      lines.push(classLine(item.eventClass.class, judges, emptyClassNote(event, item.eventClass), t))
+      // A class the list shows only as a heading: its note by the same rule as the heading on screen.
+      const note = publicationNote(
+        isStartListAvailableForClass(event, item.eventClass),
+        isStartNumbersAvailableForClass(event, item.eventClass)
+      )
+      lines.push(classLine(item.eventClass.class, judges, note, t))
       lastClass = item.eventClass.class
       lastGroup = undefined
       return
@@ -438,8 +449,10 @@ function formatTeamStartList(days: readonly StartListTeamDay[], event: PublicCon
   days.forEach((day) => {
     const { date, noTeam, showClass, teams } = day
     if (lines.length) lines.push('')
-    lines.push(`${t('dateFormat.weekday', { date })} ${t('dateFormat.date', { date })}`)
-    lines.push(...teamDayNoteLines(event, day, t))
+    lines.push(
+      `${t('dateFormat.weekday', { date })} ${t('dateFormat.date', { date })}`,
+      ...teamDayNoteLines(event, day, t)
+    )
     for (const team of teams) {
       group([t('startList.team', { number: team.number }), ...(team.name ? [team.name] : [])], team.rows, showClass)
     }
