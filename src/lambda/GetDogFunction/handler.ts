@@ -155,7 +155,10 @@ const getDogLambda = lambda('getDog', async (event) => {
   // A row stored before the lookup stamped its time (43c705280, 2022) is as stale as can be: the form
   // reads a dog without one as entered by hand (`typedDogFields`, KOE-1650).
   const unstamped = Boolean(item) && !item?.refreshDate
-  const refresh = (event.queryStringParameters && 'refresh' in event.queryStringParameters) || itemAge > 60 || unstamped
+  // `?refresh` needs no sign-in, so it is honoured at most once a minute per dog: within the minute
+  // the row Kennelliitto just gave is the answer it would give again (KOE-1620).
+  const refreshAsked = Boolean(event.queryStringParameters && 'refresh' in event.queryStringParameters)
+  const refresh = (refreshAsked && itemAge >= 1) || itemAge > 60 || unstamped
 
   logger.debug('cached dog', { cached: Boolean(item), itemAge, refresh, regNo })
 
