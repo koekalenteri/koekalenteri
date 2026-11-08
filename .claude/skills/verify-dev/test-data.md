@@ -27,8 +27,7 @@ admin only for `PAAKAYTTAJA`.
 - The roles are checked, and fixed only where they differ, by the setup check in `SKILL.md`,
   step 0; no other step opens a role dialog.
 - Every account signs in and reaches the admin side as `SKILL.md`, "Signing in and the admin
-  side", says (KOE-1734); an organizer account's admin-only page case is judged by its "Admin-only
-  pages".
+  side", says; an organizer account's admin-only page case is judged by its "Admin-only pages".
 
 ## Organizers
 
