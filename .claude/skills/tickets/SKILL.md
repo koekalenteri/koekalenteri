@@ -88,10 +88,17 @@ Independent chains run at the same time, **at most three implementers at once**.
 than that wait in the order the user approved and start as soon as an implementer's PR is ready.
 Reviewers and CI watchers are not counted: they run per PR as in `/ticket`.
 
-Before starting chains in parallel, compare their plans' shared files. Two chains that both
-change a generated file (`src/generated/docs/index.ts`, a docs page's `sourceHash`) conflict in
-the merge queue (#1678 and #1679); start the second only after the first is merged, or move the
-file's change to one of them.
+Before starting chains in parallel, compare their plans' shared files. A file that two chains
+both change by hand, with the same rule or text at stake, makes them one after the other: start
+the second only after the first is merged, or move that change to one of them.
+
+Generated docs content does not count: `src/generated/docs/index.ts` and an English page's
+`sourceHash` line. When one chain's PR lands and the other's then conflicts there (#1678 and
+#1679), its implementer merges `origin/main`, takes main's side of the generated file, runs
+`npm run build-docs`, renews the `sourceHash` of each page whose Finnish body changed, and pushes
+once `npm run check-docs` passes. That update starts no review round: send it to the implementer
+and to the `ci-watcher`, not to the reviewers. When a guide page's own text conflicts, it is a
+by-hand change after all, and the `docs` reviewer looks at the merge.
 
 Implementers share the machine: vitest one run at a time (each implementer runs its tests in the
 foreground and waits for any other), and the e2e ports one session at a time. Scratch files are
