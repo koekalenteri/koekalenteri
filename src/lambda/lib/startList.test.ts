@@ -415,6 +415,25 @@ describe('readPublishedStartList (KOE-1516)', () => {
       ])
     })
 
+    it("carries the teams in the organizer's preview of a list not yet published", async () => {
+      mockGetLiveEvent.mockResolvedValue({ ...teamEvent, startListPublished: { ALO: false } })
+
+      const { participants } = await readPublishedStartList('event-1', { preview: true })
+
+      expect(participants).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            dog: { name: 'Aapo', regNo: 'REG-a' },
+            team: expect.objectContaining({ code: '1A' }),
+          }),
+          expect.objectContaining({
+            dog: { name: 'Cesar', regNo: 'REG-c' },
+            team: expect.objectContaining({ code: '2B' }),
+          }),
+        ])
+      )
+    })
+
     it('gives a cancelled dog no team, so its narrow row says no more than its number', async () => {
       const rows = await sent()
 

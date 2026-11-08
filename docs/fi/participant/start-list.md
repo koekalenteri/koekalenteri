@@ -41,10 +41,13 @@ luokka kerrallaan kuin ilman joukkueita.
 
 Joukkueittain jokaisen päivän alla ovat ne joukkueet, joiden koiria on sen päivän listalla,
 numerojärjestyksessä: ensin *Joukkue 1* ja joukkueen nimi, sitten sen koirat. Koiran rivi on sama
-kuin muuten, ja sen alussa on koiran tunnus joukkueessa, esimerkiksi *1A*. Jos päivän joukkueissa
+kuin muuten, ja sen alussa on koiran tunnus joukkueessa, esimerkiksi *1A*. Jos päivän listalla
 on koiria useasta luokasta, luokka on tunnuksen edessä, esimerkiksi *AVO 1A*. Monipäiväisessä
 kokeessa joukkue näkyy jokaisen päivän alla niillä koirillaan, jotka ovat sinä päivänä listalla.
 Joukkueisiin kuulumattomat koirat ovat joukkueiden jälkeen otsikon *{t:startList.noTeam}* alla.
+Luokkaotsikoita joukkueittain ei ole, joten jos luokan järjestys ei ole vielä lopullinen, päivän
+alla lukee luokan kohdalla sama huomautus kuin suoritusjärjestyksessä luokan otsikossa, esimerkiksi
+*AVO ({t:startNumbersNotPublished})*.
 
 Kirjain kertoo koiran paikan joukkueessa. Jos joukkueen koira on varalla, sitä ei vielä näytetä
 tai se on perunut, sen kirjain jää käyttämättä, joten joukkueessa voi olla esimerkiksi 1A ja 1C

@@ -821,6 +821,61 @@ describe('ParticipantList', () => {
       ])
     })
 
+    // KOE-1006: before the venue draw the order is not final, and the team view has no class heading
+    // to say so; the day carries the note instead.
+    describe('before the numbers are published', () => {
+      const undrawn: PublicConfirmedEvent = {
+        ...mockEvent,
+        startListPublished: true,
+        startNumbersPublished: false,
+        state: 'invited',
+      }
+
+      it('notes it under the day', () => {
+        render(<ParticipantList participants={teamParticipants()} event={undrawn} />)
+
+        expect(screen.getAllByText('AVO (startNumbersNotPublished)')).toHaveLength(2)
+      })
+
+      it('notes it under the date of a classless event', () => {
+        const classless = teamParticipants().map((reg) => ({ ...reg, class: undefined }))
+
+        render(<ParticipantList participants={classless} event={{ ...undrawn, classes: [] }} />)
+
+        expect(screen.getAllByText('(startNumbersNotPublished)')).toHaveLength(2)
+      })
+
+      it('copies the note', async () => {
+        const user = userEvent.setup()
+        mockClipboard()
+        render(<ParticipantList participants={teamParticipants()} event={undrawn} showExportActions />)
+
+        await user.click(screen.getByRole('button', { name: /copyStartList/ }))
+
+        expect(writeText).toHaveBeenCalledWith(expect.stringMatching(/^[^\n]+\nAVO \(startNumbersNotPublished\)\n/))
+      })
+    })
+
+    it('copies the class in front of the code where the day mixes classes', async () => {
+      const user = userEvent.setup()
+      mockClipboard()
+      render(
+        <ParticipantList
+          participants={[
+            inTeam(createMockRegistration('AVO', 'Aapo', 1, '2023-01-01'), '1A'),
+            createMockRegistration('VOI', 'Dora', 2, '2023-01-01'),
+          ]}
+          event={mockEvent}
+          showExportActions
+        />
+      )
+
+      await user.click(screen.getByRole('button', { name: /copyStartList/ }))
+
+      expect(writeText).toHaveBeenCalledWith(expect.stringMatching(/\nAVO 1A 1\. [^\n]*Aapo/))
+      expect(writeText).toHaveBeenCalledWith(expect.stringMatching(/\nVOI 2\. [^\n]*Dora/))
+    })
+
     it('keeps the view when the chosen one is clicked again', async () => {
       const user = userEvent.setup()
       render(<ParticipantList participants={teamParticipants()} event={mockEvent} />)
