@@ -5,7 +5,7 @@ order: 50
 covers:
   - src/pages/admin/UsersPage.tsx
   - src/pages/admin/usersPage/**
-sourceHash: 883ee9
+sourceHash: a021cc
 ---
 
 No accounts are created in the calendar: access is granted to an email address, and its holder
@@ -46,7 +46,7 @@ calendar. If the address already has a user, the new role is added to it.
 
 ## Editing roles
 
-Select a user in the list and press **{t:editRoles}** — or double-click the row. The dialog lists
+Select a user in the list and press **{t:editRoles}**, or double-click the row. The dialog lists
 the user's clubs with their roles. A role is removed with the row's **{t:delete}** button, and a
 new one added on the bottom row by picking the club and the role and pressing **{t:add}**. Only
 the clubs you administer, and in which the user has no role yet, are offered. Changes take effect

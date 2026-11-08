@@ -109,9 +109,13 @@ describe('AdminHomePage', () => {
             <Authenticator.Provider>
               <Suspense fallback={<div>loading...</div>}>
                 <DataMemoryRouter
-                  initialEntries={[Path.admin.root]}
+                  initialEntries={[Path.admin.index]}
                   routes={[
-                    { element: <AdminHomePage />, path: Path.admin.root },
+                    {
+                      children: [{ element: <>ADMIN DEFAULT PAGE CONTENT</>, path: Path.admin.index }],
+                      element: <AdminHomePage />,
+                      path: Path.admin.root,
+                    },
                     { element: <>Login</>, path: Path.login },
                   ]}
                 />
@@ -132,6 +136,7 @@ describe('AdminHomePage', () => {
 
     expect(screen.queryByText('Login')).not.toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'error.noAdminAccess' })).toBeInTheDocument()
+    expect(screen.queryByText('ADMIN DEFAULT PAGE CONTENT')).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'goHome' })).toHaveAttribute('href', Path.home)
     // The admin pages' change feed is not opened for a user who may not read it.
     expect(useAdminSubscription).not.toHaveBeenCalled()
@@ -151,7 +156,7 @@ describe('AdminHomePage', () => {
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'error.tryAgain' })))
     await flushPromises()
 
-    expect(screen.getByRole('banner')).toBeInTheDocument()
+    expect(screen.getByText('ADMIN DEFAULT PAGE CONTENT')).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'error.userUnavailable' })).not.toBeInTheDocument()
   })
 

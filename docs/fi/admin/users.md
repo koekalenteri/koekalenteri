@@ -46,7 +46,7 @@ Koekalenteriin. Jos osoitteella on jo käyttäjä, uusi rooli lisätään sille.
 
 ## Roolien muokkaaminen
 
-Valitse käyttäjä listasta ja paina **{t:editRoles}** — tai tuplaklikkaa riviä. Ikkuna luettelee
+Valitse käyttäjä listasta ja paina **{t:editRoles}**, tai tuplaklikkaa riviä. Ikkuna luettelee
 käyttäjän yhdistykset rooleineen. Rooli poistetaan rivin painikkeella **{t:delete}**, ja uusi
 lisätään alimmalla rivillä valitsemalla yhdistys ja rooli ja painamalla **{t:add}**. Tarjolla
 ovat vain ne yhdistykset, joihin sinulla on pääkäyttäjän oikeus ja joihin käyttäjällä ei vielä ole
