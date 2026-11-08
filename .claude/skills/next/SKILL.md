@@ -27,8 +27,9 @@ Then, in the same step:
 
 - `ListAgents`: a peer session named after a key holds that key too.
 - The user's decided order, if one exists: the release plan in memory, an epic's description, a
-  planning document. A decided order wins over anything this skill would infer; the skill only
-  bundles and points out conflicts in it.
+  planning document. A decided order wins over anything this skill would infer. When a conflict
+  keeps an issue from starting in that order (its files wait for an open PR), the output puts the
+  issues that can start first and says so in the why, naming the decided position and the PR.
 - For issues with `Ready for Testing` or `Testing In Progress`: nothing to plan, list them under
   "Odottaa testausta". Their merged PR still counts in step 3 if the release has not shipped.
 
@@ -136,14 +137,16 @@ user's decision it waits for), "Odottaa testausta".
 Every key in a card is free by step 1. Before answering, run `candidates.sh` once more if more
 than a few minutes have passed: a peer session may have opened a branch meanwhile.
 
-Decisions only the user can make (an order between two releases, an issue that needs a product
-decision before it can be bundled) go through `AskUserQuestion` before the output, never as a
-question inside it.
+The output is the answer. It ends without a question: nothing here asks whether to start a
+bundle, which order to take or whether to go on. An issue that needs the user's decision before
+it can be bundled goes to "Estetty" with the decision it waits for.
 
 ## Rules
 
 - Plans only. No code, no agents for implementation, no Jira transitions or comments.
-- A decided order from the user is not re-ranked; conflicts in it are pointed out.
+- Never executes: the cards are for the user to paste, and nothing in this skill asks to start one.
+- A decided order from the user is not re-ranked; an issue moves only when its files wait for an
+  open PR, and the why says so.
 - An issue held by a PR, branch or session is never in a card.
 - A footprint is a guess with its command next to it; the `/tickets` implementer's plan step
   corrects it. Say `laaja` rather than guess narrow.
