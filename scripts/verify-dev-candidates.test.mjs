@@ -1,4 +1,4 @@
-import { areasOf, candidateRow, commitsClaiming, devDeploy } from '../.claude/skills/verify-dev/candidates.mjs'
+import { areasOf, candidateRow, commitsClaiming, devDeploy, parseLog } from '../.claude/skills/verify-dev/candidates.mjs'
 
 // /verify-dev (KOE-1733) tests an issue only once its change is on dev. "On dev" is decided from
 // the CI runs on main: the newest one whose deploy-dev smoke check passed, and whether the issue's
@@ -49,13 +49,25 @@ describe('commitsClaiming', () => {
     { sha: 'a1', message: 'feat(events): a thing (KOE-1, KOE-9) (#10)\n\nbody\n\nKOE-3' },
   ]
 
-  it('keeps the commits that claim the key, newest first', () => {
+  it('keeps the commits that claim the key, not one citing it mid-sentence', () => {
     expect(commitsClaiming(log, 'KOE-1').map((c) => c.sha)).toEqual(['a1'])
     expect(commitsClaiming(log, 'KOE-3').map((c) => c.sha)).toEqual(['a1'])
   })
+})
 
-  it('does not take a key cited mid-sentence as a claim', () => {
-    expect(commitsClaiming(log, 'KOE-1').map((c) => c.sha)).not.toContain('a2')
+describe('parseLog', () => {
+  it('splits git log output into commits, with and without a body', () => {
+    const text =
+      'a2\0docs: no body (#11)\n\x1e\n' + 'a1\0feat(events): a thing (KOE-1) (#10)\n\nThe body.\n\nKOE-3\n\x1e\n'
+
+    expect(parseLog(text)).toEqual([
+      { sha: 'a2', message: 'docs: no body (#11)' },
+      { sha: 'a1', message: 'feat(events): a thing (KOE-1) (#10)\n\nThe body.\n\nKOE-3' },
+    ])
+  })
+
+  it('reads empty output as no commits', () => {
+    expect(parseLog('')).toEqual([])
   })
 })
 

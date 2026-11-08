@@ -12,21 +12,19 @@ The test accounts, their keys, and how to switch between them are in `e2e/README
 entry of `git worktree list`), not a worktree's. Read them from there and never print them: not in
 a reply, a Jira comment, a screenshot or a log line.
 
-| KEY              | Roles, and nothing else    | Used for                                    |
-| ---------------- | -------------------------- | ------------------------------------------- |
-| `PAAKAYTTAJA`    | global admin               | Admin-only pages, looking across organizers |
-| `YHDISTYS_ADMIN` | admin of J1                | Organizer admin views of J1                 |
-| `SIHTEERI`       | secretary of J1            | Creating and running test events            |
-| `SIHTEERI_2`     | secretary of J2            | Checking that J1's data stays out of sight  |
-| `ILMOITTAJA`     | none                       | Registering, the registrant's own pages     |
+Each account has exactly the role below and nothing else: no other organizer role, and global
+admin only for `PAAKAYTTAJA`.
 
-- The roles are given on dev's Käyttäjät page (`/admin/users`), and `PAAKAYTTAJA` must be a
-  global admin for that; only an existing admin can make it one, so that is the user's to do.
-- The skill changes an account's roles only when the sign-in check finds that they are not what
-  this file expects. If every account already has the expected roles, no role dialog is opened and
-  nothing is changed. When something is wrong, fix only that account's mismatch (add what is
-  missing, remove what is extra), and list every change in the run summary. The check is step 0
-  of `SKILL.md`; no other step opens a role dialog.
+| KEY              | Role                             | Used for                                    |
+| ---------------- | -------------------------------- | ------------------------------------------- |
+| `PAAKAYTTAJA`    | global admin                     | Admin-only pages, looking across organizers |
+| `YHDISTYS_ADMIN` | admin of J1 (ACTION DOGS RY)     | Organizer admin views of J1                 |
+| `SIHTEERI`       | secretary of J1 (ACTION DOGS RY) | Creating and running test events            |
+| `SIHTEERI_2`     | secretary of J2 (ACTION RY)      | Checking that J1's data stays out of sight  |
+| `ILMOITTAJA`     | no role                          | Registering, the registrant's own pages     |
+
+- The roles are checked, and fixed only where they differ, by the setup check in `SKILL.md`,
+  step 0; no other step opens a role dialog.
 - Do not open `/admin` as `ILMOITTAJA` until KOE-1734 is fixed: a user with no role loops there and
   hangs the browser.
 

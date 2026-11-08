@@ -14,11 +14,11 @@
 //
 // Usage: .claude/skills/verify-dev/candidates.mjs [KEY...]   (default: every Ready for Testing issue)
 import { execFileSync } from 'node:child_process'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { claimedKeys, DEFAULT_BASE_URL, jiraClient } from '../../../scripts/lib/jira.mjs'
-import { isGitDescendant } from '../../../scripts/smoke-deploy.mjs'
+import { isGitDescendant } from '../../../scripts/lib/git.mjs'
+import { claimedKeys, credentialsFromEnv, jiraClient } from '../../../scripts/lib/jira.mjs'
 
 const SMOKE_JOB = 'deploy-dev / smoke'
 const E2E_JOB = 'deploy-dev / e2e'
@@ -64,19 +64,12 @@ export const candidateRow = (issue, commits, devSha, isDescendant) => {
 
 const run = (cmd, args) => execFileSync(cmd, args, { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 })
 
-/** KEY=VALUE lines of the .env beside this checkout, or of the main checkout for a worktree. */
-const readEnv = (root) => {
-  let file = path.join(root, '.env')
-  if (!existsSync(file)) {
-    const main = run('git', ['-C', root, 'worktree', 'list', '--porcelain']).split('\n')[0].replace(/^worktree /, '')
-    file = path.join(main, '.env')
-  }
-  const env = {}
-  for (const line of readFileSync(file, 'utf8').split('\n')) {
-    const match = line.match(/^\s*([A-Z_][A-Z0-9_]*)=["']?(.*?)["']?\s*$/)
-    if (match) env[match[1]] = match[2]
-  }
-  return env
+/** The .env of this checkout, or of the main checkout when this is a worktree without one. */
+const envFile = (root) => {
+  const own = path.join(root, '.env')
+  if (existsSync(own)) return own
+  const main = run('git', ['-C', root, 'worktree', 'list', '--porcelain']).split('\n')[0].replace(/^worktree /, '')
+  return path.join(main, '.env')
 }
 
 const searchIssues = async (request, jql) => {
@@ -96,26 +89,26 @@ const searchIssues = async (request, jql) => {
   return issues
 }
 
-const mainLog = () =>
-  run('git', ['log', 'origin/main', '--format=%H%x00%B%x1e'])
+/** `git log --format=%H%x00%B%x1e` output as [{ sha, message }]: a NUL ends the sha, an RS the entry. */
+export const parseLog = (text) =>
+  text
     .split('\x1e')
     .map((entry) => entry.trim())
     .filter(Boolean)
     .map((entry) => {
-      const [sha, message] = entry.split('\0')
+      const [sha, message = ''] = entry.split('\0')
       return { sha, message: message.trim() }
     })
+
+const mainLog = () => parseLog(run('git', ['log', 'origin/main', '--format=%H%x00%B%x1e']))
 
 const main = async () => {
   const keys = process.argv.slice(2).map((key) => key.toUpperCase())
   const root = run('git', ['rev-parse', '--show-toplevel']).trim()
-  const env = readEnv(root)
-  if (!env.JIRA_USER_EMAIL || !env.JIRA_API_TOKEN) throw new Error('JIRA_USER_EMAIL and JIRA_API_TOKEN missing from .env')
-  const request = jiraClient({
-    baseUrl: env.JIRA_BASE_URL || DEFAULT_BASE_URL,
-    email: env.JIRA_USER_EMAIL,
-    token: env.JIRA_API_TOKEN,
-  })
+  process.loadEnvFile(envFile(root))
+  const credentials = credentialsFromEnv()
+  if (!credentials) throw new Error('JIRA_USER_EMAIL and JIRA_API_TOKEN missing from .env')
+  const request = jiraClient(credentials)
 
   // The local clone lags main; the commit and the deploy must both be in it.
   run('git', ['fetch', '--quiet', 'origin', 'main'])

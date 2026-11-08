@@ -128,8 +128,7 @@ The test accounts are in `.env` as `E2E_DEV_<KEY>_EMAIL` and `E2E_DEV_<KEY>_PASS
 | `SIHTEERI_2`     | secretary of J2             |
 | `ILMOITTAJA`     | no role, a plain registrant |
 
-`/verify-dev` checks these roles on dev's Käyttäjät page at the start of every run and fixes only
-an account whose roles differ (`.claude/skills/verify-dev/SKILL.md`, step 0).
+`/verify-dev` checks these roles at the start of every run (`.claude/skills/verify-dev/SKILL.md`, step 0).
 
 ### The allowlist
 

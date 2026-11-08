@@ -15,7 +15,9 @@ only those. The release decision stays with the user.
 - **No AWS.** Signing in, data and every check go through the dev UI. Jira is used through its
   REST API, GitHub through `gh`.
 - **Test data** (accounts, organizers J1 and J2, events, email addresses, dogs, payments, results
-  to Kennelliitto) follows `.claude/skills/verify-dev/test-data.md`. Read it before the first step.
+  to Kennelliitto) follows `.claude/skills/verify-dev/test-data.md`. Read it before the first step;
+  its rules (nothing is deleted, no Kopioi ympäristöön, the allowlist is not edited mid-run) hold
+  on every step.
 - **Credentials** are `E2E_DEV_<KEY>_EMAIL` and `E2E_DEV_<KEY>_PASSWORD` in the main checkout's
   `.env` (the first entry of `git worktree list`). Never print them: not in a reply, a Jira comment,
   a screenshot or a log line.
@@ -36,28 +38,23 @@ Runs first on every run. When everything is in place, it costs one sign-in and o
    sign-in, so for each account whose row is missing: close the browser (`browser_close`), sign in
    once as that account, then sign in as `PAAKAYTTAJA` again and come back. After signing in as
    `ILMOITTAJA`, do not open `/admin` (KOE-1734, `test-data.md`).
-3. Compare each account's roles with what `test-data.md` expects. The Roolit column's tooltip
-   lists them: Koekalenterin pääkäyttäjä, then one line per organizer role ("Yhdistyksen
-   pääkäyttäjä - ACTION DOGS RY", "Koesihteeri - ACTION RY"). Lines for a judge or an official come
-   from Kennelliitto and are not roles; leave them out of the comparison.
-
-   | KEY              | Koekalenterin pääkäyttäjä | Organizer roles                         |
-   | ---------------- | ------------------------- | --------------------------------------- |
-   | `YHDISTYS_ADMIN` | no                        | Yhdistyksen pääkäyttäjä, ACTION DOGS RY |
-   | `SIHTEERI`       | no                        | Koesihteeri, ACTION DOGS RY             |
-   | `SIHTEERI_2`     | no                        | Koesihteeri, ACTION RY                  |
-   | `ILMOITTAJA`     | no                        | none                                    |
-
-4. The skill changes an account's roles only when this check finds that they are not what
+3. Compare each account's roles with the expected roles in `test-data.md`, "Accounts". The Roolit
+   column's tooltip lists them: Koekalenterin pääkäyttäjä (global admin), then one line per
+   organizer role, "Yhdistyksen pääkäyttäjä - <organizer>" (admin) or "Koesihteeri - <organizer>"
+   (secretary). An account with no role has no tooltip at all. Lines for a judge or an official
+   come from Kennelliitto and are not roles; leave them out of the comparison.
+4. The skill changes an account's roles only when the sign-in check finds that they are not what
    `test-data.md` expects. If every account already has the expected roles, no role dialog is
    opened and nothing is changed. When something is wrong, fix only that account's mismatch (add
    what is missing, remove what is extra), and list every change in the run summary.
    - Select the row and press Muokkaa rooleja. The dialog saves each control at once; there is no
-     save button. Koekalenterin pääkäyttäjä is the checkbox; an organizer role is removed with
-     Poista on its row and added in the last row (organizer by its full name, Rooli, Lisää). Close
-     with Sulje and read the tooltip again.
-   - This is the only place the skill opens a role dialog. No other step changes what an account
-     may do.
+     save button.
+   - While Koekalenterin pääkäyttäjä is ticked, the dialog shows only a note that a global admin
+     has every organizer's rights. For an account that must not be a global admin, untick it
+     first; the organizer roles and the row to add one appear after that.
+   - An organizer role is removed with Poista on its row and added in the last row: the organizer
+     by its full name, Rooli, Lisää. Close with Sulje and read the tooltip again.
+   - This is the only place the skill opens a role dialog.
 5. Take no screenshot of Käyttäjät: it shows the accounts' emails.
 
 ## 1. Candidates
@@ -92,8 +89,8 @@ Test the issues one at a time, in the order listed.
 - An issue that cannot be tested on dev through the UI is skipped: no move, no comment, the reason
   in the summary. That covers:
   - nightly or scheduled jobs, migrations, logs, anything only AWS shows;
-  - changes with no app code (the areas column holds no `src`, `public`, `docs` or `template`):
-    CI, config, Claude tooling;
+  - changes with no app code (the areas column holds no folder under `src`, `public`, `docs` or
+    `template`): CI, config, Claude tooling;
   - managing users' rights, which would need a test account's roles changed;
   - anything that needs production.
   A part of an issue that cannot be tested this way is named in the comment as not tested; it
@@ -101,7 +98,7 @@ Test the issues one at a time, in the order listed.
 
 ## 3. Start
 
-- Move the issue to Testing In Progress. Take the transition id by its target's name from
+- Move the issue to Testing In Progress, unless it is already there. Take the transition id by its target's name from
   `GET /rest/api/3/issue/<KEY>/transitions`, then `POST` it to the same endpoint.
 - Make or find the data as `test-data.md` says: a rerun of the same issue reuses the event named
   with its key.
@@ -149,11 +146,3 @@ To the user, one list each, with links:
   **skipped** (the reason).
 - Every role change the setup check made, per account. "No changes" when there were none.
 - The deploy tested against, and its e2e state when it was not success.
-
-## Never
-
-- Delete anything (Poista on an event, a registration or anything else), or use Kopioi
-  ympäristöön: test data stays on dev, and nothing goes to another environment.
-- Open a role dialog outside the setup check.
-- Edit `.claude/playwright-mcp.json` mid-run; a missing origin is a blocker for a PR.
-- Type a test account's own address into a form (`test-data.md`, "Email").
