@@ -3,7 +3,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { sesTemplateName } from '../lib/emailTemplate'
 import { CONFIG } from './config'
 import { isGranted, unusedGrants } from './test-utils/dynamoActions'
-import { analyzeTableUse } from './test-utils/lambdaTableUse'
+import { analyzeLambdaUse } from './test-utils/lambdaUse'
 import { templateTables } from './test-utils/templateGrants'
 
 /**
@@ -27,7 +27,7 @@ const handlerDirectories = readdirSync('src/lambda', { withFileTypes: true })
 
 const matchAll = (pattern: RegExp) => [...template.matchAll(pattern)].map((match) => match[1])
 
-const analysis = analyzeTableUse(handlerDirectories.map((dir) => `src/lambda/${dir}/handler.ts`))
+const analysis = analyzeLambdaUse(handlerDirectories.map((dir) => `src/lambda/${dir}/handler.ts`))
 
 // One block per resource, starting at its logical id. A resource line may carry a trailing comment
 // (UserLinkTable does).
@@ -200,7 +200,7 @@ describe('template', () => {
 
 // A lambda that reaches a table its policies do not grant fails here, not in dev (KOE-1492). The
 // code side follows calls from each handler's default export and from the module-level code that
-// runs at import (test-utils/lambdaTableUse.ts); the template side is the function block's DynamoDB
+// runs at import (test-utils/lambdaUse.ts); the template side is the function block's DynamoDB
 // policies, inline statements and managed policies (test-utils/templateGrants.ts). The first case of
 // the kind was the user table: outside prod, sendTemplatedMail asks it who is staff, and a sender
 // without the read policy failed on the first mail it sent in test or dev (KOE-1469); that rule is

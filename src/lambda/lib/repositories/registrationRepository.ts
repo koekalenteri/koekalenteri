@@ -217,7 +217,7 @@ export type NewRegistrationPhase =
 const NEW_REGISTRATION_LEASE_DURATION_MS = 90 * 1000
 
 // Built where it is used, not at import: the lease holds no state of its own, and a lease built at
-// import would count, for the policy check (lambdaTableUse), as reaching this table from every
+// import would count, for the policy check (lambdaUse), as reaching this table from every
 // lambda that imports this module.
 const newRegistrationLease = () =>
   createDynamoLease<JsonRegistration, NewRegistrationPhase>({

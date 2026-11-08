@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import { createTableUseAnalyzer } from './lambdaTableUse'
+import { createLambdaUseAnalyzer } from './lambdaUse'
 
 /**
  * A small lambda tree of its own, so each case says what the walk must find or refuse without
@@ -10,7 +10,7 @@ import { createTableUseAnalyzer } from './lambdaTableUse'
  * throw does so for its own handler only, and each rule has a handler of its own, so that a rule
  * dropped from the walk fails the case that pins it.
  */
-const root = mkdtempSync(path.join(tmpdir(), 'lambda-table-use-'))
+const root = mkdtempSync(path.join(tmpdir(), 'lambda-use-'))
 
 const write = (file: string, content: string) => {
   const target = path.join(root, 'src/lambda', file)
@@ -1427,7 +1427,7 @@ export const list = () => new CustomDynamoClient(table).readAll()
 
 const handlerFile = (name: string) => path.join(root, 'src/lambda', `${name}Function/handler.ts`)
 
-let analyzer: ReturnType<typeof createTableUseAnalyzer>
+let analyzer: ReturnType<typeof createLambdaUseAnalyzer>
 
 beforeAll(() => {
   write(
@@ -1471,7 +1471,7 @@ beforeAll(() => {
   )
   for (const [file, content] of Object.entries(LIBS)) write(file, content)
   for (const [name, content] of Object.entries(HANDLERS)) write(`${name}Function/handler.ts`, content)
-  analyzer = createTableUseAnalyzer(Object.keys(HANDLERS).map(handlerFile))
+  analyzer = createLambdaUseAnalyzer(Object.keys(HANDLERS).map(handlerFile))
 })
 
 afterAll(() => rmSync(root, { force: true, recursive: true }))
@@ -1481,7 +1481,7 @@ const usesOf = (name: string) =>
     .flatMap(([key, byAction]) => [...byAction.keys()].map((action) => `${action} ${key}`))
     .sort()
 
-describe('createTableUseAnalyzer', () => {
+describe('createLambdaUseAnalyzer', () => {
   it('maps the CONFIG keys to the environment variables they read', () => {
     expect([...analyzer.environmentVariables]).toEqual([
       ['judgeTable', 'JUDGE_TABLE_NAME'],

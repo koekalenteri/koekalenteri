@@ -1,5 +1,6 @@
 /**
- * Which DynamoDB tables a lambda's code can reach, and which its template grants (KOE-1492).
+ * What a lambda's code can reach: the DynamoDB tables (KOE-1492), the environment variables, the SSM
+ * parameters and the AWS SDK commands, for `template.test.ts` to compare with what its template grants.
  *
  * A lambda that starts reading a table through shared lib code gets no new policy by itself, and
  * nothing before the deploy notices: the unit tests mock the database and the browser tests run
@@ -1269,7 +1270,7 @@ const collect = (ctx: Context, state: HandlerState, unit: Unit, info: UnitInfo, 
   ]
   for (const { call, method } of clientCalls) {
     const spec = CLIENT_METHODS.get(method)
-    if (!spec) throw new Error(`${location(call)}: ${CLIENT_CLASS}.${method} is not classified in lambdaTableUse.ts`)
+    if (!spec) throw new Error(`${location(call)}: ${CLIENT_CLASS}.${method} is not classified in lambdaUse.ts`)
     for (const key of callTables(ctx, state, call, spec)) {
       for (const action of spec.actions) record(state, uses, key, action, call, unit)
     }
@@ -1563,7 +1564,7 @@ const configEnvironmentVariables = (config: ts.VariableDeclaration): Map<string,
   return variables
 }
 
-interface TableAnalysis {
+interface LambdaAnalysis {
   /** Handler file to the CONFIG keys its code reaches. */
   uses: Map<string, TableUse>
   /** Handler file to the environment variables its code reads. */
@@ -1576,7 +1577,7 @@ interface TableAnalysis {
   environmentVariables: Map<string, string>
 }
 
-interface TableUseAnalyzer {
+interface LambdaUseAnalyzer {
   environmentVariables: Map<string, string>
   /** The tables, environment variables, SSM parameters and SDK commands one of the handlers reaches; throws on the first use it cannot name. */
   analyze: (handlerFile: string) => HandlerUse
@@ -1585,7 +1586,7 @@ interface TableUseAnalyzer {
 }
 
 /** One program over the handlers, each walked on request, so a test can hold the failing ones apart. */
-export const createTableUseAnalyzer = (handlerFiles: string[]): TableUseAnalyzer => {
+export const createLambdaUseAnalyzer = (handlerFiles: string[]): LambdaUseAnalyzer => {
   const program = ts.createProgram(
     handlerFiles.map((file) => path.resolve(file)),
     compilerOptions()
@@ -1604,9 +1605,9 @@ export const createTableUseAnalyzer = (handlerFiles: string[]): TableUseAnalyzer
 }
 
 /** What each handler can reach, by following calls from its default export. */
-export const analyzeTableUse = (handlerFiles: string[]): TableAnalysis => {
-  const analyzer = createTableUseAnalyzer(handlerFiles)
-  const analysis: TableAnalysis = {
+export const analyzeLambdaUse = (handlerFiles: string[]): LambdaAnalysis => {
+  const analyzer = createLambdaUseAnalyzer(handlerFiles)
+  const analysis: LambdaAnalysis = {
     commands: new Map(),
     environment: new Map(),
     environmentVariables: analyzer.environmentVariables,

@@ -345,7 +345,7 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   tables below, and the SES and SSM actions and SSM parameters in the bullet after the environment
   variables. The same test follows the calls from each handler's default export, and from the module-level
   code that runs when the handler and the files it imports load, through every file under `src` they
-  reach (`src/lambda/test-utils/lambdaTableUse.ts`, KOE-1557) and reads the block's policies
+  reach (`src/lambda/test-utils/lambdaUse.ts`, KOE-1557) and reads the block's policies
   (`src/lambda/test-utils/templateGrants.ts`, KOE-1492). Code that runs at import counts without its
   function bodies: a function it calls, or writes out as an argument, runs its own body there, and
   one it stores or returns first is not followed; the module's header lists what it does not model.
