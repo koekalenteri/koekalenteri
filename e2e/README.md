@@ -103,12 +103,12 @@ set to `local`, the key the servers' database is kept under.
 
 `.mcp.json` gives Claude Code sessions in this repository a browser of their own: the Playwright
 MCP server (`@playwright/mcp`, pinned in `package.json`), named `playwright`, run from
-`node_modules` with the settings in `.claude/playwright-mcp.json` (KOE-1731). It is for checking
-a change on dev (https://dev.koekalenteri.snj.fi) the way a tester would, signed in through the
-dev login form. Claude Code asks once, at the first session after the file appears, whether to
-approve the project server; `claude mcp get playwright` shows whether it is approved. The server
-runs from `node_modules`, so a fresh checkout or worktree needs `npm ci` first, or Claude Code
-shows the server as failed.
+`node_modules` by `scripts/playwright-mcp.mjs` with the settings in `.claude/playwright-mcp.json`
+(KOE-1731). It is for checking a change on dev (https://dev.koekalenteri.snj.fi) the way a
+tester would, signed in through the dev login form. Claude Code asks once, at the first session
+after the file appears, whether to approve the project server; `claude mcp get playwright` shows
+whether it is approved. The server runs from `node_modules`, so a fresh checkout or worktree
+needs `npm ci` first, or Claude Code shows the server as failed.
 
 - The browser is headless and isolated: its profile lives in memory and nothing is kept between
   sessions. To change account, close the browser (`browser_close`) and sign in again through
@@ -118,7 +118,8 @@ shows the server as failed.
 - Snapshots and console logs land in `.playwright-mcp/` at the repository root, which git ignores.
 
 The test accounts are in `.env` as `E2E_DEV_<KEY>_EMAIL` and `E2E_DEV_<KEY>_PASSWORD`
-(`.env.sample` lists the names), each meant for one role on dev:
+(`.env.sample` lists the names), each meant for one role on dev. A worktree without a `.env` of
+its own uses the main checkout's, the first entry of `git worktree list`.
 
 | KEY              | Role                        |
 | ---------------- | --------------------------- |
@@ -129,6 +130,34 @@ The test accounts are in `.env` as `E2E_DEV_<KEY>_EMAIL` and `E2E_DEV_<KEY>_PASS
 | `ILMOITTAJA`     | no role, a plain registrant |
 
 `/verify-dev` checks these roles at the start of every run (`.claude/skills/verify-dev/SKILL.md`, step 0).
+
+### The credentials
+
+A session never reads the credentials, because whatever it reads lands in its transcript. The
+browser holds them instead: `scripts/playwright-mcp.mjs` hands the `E2E_DEV_*` keys of that
+`.env` to the server as its secrets (`--secrets`), and the session types a key's name where the
+value goes. `browser_type` and `browser_fill_form` fill in the value when the text is exactly the
+name of a secret, the tool response shows the action as
+`process.env['E2E_DEV_SIHTEERI_PASSWORD']`, and a value that shows up in a later response, an
+email in the user list say, is replaced with `<secret>E2E_DEV_SIHTEERI_EMAIL</secret>`.
+
+- Only the `E2E_DEV_*` keys are handed over, not the whole `.env`. The server would replace every
+  other value too wherever it appears (`REACT_APP_REGION=eu-north-1` from `.env.sample` in every
+  Cognito URL), and fill `JIRA_API_TOKEN` into a dev form field as readily as a password when its
+  name is typed.
+- The server takes secrets only as a dotenv file. The launcher writes it under `.playwright-mcp/`
+  and removes it as soon as the server has read it, before the server answers its first request.
+  A value it cannot write so that it reads back the same (a carriage return in it) stops the
+  launcher with the key named, and the server does not start.
+- Upstream calls this a convenience, not a security feature: it keeps the values out of the tool
+  responses, and nothing stops a page from showing them some other way, in a screenshot for one.
+- The server gets its secrets once, when the session starts it. A session started before this
+  launcher was in its checkout, or while there was no `.env` or no `E2E_DEV_*` keys in it, has a
+  browser without secrets: a typed name lands in the field literally (the snapshot shows
+  `E2E_DEV_SIHTEERI_EMAIL` in the field, and the action as `fill('E2E_DEV_SIHTEERI_EMAIL')`
+  rather than `process.env[...]`) and the sign-in fails. The launcher names the cause on its
+  standard error. Fill in `.env` if that is what is missing, and start a new session from the
+  main checkout with main pulled.
 
 ### The allowlist
 

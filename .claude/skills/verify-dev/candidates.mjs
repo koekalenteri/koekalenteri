@@ -14,10 +14,8 @@
 //
 // Usage: .claude/skills/verify-dev/candidates.mjs [KEY...]   (default: every Ready for Testing issue)
 import { execFileSync } from 'node:child_process'
-import { existsSync } from 'node:fs'
-import path from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { isGitDescendant } from '../../../scripts/lib/git.mjs'
+import { dotenvFile, isGitDescendant } from '../../../scripts/lib/git.mjs'
 import { claimedKeys, credentialsFromEnv, jiraClient } from '../../../scripts/lib/jira.mjs'
 
 const SMOKE_JOB = 'deploy-dev / smoke'
@@ -64,14 +62,6 @@ export const candidateRow = (issue, commits, devSha, isDescendant) => {
 
 const run = (cmd, args) => execFileSync(cmd, args, { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 })
 
-/** The .env of this checkout, or of the main checkout when this is a worktree without one. */
-const envFile = (root) => {
-  const own = path.join(root, '.env')
-  if (existsSync(own)) return own
-  const main = run('git', ['-C', root, 'worktree', 'list', '--porcelain']).split('\n')[0].replace(/^worktree /, '')
-  return path.join(main, '.env')
-}
-
 const searchIssues = async (request, jql) => {
   const issues = []
   let token
@@ -105,7 +95,7 @@ const mainLog = () => parseLog(run('git', ['log', 'origin/main', '--format=%H%x0
 const main = async () => {
   const keys = process.argv.slice(2).map((key) => key.toUpperCase())
   const root = run('git', ['rev-parse', '--show-toplevel']).trim()
-  process.loadEnvFile(envFile(root))
+  process.loadEnvFile(dotenvFile(root))
   const credentials = credentialsFromEnv()
   if (!credentials) throw new Error('JIRA_USER_EMAIL and JIRA_API_TOKEN missing from .env')
   const request = jiraClient(credentials)

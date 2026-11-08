@@ -8,9 +8,10 @@ API by hand, and changes what a test account may do only in its setup check (bel
 ## Accounts
 
 The test accounts, their keys, and how to switch between them are in `e2e/README.md`,
-"Claude's browser on dev". Their credentials are in the `.env` of the main checkout (the first
-entry of `git worktree list`), not a worktree's. Read them from there and never print them: not in
-a reply, a Jira comment, a screenshot or a log line.
+"Claude's browser on dev". Their credentials are never read: the browser holds them as secrets,
+and the skill types the variable's name (`E2E_DEV_<KEY>_EMAIL`, `E2E_DEV_<KEY>_PASSWORD`) into a
+sign-in or search field for the browser to fill in (`e2e/README.md`, "The credentials"). If a value
+shows anyway, keep it out of every reply, Jira comment, screenshot and log line.
 
 Each account has exactly the role below and nothing else: no other organizer role, and global
 admin only for `PAAKAYTTAJA`.

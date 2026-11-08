@@ -18,26 +18,39 @@ only those. The release decision stays with the user.
   to Kennelliitto) follows `.claude/skills/verify-dev/test-data.md`. Read it before the first step;
   its rules (nothing is deleted, no Kopioi ympäristöön, the allowlist is not edited mid-run) hold
   on every step.
-- **Credentials** are `E2E_DEV_<KEY>_EMAIL` and `E2E_DEV_<KEY>_PASSWORD` in the main checkout's
-  `.env` (the first entry of `git worktree list`). Never print them: not in a reply, a Jira comment,
-  a screenshot or a log line.
+- **Credentials** of the test accounts are never read: not from `.env`, not with a command,
+  not to check them. The browser has them as secrets (`e2e/README.md`, "The credentials"): type
+  the variable's name, `E2E_DEV_<KEY>_EMAIL` or `E2E_DEV_<KEY>_PASSWORD`, into the field with
+  `browser_type` or `browser_fill_form`, exactly and alone, and the browser fills in the value.
+  A value the page shows later comes back as `<secret>E2E_DEV_<KEY>_EMAIL</secret>`. If a value
+  shows anyway, keep it out of every reply, Jira comment, screenshot and log line.
+- **A browser without the secrets** fills the name in literally: the snapshot shows
+  `E2E_DEV_<KEY>_EMAIL` in the field, the action reads `fill('E2E_DEV_...')` instead of
+  `fill(process.env['E2E_DEV_...'])`, and the sign-in fails. That is a session started before
+  `scripts/playwright-mcp.mjs` was in its checkout, or without the keys in `.env`. Stop the run
+  and tell the user to start a new session from the main checkout with main pulled (and to fill in
+  `.env` if the server's log says the keys are missing); never work around it by reading `.env`.
 - **Jira:** REST at https://koekalenteri.atlassian.net with `JIRA_USER_EMAIL` and
-  `JIRA_API_TOKEN` from the same `.env`. Status names are exact: "Ready for Testing", "Testing In
-  Progress", "In Progress", "Done"; a misspelled one silently matches nothing.
+  `JIRA_API_TOKEN` from `.env` (the main checkout's from a worktree), loaded inside the command
+  that calls Jira, as `candidates.mjs` does, and never printed. Status names are exact: "Ready
+  for Testing", "Testing In Progress", "In Progress", "Done"; a misspelled one silently matches
+  nothing.
 
 ## 0. Setup check
 
 Runs first on every run. When everything is in place, it costs one sign-in and opens no dialog.
 
-1. Sign in as `PAAKAYTTAJA` through the dev login form. The side menu shows Yhdistykset only to a
+1. Sign in as `PAAKAYTTAJA` through the dev login form, typing `E2E_DEV_PAAKAYTTAJA_EMAIL` and
+   `E2E_DEV_PAAKAYTTAJA_PASSWORD` into its fields. The side menu shows Yhdistykset only to a
    global admin. Without it, stop the run and tell the user to make the account a global admin by
    hand (Käyttäjät, Muokkaa rooleja, Koekalenterin pääkäyttäjä): only an existing admin can, and
    nothing below works without it.
 2. Open Käyttäjät (`/admin/users`), Yhdistys set to Kaikki. Find each of the other four accounts
-   by typing its email into the search field. A user appears on the page only after its first
-   sign-in, so for each account whose row is missing: close the browser (`browser_close`), sign in
-   once as that account, then sign in as `PAAKAYTTAJA` again and come back. After signing in as
-   `ILMOITTAJA`, do not open `/admin` (KOE-1734, `test-data.md`).
+   by typing its `E2E_DEV_<KEY>_EMAIL` into the search field; the browser types the address. A
+   user appears on the page only after its first sign-in, so for each account whose row is
+   missing: close the browser (`browser_close`), sign in once as that account, then sign in as
+   `PAAKAYTTAJA` again and come back. After signing in as `ILMOITTAJA`, do not open `/admin`
+   (KOE-1734, `test-data.md`).
 3. Compare each account's roles with the expected roles in `test-data.md`, "Accounts". The Roolit
    column's tooltip lists them: Koekalenterin pääkäyttäjä (global admin), then one line per
    organizer role, "Yhdistyksen pääkäyttäjä - <organizer>" (admin) or "Koesihteeri - <organizer>"
@@ -110,8 +123,9 @@ Test the issues one at a time, in the order listed.
   that must not succeed. A secretary's action is also tried as `ILMOITTAJA` and as `SIHTEERI_2`
   for a J1 event; an admin-only page as `SIHTEERI`; a registrant's own page as another registrant
   or signed out.
-- Sign in through the dev login form with the account the case needs. To switch account, close the
-  browser (`browser_close`) and sign in again; the profile keeps nothing between them.
+- Sign in through the dev login form with the account the case needs, typing its
+  `E2E_DEV_<KEY>_EMAIL` and `E2E_DEV_<KEY>_PASSWORD`. To switch account, close the browser
+  (`browser_close`) and sign in again; the profile keeps nothing between them.
 - Take a screenshot of every point you judge (`browser_take_screenshot`), saved under the
   scratchpad in a folder named after the key. Name each file after what it shows.
 - Read what the page shows, not what you expect it to show. When unsure whether something is a
