@@ -39,9 +39,10 @@ const AccessMessage = ({ children }: Props) => (
 
 /**
  * Renders an admin page only for a user with admin access. A visitor who is not signed in goes to
- * login, unless they have just signed out here and are on their way to the front page. A signed-in user is never sent there: the login page sees the session and returns to the
- * page at once, which looped forever (KOE-1734). Without a role they are told so; when their user
- * could not be loaded they get a retry.
+ * login, unless they have just signed out here and are on their way to the front page. A signed-in
+ * user is never sent there: the login page sees the session and returns to the page at once, which
+ * looped forever (KOE-1734). Without a role they are told so; when their user could not be loaded
+ * they get a retry.
  */
 export function AdminAccessGuard({ children }: Props) {
   const { t } = useTranslation()
