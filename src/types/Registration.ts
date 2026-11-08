@@ -659,6 +659,19 @@ export interface JsonPublicRegistration {
   points?: number
   maxPoints?: number
   percentage?: number
+  /**
+   * The dog's team in a team competition (KOE-1715), derived from the event's teams when the list is
+   * built. The teams themselves stay on the server: they name their dogs by registration id. Absent on
+   * a dog in no team and on a cancelled dog's row.
+   */
+  team?: PublicTeamPlace
+}
+
+/** A dog's place in its team as the start list shows it: "Joukkue 1", its name, and the dog's code "1B". */
+export interface PublicTeamPlace {
+  code: string
+  name?: string
+  number: number
 }
 
 export interface PublicRegistration extends Omit<JsonPublicRegistration, 'dog' | 'group'> {

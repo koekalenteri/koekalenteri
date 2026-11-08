@@ -6,6 +6,7 @@ import type {
   JsonPublicRegistration,
   JsonPublicRegistrationGroup,
   JsonRegistration,
+  PublicTeamPlace,
 } from '../../types'
 import {
   formatTypeOf,
@@ -23,6 +24,7 @@ import {
   withDefaultOwnerSelection,
 } from '../../lib/registration'
 import { placementsFor, resultMarks, shownEventResult, withStoredTotals } from '../../lib/results'
+import { teamMembers } from '../../lib/team'
 import { getLiveEvent } from './event'
 import { readEventRegistrations } from './repositories/registrationRepository'
 
@@ -67,14 +69,14 @@ const buildPublicStartList = (
   // Derived over everyone who ran, so a withheld row still takes its rank; published only with the result.
   const placements = placementsFor(withTotals, confirmedEvent)
 
-  const publicRegs = withTotals
-    .filter((reg) => isInEventClasses(confirmedEvent, reg))
-    .map((reg) =>
-      reg.cancelled
-        ? cancelledPublicRow(confirmedEvent, reg, preview)
-        : publicRow(confirmedEvent, reg, preview, drawn, placements.get(reg.id))
-    )
-    .filter((row) => row !== undefined)
+  const rows = withTotals.flatMap((reg): PublishedRow[] => {
+    if (!isInEventClasses(confirmedEvent, reg)) return []
+    const row = reg.cancelled
+      ? cancelledPublicRow(confirmedEvent, reg, preview)
+      : publicRow(confirmedEvent, reg, preview, drawn, placements.get(reg.id))
+    return row ? [{ id: reg.id, row }] : []
+  })
+  const publicRegs = withTeams(confirmedEvent.teams, rows)
 
   // Groups keep their day/class/time order either way; within a group a withheld number falls
   // back to the dog's name, so the unconfirmed list reads alphabetically rather than leaking
@@ -85,6 +87,36 @@ const buildPublicStartList = (
   )
 
   return publicRegs
+}
+
+/**
+ * The rows, each published member of a team with its team (KOE-1715). The teams name their dogs by
+ * registration id, so they never leave the server: a row learns only its own team, and a team none of
+ * whose dogs is on the list is named nowhere. The codes come from `teamMembers`, read over the rows
+ * that are published, so a reserve's or an unpublished dog's letter stays taken without its row
+ * existing. A cancelled dog's row stays its frozen number alone (KOE-1017): a team beside it would tie
+ * the absent dog back to a named team.
+ */
+const withTeams = (teams: JsonDogEvent['teams'], rows: readonly PublishedRow[]): JsonPublicRegistration[] => {
+  const running = new Map(rows.filter(({ row }) => !row.cancelled).map(({ id, row }) => [id, row]))
+  const places = new Map<JsonPublicRegistration, PublicTeamPlace>()
+  teams?.forEach((team, index) => {
+    const number = index + 1
+    for (const { code, registration } of teamMembers(team, number, running)) {
+      places.set(registration, { code, ...(team.name ? { name: team.name } : {}), number })
+    }
+  })
+
+  return rows.map(({ row }) => {
+    const team = places.get(row)
+    return team ? { ...row, team } : row
+  })
+}
+
+/** A published row with the id of its registration, which the row itself never carries. */
+interface PublishedRow {
+  id: string
+  row: JsonPublicRegistration
 }
 
 /** Keep preview limited to event classes even though it bypasses publication checks. */

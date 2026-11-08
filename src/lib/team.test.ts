@@ -1,5 +1,5 @@
 import type { EventTeam } from '../types'
-import { MAX_TEAM_MEMBERS, teamErrors, teamMembers } from './team'
+import { MAX_TEAM_MEMBERS, teamErrors, teamMembers, teamsDiffer } from './team'
 
 const ids = (count: number, prefix = 'dog') => Array.from({ length: count }, (_, index) => `${prefix}-${index}`)
 
@@ -59,5 +59,29 @@ describe('teamErrors', () => {
     ]
 
     expect(teamErrors(teams)).toEqual([{ kind: 'tooMany', team: 1 }])
+  })
+})
+
+describe('teamsDiffer', () => {
+  const team: EventTeam = { name: 'Team Finland 1', registrationIds: ['a', 'b'] }
+
+  it.each<[string, EventTeam[] | null | undefined, EventTeam[] | null | undefined]>([
+    ['no teams and an empty list', undefined, []],
+    ['null and no teams', null, undefined],
+    ['the same teams', [team], [{ name: 'Team Finland 1', registrationIds: ['a', 'b'] }]],
+    ['no name and an empty one', [{ registrationIds: ['a'] }], [{ name: '', registrationIds: ['a'] }]],
+  ])('reads %s as the same', (_name, a, b) => {
+    expect(teamsDiffer(a, b)).toBe(false)
+  })
+
+  it.each<[string, EventTeam[], EventTeam[]]>([
+    ['a team added', [team], [team, { registrationIds: [] }]],
+    ['a team removed', [team], []],
+    ['a rename', [team], [{ ...team, name: 'Team Finland 2' }]],
+    ['two dogs swapped', [team], [{ ...team, registrationIds: ['b', 'a'] }]],
+    ['a dog added', [team], [{ ...team, registrationIds: ['a', 'b', 'c'] }]],
+    ['two teams swapped', [team, { registrationIds: ['c'] }], [{ registrationIds: ['c'] }, team]],
+  ])('reads %s as a change', (_name, a, b) => {
+    expect(teamsDiffer(a, b)).toBe(true)
   })
 })

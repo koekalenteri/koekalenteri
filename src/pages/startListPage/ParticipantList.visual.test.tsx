@@ -128,7 +128,69 @@ it("tells each group's running order as posts (KOE-1665)", async () => {
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-rotation')
 })
 
+// A two-day team competition (KOE-1715): on the first day team 1 holds dogs of two classes, so the
+// rows name their class in front of the code; team 2 runs on both days, and one dog is in no team.
+const SECOND_DAY: DayKey = '2026-10-03'
+const teamTrial: PublicConfirmedEvent = {
+  ...event,
+  classes: [
+    { class: 'AVO', date: EVENT_DAY },
+    { class: 'VOI', date: EVENT_DAY },
+    { class: 'AVO', date: SECOND_DAY },
+  ],
+  endDate: SECOND_DAY,
+  eventType: 'NOME-B',
+  id: 'event-teams',
+  name: 'NOME-B Akaa',
+  startNumbersPublished: true,
+}
+
+const teamDog = (
+  eventClass: 'AVO' | 'VOI',
+  date: DayKey,
+  name: string,
+  regNo: string,
+  number: number,
+  team?: PublicRegistration['team']
+): PublicRegistration => ({
+  ...registration(name, regNo),
+  class: eventClass,
+  group: { date, key: `${eventClass}-${date}`, number },
+  ...(team ? { team } : {}),
+})
+
+const teamFinland = { name: 'Team Finland 1', number: 1 }
+const teamDogs = [
+  teamDog('AVO', EVENT_DAY, 'WATERFOWLER OAKLEAF', 'FI10724/23', 1, { ...teamFinland, code: '1A' }),
+  teamDog('AVO', EVENT_DAY, 'WATERFOWLER ODIN', 'FI10716/23', 2, { code: '2A', number: 2 }),
+  teamDog('VOI', EVENT_DAY, 'WATERFOWLER ONNI', 'FI10718/23', 3, { ...teamFinland, code: '1B' }),
+  { ...teamDog('VOI', EVENT_DAY, 'WATERFOWLER OTSO', 'FI10720/23', 4), result: 'VOI1' },
+  teamDog('AVO', SECOND_DAY, 'WATERFOWLER OLIVIA', 'FI10722/23', 1, { code: '2B', number: 2 }),
+]
+
+it('lists a team competition by team, day by day (KOE-1715)', async () => {
+  const screen = await render(
+    <Frame>
+      <ParticipantList event={teamTrial} participants={teamDogs} />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('Team Finland 1')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-teams')
+})
+
 describeInLanguage('en', () => {
+  it('lists a team competition by team, day by day (KOE-1715)', async () => {
+    const screen = await render(
+      <Frame>
+        <ParticipantList event={teamTrial} participants={teamDogs} />
+      </Frame>
+    )
+
+    await expect.element(screen.getByText('No team')).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-teams-en')
+  })
+
   it("tells each group's running order as posts (KOE-1665)", async () => {
     const screen = await render(
       <Frame>

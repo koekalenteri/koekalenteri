@@ -2,6 +2,7 @@ import type { SubmittedTask } from '../../lib/results'
 import type {
   EventRotationGroup,
   EventStation,
+  EventTeam,
   JsonConfirmedEvent,
   JsonDogEvent,
   JsonEventResult,
@@ -1859,6 +1860,50 @@ describe('putEventLambda', () => {
         expect.not.objectContaining({ teams: expect.anything() })
       )
       expect(Object.hasOwn(JSON.parse(res.body), 'teams')).toBe(false)
+    })
+
+    // KOE-1715: the public start list shows each dog's team, so a teams save has to reach open pages.
+    describe('republishing the start list (KOE-1715)', () => {
+      const team = { name: 'Team Finland 1', registrationIds: ['a', 'b'] }
+      const putOver = async (storedTeams: EventTeam[] | undefined, teams: EventTeam[] | null) => {
+        signIn(mockSecretary)
+        getEventMock.mockResolvedValueOnce({ ...mockEvent, teams: storedTeams })
+        return putEventLambda(constructAPIGwEvent({ id: 'existing', teams }, { method: 'PATCH' }))
+      }
+
+      it.each([
+        ['new teams', undefined, [team]],
+        ['a renamed team', [team], [{ ...team, name: 'Team Finland 2' }]],
+        ['a reordered team', [team], [{ ...team, registrationIds: ['b', 'a'] }]],
+        ['removed teams', [team], null],
+      ])('publishes %s', async (_name, storedTeams, teams) => {
+        const res = await putOver(storedTeams, teams)
+
+        expect(res.statusCode).toEqual(200)
+        expect(mockPublishPublicStartList).toHaveBeenCalledWith('existing')
+      })
+
+      it.each([
+        ['the same teams', [team], [{ ...team, registrationIds: ['a', 'b'] }]],
+        ['no teams over none stored', undefined, []],
+      ])('publishes nothing for %s', async (_name, storedTeams, teams) => {
+        const res = await putOver(storedTeams, teams)
+
+        expect(res.statusCode).toEqual(200)
+        expect(mockPublishPublicStartList).not.toHaveBeenCalled()
+      })
+
+      it('publishes nothing for a save that does not carry the teams', async () => {
+        signIn(mockSecretary)
+        getEventMock.mockResolvedValueOnce({ ...mockEvent, teams: [team] })
+
+        const res = await putEventLambda(
+          constructAPIGwEvent({ id: 'existing', name: 'Uusi nimi' }, { method: 'PATCH' })
+        )
+
+        expect(res.statusCode).toEqual(200)
+        expect(mockPublishPublicStartList).not.toHaveBeenCalled()
+      })
     })
   })
 

@@ -201,6 +201,11 @@ kuin poistat sen itse. Varasijalla olevan koiran kohdalla lukee *{t:teams.member
 
 Muutokset tallennetaan painikkeella **{t:save}**. **{t:cancel}** palaa tapahtumaan tallentamatta.
 
+Tallennetut joukkueet näkyvät julkisella starttilistalla, joka avautuu joukkueittain
+([Starttilista ja tulokset](/docs/participant/start-list)). Listalla näkyvät vain julkaistut koirat:
+varalla oleva tai vielä julkaisematon koira ei näy, eikä joukkuetta, jonka yhtäkään koiraa ei ole
+julkaistu, näytetä lainkaan. Muutos joukkueisiin päivittyy avoimille starttilistoille itsestään.
+
 ## Peruutukset ja palautukset
 
 Peruutus kirjataan ja maksu palautetaan samoin kuin ilmoittautumisaikana: rivin valikosta (⋮)

@@ -20,7 +20,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: e16ebf
+sourceHash: e9a1e5
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -204,6 +204,11 @@ marked *{t:teams.memberReserve}*.
 !shot[EventTeamsPage/teams] The teams with their dogs and identifiers
 
 **{t:save}** stores the changes. **{t:cancel}** goes back to the event without saving.
+
+The saved teams show on the public start list, which opens by team
+([Start list and results](/docs/participant/start-list)). The list shows only published dogs: a dog
+on the reserve list or not yet published is not shown, and a team none of whose dogs is published
+is not shown at all. A change to the teams reaches open start lists by itself.
 
 ## Cancellations and refunds
 

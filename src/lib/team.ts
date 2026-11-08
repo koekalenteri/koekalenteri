@@ -32,6 +32,26 @@ export const teamMembers = <T>(team: EventTeam, number: number, entries: Readonl
     return registration === undefined ? [] : [{ code: teamMemberCode(number, place), place, registration }]
   })
 
+const sameIds = (a: readonly string[], b: readonly string[]) =>
+  a.length === b.length && a.every((id, index) => id === b[index])
+
+const sameTeam = (a: EventTeam, b: EventTeam) =>
+  (a.name ?? '') === (b.name ?? '') && sameIds(a.registrationIds, b.registrationIds)
+
+/**
+ * Whether two sets of teams show differently on the start list: a name, or the order of the teams or
+ * of a team's dogs, since each changes a heading or a code there (KOE-1715). No teams and an empty
+ * list are the same, and so are no name and an empty one.
+ */
+export const teamsDiffer = (
+  before: readonly EventTeam[] | null | undefined,
+  after: readonly EventTeam[] | null | undefined
+): boolean => {
+  const a = before ?? []
+  const b = after ?? []
+  return a.length !== b.length || a.some((team, index) => !sameTeam(team, b[index]))
+}
+
 /**
  * Every reason the event save refuses the teams. Only the shape is checked: which dogs can be picked is
  * the teams page's business, and the readers skip an id the event's registrations do not hold.

@@ -5,7 +5,7 @@ order: 30
 covers:
   - src/pages/StartListPage.tsx
   - src/pages/startListPage/**
-sourceHash: 2436ab
+sourceHash: 6f4b55
 ---
 
 The start list is the trial's public page, where the organizer publishes the participants, the
@@ -33,6 +33,27 @@ start numbers are published.
 
 The page updates by itself when the organizer publishes more or records a cancellation; there is
 no need to reload it.
+
+## Team competition
+
+When the trial has a team competition, the list opens by team, and above the list you can choose
+**{t:startList.byTeam}** or **{t:startList.byOrder}**. The running order is the same list, day by
+day and class by class, as without teams.
+
+By team, each day shows the teams that have dogs on that day's list, in number order: first
+*Team 1* and the team's name, then its dogs. A dog's row is the same as otherwise, with the dog's
+code in its team in front, for example *1A*. When the day's list holds dogs of more than one
+class, the class comes before the code, for example *AVO 1A*. In a trial of several days, a team
+is shown under each day with those of its dogs that are on the list that day. The dogs in no team
+come after the teams, under the heading *{t:startList.noTeam}*. There are no class headings by
+team, so when a class's order is not final yet, the day shows the same note for the class as its
+heading does in the running order, for example *AVO ({t:startNumbersNotPublished})*.
+
+The letter is the dog's place in its team. When a team's dog is a reserve, is not shown yet or has
+withdrawn, its letter stays unused, so a team may have 1A and 1C without 1B. A withdrawn dog is not
+shown by team at all; in the running order it stays in its place marked *{t:startList.absent}*.
+
+!shot[ParticipantList/start-list-teams] A two-day team competition by team: on the first day the teams hold dogs of two classes
 
 ## When the order is final
 
