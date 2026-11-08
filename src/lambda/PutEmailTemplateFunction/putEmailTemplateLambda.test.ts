@@ -230,6 +230,9 @@ describe('putEmailTemplateLambda', () => {
     // Check if data was written to DynamoDB
     expect(mockWriteEmailTemplate).toHaveBeenCalledWith(
       expect.objectContaining({
+        // A row's first save is its creation
+        createdAt: mockTimestamp,
+        createdBy: 'Admin User',
         en: '# English Template\n\nThis is a test template in English.',
         fi: '# Finnish Template\n\nThis is a test template in Finnish.',
         id: 'test-template',

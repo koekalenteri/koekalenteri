@@ -7,6 +7,7 @@ covers:
   - src/pages/admin/eventTypeListPage/**
   - src/pages/admin/EmailTemplateListPage.tsx
   - src/pages/admin/emailTemplateListPage/**
+  - src/lambda/lib/emailTemplateDefaults/**
 ---
 
 Koekalenterin pääkäyttäjä — SNJ:n koekalenterivastaava — näkee ylläpidon valikon alaosassa
@@ -55,3 +56,7 @@ aaltosulje. Löydökset saa myös luettelona editorin alle näppäimillä Ctrl-S
 Cmd-Shift-M). **{t:save}** ottaa pohjan käyttöön heti seuraavasta viestistä alkaen; jos pohja ei
 kelpaa, painikkeiden yläpuolelle tulee ilmoitus, joka kertoo kielen, rivin ja syyn, ja editori
 vaihtaa sen kielen välilehdelle. **{t:cancel}** palauttaa tallennetun version.
+
+Uusi viestipohja tulee koekalenterin version mukana valmiiksi kirjoitettuna, ja se on käytössä
+heti kun versio on otettu käyttöön. Muokattu pohja pysyy sellaisena kuin se tallennettiin: uusi
+versio ei koskaan korvaa jo olemassa olevaa pohjaa.
