@@ -98,3 +98,32 @@ same run checks a local build: `E2E_BASE_URL=http://localhost:3000`,
 `E2E_API_URL=http://localhost:8080/dev`, `E2E_EVENT_TABLE=event-table`,
 `AWS_ENDPOINT_URL_DYNAMODB` at the DynamoDB-local and `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`
 set to `local`, the key the servers' database is kept under.
+
+## Claude's browser on dev
+
+`.mcp.json` gives Claude Code sessions in this repository a browser of their own: the Playwright
+MCP server (`@playwright/mcp`, pinned in `package.json`), named `playwright`, run from
+`node_modules` with the settings in `.claude/playwright-mcp.json` (KOE-1731). It is for checking
+a change on dev (https://dev.koekalenteri.snj.fi) the way a tester would, signed in through the
+dev login form with the test accounts in `.env` (`E2E_DEV_<KEY>_EMAIL`, `E2E_DEV_<KEY>_PASSWORD`).
+Claude Code asks once, at the first session after the file appears, whether to approve the project
+server; `claude mcp get playwright` shows whether it is approved.
+
+- The browser is headless and isolated: its profile lives in memory and nothing is kept between
+  sessions. To change account, close the browser (`browser_close`) and sign in again through
+  the form.
+- It uses Playwright's Chromium when that is installed for the server's Playwright version, and
+  Google Chrome otherwise.
+- Snapshots and console logs land in `.playwright-mcp/` at the repository root, which git ignores.
+
+The browser may request only the origins listed under `network.allowedOrigins`; every other
+request, a page load included, is aborted with `net::ERR_BLOCKED_BY_CLIENT`. The list holds what
+loading dev, signing in and opening the admin page request (the front end, the dev API and
+WebSocket, Cognito, STS and CloudWatch RUM) and Paytrail's payment page. Production
+(https://koekalenteri.snj.fi and its API) is not on it, so the browser cannot open it, a
+navigation from a dev page included. When a run needs another origin (a bank's test page behind
+Paytrail, say), the blocked request shows in `browser_network_requests` as `ERR_BLOCKED_BY_CLIENT`:
+add that origin, scheme and host without a path, to the list in the same change that needs it.
+The filter is Playwright's request routing, which does not see the hops of an HTTP redirect or
+the WebSocket traffic, so it keeps the browser off production by default and is not a security
+boundary.
