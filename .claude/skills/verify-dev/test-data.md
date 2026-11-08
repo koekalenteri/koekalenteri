@@ -3,26 +3,30 @@
 How `/verify-dev` makes and finds the data it tests with on https://dev.koekalenteri.snj.fi.
 Everything goes through the dev UI in the project's Playwright browser (`e2e/README.md`, "Claude's
 browser on dev"). The skill has no AWS access: it never reads or writes DynamoDB, never calls the
-API by hand and never changes what a test account may do.
+API by hand, and changes what a test account may do only in its setup check (below).
 
 ## Accounts
 
-The test accounts, their keys and roles, and how to switch between them are in `e2e/README.md`,
+The test accounts, their keys, and how to switch between them are in `e2e/README.md`,
 "Claude's browser on dev". Their credentials are in the `.env` of the main checkout (the first
 entry of `git worktree list`), not a worktree's. Read them from there and never print them: not in
 a reply, a Jira comment, a screenshot or a log line.
 
-| KEY              | Used for                                    |
-| ---------------- | ------------------------------------------- |
-| `PAAKAYTTAJA`    | Admin-only pages, looking across organizers |
-| `YHDISTYS_ADMIN` | Organizer admin views of J1                 |
-| `SIHTEERI`       | Creating and running test events            |
-| `SIHTEERI_2`     | Checking that J1's data stays out of sight  |
-| `ILMOITTAJA`     | Registering, the registrant's own pages     |
+| KEY              | Roles, and nothing else    | Used for                                    |
+| ---------------- | -------------------------- | ------------------------------------------- |
+| `PAAKAYTTAJA`    | global admin               | Admin-only pages, looking across organizers |
+| `YHDISTYS_ADMIN` | admin of J1                | Organizer admin views of J1                 |
+| `SIHTEERI`       | secretary of J1            | Creating and running test events            |
+| `SIHTEERI_2`     | secretary of J2            | Checking that J1's data stays out of sight  |
+| `ILMOITTAJA`     | none                       | Registering, the registrant's own pages     |
 
-- The user gives the roles on dev's Käyttäjät page (`/admin/users`). The skill never opens a role
-  dialog there. An account that lacks a role it needs is a blocker for the user, not something to
-  fix.
+- The roles are given on dev's Käyttäjät page (`/admin/users`), and `PAAKAYTTAJA` must be a
+  global admin for that; only an existing admin can make it one, so that is the user's to do.
+- The skill changes an account's roles only when the sign-in check finds that they are not what
+  this file expects. If every account already has the expected roles, no role dialog is opened and
+  nothing is changed. When something is wrong, fix only that account's mismatch (add what is
+  missing, remove what is extra), and list every change in the run summary. The check is step 0
+  of `SKILL.md`; no other step opens a role dialog.
 - Do not open `/admin` as `ILMOITTAJA` until KOE-1734 is fixed: a user with no role loops there and
   hangs the browser.
 
