@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "playwright": {
-      "command": "node_modules/.bin/playwright-mcp",
-      "args": ["--config", ".claude/playwright-mcp.json"]
+      "command": "node",
+      "args": ["scripts/playwright-mcp.mjs", "--config", ".claude/playwright-mcp.json"]
     }
   }
 }
