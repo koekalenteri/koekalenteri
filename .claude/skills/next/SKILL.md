@@ -40,7 +40,9 @@ remains. Everything else goes to the "Jo käynnissä" or "Estetty" list with the
 For each free issue, find where the change will land, at file level. Spend minutes, not a
 plan: the implementer's plan step does the full reader search later.
 
-- Read the description and comments.
+- Read the description and comments, then check on `origin/main` that the named code still
+  does what it says. An older change may have fixed part of it (KOE-1545 fixed three of
+  KOE-1518's four places); the card says what is left.
 - Look at what siblings touched: `git log origin/main --grep '<sibling key>' --name-only` for
   merged issues under the same parent, and section 2 for open ones. Race bugs under one epic
   tend to share the same handler and lib module.
@@ -77,6 +79,8 @@ Then check every pair of bundles, and every bundle against section 2:
   "aloita kun <bundle> on mainissa".
 - A hard path an open PR touches: the bundle waits for that PR (`#n`), or its card says to
   rebase on it first. Do not plan a second change to a file whose open PR is still in review.
+  Before deciding, read that PR's hunks in the file (`gh pr diff <n>`): a hunk that only moves a
+  constant far from the planned change is soft, not hard (#1776 in `src/lambda/lib/event.ts`).
 - Run the overlap from the data, not by eye: write the footprints as `bundle<TAB>path` to the
   scratchpad and join them with section 2 (`sort | uniq -d` on the path column). The card's
   "Rinnakkain" line is that output.
