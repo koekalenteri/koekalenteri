@@ -498,7 +498,8 @@ const writeResultsDay = async (
   return { ...confirmedEvent, resultsPublished, updatedAt }
 }
 
-const RESULTS_WRITE_ATTEMPTS = 3
+/** How many times a results write made from a reading is tried before it is a conflict: the flag's, a dog's. */
+export const RESULTS_WRITE_ATTEMPTS = 3
 
 /**
  * Publish or hide one day's results on the event record (KOE-1510). The request is a change of one

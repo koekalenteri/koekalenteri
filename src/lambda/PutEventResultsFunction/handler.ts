@@ -15,7 +15,9 @@ const putEventResultsLambda = lambda('putEventResults', async (event) => {
 
   if (submissions.length === 0) throw httpError(422, 'no results')
 
-  const registrations = await readEventRegistrations(eventId)
+  // As last written: a second save right after the first carries the version the first answered, and an
+  // older copy would read it as someone else's edit (KOE-1490).
+  const registrations = await readEventRegistrations(eventId, true)
 
   const { conflicts, locked, patches, saved, unchanged } = await processResultSubmissions(
     eventId,

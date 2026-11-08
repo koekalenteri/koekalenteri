@@ -44,15 +44,13 @@ import {
 } from '../../lib/resultTasks'
 import { rotationDogOf, roundInputsOf } from '../../lib/rotation'
 import { mapWithConcurrency } from '../../lib/utils'
+import { isConditionalCheckFailure } from './api-gw'
 import { audit, registrationAuditKey } from './audit'
-import { getEvent } from './event'
+import { retryOnConditionFailure } from './conditionalWrite'
+import { getEvent, RESULTS_WRITE_ATTEMPTS } from './event'
 import { parseJSONWithFallback } from './json'
 import { httpError, LambdaError } from './lambda'
-import {
-  readEventRegistrations,
-  updateRegistrationField,
-  writeRecomputedEventResult,
-} from './repositories/registrationRepository'
+import { readEventRegistrations, readRegistration, writeEventResult } from './repositories/registrationRepository'
 
 /** The outcome dropdown's Finnish labels, for the audit line (KOE-1284). */
 const ELIMINATING_FAULT_TEXT: Record<EventResultElimination['fault'], string> = {
@@ -369,21 +367,21 @@ const atPost = (outcomes: RoundOutcomes, stationId: string): RoundOutcomes => ({
  * this rule, and may change any outcome. The whole-round fields, cert and notes, are the secretary's, and
  * are dropped here the same way the merge drops tasks of the exercises done at other posts. Except where
  * there is no round to score: a qualitative type's post *is* the whole trial, and its recording is the
- * judge's decision and who made it, so those two go through. A registration not on the event is left for
- * the classification to refuse.
+ * judge's decision and who made it, so those two go through. Scoped against each reading of the dog the
+ * classification makes, since what the outcome may be depends on the one stored (KOE-1490).
  */
 export const stationScopedSubmission = (
   submission: ResultSubmission,
   stationId: string,
   confirmedEvent: JsonConfirmedEvent,
-  registration: JsonRegistration | undefined
+  registration: JsonRegistration
 ): ResultSubmission => {
   const { tasks, resultCode, judge } = submission.eventResult
   const qualitative = !scoresAtPosts(confirmedEvent.eventType)
-  const exercises = registration && !qualitative ? stationExercises(confirmedEvent, registration, stationId) : []
+  const exercises = qualitative ? [] : stationExercises(confirmedEvent, registration, stationId)
   const { elimination, retirement } = qualitative
     ? atPost(submission.eventResult, stationId)
-    : postOutcomes(submission.eventResult, registration?.eventResult, exercises)
+    : postOutcomes(submission.eventResult, registration.eventResult, exercises)
 
   return {
     eventResult: {
@@ -536,23 +534,36 @@ const validateSubmittedTasks = (
  */
 const isEventLocked = async (eventId: string): Promise<boolean> => isResultsLocked(await getEvent(eventId, true))
 
-/** A submission checked and classified, ready to be written or reported. */
+/** A submission checked and classified against one reading of its dog, ready to be written or reported. */
 interface PlannedSubmission {
   outcome: SubmissionOutcome
+  /** The dog as read, which a save is written over. */
   registration: JsonRegistration
+  /** The submission as classified: scoped to the post against this reading, where it came from one. */
   submission: ResultSubmission
 }
 
-/** Everything a submission may be refused for before anything is written, and what it turns out to be. */
-const planSubmission = (
-  confirmedEvent: JsonConfirmedEvent,
-  registrations: readonly JsonRegistration[],
-  submission: ResultSubmission,
-  timestamp: string,
+/** What every classification of one batch shares. */
+interface SubmissionContext {
+  confirmedEvent: JsonConfirmedEvent
+  /** The post of a tokenized station link, which scopes every submission of the batch to it. */
+  stationId?: string
+  timestamp: string
   userName: string
+}
+
+/**
+ * Everything a submission may be refused for before anything is written, and what it turns out to be
+ * against this reading of its dog. A post's submission is scoped against the same reading: the outcome it
+ * may write depends on the one stored (`stationScopedSubmission`).
+ */
+const planSubmission = (
+  { confirmedEvent, stationId, timestamp, userName }: SubmissionContext,
+  registration: JsonRegistration | undefined,
+  received: ResultSubmission
 ): PlannedSubmission => {
-  const registration = registrations.find((item) => item.id === submission.id)
-  if (!registration) throw new LambdaError(404, `Registration '${submission.id}' not found`)
+  if (!registration) throw new LambdaError(404, `Registration '${received.id}' not found`)
+  const submission = stationId ? stationScopedSubmission(received, stationId, confirmedEvent, registration) : received
 
   // A reserve never called up and a cancelled entry have no round to record. The views do not offer
   // them a row, so this is a client working from a list that has moved on since it loaded — refusing
@@ -584,20 +595,64 @@ const planSubmission = (
   }
 }
 
+/** A save that kept losing to other writes, reported as a conflict with the result it last lost to. */
+const lostSave = (planned: PlannedSubmission, error: unknown): PlannedSubmission => {
+  const stored = planned.registration.eventResult
+  if (planned.outcome.kind !== 'save' || !stored) throw error
+  return { ...planned, outcome: { kind: 'conflict', stored, submitted: planned.outcome.eventResult } }
+}
+
+/**
+ * Writes a dog's save over the result it was classified against (KOE-1490). Another request may have
+ * written the dog since the batch read it: then the row is read again as last written and the same
+ * submission planned afresh against it, so another post's scores merge in, the same content is
+ * unchanged, and a different result is an ordinary conflict. A save still losing after the attempts is
+ * a conflict too, and the other dogs of the batch go on. Answers the plan that stands.
+ */
+const settleSubmission = async (
+  eventId: string,
+  context: SubmissionContext,
+  received: ResultSubmission,
+  planned: PlannedSubmission
+): Promise<PlannedSubmission> => {
+  let last = planned
+  try {
+    return await retryOnConditionFailure({
+      exhausted: (error) => error,
+      initial: planned,
+      maxAttempts: RESULTS_WRITE_ATTEMPTS,
+      reread: async () => planSubmission(context, await readRegistration(eventId, received.id, true), received),
+      work: async (current: PlannedSubmission) => {
+        last = current
+        const { outcome, registration } = current
+        if (outcome.kind === 'save') {
+          await writeEventResult(eventId, registration.id, outcome.eventResult, registration.eventResult?.updatedAt)
+        }
+        return current
+      },
+    })
+  } catch (error) {
+    if (!isConditionalCheckFailure(error)) throw error
+    return lostSave(last, error)
+  }
+}
+
 /**
  * Classify, write and audit a batch of result submissions. Shared by the event secretary's endpoint
  * and the tokenized station endpoint, so the two cannot drift on what counts as a retry, a conflict
- * or a save — `userName` is whoever this write is attributed to.
+ * or a save. `userName` is whoever this write is attributed to, and `stationId` the post a station
+ * link scopes every submission to.
  */
 export const processResultSubmissions = async (
   eventId: string,
   confirmedEvent: JsonConfirmedEvent,
   registrations: readonly JsonRegistration[],
   submissions: readonly ResultSubmission[],
-  userName: string
+  userName: string,
+  stationId?: string
 ): Promise<ProcessedResultSubmissions> => {
   // One timestamp for the batch, so every task the batch changes shares a version.
-  const timestamp = new Date().toISOString()
+  const context: SubmissionContext = { confirmedEvent, stationId, timestamp: new Date().toISOString(), userName }
 
   const patches: Patch<JsonRegistration>[] = []
   const saved: StoredEventResult[] = []
@@ -606,20 +661,29 @@ export const processResultSubmissions = async (
   let locked = false
 
   // Decide first, write second: a submission that is refused outright refuses the batch before a dog is written.
-  const planned = submissions.map((submission) =>
-    planSubmission(confirmedEvent, registrations, submission, timestamp, userName)
-  )
+  const planned = submissions.map((received) => ({
+    first: planSubmission(
+      context,
+      registrations.find((item) => item.id === received.id),
+      received
+    ),
+    received,
+  }))
 
   // One dog at a time, the lock asked of the row as last written before each: a hand-over that takes the
   // lock while a batch is being written stops the dogs not yet written, and the ones that were stay.
-  await mapWithConcurrency(planned, 1, async ({ outcome, registration, submission }) => {
+  // A retry of a save that already landed is answered without asking the lock, and writes nothing.
+  await mapWithConcurrency(planned, 1, async ({ first, received }) => {
+    if (first.outcome.kind !== 'unchanged') {
+      locked ||= await isEventLocked(eventId)
+      if (locked) return
+    }
+
+    const { outcome, registration, submission } = await settleSubmission(eventId, context, received, first)
     if (outcome.kind === 'unchanged') {
       unchanged.push({ eventResult: outcome.eventResult, id: submission.id })
       return
     }
-    locked ||= await isEventLocked(eventId)
-    if (locked) return
-
     if (outcome.kind === 'conflict') {
       conflicts.push({
         id: submission.id,
@@ -631,7 +695,6 @@ export const processResultSubmissions = async (
     }
 
     const { eventResult } = outcome
-    await updateRegistrationField(eventId, submission.id, 'eventResult', eventResult)
     await audit({
       auditKey: registrationAuditKey({ eventId, id: submission.id }),
       ...resultSavedAudit(
@@ -775,8 +838,11 @@ const writeRecomputed = async (
   if (await isEventLocked(eventId)) throw httpError(423, { error: 'resultsLocked' })
 
   const { id } = registration
-  if (!(await writeRecomputedEventResult(eventId, id, eventResult, registration.eventResult.updatedAt))) {
-    throw httpError(409, { error: 'staleData', message: LAYOUT_CHANGED_MESSAGE })
+  try {
+    await writeEventResult(eventId, id, eventResult, registration.eventResult.updatedAt)
+  } catch (error) {
+    if (isConditionalCheckFailure(error)) throw httpError(409, { error: 'staleData', message: LAYOUT_CHANGED_MESSAGE })
+    throw error
   }
 
   await audit({
