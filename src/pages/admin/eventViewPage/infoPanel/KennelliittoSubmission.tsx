@@ -51,7 +51,7 @@ const getSentRows = (event: ConfirmedEvent, registrations: Registration[]): Sent
   const groups = classes.length
     ? classes.map((eventClass) => ({
         name: eventClass,
-        rows: scorable.filter((registration) => getRegistrationClass(registration) === eventClass),
+        rows: scorable.filter((registration) => getRegistrationClass(registration, event) === eventClass),
       }))
     : [{ name: event.eventType, rows: scorable }]
   return groups.map(({ name, rows }) => ({

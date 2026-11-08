@@ -2,7 +2,7 @@ import type { JsonConfirmedEvent, JsonRegistration, Patch, RegistrationClass } f
 import type { StartNumberEntry } from '../lib/startNumbers'
 import { startNumbersEnteredAudit, startNumbersPublishedAudit } from '../../lib/audit'
 import { isDayKey } from '../../lib/day'
-import { getStartNumbersDayTimes, isStartNumbersTime } from '../../lib/event'
+import { formatTypeOf, getStartNumbersDayTimes, isStartNumbersTime } from '../../lib/event'
 import { getStartNumbersBlocker } from '../../lib/publishing'
 import {
   getRegistrationClass,
@@ -75,7 +75,8 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
     // Numbers ride the start list, and wait on everything it does: the same rules the panel greys its
     // buttons by (KOE-1466). Hiding is always allowed.
     if (body.published === true) {
-      const participants = groupParticipantsByClass(registrations)[eventClass ?? confirmedEvent.eventType] ?? []
+      const participants =
+        groupParticipantsByClass(registrations, confirmedEvent)[eventClass ?? formatTypeOf(confirmedEvent)] ?? []
       const reason = getStartNumbersBlocker(confirmedEvent, eventClass, participants)
       if (reason) throw httpError(422, { error: 'publishBlocked', eventClass, publish: 'startNumbers', reason })
     }
@@ -90,7 +91,7 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
             registrations.filter(
               (registration) =>
                 isScorableRegistration(registration) &&
-                (!eventClass || getRegistrationClass(registration) === eventClass)
+                (!eventClass || getRegistrationClass(registration, confirmedEvent) === eventClass)
             ),
             date
           )

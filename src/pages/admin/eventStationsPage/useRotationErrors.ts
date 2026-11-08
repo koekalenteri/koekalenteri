@@ -3,6 +3,7 @@ import type { DogEvent, Registration } from '@/types'
 import { useAtomValue } from 'jotai'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { formatTypeOf } from '@/lib/event'
 import { scoresAtPosts } from '@/lib/liveFormat'
 import { isScorableRegistration } from '@/lib/registration'
 import { formatRotationGroup, rotationCoverageErrors, rotationShapeErrors } from '@/lib/rotation'
@@ -54,7 +55,7 @@ export function useRotationErrors(eventId: string, event: RotationLayout | undef
   const registrations = useAtomValue(adminEventRegistrationsAtom(eventId))
 
   return useMemo(
-    () => (event && scoresAtPosts(event.eventType) ? rotationErrorMessages(event, registrations, t) : []),
+    () => (event && scoresAtPosts(formatTypeOf(event)) ? rotationErrorMessages(event, registrations, t) : []),
     [event, registrations, t]
   )
 }

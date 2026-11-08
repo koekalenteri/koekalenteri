@@ -1,6 +1,7 @@
 import type { Theme } from '@mui/material'
 import type { ReactNode } from 'react'
 import type { StartNumberEntry } from '@/api/startNumbers'
+import type { FormatOwner } from '@/lib/event'
 import type { ReservedStartNumber } from '@/types'
 import type { PlacedRegistration } from '../components/StartDaySelector'
 import type { StartNumberRow } from './StartNumbersTable'
@@ -39,6 +40,8 @@ export type StartNumberDog = PlacedRegistration & {
 }
 
 interface Props {
+  /** The trial, whose format (`formatTypeOf`) names a classless trial's one sheet. */
+  readonly event: FormatOwner
   readonly registrations: StartNumberDog[]
   /**
    * Writes the batch; the class is the one whose tab is open, and a classless event has none.
@@ -71,7 +74,7 @@ const LINKS_TAB = '__links'
  * link — so the sheet a class secretary works cannot drift from the one the event secretary has. The
  * difference between them is what data reaches this component and where the save goes.
  */
-export function StartNumbersEntry({ registrations, onSave, header, renderLinks, reserved }: Props) {
+export function StartNumbersEntry({ event, registrations, onSave, header, renderLinks, reserved }: Props) {
   const { t } = useTranslation()
   // Four columns need more than a phone has; there the dog's details fold into one (KOE-1282).
   const compact = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
@@ -82,14 +85,19 @@ export function StartNumbersEntry({ registrations, onSave, header, renderLinks, 
   useUnsavedChangesWarning(Object.values(drafts).some((value) => value !== ''))
 
   // The draw runs day by day and the secretary works a whole morning before moving on (KOE-1350).
-  const { classes, day, dayRegistrations, days, eventClass, setSelectedClass, setSelectedDay } =
-    useStartDayClasses(scorable)
+  const { classes, day, dayRegistrations, days, eventClass, setSelectedClass, setSelectedDay } = useStartDayClasses(
+    scorable,
+    event
+  )
 
   // The links are handed out for the trial's classes, not the day's: a class drawn on two days has
   // one secretary and one link.
   const linkClasses = useMemo(
-    () => [...new Set(scorable.map(getRegistrationClass))].filter(isRegistrationClass).sort(compareRegistrationClasses),
-    [scorable]
+    () =>
+      [...new Set(scorable.map((registration) => getRegistrationClass(registration, event)))]
+        .filter(isRegistrationClass)
+        .sort(compareRegistrationClasses),
+    [event, scorable]
   )
   const hasLinksTab = !!renderLinks && linkClasses.length > 0
   const [linksOpen, setLinksOpen] = useState(false)
@@ -98,7 +106,8 @@ export function StartNumbersEntry({ registrations, onSave, header, renderLinks, 
   const rows = useMemo<StartNumberRow[]>(
     () =>
       dayRegistrations
-        .filter((reg) => getRegistrationClass(reg) === eventClass)
+        .filter((reg) => getRegistrationClass(reg, event) === eventClass)
+
         .sort(sortRegistrationsByDateClassTimeAndNumber)
         .map((reg) => ({
           dog: { name: reg.dog.name, regNo: reg.dog.regNo },
@@ -108,7 +117,7 @@ export function StartNumbersEntry({ registrations, onSave, header, renderLinks, 
           placement: getRegistrationPlacement(reg),
           startNumber: reg.startGroup?.number,
         })),
-    [dayRegistrations, eventClass]
+    [dayRegistrations, event, eventClass]
   )
 
   // A number belongs to one dog in the whole trial, every class and every day (KOE-1303): Friday

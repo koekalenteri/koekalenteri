@@ -1,15 +1,22 @@
 import type React from 'react'
-import type { Registration, RegistrationGroupMove } from '@/types'
+import type { DogEvent, Registration, RegistrationGroupMove } from '@/types'
 import { act, renderHook } from '@testing-library/react'
 import { createStore, useAtomValue, useSetAtom } from 'jotai'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
+import { eventWithStaticDates } from '@/__mockData__/events'
 import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { mockRegistrations } from '@/api/__mocks__/registration'
 import { getRegistrations } from '@/api/registration'
 import { idTokenAtom } from '@/pages/state'
 import { TEST_ID_TOKEN } from '@/test-utils/utils'
+import { adminEventsAtom } from '../events/atoms'
 import { adminEventRegistrationsAtom, adminPendingRegistrationGroupMovesAtom } from './atoms'
-import { adminEventPaymentLockedAtom, adminProjectedEventRegistrationsAtom, placementKey } from './derivedAtoms'
+import {
+  adminEventOfficialFormatLockedAtom,
+  adminEventPaymentLockedAtom,
+  adminProjectedEventRegistrationsAtom,
+  placementKey,
+} from './derivedAtoms'
 
 vi.mock('@/api/registration')
 
@@ -37,6 +44,8 @@ describe('adminProjectedEventRegistrationsAtom', () => {
     const wrapper = ({ children }: { readonly children: React.ReactNode }) => (
       <Provider
         initializeState={({ set }) => {
+          // The projection numbers the groups by the event's format (KOE-1718), so the event is loaded too.
+          set(adminEventsAtom, [{ ...eventWithStaticDates, id: eventId }])
           set(adminEventRegistrationsAtom(eventId), stale)
           set(adminPendingRegistrationGroupMovesAtom(eventId), [move])
         }}
@@ -108,5 +117,37 @@ describe('adminEventPaymentLockedAtom', () => {
 
     expect(store.get(adminEventPaymentLockedAtom(''))).toBe(false)
     expect(getRegistrations).not.toHaveBeenCalled()
+  })
+})
+
+describe('adminEventOfficialFormatLockedAtom (KOE-1718)', () => {
+  const stored = mockRegistrations[eventId]
+  afterEach(() => {
+    mockRegistrations[eventId] = stored
+  })
+  const turn = {
+    dogs: [],
+    id: 'turn-1',
+    registrationIds: ['a'],
+    startedAt: new Date('2026-08-15T08:00:00Z'),
+    stationId: '1',
+  }
+  const result = { result: 'NOU1', updatedAt: new Date('2026-08-15T09:00:00Z'), updatedBy: 'Sihteeri' }
+
+  it.each<[string, boolean, Partial<DogEvent>, Registration[]]>([
+    ['nothing recorded', false, {}, [registrationWithStaticDates]],
+    ['a saved result', true, {}, [{ ...registrationWithStaticDates, eventResult: result }]],
+    ['a turn a post ran', true, { turns: [turn] }, []],
+  ])('resolves an event with %s to %s', async (_name, expected, eventFields, registrations) => {
+    mockRegistrations[eventId] = registrations
+    const store = createStore()
+    store.set(idTokenAtom, TEST_ID_TOKEN)
+    store.set(adminEventsAtom, [{ ...eventWithStaticDates, id: eventId, ...eventFields }])
+
+    await expect(Promise.resolve(store.get(adminEventOfficialFormatLockedAtom(eventId)))).resolves.toBe(expected)
+  })
+
+  it('locks nothing for an event not yet saved', () => {
+    expect(createStore().get(adminEventOfficialFormatLockedAtom(''))).toBe(false)
   })
 })

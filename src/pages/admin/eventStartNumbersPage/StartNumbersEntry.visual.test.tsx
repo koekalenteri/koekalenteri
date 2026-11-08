@@ -51,6 +51,7 @@ const noop = async () => true
 /** The event secretary's sheet; the page's title over it comes in as text, in the page's language. */
 const secretarySheet = (title: string) => (
   <StartNumbersEntry
+    event={{ eventType: 'NOWT' }}
     header={
       <Typography sx={{ pb: 1 }} variant="h6">
         {title}
@@ -65,6 +66,7 @@ const secretarySheet = (title: string) => (
 /** The class secretary's sheet: one class on it and nothing to hand on. */
 const classLinkSheet = (
   <StartNumbersEntry
+    event={{ eventType: 'NOWT' }}
     header={
       <Typography
         variant="body2"

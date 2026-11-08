@@ -3,8 +3,10 @@ import { useMemo } from 'react'
 import {
   compareRegistrationClasses,
   eventDates,
+  formatTypeOf,
   getEventStateForClass,
   placesForClass,
+  UNLOADED_EVENT,
   uniqueClasses,
 } from '../lib/event'
 import {
@@ -30,26 +32,29 @@ export default function useAdminEventRegistrationInfo(
   registrations: Registration[]
 ) {
   const dates = useMemo(() => eventDates(event), [event])
+  const formatOwner = event ?? UNLOADED_EVENT
 
-  const registrationClasses = unique(registrations.map((registration) => getRegistrationClass(registration)))
+  const registrationClasses = unique(
+    registrations.map((registration) => getRegistrationClass(registration, formatOwner))
+  )
 
   const reserveByClass: Record<string, Registration[]> = useMemo(() => {
     const byClass: Record<string, Registration[]> = {}
     const allReserve = registrations.filter((r) => getRegistrationGroupKey(r) === GROUP_KEY_RESERVE)
     for (const reg of allReserve) {
-      const c = getRegistrationClass(reg)
+      const c = getRegistrationClass(reg, formatOwner)
       if (!(c in byClass)) {
         byClass[c] = []
       }
       byClass[c].push(reg)
     }
     return byClass
-  }, [registrations])
+  }, [formatOwner, registrations])
 
   const eventClasses = useMemo(() => {
     const classes = uniqueClasses(event)
     if (event && !classes.length) {
-      return [event.eventType]
+      return [formatTypeOf(event)]
     }
     return classes
   }, [event])
@@ -64,7 +69,7 @@ export default function useAdminEventRegistrationInfo(
     const result: { [key: string]: EventClassInfoNumbers } = {}
     for (const c of eventClasses) {
       const places = placesForClass(event, c)
-      const classRegs = registrations.filter((r) => getRegistrationClass(r) === c)
+      const classRegs = registrations.filter((r) => getRegistrationClass(r, formatOwner) === c)
       const regs = classRegs.filter(isStarter).length
       const reserve = classRegs.filter((r) => !r.cancelled && !isStarter(r)).length
       const cancelled = classRegs.filter((r) => r.cancelled).length
@@ -78,15 +83,19 @@ export default function useAdminEventRegistrationInfo(
       }
     }
     return result
-  }, [registrations, event, eventClasses])
+  }, [registrations, event, eventClasses, formatOwner])
 
-  const selectedByClass = useMemo(() => groupParticipantsByClass(registrations), [registrations])
+  const selectedByClass = useMemo(
+    () => groupParticipantsByClass(registrations, formatOwner),
+    [formatOwner, registrations]
+  )
 
   const stateByClass = useMemo(() => {
     if (!event) {
       return {}
     }
-    const byClass: Record<string, EventState> = { [event.eventType]: event.state }
+    const byClass: Record<string, EventState> = { [formatTypeOf(event)]: event.state }
+
     for (const c of event.classes) {
       byClass[c.class] = getEventStateForClass(event, c.class)
     }

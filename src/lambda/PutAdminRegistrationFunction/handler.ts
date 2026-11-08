@@ -75,6 +75,7 @@ const applyAdminRegistrationOperations = async (operationRequest: JsonRegistrati
 const saveAdminRegistration = async (
   data: JsonRegistration,
   existing: JsonRegistration | undefined,
+  confirmedEvent: JsonConfirmedEvent,
   { timestamp, user }: AdminRegistrationRequest
 ) => {
   await assertTypedRegNo(data, existing)
@@ -90,7 +91,7 @@ const saveAdminRegistration = async (
     delete data.emailDeliveryStatus
   }
 
-  const persisted = await persistRegistrationWithGroups(data, existing, user)
+  const persisted = await persistRegistrationWithGroups(data, existing, confirmedEvent, user)
   if (persisted.kind === 'conflict') throw httpError(409, registrationConflictBody(persisted.conflict))
   return persisted
 }
@@ -104,10 +105,10 @@ const updateAdminRegistration = async (
   if (!operationRequest.eventId || !operationRequest.id) {
     throw httpError(400, { message: 'Bad request: PATCH requires eventId and id' })
   }
-  await getAuthorizedEvent<JsonConfirmedEvent>(user, memberOf, operationRequest.eventId)
+  const confirmedEvent = await getAuthorizedEvent<JsonConfirmedEvent>(user, memberOf, operationRequest.eventId)
 
   const { data, existing } = await applyAdminRegistrationOperations(operationRequest)
-  const { groupPatches, savedData } = await saveAdminRegistration(data, existing, request)
+  const { groupPatches, savedData } = await saveAdminRegistration(data, existing, confirmedEvent, request)
 
   await finalizeRegistrationUpdate({ existing, groupPatches, origin, registration: savedData, user })
 
@@ -143,7 +144,8 @@ const createAdminRegistration = async (body: Patch<JsonRegistration>, request: A
 
   // The body is the whole registration the form built, now with the identity and the creation
   // fields initializeNewRegistration gave it; nothing stored is merged into a new one.
-  const persisted = await saveAdminRegistration(registration as JsonRegistration, undefined, request)
+  const persisted = await saveAdminRegistration(registration as JsonRegistration, undefined, confirmedEvent, request)
+
   const completed = await completeNewRegistration({
     auditMessage: CREATED_AUDIT_MESSAGE,
     confirmedEvent,

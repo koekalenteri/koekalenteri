@@ -11,7 +11,7 @@ import { useAtomValue } from 'jotai'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
-import { eventTypeLabel, hasSharedReserveList, localizedEventName } from '../../lib/event'
+import { eventTypeLabel, formatTypeOf, hasSharedReserveList, localizedEventName } from '../../lib/event'
 import {
   getRegistrationClass,
   getRegistrationGroupTime,
@@ -54,8 +54,9 @@ export default function StartListPage() {
   const nameLen = regsToPrint.reduce((acc, reg) => Math.min(38, Math.max(acc, reg.dog.name?.length ?? 0)), 0)
   const grouped = regsToPrint.reduce<GroupedRegs>((acc, reg) => {
     const date = reg.group?.date ?? RESERVE_KEY
-    const shared = date === RESERVE_KEY && hasSharedReserveList(reg.eventType)
-    const eventClass = shared ? SHARED_RESERVE_CLASS : getRegistrationClass(reg)
+    const shared = date === RESERVE_KEY && hasSharedReserveList(formatTypeOf(event))
+    const eventClass = shared ? SHARED_RESERVE_CLASS : getRegistrationClass(reg, event)
+
     const time = getRegistrationGroupTime(reg)
     acc[date] = acc[date] ?? {}
     acc[date][eventClass] = acc[date][eventClass] ?? {}

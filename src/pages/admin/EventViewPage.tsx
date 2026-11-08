@@ -14,7 +14,7 @@ import { useParams } from 'react-router'
 import useAdminEventRegistrationInfo from '../../hooks/useAdminEventRegistrationsInfo'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { reportError } from '../../lib/client/error'
-import { hasEntryEnded, hasSharedReserveList, isEntryEditingClosed } from '../../lib/event'
+import { formatTypeOf, hasEntryEnded, hasSharedReserveList, isEntryEditingClosed } from '../../lib/event'
 import { getRegistrationClass, isRegistrationClass } from '../../lib/registration'
 import CancelDialog from '../components/CancelDialog'
 import LoadingIndicator from '../components/LoadingIndicator'
@@ -97,7 +97,7 @@ export default function EventViewPage() {
   // Kennelliitto may hold a result for it (KOE-1650, KOE-1674).
   const entryEditingClosed = useMemo(() => {
     if (!event) return false
-    const registrationClass = selectedRegistration ? getRegistrationClass(selectedRegistration) : undefined
+    const registrationClass = selectedRegistration ? getRegistrationClass(selectedRegistration, event) : undefined
     return isEntryEditingClosed(event, registrationClass ? stateByClass[registrationClass] : event.state)
   }, [event, selectedRegistration, stateByClass])
   const allClasses = useMemo(() => eventClasses.concat(missingClasses), [eventClasses, missingClasses])
@@ -111,8 +111,8 @@ export default function EventViewPage() {
   // class: one list to pick from, and a dropped dog lands in the class it entered (KOE-912).
   const [allClassesTabSelected, setAllClassesTabSelected] = useState(false)
   const tabs = useMemo(
-    () => (hasSharedReserveList(event?.eventType) ? [...allClasses, ALL_CLASSES_TAB] : allClasses),
-    [allClasses, event?.eventType]
+    () => (event && hasSharedReserveList(formatTypeOf(event)) ? [...allClasses, ALL_CLASSES_TAB] : allClasses),
+    [allClasses, event]
   )
   const allClassesTabIndex = tabs.indexOf(ALL_CLASSES_TAB)
   const activeTab = useMemo(
@@ -271,7 +271,7 @@ export default function EventViewPage() {
               registrations={
                 allClassesTab
                   ? allRegistrations
-                  : allRegistrations.filter((registration) => getRegistrationClass(registration) === eventClass)
+                  : allRegistrations.filter((registration) => getRegistrationClass(registration, event) === eventClass)
               }
               selectedRegistrationId={selectedRegistrationId}
               setSelectedRegistrationId={setSelectedRegistrationId}

@@ -10,7 +10,7 @@ covers:
   - src/pages/admin/EventCreatePage.tsx
   - src/pages/admin/EventEditPage.tsx
   - src/pages/admin/OrganizerListPage.tsx
-sourceHash: dcce46
+sourceHash: ffd44a
 ---
 
 Once a trial has been created in the calendar, the secretary's job before entry opens is to make
@@ -46,6 +46,14 @@ required is in place. Go through the sections and check in particular:
 
 - **the dates** — the trial's first and last day, and when entry opens and closes,
 - **classes, groups and the number of places** — places can be given in total, per day or per class,
+- **{t:event.officialFormat}**: an unofficial trial can follow an official one (NOU, NOME-B, NOME-A
+  or NOWT). Its classes, judges, entry times, places, reserve list, posts and result entry then work
+  as in that trial, and a result is written under its name, for example NOU1. Who may enter, the
+  Kennel Club and the statistics stay the unofficial trial's own. The choice can be changed until the
+  first result or post turn is saved. Once the trial has entries, the choice cannot give the trial
+  classes or take them away. If it is changed after entries, the post and start number links must be
+  sent again, and the entry times the entrants chose stay as they are,
+
 - **the judges and the classes each of them judges**,
 - **{t:event.kcIdSectionTitle}**: the trial is linked to the Kennel Club event so that the results can be saved,
 - **contact details** — which of the chief officer's and the secretary's details entrants may see.

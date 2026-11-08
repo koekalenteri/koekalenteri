@@ -19,7 +19,7 @@ it('offers the ways a NOWT round ends', async () => {
   await render(
     <Frame>
       <RoundOutcome
-        eventType="NOWT"
+        event={{ eventType: 'NOWT' }}
         onChange={() => {}}
         stations={eventWithStations.stations ?? []}
         value={{ tasks: [] }}

@@ -1,4 +1,5 @@
 import type { TFunction } from 'i18next'
+import type { FormatOwner } from '@/lib/event'
 import type { EventResultVersion, RegistrationClass, ResultConflict } from '@/types'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
@@ -12,6 +13,7 @@ import RadioGroup from '@mui/material/RadioGroup'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
+import { formatTypeOf } from '@/lib/event'
 import { shownEventResult } from '@/lib/results'
 import { isRecordedTask, stationTasks, stationWriter } from '@/lib/resultTasks'
 import { AsyncButton } from '../AsyncButton'
@@ -21,7 +23,8 @@ export type ConflictChoice = 'stored' | 'mine'
 
 interface Props {
   readonly conflicts: ResultConflict[]
-  readonly eventType: string
+  /** The trial, whose format (`formatTypeOf`) spells the results. */
+  readonly event: FormatOwner
   /**
    * The exercises of a dog a post's own view disputes. The row then shows those scores, since a post's
    * version carries no totals and the prize depends on posts it cannot see. Absent where the dispute is
@@ -83,7 +86,7 @@ const describeAtPost = (result: EventResultVersion, exercises: readonly number[]
  */
 export const ConflictDialog = ({
   conflicts,
-  eventType,
+  event,
   exercisesOf,
   registrations,
   choices,
@@ -92,7 +95,9 @@ export const ConflictDialog = ({
   onClose,
 }: Props) => {
   const { t } = useTranslation()
+  const eventType = formatTypeOf(event)
   const registrationOf = (id: string) => registrations.find((reg) => reg.id === id)
+
   const nameOf = (id: string) => registrationOf(id)?.dog?.name ?? id
   const classOf = (id: string) => registrationOf(id)?.class ?? undefined
 

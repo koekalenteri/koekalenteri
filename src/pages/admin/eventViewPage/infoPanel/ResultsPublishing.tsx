@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next'
 import { refusalCode } from '@/api/http'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { dayStart, TIME_ZONE } from '@/lib/day'
-import { getClassDays, isResultsPublishedForDay, uniqueClasses } from '@/lib/event'
+import { formatTypeOf, getClassDays, isResultsPublishedForDay, uniqueClasses } from '@/lib/event'
 import { scoresAtPosts } from '@/lib/liveFormat'
 import { getResultsBlocker } from '@/lib/publishing'
 import { Path } from '@/routeConfig'
@@ -148,7 +148,7 @@ const ResultsPublishing = ({ event, eventStarted, onSetResultsPublished, selecte
       action={
         <Stack spacing={1}>
           {/* Where the scoring happens at posts, defining them is the first half of entering results. */}
-          {scoresAtPosts(event.eventType) && (
+          {scoresAtPosts(formatTypeOf(event)) && (
             <Button
               fullWidth
               href={Path.admin.stations(event.id)}

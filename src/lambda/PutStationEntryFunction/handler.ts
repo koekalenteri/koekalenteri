@@ -1,4 +1,5 @@
 import type { JsonConfirmedEvent } from '../../types'
+import { formatTypeOf } from '../../lib/event'
 import { stationExercises } from '../../lib/resultTasks'
 import { getLiveEvent } from '../lib/event'
 import { parseSubmissions, processResultSubmissions, stationScopedSubmission } from '../lib/eventResults'
@@ -40,7 +41,7 @@ const putStationEntryLambda = lambda('putStationEntry', async (event) => {
 
   // Echo back only what this link may see: its own post's tasks, the exercises the dog's group does
   // here, without the derived prize the whole-round data would carry or anyone's name.
-  const { eventType } = confirmedEvent
+  const eventType = formatTypeOf(confirmedEvent)
   const exercisesOf = (id: string) => {
     const registration = registrationOf(id)
     return registration ? stationExercises(confirmedEvent, registration, stationId) : []

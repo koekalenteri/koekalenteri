@@ -85,7 +85,7 @@ export default function RegistrationEditPage() {
       <HiddenPageTitle>{t('entryEditTitle')}</HiddenPageTitle>
       <RegistrationEventInfo
         event={event}
-        eventClass={getRegistrationClass(registration)}
+        eventClass={getRegistrationClass(registration, event)}
         invitationAttachment={registration.invitationAttachment}
         invitationAttachmentUpdatedAt={registration.invitationAttachmentUpdatedAt}
       />

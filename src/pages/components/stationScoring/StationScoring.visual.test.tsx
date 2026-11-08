@@ -58,12 +58,12 @@ it('scores the dog at the post, one round at a time', async () => {
     <Frame>
       <StationScoring
         classes={eventWithStations.classes}
-        eventType="NOWT"
+        event={{ eventType: 'NOWT' }}
         onSave={async () => ({ registrations: [], saved: [] })}
         onTurn={async () => {}}
         registrations={registrations}
         station={station}
-        header={<StationHeading eventType="NOWT" station={station} subtitle="Tuloskoe" />}
+        header={<StationHeading event={{ eventType: 'NOWT' }} station={station} subtitle="Tuloskoe" />}
         turns={turns}
       />
     </Frame>
@@ -81,12 +81,12 @@ it("takes the judge's decision at the post of a qualitative type", async () => {
     <Frame>
       <StationScoring
         classes={eventWithStations.classes}
-        eventType="NOME-B"
+        event={{ eventType: 'NOME-B' }}
         onSave={async () => ({ registrations: [], saved: [] })}
         onTurn={async () => {}}
         registrations={registrations.map((dog) => ({ ...dog, eventResult: undefined, eventType: 'NOME-B' }))}
         station={{ id: '1', judges: [judge], number: 1, tasks: 1 }}
-        header={<StationHeading eventType="NOME-B" station={station} subtitle="Tuloskoe" />}
+        header={<StationHeading event={{ eventType: 'NOME-B' }} station={station} subtitle="Tuloskoe" />}
         turns={[{ ...turns[0], stationId: '1' }]}
       />
     </Frame>
@@ -109,12 +109,12 @@ it('shows a NOME-A result at the post as Kennelliitto lists it', async () => {
   const screen = await render(
     <Frame>
       <StationScoring
-        eventType="NOME-A"
+        event={{ eventType: 'NOME-A' }}
         onSave={async () => ({ registrations: [], saved: [] })}
         onTurn={async () => {}}
         registrations={nomeA}
         station={{ id: '1', judges: [judge], number: 1, tasks: 1 }}
-        header={<StationHeading eventType="NOME-A" station={station} subtitle="Tuloskoe" />}
+        header={<StationHeading event={{ eventType: 'NOME-A' }} station={station} subtitle="Tuloskoe" />}
         turns={[{ ...turns[0], stationId: '1' }]}
       />
     </Frame>
@@ -136,12 +136,12 @@ it('shows kesk at an exercise the dog never reached', async () => {
     <Frame>
       <StationScoring
         classes={eventWithStations.classes}
-        eventType="NOWT"
+        event={{ eventType: 'NOWT' }}
         onSave={async () => ({ registrations: [], saved: [] })}
         onTurn={async () => {}}
         registrations={[registrations[0], withdrawn]}
         station={station}
-        header={<StationHeading eventType="NOWT" station={station} subtitle="Tuloskoe" />}
+        header={<StationHeading event={{ eventType: 'NOWT' }} station={station} subtitle="Tuloskoe" />}
         turns={turns}
       />
     </Frame>
@@ -162,13 +162,13 @@ it("shows an outcome recorded at another post as not this link's to change", asy
     <Frame>
       <StationScoring
         classes={eventWithStations.classes}
-        eventType="NOWT"
+        event={{ eventType: 'NOWT' }}
         onSave={async () => ({ registrations: [], saved: [] })}
         onTurn={async () => {}}
         ownOutcomeOnly
         registrations={[registrations[0], withdrawn]}
         station={station}
-        header={<StationHeading eventType="NOWT" station={station} subtitle="Tuloskoe" />}
+        header={<StationHeading event={{ eventType: 'NOWT' }} station={station} subtitle="Tuloskoe" />}
         turns={turns}
       />
     </Frame>

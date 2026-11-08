@@ -1,4 +1,5 @@
 import type { GroupChangeReason } from '../../lib/audit'
+import type { FormatOwner } from '../../lib/event'
 import type {
   EmailTemplateId,
   EventState,
@@ -8,7 +9,7 @@ import type {
   RegistrationGroupMove,
 } from '../../types'
 import { invitationAwaitingPaymentAudit } from '../../lib/audit'
-import { hasSharedReserveList } from '../../lib/event'
+import { formatTypeOf, hasSharedReserveList } from '../../lib/event'
 import { getPaymentPicture } from '../../lib/payment'
 import {
   GROUP_KEY_CANCELLED,
@@ -67,8 +68,13 @@ const auditSentMessages = async (
   await audit(createSentRegistrationMessagesAudit({ event, failed, ok, registrations, template, user: user.name }))
 }
 
-const updateItems = async (oldItems: JsonRegistration[], moves: RegistrationGroupMove[], user: JsonUser) => {
-  const { invalid, items: updatedItems } = applyRegistrationGroupMoves(oldItems, moves)
+const updateItems = async (
+  event: FormatOwner,
+  oldItems: JsonRegistration[],
+  moves: RegistrationGroupMove[],
+  user: JsonUser
+) => {
+  const { invalid, items: updatedItems } = applyRegistrationGroupMoves(oldItems, moves, event)
   if (invalid.length) {
     throw new LambdaError(409, 'Registration groups have changed. Please refresh and retry.')
   }
@@ -170,7 +176,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
   const authorizedEvent = await getAuthorizedEvent(user, memberOf, eventId)
   // A WT trial's reserve list is the whole trial's (KOE-912), so raising one dog shifts every class's
   // reserves up and the updated reserve notice can not stay inside the moved dog's class.
-  const sharedReserve = hasSharedReserveList(authorizedEvent.eventType)
+  const sharedReserve = hasSharedReserveList(formatTypeOf(authorizedEvent))
 
   // Keep the read, normalization, writes, and count recalculation on one event
   // snapshot. A concurrent request receives 409 instead of applying stale
@@ -199,7 +205,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
     }
 
     // create a new copy of oldItems, so we can update without touching the original ones
-    updatedItems = await updateItems(oldItems, moves, user)
+    updatedItems = await updateItems(authorizedEvent, oldItems, moves, user)
 
     // update event counts
     confirmedEvent = await updateRegistrations(eventId, updatedItems)

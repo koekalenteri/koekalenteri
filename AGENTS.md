@@ -68,6 +68,27 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   `src/pages/state/events/hooks.ts` and the like) export several `use*` hooks by design and stay as
   they are.
 
+## Event Formats
+
+- An unofficial trial may follow an official type (`officialFormat`: NOU, NOME-B, NOME-A or NOWT,
+  KOE-1718), and then runs by that type's format. `formatTypeOf(event)` in `src/lib/event.ts` is the
+  type a reader of the format takes: the classes and the judges per class, the entry times and the
+  class places, the reserve list, the NOU group checks, the posts and the live view, what a result may
+  be, how it is derived, and how it is spelled (`NOU1`). A format reader takes `formatTypeOf(event)`,
+  never `event.eventType`; an official type is always its own format, whatever the field says.
+- A classless trial's class key is its format: `getRegistrationClass(registration, event)` takes the
+  event for that reason, and so do the helpers that key registrations (`groupParticipantsByClass`,
+  `getRegistrationNumberingGroupKey`, `normalizeRegistrationGroups`, `applyRegistrationGroupMoves`).
+  An entry carries its own `eventType`, not the type its trial follows.
+- These stay on the trial's own `eventType`: who may enter (`qualification.ts`, `rules.ts`), everything
+  official (`isOfficialEventType`, Kennelliitto, Omakoira, the kcId), the statistics, the event's
+  name and labels, and the B-trial's game-or-dummies and the NOWT's Mock trial choices.
+- The field is locked once a post has run a turn or a dog has a result (`isOfficialFormatLocked` in
+  `src/lib/results.ts`, read by the event form and PutEvent alike). Before that PutEvent refuses a
+  change that gives a trial with entries classes or takes them away (`isClassShapeChange`), moves what
+  a classless trial keeps under its key (`moveClasslessKey`) and numbers the reserves anew when the
+  shared reserve list comes or goes.
+
 ## Calendar Days
 
 - A calendar day (the day a trial runs, an entry opens or closes, a dog is placed on) is a `DayKey`

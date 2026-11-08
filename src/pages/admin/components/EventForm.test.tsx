@@ -94,6 +94,32 @@ describe('EventForm', () => {
     expect(cancelHandler).toHaveBeenCalledTimes(1)
   })
 
+  // KOE-1718: every section slice carries the official type an unofficial trial follows, so the judges
+  // section reads the NOWT's rules: no judge per class, and two judges at least.
+  it('reads the judges section by the official type an unofficial trial follows', async () => {
+    const { user } = await renderComponent({
+      ...eventWithEntryNotYetOpen,
+      eventType: 'WT-harjoitus',
+      officialFormat: 'NOWT',
+      state: 'confirmed',
+    })
+    await flushPromises()
+    await user.click(screen.getByRole('button', { name: 'judges' }))
+    await flushPromises()
+
+    expect(screen.getByText(/^validation\.event\.judgeCount/)).toBeVisible()
+    expect(screen.getByRole('textbox', { name: 'judge 1' })).toBeVisible()
+    for (const picker of screen.getAllByLabelText('event.judgesEditor.classes')) expect(picker).not.toBeVisible()
+
+    // The entry section offers NOWT's entry times: the whole day, and no half days.
+    await user.click(screen.getByRole('button', { name: 'event.entrySectionTitle' }))
+    await flushPromises()
+    await user.click(screen.getByRole('combobox', { name: 'registration.dates' }))
+    const times = screen.getAllByRole('option').map((option) => option.textContent)
+    expect(times.length).toBeGreaterThan(0)
+    expect(times.every((time) => time?.includes('registration.timeLong.kp'))).toBe(true)
+  })
+
   it('keeps an unsaved past event editable', async () => {
     const saveHandler = vi.fn()
 

@@ -643,7 +643,7 @@ describe('helpers', () => {
       const byGroup = buildRegistrationsByGroup(registrations, groups)
 
       const change = buildMoveToPositionGroupChange(registrations[2], 1, groups, byGroup)
-      const result = change ? applyRegistrationGroupMoves(registrations, [change]) : undefined
+      const result = change ? applyRegistrationGroupMoves(registrations, [change], { eventType: 'NOME-B' }) : undefined
 
       expect(change).toMatchObject({ beforeId: 'a', group: { key: '2026-08-15-ap' }, id: 'c' })
       expect(result?.invalid).toEqual([])

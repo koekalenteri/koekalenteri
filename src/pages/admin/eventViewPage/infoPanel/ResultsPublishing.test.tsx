@@ -42,7 +42,7 @@ const renderSection = (
         event={event}
         eventStarted
         onSetResultsPublished={onSetResultsPublished}
-        selectedByClass={groupParticipantsByClass(registrations)}
+        selectedByClass={groupParticipantsByClass(registrations, event)}
       />
     </ConfirmProvider>
   ),

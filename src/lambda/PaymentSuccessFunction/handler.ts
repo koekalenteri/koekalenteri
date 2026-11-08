@@ -1,3 +1,4 @@
+import type { FormatOwner } from '../../lib/event'
 import type { JsonRegistration, JsonTransaction } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import { getFixedT } from '../../i18n/lambda'
@@ -219,7 +220,7 @@ const sendPaymentReceipt = async ({
   })
 }
 
-const publishSuccessfulPayment = async (registration: JsonRegistration, registrationId: string) => {
+const publishSuccessfulPayment = async (event: FormatOwner, registration: JsonRegistration, registrationId: string) => {
   const releaseGroupsLock = await lockRegistrationGroups(registration.eventId, 8)
   try {
     const readyRegistrations = await getReadyRegistrationsByEventId(registration.eventId, true)
@@ -227,7 +228,7 @@ const publishSuccessfulPayment = async (registration: JsonRegistration, registra
       ...item,
       ...(item.group ? { group: { ...item.group } } : {}),
     }))
-    const reconciled = await fixRegistrationGroups(readyRegistrations, { name: 'payment' })
+    const reconciled = await fixRegistrationGroups(readyRegistrations, event, { name: 'payment' })
     const updatedRegistration =
       reconciled.find((item) => item.id === registrationId) ??
       (await getRegistration(registration.eventId, registrationId))
@@ -379,7 +380,8 @@ const handleSuccessfulPayment = async (
       // Publication is deliberately last: a flaky admin socket must not block
       // the payer's receipt or confirmation email. Incremental refresh is the
       // admin-side recovery path if this strict publication needs a retry.
-      await publishSuccessfulPayment(registration, registrationId)
+      await publishSuccessfulPayment(confirmedEvent, registration, registrationId)
+
       await markPostPaymentPhase(transaction.transactionId, workflowClaim.token, 'postPaymentPublishedAt')
     }
 

@@ -8,6 +8,7 @@ import type {
   JsonRegistration,
 } from '../../types'
 import {
+  formatTypeOf,
   isResultsAvailableForRegistration,
   isStartListAvailable,
   isStartListAvailableForRegistration,
@@ -64,7 +65,7 @@ const buildPublicStartList = (
   const withTotals = registrations.map((reg) => withStoredTotals(confirmedEvent, reg))
 
   // Derived over everyone who ran, so a withheld row still takes its rank; published only with the result.
-  const placements = placementsFor(withTotals)
+  const placements = placementsFor(withTotals, confirmedEvent)
 
   const publicRegs = withTotals
     .filter((reg) => isInEventClasses(confirmedEvent, reg))
@@ -183,7 +184,7 @@ const publishedResult = (confirmedEvent: JsonDogEvent, reg: JsonRegistration, pl
   const stored = reg.eventResult
   const marks = resultMarks(stored)
   // Kennelliitto's spelling, as KoiraNet lists it; the stored result keeps its prefix (KOE-1592).
-  const result = shownEventResult(stored?.result, confirmedEvent.eventType, reg.class ?? undefined)
+  const result = shownEventResult(stored?.result, formatTypeOf(confirmedEvent), reg.class ?? undefined)
 
   return {
     ...(marks.length ? { marks } : {}),

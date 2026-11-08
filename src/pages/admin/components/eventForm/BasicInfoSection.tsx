@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import type { ChangeEvent, SyntheticEvent } from 'react'
 import type { DayValue } from '@/pages/components/DateRange'
 import type {
@@ -32,28 +33,35 @@ import {
   defaultEntryEndDate,
   defaultEntryStartDate,
   EVENT_TRANSLATION_LANGUAGES,
+  hasEntries as eventHasEntries,
+  formatTypeOf,
   hasMockTrialChoice,
   hasRetrieveTypeChoice,
+  isClassShapeChange,
   isDetaultEntryEndDate,
   isDetaultEntryStartDate,
   isMockTrialClass,
+  isOfficialEventType,
   OFFICIAL_EVENT_TYPES,
 } from '@/lib/event'
 import CollapsibleSection from '@/pages/components/CollapsibleSection'
 import DateRange from '@/pages/components/DateRange'
 import { getRuleDate } from '@/rules'
+import { OFFICIAL_FORMATS } from '@/types'
 import EventClasses from './components/EventClasses'
 import EventProperty from './components/EventProperty'
 
 export interface Props extends Readonly<Omit<SectionProps, 'event'>> {
   readonly event: BasicInfoEvent
   readonly eventTypes?: string[]
-  readonly eventTypeClasses?: Record<string, RegistrationClass[]>
+  readonly eventTypeClasses?: Readonly<Record<string, readonly RegistrationClass[]>>
   readonly locations?: string[]
   readonly officials?: User[]
   readonly organizers?: Organizer[]
   readonly secretaries?: User[]
   readonly selectedEventType?: EventType
+  /** A post has run a turn or a dog has a result: the official type followed stays (KOE-1718). */
+  readonly officialFormatLocked?: boolean
 }
 
 /** A stable default for `useLocalState`, so its initial-value effect does not fire on every render. */
@@ -67,7 +75,7 @@ const isRetrieveType = (value: string): value is RetrieveType => RETRIEVE_TYPE_S
 
 const getTypeClasses = (
   eventType?: string,
-  eventTypeClasses?: Record<string, RegistrationClass[]>,
+  eventTypeClasses?: Readonly<Record<string, readonly RegistrationClass[]>>,
   mockTrial?: boolean
 ) => {
   const classes = OFFICIAL_EVENT_TYPES.includes(eventType ?? '')
@@ -93,9 +101,12 @@ function BasicInfoSection({
   onChange,
   secretaries,
   selectedEventType,
+  officialFormatLocked = false,
 }: Props) {
   const { t } = useTranslation()
-  const typeOptions = eventClassOptions(event, getTypeClasses(event.eventType, eventTypeClasses, event.mockTrial))
+  // The classes on offer are the format's: an unofficial trial following NOWT runs NOWT's (KOE-1718).
+  const formatType = formatTypeOf(event)
+  const typeOptions = eventClassOptions(event, getTypeClasses(formatType, eventTypeClasses, event.mockTrial))
   const error =
     (errorStates &&
       (errorStates.startDate ||
@@ -125,7 +136,7 @@ function BasicInfoSection({
   // Without an organizer the secretary list holds the officials only (EventForm): say what to do
   // instead of showing "required" or an empty list (KOE-1473).
   const secretaryGuidance = !event.organizer?.id && !disabled ? t('event.secretaryRequiresOrganizer') : undefined
-  const hasEntries = (event.entries ?? 0) > 0
+  const hasEntries = eventHasEntries(event)
   // The event's days are day keys (KOE-1547), counted and moved as days whatever zone the browser is in.
   const eventStartDay = event.startDate
   const eventEndDay = event.endDate
@@ -173,10 +184,48 @@ function BasicInfoSection({
       // The game-or-dummies choice (KOE-439) is a B-trial's; a trial that changes format drops it, and
       // one that becomes a B-trial starts with game (KOE-1570).
       const retrieveType = hasRetrieveTypeChoice(eventType) ? (event.retrieveType ?? 'game') : null
-      onChange?.({ classes, eventType, judges, mockTrial, retrieveType })
+      // Another type is another trial: the official type it follows is chosen anew (KOE-1718).
+      onChange?.({ classes, eventType, judges, mockTrial, officialFormat: null, retrieveType })
     },
     [event.classes, event.judges, event.mockTrial, event.retrieveType, eventTypeClasses, onChange]
   )
+  // An unofficial trial may follow an official type (KOE-1718), and then runs by its format. Its classes
+  // follow the format; an entry keeps the class it was made in, so the choice cannot add or take away the
+  // classes once there are entries (`isClassShapeChange`), and a result or a turn locks it altogether.
+  const followsOfficialFormat = !!event.eventType && !isOfficialEventType(event.eventType, selectedEventType?.official)
+  const changesShape = useCallback(
+    (officialFormat: DogEvent['officialFormat']) =>
+      hasEntries && isClassShapeChange(event, { ...event, officialFormat }),
+    [hasEntries, event]
+  )
+  const handleOfficialFormatChange = useCallback(
+    ({ officialFormat }: Partial<DogEvent>) => {
+      // Clearing it is the one change the options cannot grey out; refused alike, as the helper text says.
+      if (changesShape(officialFormat)) return
+      const followedFormat = formatTypeOf({ eventType: event.eventType, officialFormat })
+      const filterClasses = getTypeClasses(followedFormat, eventTypeClasses, event.mockTrial)
+      const classes = applySingleDayNowtGroups(
+        followedFormat,
+
+        event.startDate,
+        event.endDate,
+        event.classes.filter((c) => filterClasses.includes(c.class))
+      )
+      // A cleared choice is sent as null, which removes it from the stored event.
+      onChange?.({ classes, officialFormat: officialFormat ?? null })
+    },
+    [
+      changesShape,
+      event.classes,
+      event.endDate,
+      event.eventType,
+      event.mockTrial,
+      event.startDate,
+      eventTypeClasses,
+      onChange,
+    ]
+  )
+  const officialFormatHelperText = officialFormatGuidance(officialFormatLocked, hasEntries, t)
   const handleMockTrialChange = useCallback(
     (_e: ChangeEvent<HTMLInputElement>, checked: boolean) => {
       // A Mock trial runs AVO and VOI only (KOE-308): marking the trial one drops its ALO classes.
@@ -194,9 +243,9 @@ function BasicInfoSection({
   const handleClassesChange = useCallback(
     (_e: SyntheticEvent<Element, Event>, values: readonly DeepPartial<EventClass>[]) =>
       onChange?.({
-        classes: applySingleDayNowtGroups(event.eventType, event.startDate, event.endDate, values),
+        classes: applySingleDayNowtGroups(formatType, event.startDate, event.endDate, values),
       }),
-    [event.endDate, event.eventType, event.startDate, onChange]
+    [event.endDate, event.startDate, formatType, onChange]
   )
   const [name, setName] = useLocalState(event.name ?? '', (value) => onChange?.({ name: value }))
   const handleNameChange = useCallback((e: ChangeEvent<HTMLInputElement>) => setName(e.target.value), [setName])
@@ -280,6 +329,22 @@ function BasicInfoSection({
             />
           </Grid>
         </Grid>
+        {followsOfficialFormat ? (
+          <Grid container spacing={1}>
+            <Grid sx={{ width: 600 }}>
+              <EventProperty
+                disabled={disabled || officialFormatLocked}
+                event={event}
+                fields={fields}
+                getOptionDisabled={changesShape}
+                helperText={officialFormatHelperText}
+                id="officialFormat"
+                onChange={handleOfficialFormatChange}
+                options={OFFICIAL_FORMATS}
+              />
+            </Grid>
+          </Grid>
+        ) : null}
         {hasMockTrialChoice(event.eventType) ? (
           <Grid container spacing={1}>
             <Grid sx={{ width: 600 }}>
@@ -429,7 +494,14 @@ function BasicInfoSection({
 
 export default memo(BasicInfoSection)
 
-function eventClassOptions(event: PartialEvent | undefined, typeClasses: RegistrationClass[]) {
+/** What the official type choice says under it: why it is locked, or which types it still offers. */
+function officialFormatGuidance(locked: boolean, hasEntries: boolean, t: TFunction): string | undefined {
+  if (locked) return t('event.officialFormatLocked')
+  if (hasEntries) return t('event.officialFormatClassShape')
+  return undefined
+}
+
+function eventClassOptions(event: PartialEvent | undefined, typeClasses: readonly RegistrationClass[]) {
   if (!event?.startDate || !event?.endDate) {
     return []
   }

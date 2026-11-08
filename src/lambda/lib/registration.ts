@@ -1,5 +1,6 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { AuditActor } from '../../lib/audit'
+import type { FormatOwner } from '../../lib/event'
 import type { OpenPayment } from '../../lib/payment'
 import type {
   EmailTemplateId,
@@ -462,14 +463,16 @@ export const sendTemplatedEmailToEventRegistrations = async (
   return { failed, ok }
 }
 
-/**
- * Group registrations by class or eventType
- */
-export const groupRegistrationsByClass = (registrations: JsonRegistration[]): Record<string, JsonRegistration[]> => {
+/** Group registrations by class, or a classless trial's under its format (`getRegistrationClass`). */
+export const groupRegistrationsByClass = (
+  registrations: JsonRegistration[],
+  event: FormatOwner
+): Record<string, JsonRegistration[]> => {
   const result: Record<string, JsonRegistration[]> = {}
 
   for (const reg of registrations) {
-    const classKey = getRegistrationClass(reg)
+    const classKey = getRegistrationClass(reg, event)
+
     result[classKey] = result[classKey] || []
     result[classKey].push(reg)
   }

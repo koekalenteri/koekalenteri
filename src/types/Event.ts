@@ -23,6 +23,9 @@ import type { DogEventCost, MinimalEventForCost } from './Cost'
 export type PaymentTime = 'registration' | 'confirmation'
 /** What a B-trial's dogs retrieve (KOE-439): shot game, or dummies standing in for it. */
 export type RetrieveType = 'game' | 'dummies'
+/** The official types an unofficial trial may follow (KOE-1718): their format runs the trial. */
+export const OFFICIAL_FORMATS = ['NOU', 'NOME-B', 'NOME-A', 'NOWT'] as const
+export type OfficialFormat = (typeof OFFICIAL_FORMATS)[number]
 export type StartListPublishedState = boolean | Partial<Record<RegistrationClass, boolean>>
 
 /**
@@ -137,6 +140,14 @@ export interface JsonDogEvent extends JsonDbRecord {
   names?: Partial<Record<Language, string>>
   /** The user picked for the role, as the users list holds it: with the row's own stamps. */
   official: Partial<JsonUser>
+  /**
+   * The official type an unofficial trial follows (KOE-1718), chosen by its secretary: the classes,
+   * the judges, the entry times, the posts, the live view and the results then run by that type's
+   * format (`formatTypeOf`). Eligibility, Kennelliitto and the statistics stay the trial's own. Absent
+   * where the trial follows none, and ignored on an official type. Locked once a result or a turn is
+   * saved (`isOfficialFormatLocked`).
+   */
+  officialFormat?: OfficialFormat
   organizer: PublicOrganizer
   places: number
   /**
@@ -171,8 +182,10 @@ export interface JsonDogEvent extends JsonDbRecord {
    */
   startNumbersPublished?: StartNumbersPublishedState
   /**
-   * Versions the class secretaries' start number links (KOE-1267), keyed by the class the link opens
-   * — or by the event type where the trial has no classes, which is the key its dogs carry too.
+   * Versions the class secretaries' start number links (KOE-1267), keyed by the class the link opens,
+   * or where the trial has no classes by its format (`getRegistrationClass`, KOE-1718), the key its dogs
+   * are read under too.
+
    * Bumping a class's number revokes every link issued for it; absent reads as version 1, the way a
    * post's `tokenVersion` does.
    */
@@ -389,11 +402,11 @@ export type StationEntryDog = Omit<JsonStationEntryDog, 'group' | 'eventResult'>
  */
 export type JsonLinkedEvent = Pick<
   JsonPublicDogEvent,
-  'id' | 'eventType' | 'name' | 'names' | 'location' | 'startDate' | 'endDate' | 'classes'
+  'id' | 'eventType' | 'name' | 'names' | 'location' | 'startDate' | 'endDate' | 'classes' | 'officialFormat'
 >
 export type LinkedEvent = Pick<
   PublicDogEvent,
-  'id' | 'eventType' | 'name' | 'names' | 'location' | 'startDate' | 'endDate' | 'classes'
+  'id' | 'eventType' | 'name' | 'names' | 'location' | 'startDate' | 'endDate' | 'classes' | 'officialFormat'
 >
 
 /** The results are handed to the chief judge: the post's link can read them but no longer write them. */

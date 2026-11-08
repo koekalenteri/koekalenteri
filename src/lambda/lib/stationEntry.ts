@@ -11,6 +11,7 @@ import type {
   JsonStationTurn,
   StationVisitLayout,
 } from '../../types'
+import { formatTypeOf } from '../../lib/event'
 import { isResultsLocked } from '../../lib/kennelliittoResults'
 import { resolveStation, scoresAtPosts } from '../../lib/liveFormat'
 import { isScorableRegistration } from '../../lib/registration'
@@ -81,7 +82,8 @@ const stationEntryDog = (
     eventType: registration.eventType,
     group: registration.group,
     id: registration.id,
-    ...(stored ? { eventResult: scopeResultToStation(stored, exercises, registration.eventType) } : {}),
+    ...(stored ? { eventResult: scopeResultToStation(stored, exercises, formatTypeOf(confirmedEvent)) } : {}),
+
     ...(registration.visit ? { visit: registration.visit } : {}),
   }
 }

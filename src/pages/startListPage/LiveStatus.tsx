@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getEvent } from '../../api/event'
 import { useTickWhile } from '../../hooks/useTickWhile'
-import { isEventLive } from '../../lib/event'
+import { formatTypeOf, isEventLive } from '../../lib/event'
 import { liveFormat, livePhaseLabel, scoresAtPosts, stationDogsAtOnce, stationPhases } from '../../lib/liveFormat'
 import { stationQueueEntries } from '../../lib/rotation'
 import {
@@ -49,12 +49,12 @@ const stationQueueOf = (
   participants: readonly LiveParticipant[]
 ): { dogs: number; dogsAtOnce: number }[] => {
   const station = event.stations?.find((item) => item.id === stationId)
-  if (!station || !scoresAtPosts(event.eventType)) {
-    return [{ dogs: participants.length, dogsAtOnce: stationDogsAtOnce(event.eventType, station) }]
+  if (!station || !scoresAtPosts(formatTypeOf(event))) {
+    return [{ dogs: participants.length, dogsAtOnce: stationDogsAtOnce(formatTypeOf(event), station) }]
   }
   return stationQueueEntries(event, stationId, participants).map(({ registrations, visit }) => ({
     dogs: registrations.length,
-    dogsAtOnce: stationDogsAtOnce(event.eventType, visit),
+    dogsAtOnce: stationDogsAtOnce(formatTypeOf(event), visit),
   }))
 }
 
@@ -75,8 +75,8 @@ const LiveStationCard = ({ event, stationId, turns, participants, single }: Stat
   const { t } = useTranslation()
 
   const station = event.stations?.find((item) => item.id === stationId)
-  const format = liveFormat(event.eventType)
-  const phases = stationPhases(event.eventType, station)
+  const format = liveFormat(formatTypeOf(event))
+  const phases = stationPhases(formatTypeOf(event), station)
   const open = openTurn(turns, stationId)
   const completed = completedGroupTurns(turns, stationId)
   const throughput = stationThroughput(turns, stationId)
@@ -240,7 +240,7 @@ export const LiveStatus = ({
           <LiveStationCard
             event={event}
             key={stationId}
-            single={liveFormat(event.eventType).posts === 'one'}
+            single={liveFormat(formatTypeOf(event)).posts === 'one'}
             participants={entered}
             stationId={stationId}
             turns={turns}

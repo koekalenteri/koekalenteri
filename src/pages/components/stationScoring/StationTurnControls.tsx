@@ -1,3 +1,4 @@
+import type { FormatOwner } from '@/lib/event'
 import type { LivePhase } from '@/lib/liveFormat'
 import type { StationTurnSpan } from '@/lib/stationTurns'
 import type { EventStation, LiveMark, StationTurnOp, StationTurnPause, StationVisitLayout } from '@/types'
@@ -19,6 +20,7 @@ import { enqueueSnackbar } from 'notistack'
 import { useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
+import { formatTypeOf } from '@/lib/event'
 import { liveFormat, livePhaseLabel, stationDogsAtOnce, stationPhases } from '@/lib/liveFormat'
 import {
   currentPhase,
@@ -55,8 +57,11 @@ interface TurnDog {
 
 interface Props {
   readonly station: Pick<EventStation, 'id' | 'tasks' | 'dogsAtOnce' | 'phases'>
-  /** Decides how many dogs a turn holds, whether it names a task, and what may be marked. */
-  readonly eventType?: string
+  /**
+   * The trial, whose format (`formatTypeOf`) decides how many dogs a turn holds, whether it names a task,
+   * and what may be marked.
+   */
+  readonly event?: FormatOwner
   readonly turns: readonly StationTurnItem[]
   /** The post's queue for the class on show, in start order — what a walk-up is picked from. */
   readonly dogs?: readonly TurnDog[]
@@ -80,8 +85,10 @@ const minutes = (ms: number) => Math.max(0, Math.round(ms / 60000))
  * whole entry attends comes before the first run and never after — and marks only where the live facts
  * are marks rather than scores. A break waits for the post to be free: ending the run is one tap.
  */
-export const StationTurnControls = ({ station, eventType, turns, dogs, selectedDog, onTurn }: Props) => {
+export const StationTurnControls = ({ station, event, turns, dogs, selectedDog, onTurn }: Props) => {
   const { t } = useTranslation()
+  const eventType = event && formatTypeOf(event)
+
   const [pauseMenuAnchor, setPauseMenuAnchor] = useState<HTMLElement>()
   const [groupMenuAnchor, setGroupMenuAnchor] = useState<HTMLElement>()
   const [markMenu, setMarkMenu] = useState<{ anchor: HTMLElement; index: number }>()

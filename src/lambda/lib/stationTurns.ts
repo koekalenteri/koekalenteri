@@ -8,6 +8,7 @@ import type {
   StationTurnPause,
 } from '../../types'
 import { randomUUID } from 'node:crypto'
+import { formatTypeOf } from '../../lib/event'
 import { MAX_DOGS_AT_ONCE, resolveStation, stationPhases } from '../../lib/liveFormat'
 import { currentPhase, isBreakTurn, isWholeTurn, openTurn } from '../../lib/stationTurns'
 import { isConditionalCheckFailure } from './api-gw'
@@ -201,7 +202,7 @@ export const writeStationTurn = async (
   now: Date = new Date()
 ): Promise<JsonStationTurn[]> => {
   let expected = confirmedEvent.turns
-  const phases = stationPhases(confirmedEvent.eventType, resolveStation(confirmedEvent, stationId))
+  const phases = stationPhases(formatTypeOf(confirmedEvent), resolveStation(confirmedEvent, stationId))
 
   for (let attempt = 1; ; attempt++) {
     const turns = applyStationTurnOp(expected ?? [], registrations, stationId, op, now, phases)

@@ -1,3 +1,4 @@
+import type { FormatOwner } from '@/lib/event'
 import type { ExerciseSlot } from '@/lib/resultTasks'
 import type { EventResult, ResultMark } from '@/types'
 import type { ResultEdit } from './types'
@@ -5,6 +6,7 @@ import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
+import { formatTypeOf } from '@/lib/event'
 import { scoresAtPosts } from '@/lib/liveFormat'
 import {
   availableResultCodes,
@@ -21,7 +23,8 @@ interface Props {
   readonly round?: ExerciseSlot[]
   readonly edit: ResultEdit
   readonly stored?: EventResult
-  readonly eventType: string
+  /** The trial, whose format (`formatTypeOf`) decides the codes on offer and how a result is spelled. */
+  readonly event: FormatOwner
   readonly eventClass?: string
   readonly disabled?: boolean
   /** The rank among the class's awarded dogs that day. Withheld by the caller while the row is unsaved. */
@@ -36,8 +39,9 @@ interface Props {
  * is the one that gets stored. A post's own view passes no round, because the prize depends on posts it
  * cannot see and a partial figure there would be worse than none.
  */
-export const ResultSummary = ({ round, edit, stored, eventType, eventClass, disabled, onChange, placement }: Props) => {
+export const ResultSummary = ({ round, edit, stored, event, eventClass, disabled, onChange, placement }: Props) => {
   const { t } = useTranslation()
+  const eventType = formatTypeOf(event)
   // What rides beside the result once it is published, shown here so the secretary reads the line the
   // public will read rather than only the choice they made in the outcome control (KOE-1300).
   const marks = <ResultMarks marks={resultMarks(edit)} />
@@ -54,11 +58,11 @@ export const ResultSummary = ({ round, edit, stored, eventType, eventClass, disa
         <TextField
           disabled={disabled}
           label={t('results.column.result')}
-          onChange={(event) =>
+          onChange={(change) =>
             onChange(
               withResultCode(
                 edit,
-                codes.find((code) => code === event.target.value)
+                codes.find((code) => code === change.target.value)
               )
             )
           }
