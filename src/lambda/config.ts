@@ -3,6 +3,8 @@ export const CONFIG = {
   auditTable: process.env.AUDIT_TABLE_NAME ?? 'audit-table-not-found-in-env',
   dataVersionTable: process.env.DATA_VERSION_TABLE_NAME ?? 'data-version-table-not-found-in-env',
   dogTable: process.env.DOG_TABLE_NAME ?? 'dog-table-not-found-in-env',
+  // The SES configuration set every stack sends through; its event destinations feed the suppression table.
+  emailConfigurationSet: 'Koekalenteri',
   emailFrom: process.env.EMAIL_FROM ?? 'koekalenteri@koekalenteri.snj.fi',
   emailSuppressionTable: process.env.EMAIL_SUPPRESSION_TABLE_NAME ?? 'email-suppression-table-not-found-in-env',
   emailTemplateTable: process.env.EMAIL_TEMPLATE_TABLE_NAME ?? 'email-template-table-not-found-in-env',

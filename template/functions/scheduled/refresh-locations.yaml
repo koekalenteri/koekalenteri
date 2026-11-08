@@ -8,13 +8,7 @@
       Handler: handler.default
       Timeout: 300
       Policies:
-        - Statement:
-            - Sid: SSMGetParameterPolicy
-              Effect: Allow
-              Action:
-                - ssm:GetParameters
-                - ssm:GetParameter
-              Resource: '*'
+        - !Ref KLAPIParametersPolicy
         - DynamoDBCrudPolicy:
             TableName: !Ref LocationTable
         - DynamoDBWritePolicy:

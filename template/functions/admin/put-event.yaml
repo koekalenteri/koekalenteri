@@ -19,13 +19,6 @@
         - DynamoDBWritePolicy:
             TableName: !Ref AuditTable
         - !Ref AuthorizePolicy
-        - Statement:
-            - Sid: SSMGetParameterPolicy
-              Effect: Allow
-              Action:
-              - ssm:GetParameters
-              - ssm:GetParameter
-              Resource: '*'
         - CloudWatchPutMetricPolicy: {}
         - !Ref WebSocketPolicy
       Events:

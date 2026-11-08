@@ -1,6 +1,17 @@
-import { explainTemplateRejection, findEmailTemplateError, findTemplateSyntaxError } from './emailTemplate'
+import {
+  explainTemplateRejection,
+  findEmailTemplateError,
+  findTemplateSyntaxError,
+  sesTemplateName,
+} from './emailTemplate'
 
 describe('emailTemplate', () => {
+  describe('sesTemplateName', () => {
+    it("names the stack's copy of a template in one language", () => {
+      expect(sesTemplateName('registration', 'koekalenteri-dev', 'fi')).toBe('registration-koekalenteri-dev-fi')
+    })
+  })
+
   describe('findTemplateSyntaxError', () => {
     it.each([
       ['plain text', 'Hei!'],

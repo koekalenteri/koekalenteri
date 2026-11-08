@@ -73,6 +73,14 @@ export const findEmailTemplateError = (template: Pick<EmailTemplate, 'fi' | 'en'
 }
 
 /**
+ * The name of a template in SES: each stack keeps its own copy of every template in every language
+ * (`registration-koekalenteri-dev-fi`). Saving and sending both name it this way, and the stack's SES
+ * grant is checked against it (template/policies/send-email-policy.yaml, KOE-1617).
+ */
+export const sesTemplateName = (id: string, stackName: string, language: string): string =>
+  `${id}-${stackName}-${language}`
+
+/**
  * What compiling and rendering the SES parts on empty data has to say, when SES has rejected a
  * template whose source parses: "#if requires exactly one argument" or 'Missing helper: "foo"',
  * where SES said nothing. Nothing when every part renders; the rejection is then SES's to explain.

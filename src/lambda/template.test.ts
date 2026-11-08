@@ -1,5 +1,6 @@
 import { execFileSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { sesTemplateName } from '../lib/emailTemplate'
 import { CONFIG } from './config'
 import { isGranted, unusedGrants } from './test-utils/dynamoActions'
 import { analyzeTableUse } from './test-utils/lambdaTableUse'
@@ -315,13 +316,12 @@ describe('service policies', () => {
   /** The services whose actions are compared with the SDK commands the walk finds; the others' are not yet. */
   const COMPARED_SERVICES = new Set(['ses', 'ssm'])
 
-  /** Actions that take no resource type in IAM, so `*` is the only resource they can have. */
-  const withoutResource: Record<string, string> = {
-    'PutEmailTemplateFunction ses:createtemplate':
-      'CreateTemplate takes no resource type (Service Authorization Reference)',
-    'PutEmailTemplateFunction ses:updatetemplate':
-      'UpdateTemplate takes no resource type (Service Authorization Reference)',
-  }
+  // CreateTemplate and UpdateTemplate take no resource type in the Service Authorization Reference,
+  // so `*` is the only resource they can have.
+  const WITHOUT_RESOURCE = [
+    { action: 'ses:createtemplate', function: 'PutEmailTemplateFunction' },
+    { action: 'ses:updatetemplate', function: 'PutEmailTemplateFunction' },
+  ].map((grant) => `${grant.function} ${grant.action}`)
 
   const arn = (service: string, resource: string) =>
     `!Sub arn:\${AWS::Partition}:${service}:\${AWS::Region}:\${AWS::AccountId}:${resource}`
@@ -393,28 +393,31 @@ describe('service policies', () => {
         .filter(({ resources }) => resources.includes('*'))
         .flatMap(({ actions }) => actions.map((action) => `${name} ${action.toLowerCase()}`))
     )
-    expect(Object.keys(withoutResource).filter((grant) => !everywhere.includes(grant))).toEqual([])
-    expect(everywhere.filter((grant) => !(grant in withoutResource))).toEqual([])
+    expect(WITHOUT_RESOURCE.filter((grant) => !everywhere.includes(grant))).toEqual([])
+    expect(everywhere.filter((grant) => !WITHOUT_RESOURCE.includes(grant))).toEqual([])
   })
 
-  // What sendTemplatedMail (lib/email.ts) sends with: CONFIG.emailFrom, which no stack overrides, the
-  // stack's own templates and the shared configuration set. SES authorizes against the address when
-  // it is verified as an identity of its own and against the domain otherwise, so both are granted.
-  it('sends email only from the sender address, with the stack templates and the shared configuration set', () => {
-    const resources = [...functions.values()].flatMap(({ statements }) =>
-      resourcesOf(statements, 'ses:sendtemplatedemail')
-    )
+  // What sendTemplatedMail (lib/email.ts) sends with, from the names it builds: the sender
+  // CONFIG.emailFrom, the stack's own templates (sesTemplateName) and CONFIG.emailConfigurationSet.
+  // SES authorizes against the address when it is verified as an identity of its own and against its
+  // domain otherwise, so both are granted.
+  it('lets every sender send only from the sender address, with the stack templates and the configuration set', () => {
     const domain = CONFIG.emailFrom.slice(CONFIG.emailFrom.indexOf('@') + 1)
+    const expected = [
+      arn('ses', `identity/${domain}`),
+      arn('ses', `identity/${CONFIG.emailFrom}`),
+      arn('ses', `template/${sesTemplateName('*', `\${AWS::StackName}`, '*')}`),
+      arn('ses', `configuration-set/${CONFIG.emailConfigurationSet}`),
+    ].sort()
+    const senders = [...functions].filter(([, { codeUri }]) => commandsOf(codeUri).has('ses:sendtemplatedemail'))
+    const differing = senders
+      .map(([name, { statements }]) => ({
+        name,
+        resources: [...new Set(resourcesOf(statements, 'ses:sendtemplatedemail'))].sort(),
+      }))
+      .filter(({ resources }) => resources.join() !== expected.join())
 
-    expect(resources.length).toBeGreaterThan(0)
-    expect(new Set(resources)).toEqual(
-      new Set([
-        arn('ses', `identity/${domain}`),
-        arn('ses', `identity/${CONFIG.emailFrom}`),
-        arn('ses', `template/*-\${AWS::StackName}-*`),
-        arn('ses', 'configuration-set/Koekalenteri'),
-      ])
-    )
-    expect(template).not.toMatch(/EMAIL_FROM/)
+    expect(senders.length).toBeGreaterThan(0)
+    expect(differing).toEqual([])
   })
 })

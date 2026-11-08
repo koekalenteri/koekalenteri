@@ -20,12 +20,7 @@
         - !Ref AuthorizePolicy
         - CloudWatchPutMetricPolicy: {}
         - !Ref WebSocketPolicy
-        - Statement:
-            - Sid: SESSendEmailPolicy
-              Effect: Allow
-              Action:
-              - ses:sendTemplatedEmail
-              Resource: '*'
+        - !Ref SendEmailPolicy
       Events:
         PutEmailTemplate:
           Type: Api

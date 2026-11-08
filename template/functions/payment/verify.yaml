@@ -7,13 +7,7 @@
         Variables:
           REGISTRATION_EDIT_TOKEN_SECRET: !Sub '{{resolve:ssm:${AWS::StackName}-REGISTRATION_EDIT_TOKEN_SECRET}}'
       Policies:
-        - Statement:
-            - Sid: SSMGetParameterPolicy
-              Effect: Allow
-              Action:
-              - ssm:GetParameters
-              - ssm:GetParameter
-              Resource: '*'
+        - !Ref PaytrailParametersPolicy
         - DynamoDBCrudPolicy:
             TableName: !Ref TransactionTable
         - DynamoDBCrudPolicy:

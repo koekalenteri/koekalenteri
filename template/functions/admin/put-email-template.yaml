@@ -11,13 +11,14 @@
             TableName: !Ref DataVersionTable
         - !Ref AuthorizePolicy
         - !Ref WebSocketPolicy
+        # CreateTemplate and UpdateTemplate take no resource type in IAM, so '*' is the only
+        # resource they can have (KOE-1617).
         - Statement:
             - Sid: SESTemplatesPolicy
               Effect: Allow
               Action:
-              - ses:getTemplate
-              - ses:createTemplate
-              - ses:updateTemplate
+              - ses:CreateTemplate
+              - ses:UpdateTemplate
               Resource: '*'
       Events:
         PutEmailTemplate:

@@ -17,13 +17,7 @@
         - !Ref WebSocketPolicy
         - !Ref AuthorizePolicy
         - CloudWatchPutMetricPolicy: {}
-        - Statement:
-            - Sid: SSMGetParameterPolicy
-              Effect: Allow
-              Action:
-                - ssm:GetParameters
-                - ssm:GetParameter
-              Resource: '*'
+        - !Ref PaytrailParametersPolicy
       Events:
         GetRegistrationTransactions:
           Type: Api

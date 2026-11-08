@@ -1,0 +1,50 @@
+  # The SSM parameters each reader in src/lambda/lib/secrets.ts asks getSSMParams for, one policy per
+  # reader. A function carries the policy of every reader its code reaches, and src/lambda/template.test.ts
+  # fails on a parameter the code reads without its grant or a grant the code never reads (KOE-1617).
+  # GetParameters is the only call secrets.ts sends. The REGISTRATION_EDIT_TOKEN_SECRET references
+  # in the functions' environments are resolved by CloudFormation with the deployer's role, and need
+  # nothing here.
+  KLAPIParametersPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Sub 'KLAPIParametersPolicy-${AWS::StackName}'
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          # getKLAPIConfig: the old Kennelliitto API, shared by every stack.
+          - Effect: Allow
+            Action: ssm:GetParameters
+            Resource:
+              - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/KL_API_URL
+              - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/KL_API_UID
+              - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/KL_API_PWD
+
+  KLIntegraatioParametersPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Sub 'KLIntegraatioParametersPolicy-${AWS::StackName}'
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          # getKLIntegraatioConfig: the old API's credentials, and the stack's own addresses (KOE-1533).
+          - Effect: Allow
+            Action: ssm:GetParameters
+            Resource:
+              - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/KL_API_UID
+              - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/KL_API_PWD
+              - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${AWS::StackName}-KL_INT_API_URL
+              - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${AWS::StackName}-KL_INT_SSO_URL
+
+  PaytrailParametersPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Sub 'PaytrailParametersPolicy-${AWS::StackName}'
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          # getPaytrailConfig: the stack's own merchant.
+          - Effect: Allow
+            Action: ssm:GetParameters
+            Resource:
+              - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${AWS::StackName}-PAYTRAIL_MERCHANT_ID
+              - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${AWS::StackName}-PAYTRAIL_SECRET

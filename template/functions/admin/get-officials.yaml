@@ -4,13 +4,7 @@
       CodeUri: lambda/GetOfficialsFunction
       Handler: handler.default
       Policies:
-        - Statement:
-            - Sid: SSMGetParameterPolicy
-              Effect: Allow
-              Action:
-                - ssm:GetParameters
-                - ssm:GetParameter
-              Resource: '*'
+        - !Ref KLAPIParametersPolicy
         - DynamoDBCrudPolicy:
             TableName: !Ref OfficialTable
         - DynamoDBReadPolicy:

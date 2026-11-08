@@ -25,19 +25,7 @@
             TableName: !Ref TransactionTable
         - !Ref AuthorizePolicy
         - CloudWatchPutMetricPolicy: {}
-        - Statement:
-            - Sid: SESSendEmailPolicy
-              Effect: Allow
-              Action:
-              - ses:sendTemplatedEmail
-              Resource: '*'
-        - Statement:
-            - Sid: SSMGetParameterPolicy
-              Effect: Allow
-              Action:
-              - ssm:GetParameters
-              - ssm:GetParameter
-              Resource: '*'
+        - !Ref SendEmailPolicy
         - !Ref WebSocketPolicy
       Events:
         PutAdminRegistration:

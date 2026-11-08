@@ -1,0 +1,19 @@
+  # What sendTemplatedMail (src/lambda/lib/email.ts) sends with: the sender CONFIG.emailFrom, the
+  # stack's own templates and the shared configuration set (KOE-1617). SES authorizes a send against
+  # the address when it is verified as an identity of its own and against its domain otherwise, so
+  # both are granted. Every function whose code sends a templated email carries this policy, and
+  # src/lambda/template.test.ts compares these resources with the names the code builds.
+  SendEmailPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: !Sub 'SendEmailPolicy-${AWS::StackName}'
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: ses:SendTemplatedEmail
+            Resource:
+              - !Sub arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:identity/koekalenteri.snj.fi
+              - !Sub arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:identity/koekalenteri@koekalenteri.snj.fi
+              - !Sub arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:template/*-${AWS::StackName}-*
+              - !Sub arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/Koekalenteri
