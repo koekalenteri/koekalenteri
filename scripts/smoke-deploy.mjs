@@ -20,6 +20,7 @@ import { readFileSync } from 'node:fs'
 import { setTimeout as delay } from 'node:timers/promises'
 import { pathToFileURL } from 'node:url'
 import { parseArgs } from 'node:util'
+import { isGitDescendant } from './lib/git.mjs'
 
 const COMMIT_ID = /^[0-9a-f]{40}$/
 const REQUEST_TIMEOUT_MS = 15_000
@@ -114,16 +115,6 @@ export function stampProblems(stamp, expected, git) {
       problems.push(`preconnects to ${stamp.api}, expected ${expected.api}`)
   }
   return problems
-}
-
-/** Whether `revision` is `ancestor` or a commit after it, by the local clone's history. */
-export function isGitDescendant(ancestor, revision) {
-  try {
-    execFileSync('git', ['merge-base', '--is-ancestor', ancestor, revision], { stdio: 'ignore' })
-    return true
-  } catch {
-    return false
-  }
 }
 
 /** The package.json version at `revision` in the local clone, or undefined when git cannot tell. */

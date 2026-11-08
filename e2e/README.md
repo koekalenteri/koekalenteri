@@ -128,6 +128,8 @@ The test accounts are in `.env` as `E2E_DEV_<KEY>_EMAIL` and `E2E_DEV_<KEY>_PASS
 | `SIHTEERI_2`     | secretary of J2             |
 | `ILMOITTAJA`     | no role, a plain registrant |
 
+`/verify-dev` checks these roles at the start of every run (`.claude/skills/verify-dev/SKILL.md`, step 0).
+
 ### The allowlist
 
 The browser may request only the origins listed under `network.allowedOrigins`; every other
