@@ -1,3 +1,4 @@
+import type { TeamStanding } from '@/lib/team'
 import type { DogEvent, EventTeam } from '@/types'
 import Cancel from '@mui/icons-material/Cancel'
 import Save from '@mui/icons-material/Save'
@@ -12,6 +13,8 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
+import { withStoredTotals } from '@/lib/results'
+import { teamStandings, withRunOffWinner } from '@/lib/team'
 import { Path } from '@/routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
 import { EntryPageHeader } from './components/EntryPageHeader'
@@ -76,6 +79,13 @@ export default function EventTeamsPage() {
   }, [registrations, teams])
   // A team is its number, its place in the list: only the last ones come and go (KOE-1714).
   const numbered = useMemo(() => teams.map((team, index) => ({ number: index + 1, team })), [teams])
+  // The standings of the draft, so a run-off marked shows before it is saved; the totals a round stored
+  // before KOE-1669 lacks are worked out as the start list does (KOE-1717).
+  const standings = useMemo(() => {
+    if (!event) return new Map<number, TeamStanding>()
+    const scored = registrations.map((registration) => withStoredTotals(event, registration))
+    return new Map(teamStandings(event, teams, scored).map((standing) => [standing.team, standing]))
+  }, [event, registrations, teams])
 
   const setTeams = useCallback(
     (next: EventTeam[]) => {
@@ -128,6 +138,8 @@ export default function EventTeamsPage() {
               entries={entries}
               number={number}
               onChange={(changed) => setTeams(teams.map((item, at) => (at === number - 1 ? changed : item)))}
+              onRunOffChange={(won) => setTeams(withRunOffWinner(teams, number - 1, won))}
+              standing={standings.get(number - 1)}
               team={team}
             />
           ))}

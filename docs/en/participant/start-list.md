@@ -5,7 +5,7 @@ order: 30
 covers:
   - src/pages/StartListPage.tsx
   - src/pages/startListPage/**
-sourceHash: 6f4b55
+sourceHash: d55a16
 ---
 
 The start list is the trial's public page, where the organizer publishes the participants, the
@@ -54,6 +54,22 @@ withdrawn, its letter stays unused, so a team may have 1A and 1C without 1B. A w
 shown by team at all; in the running order it stays in its place marked *{t:startList.absent}*.
 
 !shot[ParticipantList/start-list-teams] A two-day team competition by team: on the first day the teams hold dogs of two classes
+
+### Team results
+
+In a trial where dogs score points (NOWT), a team's points are its dogs' points added up over the
+whole trial, whatever their class and day. A dog with no result brings the team no points. The teams
+are placed by their total, and teams level on points share a place, for example 1, 2, 2, 4. A tie
+for first place is decided by a run-off task: its winner is first and the others share the next
+place. Until then they share first place.
+
+A team's place and points show in its heading once the secretary has published the results of every
+team's dogs, for example *place 2, 170 points*. Before that no team shows a result, nor while one of the teams' dogs is not on the list yet, for
+example because its start number has not been entered. In a trial of
+several days, the same line heads the team under every day. The teams that were level for first
+place also show *({t:startList.teamRunOff})*. In a trial without points the teams have no result.
+
+!shot[ParticipantList/start-list-team-standings] The team results: teams 1 and 2 were level on points, and team 2 won the run-off
 
 ## When the order is final
 

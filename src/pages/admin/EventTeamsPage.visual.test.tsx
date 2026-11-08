@@ -47,20 +47,49 @@ const event: ConfirmedEvent = {
   ],
 }
 
-const renderPage = () =>
+/** An entry with its round's result. */
+const scored = (registration: Registration, points: number): Registration => ({
+  ...registration,
+  eventResult: {
+    maxPoints: 60,
+    points,
+    result: 'ALO1',
+    updatedAt: new Date('2026-11-08T10:00:00Z'),
+    updatedBy: 'Sihteeri',
+  },
+})
+
+// After the trial (KOE-1717): teams 1 and 2 level on points, team 2 marked the winner of the run-off.
+const standingsRegistrations: Registration[] = [
+  scored(entry('dog-1', 'Koiraston Koira', 'Maila Mallinen'), 50),
+  scored(entry('dog-2', 'Lintulan Lennokki', 'Pekka Peltola'), 40),
+  scored(entry('dog-5', 'Kultakuonon Kide', 'Sari Saarinen'), 55),
+  scored(entry('dog-6', 'Suonsilmän Salama', 'Tiina Toivonen'), 35),
+  scored(entry('dog-7', 'Aamukasteen Aada', 'Olli Ojala'), 45),
+]
+const standingsEvent: ConfirmedEvent = {
+  ...eventWithStations,
+  teams: [
+    { name: 'Loistavat Lintukoirat', registrationIds: ['dog-1', 'dog-2'] },
+    { registrationIds: ['dog-5', 'dog-6'], runOffWon: true },
+    { registrationIds: ['dog-7'] },
+  ],
+}
+
+const renderPage = (shown: ConfirmedEvent = event, entries: Registration[] = registrations) =>
   render(
     <div data-testid="visual-root" style={{ background: '#fff', width: 900 }}>
       <ThemeProvider theme={theme}>
         <TestProvider
           initializeState={({ set }) => {
-            set(adminEventsAtom, [event])
-            set(adminEventRegistrationsAtom(event.id), registrations)
+            set(adminEventsAtom, [shown])
+            set(adminEventRegistrationsAtom(shown.id), entries)
           }}
         >
           <AppSnackbarProvider>
             <Suspense fallback={<div>loading...</div>}>
               <DataMemoryRouter
-                initialEntries={[Path.admin.teams(event.id)]}
+                initialEntries={[Path.admin.teams(shown.id)]}
                 routes={[{ element: <EventTeamsPage />, path: Path.admin.teams() }]}
               />
             </Suspense>
@@ -79,7 +108,23 @@ it('lists the teams with their dogs by code, a cancelled and a reserve dog marke
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams')
 })
 
+it("shows each team's points and placing, and the run-off of a tie for first (KOE-1717)", async () => {
+  await page.viewport(900, 1300)
+  const screen = await renderPage(standingsEvent, standingsRegistrations)
+
+  await expect.element(screen.getByText('Joukkueen tulos: 1. sija, 90 pistettä (uusintatehtävä)')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-standings')
+})
+
 describeInLanguage('en', () => {
+  it("shows each team's points and placing, and the run-off of a tie for first (KOE-1717)", async () => {
+    await page.viewport(900, 1300)
+    const screen = await renderPage(standingsEvent, standingsRegistrations)
+
+    await expect.element(screen.getByText('Team result: place 1, 90 points (run-off)')).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-standings-en')
+  })
+
   it('lists the teams with their dogs by code, a cancelled and a reserve dog marked (KOE-1714)', async () => {
     await page.viewport(900, 1300)
     const screen = await renderPage()

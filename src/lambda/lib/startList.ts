@@ -24,7 +24,7 @@ import {
   withDefaultOwnerSelection,
 } from '../../lib/registration'
 import { placementsFor, resultMarks, shownEventResult, withStoredTotals } from '../../lib/results'
-import { teamMembers } from '../../lib/team'
+import { countedTeamMembers, teamMembers, teamStandings } from '../../lib/team'
 import { getLiveEvent } from './event'
 import { readEventRegistrations } from './repositories/registrationRepository'
 
@@ -76,7 +76,7 @@ const buildPublicStartList = (
       : publicRow(confirmedEvent, reg, preview, drawn, placements.get(reg.id))
     return row ? [{ id: reg.id, row }] : []
   })
-  const publicRegs = withTeams(confirmedEvent.teams, rows)
+  const publicRegs = withTeams(confirmedEvent, withTotals, rows, preview)
 
   // Groups keep their day/class/time order either way; within a group a withheld number falls
   // back to the dog's name, so the unconfirmed list reads alphabetically rather than leaking
@@ -95,15 +95,29 @@ const buildPublicStartList = (
  * whose dogs is on the list is named nowhere. The codes come from `teamMembers`, read over the rows
  * that are published, so a reserve's or an unpublished dog's letter stays taken without its row
  * existing. A cancelled dog's row stays its frozen number alone (KOE-1017): a team beside it would tie
- * the absent dog back to a named team.
+ * the absent dog back to a named team. The team's standing over the trial comes beside its place once
+ * it is public (`publishedStandings`, KOE-1717); it is worked out over all the registrations, not the
+ * rows, since a row withholds its result until its class's results are out.
  */
-const withTeams = (teams: JsonDogEvent['teams'], rows: readonly PublishedRow[]): JsonPublicRegistration[] => {
-  const running = new Map(rows.filter(({ row }) => !row.cancelled).map(({ id, row }) => [id, row]))
+const withTeams = (
+  confirmedEvent: JsonDogEvent,
+  registrations: readonly JsonRegistration[],
+  rows: readonly PublishedRow[],
+  preview: boolean
+): JsonPublicRegistration[] => {
+  const { teams } = confirmedEvent
+  const running = new Map(rows.filter(({ row }) => !row.cancelled).map((published) => [published.id, published]))
+  const standings = publishedStandings(confirmedEvent, registrations, running, preview)
   const places = new Map<JsonPublicRegistration, PublicTeamPlace>()
   teams?.forEach((team, index) => {
     const number = index + 1
     for (const { code, registration } of teamMembers(team, number, running)) {
-      places.set(registration, { code, ...(team.name ? { name: team.name } : {}), number })
+      places.set(registration.row, {
+        code,
+        ...(team.name ? { name: team.name } : {}),
+        number,
+        ...standings.get(index),
+      })
     }
   })
 
@@ -111,6 +125,40 @@ const withTeams = (teams: JsonDogEvent['teams'], rows: readonly PublishedRow[]):
     const team = places.get(row)
     return team ? { ...row, team } : row
   })
+}
+
+type PublishedStanding = Pick<PublicTeamPlace, 'placement' | 'points' | 'runOff'>
+
+/**
+ * Each team's standing over the trial, by the team's place in the list (KOE-1717). It is worked out once
+ * per team and given to every row of it, so whichever row a reader takes it from says the same. The
+ * standings are public only when every dog any team counts is on the published list with its result:
+ * a total holds its dogs' points, and a placing compares it with every other team's, so one dog still
+ * withheld would leak through either. A dog withheld is one whose class or day has no results out yet,
+ * and one whose row is not published at all (`publicRow` answers none: its list is not out, or it was
+ * added after the numbers went out and has none entered, KOE-1272). The release is read from the dog's
+ * `group` as `publicRow` reads it. The preview shows them as they stand.
+ */
+const publishedStandings = (
+  confirmedEvent: JsonDogEvent,
+  registrations: readonly JsonRegistration[],
+  published: ReadonlyMap<string, unknown>,
+  preview: boolean
+): Map<number, PublishedStanding> => {
+  const { teams } = confirmedEvent
+  const released = (reg: JsonRegistration) =>
+    published.has(reg.id) &&
+    !!reg.group &&
+    isResultsAvailableForRegistration(confirmedEvent, { class: reg.class, group: reg.group })
+  const isPublic = preview || countedTeamMembers(teams, registrations).every((dogs) => dogs.every(released))
+  if (!isPublic) return new Map()
+
+  return new Map(
+    teamStandings(confirmedEvent, teams, registrations).map(({ placement, points, runOff, team }) => [
+      team,
+      { placement, points, ...(runOff ? { runOff } : {}) },
+    ])
+  )
 }
 
 /** A published row with the id of its registration, which the row itself never carries. */

@@ -20,7 +20,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: e9a1e5
+sourceHash: 08b4e9
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -203,12 +203,25 @@ marked *{t:teams.memberReserve}*.
 
 !shot[EventTeamsPage/teams] The teams with their dogs and identifiers
 
+In a trial where dogs score points (NOWT), each team has a line *{t:teams.result}* once the first
+result is recorded: the team's place and points over the whole trial. The points are the team's
+dogs' points added up, whatever their class and day, and a dog with no result yet brings no points.
+Teams level on points share a place. When teams are level for first place, each of them has the
+choice **{t:teams.runOffWon}**. Mark the winner of the run-off task there and save: the winner moves
+to first place and the others share the next one. Marking one team clears the mark from the others.
+If a result is later corrected so that the teams are no longer level, the mark has no effect.
+
+!shot[EventTeamsPage/teams-standings] The team results: teams 1 and 2 are level on points, and team 2 is marked as the winner of the run-off
+
 **{t:save}** stores the changes. **{t:cancel}** goes back to the event without saving.
 
 The saved teams show on the public start list, which opens by team
 ([Start list and results](/docs/participant/start-list)). The list shows only published dogs: a dog
 on the reserve list or not yet published is not shown, and a team none of whose dogs is published
-is not shown at all. A change to the teams reaches open start lists by itself.
+is not shown at all. The teams' places and points show on the list once the results of every team's
+dogs are published and every dog is on the list: a dog whose start number has not been entered keeps
+every team's result hidden. A change to the teams, to the run-off winner or to the results reaches open start
+lists by itself.
 
 ## Cancellations and refunds
 

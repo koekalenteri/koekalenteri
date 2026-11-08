@@ -6,7 +6,7 @@
 import type { TFunction } from 'i18next'
 import type { DayKey } from '../types/Day'
 import type { PublicConfirmedEvent } from '../types/Event'
-import type { PublicRegistration } from '../types/Registration'
+import type { PublicRegistration, PublicTeamPlace } from '../types/Registration'
 import { isStartListAvailableForRegistration, isStartNumbersAvailableForRegistration } from './event'
 
 /** What a class's heading, or a classless day's, says about its publication: a translation key. */
@@ -49,10 +49,12 @@ interface StartListDayRow {
   registration: PublicRegistration
 }
 
-/** One team as a day of the team view shows it: its number, its name and its dogs in letter order. */
-interface StartListTeam {
-  name?: string
-  number: number
+/**
+ * One team as a day of the team view shows it: its number, its name, its standing over the trial once
+ * it is published (KOE-1717), and its dogs in letter order. The server gives every row of the team the
+ * same standing, so the first row's is the team's, and every day shows the same.
+ */
+interface StartListTeam extends Omit<PublicTeamPlace, 'code'> {
   rows: PublicRegistration[]
 }
 
@@ -96,6 +98,19 @@ function teamDay(date: DayKey, draft: TeamDayDraft): StartListTeamDay {
 }
 
 /**
+ * A team's standing over the trial as the start list and the teams page write it: "1. sija, 170 pistettä",
+ * with the run-off named on a team tied for first (KOE-1717). Nothing while the standing is not public.
+ */
+export const formatTeamStanding = (
+  { placement, points, runOff }: Pick<PublicTeamPlace, 'placement' | 'points' | 'runOff'>,
+  t: TFunction
+): string | undefined => {
+  if (placement === undefined || points === undefined) return undefined
+  const standing = t('startList.teamStanding', { placement, points })
+  return runOff ? `${standing} (${t('startList.teamRunOff')})` : standing
+}
+
+/**
  * What a row of the team view names in front of its number: its class where the day shows more than
  * one, then its team code, as in "AVO 1A". Empty for a dog in no team on a day of one class.
  */
@@ -116,9 +131,8 @@ export function startListTeamDays(rows: readonly StartListDayRow[]): StartListTe
     entryOf(day.classRows, registration.class ?? '', () => registration)
     const place = registration.team
     if (place) {
-      entryOf(day.teams, place.number, () => ({ name: place.name, number: place.number, rows: [] })).rows.push(
-        registration
-      )
+      const { code: _code, ...team } = place
+      entryOf(day.teams, place.number, (): StartListTeam => ({ ...team, rows: [] })).rows.push(registration)
     } else {
       day.noTeam.push(registration)
     }

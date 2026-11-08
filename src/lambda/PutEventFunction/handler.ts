@@ -536,7 +536,8 @@ const putEventLambda = lambda('putEvent', async (event) => {
   // Update registrations in case the secretary version was out of date.
   const result = await persistEventWithRegistrations(stored, data)
   if (resultPatches.length) await publishRegistrationPatches(data.id, resultPatches, data.organizer.id)
-  // The public rows carry each dog's team (KOE-1715), so a teams change reaches open pages as new results do.
+  // The public rows carry each dog's team and its standing (KOE-1715, KOE-1717), so a teams change, a
+  // run-off won among them, reaches open pages as new results do.
   if (resultPatches.length || teamsDiffer(existing?.teams, data.teams)) await publishPublicStartList(data.id)
   if (renumber) await renumberReserves(data, user)
 
