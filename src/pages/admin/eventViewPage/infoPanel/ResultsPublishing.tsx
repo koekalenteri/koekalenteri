@@ -63,7 +63,6 @@ const getResultsRows = (event: ConfirmedEvent): ResultsRow[] => {
 }
 
 /** A row's own key: its class, or the trial's format, and its day. */
-
 const rowKey = ({ day, name }: ResultsRow) => `${name}/${day}`
 
 type ResultsMessage = 'confirm' | 'hidden' | 'publishedSnack'
