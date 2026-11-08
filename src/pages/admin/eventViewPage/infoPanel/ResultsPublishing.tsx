@@ -55,13 +55,15 @@ interface ResultsRow {
 const getResultsRows = (event: ConfirmedEvent): ResultsRow[] => {
   const classes = uniqueClasses(event)
   const multiDay = getClassDays(event).length > 1
+  // A classless trial's row is named by its format, the key its participants are grouped under (KOE-1718).
   const rows = classes.length
     ? classes.map((eventClass) => ({ eventClass, name: eventClass }))
-    : [{ eventClass: undefined, name: event.eventType }]
+    : [{ eventClass: undefined, name: formatTypeOf(event) }]
   return rows.flatMap((row) => getClassDays(event, row.eventClass).map((day) => ({ ...row, day, multiDay })))
 }
 
-/** A row's own key: its class, or the event type, and its day. */
+/** A row's own key: its class, or the trial's format, and its day. */
+
 const rowKey = ({ day, name }: ResultsRow) => `${name}/${day}`
 
 type ResultsMessage = 'confirm' | 'hidden' | 'publishedSnack'

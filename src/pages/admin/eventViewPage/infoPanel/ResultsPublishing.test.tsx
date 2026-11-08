@@ -65,6 +65,23 @@ describe('ResultsPublishing', () => {
     expect(onSetResultsPublished).toHaveBeenCalledWith(undefined, '2021-02-10', true)
   })
 
+  // KOE-1718: a trial following NOU is classless, and its row and participants are keyed by NOU.
+  it('offers publishing the results of an unofficial trial that follows a classless type', async () => {
+    const followed: ConfirmedEvent = { ...oneDay, eventType: 'NOU-harjoitus', officialFormat: 'NOU' }
+    const { onSetResultsPublished, user } = renderSection(
+      followed,
+      undefined,
+      [dog('2021-02-10')].map((item) => ({ ...item, eventType: 'NOU-harjoitus' }))
+    )
+
+    expect(screen.getByText('NOU')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'eventManagement.results.publish' }))
+    const dialog = await screen.findByRole('dialog')
+    await user.click(within(dialog).getByRole('button', { name: 'eventManagement.results.publish' }))
+
+    expect(onSetResultsPublished).toHaveBeenCalledWith(undefined, '2021-02-10', true)
+  })
+
   it('hides the published results of a classless event', async () => {
     const { onSetResultsPublished, user } = renderSection({ ...oneDay, resultsPublished: true })
 

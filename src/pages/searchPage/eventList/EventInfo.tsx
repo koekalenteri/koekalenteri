@@ -4,7 +4,7 @@ import Grid from '@mui/material/Grid'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { dayEnd, TIME_ZONE } from '@/lib/day'
-import { hasExplicitPlacesForClass, isEntryOpen, uniqueClasses } from '@/lib/event'
+import { formatTypeOf, hasExplicitPlacesForClass, isEntryOpen, uniqueClasses } from '@/lib/event'
 import { judgeName } from '@/lib/judge'
 import { RESTRICTION } from '@/lib/priority'
 import { printContactInfo } from '@/lib/utils'
@@ -43,8 +43,9 @@ export const EventInfo = ({ event }: Props) => {
   const official = useMemo(() => printContactInfo(event.contactInfo?.official), [event.contactInfo?.official])
   const secretary = useMemo(() => printContactInfo(event.contactInfo?.secretary), [event.contactInfo?.secretary])
   const classes = useMemo(
-    () => (event.classes.length ? uniqueClasses({ classes: event.classes }) : [event.eventType]),
-    [event.classes, event.eventType]
+    // A classless trial's places go by its format, the name its one row has (KOE-1718).
+    () => (event.classes.length ? uniqueClasses({ classes: event.classes }) : [formatTypeOf(event)]),
+    [event]
   )
   // With several classes and no explicit per-class/per-day split, `places` is a shared pool —
   // shown once here instead of (misleadingly) on every class row.
