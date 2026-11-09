@@ -147,6 +147,59 @@ describe('teamStandings', () => {
     expect(teamStandings(NOWT, teams, [dog('a', undefined), dog('b', 50, { eventResult: { points: 50 } })])).toEqual([])
   })
 
+  // KOE-1720: a competition in series ranks each series on its own, with its own first place.
+  describe('in series', () => {
+    it('ranks each series apart, and the teams in no series among themselves', () => {
+      const teams: EventTeam[] = [
+        { registrationIds: ['a'], seriesId: 'open' },
+        { registrationIds: ['b'], seriesId: 'breed' },
+        { registrationIds: ['c'], seriesId: 'open' },
+        { registrationIds: ['d'], seriesId: 'breed' },
+        { registrationIds: ['e'] },
+      ]
+      const entries = [dog('a', 70), dog('b', 90), dog('c', 80), dog('d', 60), dog('e', 50)]
+
+      expect(teamStandings(NOWT, teams, entries)).toEqual([
+        { placement: 1, points: 80, team: 2 },
+        { placement: 2, points: 70, team: 0 },
+        { placement: 1, points: 90, team: 1 },
+        { placement: 2, points: 60, team: 3 },
+        { placement: 1, points: 50, team: 4 },
+      ])
+    })
+
+    it('reads a tie for first and its run-off within the series', () => {
+      const teams: EventTeam[] = [
+        { registrationIds: ['a'], seriesId: 'open' },
+        { registrationIds: ['b'], runOffWon: true, seriesId: 'open' },
+        { registrationIds: ['c'], seriesId: 'breed' },
+        { registrationIds: ['d'], seriesId: 'breed' },
+        // Level with the open series' first, but in another series: no tie with them.
+        { registrationIds: ['e'], seriesId: 'other' },
+      ]
+      const entries = [dog('a', 90), dog('b', 90), dog('c', 80), dog('d', 80), dog('e', 90)]
+
+      expect(teamStandings(NOWT, teams, entries)).toEqual([
+        { placement: 1, points: 90, runOff: true, team: 1 },
+        { placement: 2, points: 90, runOff: true, team: 0 },
+        { placement: 1, points: 80, runOff: true, team: 2 },
+        { placement: 1, points: 80, runOff: true, team: 3 },
+        { placement: 1, points: 90, team: 4 },
+      ])
+    })
+
+    it('leaves out a series before any of its counted dogs has a result', () => {
+      const teams: EventTeam[] = [
+        { registrationIds: ['a'], seriesId: 'open' },
+        { registrationIds: ['b'], seriesId: 'breed' },
+      ]
+
+      expect(teamStandings(NOWT, teams, [dog('a', 90), dog('b', undefined)])).toEqual([
+        { placement: 1, points: 90, team: 0 },
+      ])
+    })
+  })
+
   it('has no standings in a format without points, nor without teams', () => {
     expect(teamStandings({ eventType: 'NOME-B' }, [{ registrationIds: ['a'] }], [dog('a', 90)])).toEqual([])
     expect(teamStandings(NOWT, undefined, [dog('a', 90)])).toEqual([])
@@ -173,5 +226,27 @@ describe('withRunOffWinner', () => {
 
     expect(first).toEqual({ registrationIds: ['a'] })
     expect(first).not.toHaveProperty('runOffWon')
+  })
+
+  it('keeps the run-off winner of another series (KOE-1720)', () => {
+    const teams: EventTeam[] = [
+      { registrationIds: ['a'], runOffWon: true, seriesId: 'open' },
+      { registrationIds: ['b'], seriesId: 'open' },
+      { registrationIds: ['c'], runOffWon: true, seriesId: 'breed' },
+      { registrationIds: ['d'] },
+    ]
+
+    expect(withRunOffWinner(teams, 1, true)).toEqual([
+      { registrationIds: ['a'], seriesId: 'open' },
+      { registrationIds: ['b'], runOffWon: true, seriesId: 'open' },
+      { registrationIds: ['c'], runOffWon: true, seriesId: 'breed' },
+      { registrationIds: ['d'] },
+    ])
+    expect(withRunOffWinner(teams, 3, true)).toEqual([
+      { registrationIds: ['a'], runOffWon: true, seriesId: 'open' },
+      { registrationIds: ['b'], seriesId: 'open' },
+      { registrationIds: ['c'], runOffWon: true, seriesId: 'breed' },
+      { registrationIds: ['d'], runOffWon: true },
+    ])
   })
 })

@@ -26,7 +26,7 @@ import { isOfficialFormatLocked } from '../../lib/results'
 import { rotationShapeErrors } from '../../lib/rotation'
 import { eventBodySchema } from '../../lib/schema/event'
 import { legacyEventDay, rekeyEventDays, requestDay } from '../../lib/storedDays'
-import { teamErrors, teamsDiffer } from '../../lib/team'
+import { teamCompetitionDiffers, teamCompetitionErrors, teamErrors, teamsDiffer } from '../../lib/team'
 import { patchMerge } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { audit, eventAuditKey, getEventAuditMessages } from '../lib/audit'
@@ -202,11 +202,30 @@ const invalidEventDateField = (data: JsonConfirmedEvent, item: Patch<JsonConfirm
   )
 
 /**
- * Any event type may run a team competition (KOE-1714). Only the teams' shape is checked: the page
- * offers the event's own entries, and the readers skip an id the registrations do not hold.
+ * The fields of a save the teams rest on (KOE-1720): the teams and the competition's settings, and the
+ * classes and days of the trial, which decide what a team can count. A save that carries any of them has
+ * the teams checked on the merged event, so a change of either side still has to fit the other.
  */
-const checkTeams = (data: JsonConfirmedEvent) => {
-  const errors = teamErrors(data.teams)
+const TEAM_GROUND = ['teams', 'teamCompetition', 'classes', 'startDate', 'endDate', 'officialFormat'] as const
+
+/**
+ * Any event type may run a team competition (KOE-1714). Only the shape is checked: the series the teams
+ * are in and the settings themselves (KOE-1720), each dog in one team and a letter for each. The page
+ * offers the event's own entries, and the readers skip an id the registrations do not hold, so the
+ * registrations are not read.
+ */
+const checkTeams = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>) => {
+  if (!TEAM_GROUND.some((field) => Object.hasOwn(item, field))) return
+
+  const competitionErrors = teamCompetitionErrors(data.teamCompetition)
+  if (competitionErrors.length) {
+    throw httpError(400, {
+      error: 'invalidTeamCompetition',
+      errors: competitionErrors,
+      message: 'Bad request: the team series do not fit together',
+    })
+  }
+  const errors = teamErrors(data)
   if (errors.length) {
     throw httpError(400, { error: 'invalidTeams', errors, message: 'Bad request: the teams do not fit together' })
   }
@@ -286,7 +305,7 @@ const checkMergedEvent = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEve
       })
     }
   }
-  if (item.teams !== undefined) checkTeams(data)
+  checkTeams(data, item)
   checkOwnClasses(data, item)
 }
 
@@ -577,9 +596,16 @@ const putEventLambda = lambda('putEvent', async (event) => {
   // Update registrations in case the secretary version was out of date.
   const result = await persistEventWithRegistrations(stored, data)
   if (resultPatches.length) await publishRegistrationPatches(data.id, resultPatches, data.organizer.id)
-  // The public rows carry each dog's team and its standing (KOE-1715, KOE-1717), so a teams change, a
-  // run-off won among them, reaches open pages as new results do.
-  if (resultPatches.length || teamsDiffer(existing?.teams, data.teams)) await publishPublicStartList(data.id)
+  // The public rows carry each dog's team, its series and its standing (KOE-1715, KOE-1717, KOE-1720), so
+  // a teams change, a run-off won among them or a change of the days they count, reaches open pages as
+  // new results do.
+  if (
+    resultPatches.length ||
+    teamsDiffer(existing?.teams, data.teams) ||
+    teamCompetitionDiffers(existing?.teamCompetition, data.teamCompetition)
+  ) {
+    await publishPublicStartList(data.id)
+  }
   if (renumber) await renumberReserves(data, user)
 
   await auditEventChanges(existing, item, result, user.name)

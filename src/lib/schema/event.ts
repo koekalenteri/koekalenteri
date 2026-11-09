@@ -1,5 +1,6 @@
-import { integer, literal, maxValue, minValue, optional, pipe, union } from 'valibot'
+import { check, integer, literal, maxValue, minValue, nonEmpty, optional, pipe, union } from 'valibot'
 import { LANGUAGES, OFFICIAL_FORMATS } from '../../types'
+import { isDayKey } from '../day'
 import { MAX_DOGS_AT_ONCE } from '../liveFormat'
 import { arrayOf, bool, maybe, num, objectOf, oneOf, str } from './common'
 
@@ -35,14 +36,43 @@ const rotationGroup = objectOf({
 })
 
 /**
- * A team of a team competition (KOE-1714). That a dog is in one team only, and that a team has a letter
- * for every dog, is checked on the merged event (`teamErrors`). A run-off mark is read only while the
- * team is tied for first (`teamStandings`, KOE-1717), so no other check is made of it.
+ * A team of a team competition (KOE-1714). That a dog is in one team only, that a team has a letter for
+ * every dog and that its series is one of the competition's (KOE-1720) is checked on the merged event
+ * (`teamErrors`). A run-off mark is read only while the team is tied for first in its series
+ * (`teamStandings`, KOE-1717), so no other check is made of it.
  */
 const team = objectOf({
   name: optional(str),
   registrationIds: arrayOf(str),
   runOffWon: optional(bool),
+  seriesId: optional(str),
+})
+
+/**
+ * A series of a team competition (KOE-1720): its name is text in any of the languages, each optional.
+ * That its id is its own and that it has a Finnish name is `teamCompetitionErrors`'.
+ */
+const teamSeries = objectOf({
+  id: pipe(str, nonEmpty('must not be empty')),
+  name: objectOf(Object.fromEntries(LANGUAGES.map((language) => [language, optional(str)]))),
+})
+
+/** A calendar day as a key, `yyyy-MM-dd` (`isDayKey`). */
+const dayKey = pipe(
+  str,
+  check((value) => isDayKey(value), 'must be a day as yyyy-MM-dd')
+)
+
+/**
+ * The settings of a team competition (KOE-1720). Each field may arrive as null, which a PATCH reads as
+ * removing that one setting (`patchMerge`). The counted days are days; whether the trial still has
+ * them is not refused, since a day the trial no longer has is left out of them (KOE-1726).
+ */
+const teamCompetition = objectOf({
+  askAtEntry: maybe(bool),
+  days: maybe(arrayOf(dayKey)),
+  litters: maybe(bool),
+  series: maybe(arrayOf(teamSeries)),
 })
 
 /**
@@ -106,5 +136,6 @@ export const eventBodySchema = objectOf({
     oneOf(['draft', 'tentative', 'cancelled', 'confirmed', 'picked', 'invited', 'started', 'ended', 'completed'])
   ),
   stations: maybe(arrayOf(station)),
+  teamCompetition: maybe(teamCompetition),
   teams: maybe(arrayOf(team)),
 })

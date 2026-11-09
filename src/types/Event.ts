@@ -213,6 +213,12 @@ export interface JsonDogEvent extends JsonDbRecord {
    */
   teams?: EventTeam[]
   /**
+   * How the event's team competition runs (KOE-1720). Public, unlike the teams: the start list names a
+   * team's series by id, and the page takes the series' name from here in the viewer's language. Absent,
+   * the competition runs as before: one series, every day counted, nothing asked at entry.
+   */
+  teamCompetition?: TeamCompetition
+  /**
    * The live timeline of the trial day (KOE-1259): every span a post has run, turns and breaks alike,
    * appended as the day goes. Server-owned — written only through the turn endpoint, never by an
    * event save — and stripped from the public event, which carries the derived `liveTurns` instead.
@@ -552,6 +558,33 @@ export interface EventTeam {
    * tied for first (`teamStandings`), so a corrected score leaves it inert.
    */
   runOffWon?: boolean
+  /**
+   * The series the team competes in (KOE-1720), one of the event's `teamCompetition.series`. Teams are
+   * ranked within their series, and the teams in none among themselves.
+   */
+  seriesId?: string
+}
+
+/** A series of a team competition (KOE-1720), such as a breed's own beside the open one. */
+export interface TeamSeries {
+  id: string
+  /** The series' name by language; Finnish is required (`teamCompetitionErrors`). */
+  name: Partial<Record<Language, string>>
+}
+
+/**
+ * The settings of an event's team competition (KOE-1720). Every field is optional, and a missing one is
+ * the competition as it ran before the field.
+ */
+export interface TeamCompetition {
+  /** The series the teams are ranked in, each on its own. None is one series of every team. */
+  series?: TeamSeries[]
+  /** The days whose results a team counts (KOE-1726). None counts every day of the trial. */
+  days?: DayKey[]
+  /** The entry form asks for the dog's team (KOE-1721). */
+  askAtEntry?: boolean
+  /** The teams page suggests teams from litters (KOE-1727). */
+  litters?: boolean
 }
 
 export type KcEventInfo = {

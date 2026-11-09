@@ -1,5 +1,12 @@
-import type { EventTeam } from '../types'
-import { MAX_TEAM_MEMBERS, teamErrors, teamMembers, teamsDiffer } from './team'
+import type { EventTeam, TeamCompetition } from '../types'
+import {
+  MAX_TEAM_MEMBERS,
+  teamCompetitionDiffers,
+  teamCompetitionErrors,
+  teamErrors,
+  teamMembers,
+  teamsDiffer,
+} from './team'
 
 const ids = (count: number, prefix = 'dog') => Array.from({ length: count }, (_, index) => `${prefix}-${index}`)
 
@@ -34,8 +41,8 @@ describe('teamErrors', () => {
   it('accepts teams with each dog in one team, and a team without dogs', () => {
     const teams: EventTeam[] = [{ name: 'Loistavat Lintukoirat', registrationIds: ['a', 'b'] }, { registrationIds: [] }]
 
-    expect(teamErrors(teams)).toEqual([])
-    expect(teamErrors(undefined)).toEqual([])
+    expect(teamErrors({ teams })).toEqual([])
+    expect(teamErrors({})).toEqual([])
   })
 
   it('refuses a dog in two teams, and twice in one', () => {
@@ -45,11 +52,11 @@ describe('teamErrors', () => {
       { registrationIds: ['b'] },
     ]
 
-    expect(teamErrors(teams)).toEqual([
+    expect(teamErrors({ teams })).toEqual([
       { kind: 'twice', registrationId: 'a' },
       { kind: 'twice', registrationId: 'b' },
     ])
-    expect(teamErrors([{ registrationIds: ['c', 'c'] }])).toEqual([{ kind: 'twice', registrationId: 'c' }])
+    expect(teamErrors({ teams: [{ registrationIds: ['c', 'c'] }] })).toEqual([{ kind: 'twice', registrationId: 'c' }])
   })
 
   it('refuses a team with more dogs than there are letters', () => {
@@ -58,7 +65,21 @@ describe('teamErrors', () => {
       { registrationIds: ids(MAX_TEAM_MEMBERS + 1, 'over') },
     ]
 
-    expect(teamErrors(teams)).toEqual([{ kind: 'tooMany', team: 1 }])
+    expect(teamErrors({ teams })).toEqual([{ kind: 'tooMany', team: 1 }])
+  })
+
+  it('refuses a team in a series the competition does not have (KOE-1720)', () => {
+    const teamCompetition = { series: [{ id: 'open', name: { fi: 'Avoin' } }] }
+    const teams: EventTeam[] = [
+      { registrationIds: ['a'], seriesId: 'open' },
+      { registrationIds: ['b'], seriesId: 'gone' },
+      { registrationIds: ['c'] },
+    ]
+
+    expect(teamErrors({ teamCompetition, teams })).toEqual([{ kind: 'unknownSeries', seriesId: 'gone', team: 1 }])
+    expect(teamErrors({ teams: [{ registrationIds: ['a'], seriesId: 'open' }] })).toEqual([
+      { kind: 'unknownSeries', seriesId: 'open', team: 0 },
+    ])
   })
 })
 
@@ -84,7 +105,65 @@ describe('teamsDiffer', () => {
     ['two teams swapped', [team, { registrationIds: ['c'] }], [{ registrationIds: ['c'] }, team]],
     ['a run-off won', [team], [{ ...team, runOffWon: true }]],
     ['a run-off win taken away', [{ ...team, runOffWon: true }], [team]],
+    ['a team moved to a series (KOE-1720)', [team], [{ ...team, seriesId: 'open' }]],
   ])('reads %s as a change', (_name, a, b) => {
     expect(teamsDiffer(a, b)).toBe(true)
+  })
+})
+
+describe('teamCompetitionErrors (KOE-1720)', () => {
+  it('accepts series with their own ids and a Finnish name, and no competition settings', () => {
+    expect(
+      teamCompetitionErrors({
+        series: [
+          { id: 'open', name: { fi: 'Avoin' } },
+          { id: 'breed', name: { en: 'Breed', fi: 'Rotu' } },
+        ],
+      })
+    ).toEqual([])
+    expect(teamCompetitionErrors(undefined)).toEqual([])
+    expect(teamCompetitionErrors({})).toEqual([])
+  })
+
+  it('refuses two series with one id, and a series without a Finnish name', () => {
+    expect(
+      teamCompetitionErrors({
+        series: [
+          { id: 'open', name: { fi: 'Avoin' } },
+          { id: 'open', name: { fi: 'Toinen' } },
+          { id: 'breed', name: { en: 'Breed' } },
+          { id: 'blank', name: { fi: ' ' } },
+        ],
+      })
+    ).toEqual([
+      { kind: 'seriesTwice', seriesId: 'open' },
+      { kind: 'seriesUnnamed', seriesId: 'breed' },
+      { kind: 'seriesUnnamed', seriesId: 'blank' },
+    ])
+  })
+})
+
+describe('teamCompetitionDiffers (KOE-1720)', () => {
+  const series = [{ id: 'open', name: { fi: 'Avoin' } }]
+
+  it.each<[string, TeamCompetition | undefined, TeamCompetition]>([
+    ['no settings and empty ones', undefined, {}],
+    [
+      'a renamed series, since a row names its series by id',
+      { series },
+      { series: [{ id: 'open', name: { fi: 'Uusi' } }] },
+    ],
+    ['an added series no team is in', { series }, { series: [...series, { id: 'breed', name: { fi: 'Rotu' } }] }],
+    ['the question at entry', {}, { askAtEntry: true }],
+    ['the litter suggestions', {}, { litters: true }],
+  ])('reads %s as the same list', (_name, a, b) => {
+    expect(teamCompetitionDiffers(a, b)).toBe(false)
+  })
+
+  it.each<[string, TeamCompetition, TeamCompetition]>([
+    ['counted days set', {}, { days: ['2026-08-01'] }],
+    ['a counted day removed', { days: ['2026-08-01', '2026-08-02'] }, { days: ['2026-08-01'] }],
+  ])('reads %s as a change of the list', (_name, a, b) => {
+    expect(teamCompetitionDiffers(a, b)).toBe(true)
   })
 })

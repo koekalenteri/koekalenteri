@@ -10,13 +10,13 @@ type StandingEntry = Pick<JsonRegistration | Registration, 'id' | 'cancelled' | 
   eventResult?: Pick<JsonEventResult, 'points' | 'result'>
 }
 
-/** A team's points and placing over the whole trial, in a team competition (KOE-1717). */
+/** A team's points and placing over the whole trial in its series, in a team competition (KOE-1717). */
 export interface TeamStanding {
   /** The team's place in the event's list, from 0; its number is one more. */
   team: number
   points: number
   placement: number
-  /** The team is tied for first, so a run-off task decides (or decided) first place. */
+  /** The team is tied for first in its series, so a run-off task decides (or decided) first place. */
   runOff?: true
 }
 
@@ -56,12 +56,29 @@ const rankTeams = (
 }
 
 /**
+ * The teams by series (KOE-1720), each as the teams' places in the list, in the order the series first
+ * appear there. The teams in no series are a series of their own, so a competition without series is
+ * one.
+ */
+const bySeries = (teams: readonly EventTeam[]): number[][] => {
+  const series = new Map<string | undefined, number[]>()
+  teams.forEach(({ seriesId }, team) => {
+    const members = series.get(seriesId)
+    if (members) members.push(team)
+    else series.set(seriesId, [team])
+  })
+  return [...series.values()]
+}
+
+/**
  * The teams' points and placings over the whole trial (KOE-1717): a team's dogs run in different
  * classes and on different days, and the competition is settled over all of them, their points summed
- * whatever their class. A team with no dog running is not ranked. Before any counted dog has a result
- * there are no standings, rather than every team first on nought. Only a format scored at posts has
- * points; any other has no standings. The one rule for the teams page and the public start list, so the
- * two never disagree; the start list publishes them only once every result they read is out.
+ * whatever their class. Each series is ranked on its own, with its own first place and run-off, and the
+ * teams in no series among themselves (KOE-1720). A team with no dog running is not ranked. Before any
+ * counted dog of a series has a result the series has no standings, rather than every team first on
+ * nought. Only a format scored at posts has points; any other has no standings. The one rule for the
+ * teams page and the public start list, so the two never disagree; the start list publishes them only
+ * once every result they read is out.
  */
 export const teamStandings = (
   event: FormatOwner,
@@ -71,23 +88,31 @@ export const teamStandings = (
   if (!teams?.length || !scoresAtPosts(formatTypeOf(event))) return []
 
   const members = countedTeamMembers(teams, entries)
-  if (!members.some((dogs) => dogs.some(hasResult))) return []
+  return bySeries(teams).flatMap((series) => {
+    const running = series.filter((team) => members[team].length)
+    if (!running.some((team) => members[team].some(hasResult))) return []
 
-  const totals = members.flatMap((dogs, team) =>
-    dogs.length ? [{ points: dogs.reduce((sum, dog) => sum + countedPoints(dog), 0), team }] : []
-  )
-  return rankTeams(teams, totals)
+    const totals = running.map((team) => ({
+      points: members[team].reduce((sum, dog) => sum + countedPoints(dog), 0),
+      team,
+    }))
+    return rankTeams(teams, totals)
+  })
 }
 
 /**
- * The teams with the run-off for first place won by the team at `index`, or by none when `won` is false:
- * the mark leaves every other team, so one team holds it (KOE-1717).
+ * The teams with the run-off for first place in the series of the team at `index` won by that team, or
+ * by none when `won` is false: the mark leaves every other team of the series, so one team of a series
+ * holds it (KOE-1717), and the teams of another series keep theirs (KOE-1720).
  */
-export const withRunOffWinner = (teams: readonly EventTeam[], index: number, won: boolean): EventTeam[] =>
-  teams.map((team, at) => {
+export const withRunOffWinner = (teams: readonly EventTeam[], index: number, won: boolean): EventTeam[] => {
+  const seriesId = teams[index]?.seriesId
+  return teams.map((team, at) => {
+    if (team.seriesId !== seriesId) return team
     const { runOffWon: _runOffWon, ...rest } = team
     return won && at === index ? { ...rest, runOffWon: true } : rest
   })
+}
 
 /**
  * The dogs each team counts, by the team's place in the list: every member that runs, on whichever day

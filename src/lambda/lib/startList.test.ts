@@ -557,6 +557,74 @@ describe('readPublishedStartList (KOE-1516)', () => {
       )
     })
 
+    // KOE-1720: a row names its team's series by id, so a renamed series needs no new list.
+    it("gives every member its team's series and the team's placing within it", async () => {
+      mockGetLiveEvent.mockResolvedValue({
+        ...standingsEvent,
+        teamCompetition: {
+          series: [
+            { id: 'open', name: { fi: 'Avoin' } },
+            { id: 'breed', name: { fi: 'Rotu' } },
+          ],
+        },
+        teams: [
+          { registrationIds: ['a', 'b'], seriesId: 'open' },
+          { name: 'Team Finland 2', registrationIds: ['c', 'd'], seriesId: 'breed' },
+        ],
+      })
+
+      expect(await teamsOf()).toEqual({
+        'Dog a': { code: '1A', number: 1, placement: 1, points: 170, seriesId: 'open' },
+        'Dog b': { code: '1B', number: 1, placement: 1, points: 170, seriesId: 'open' },
+        'Dog c': { code: '2A', name: 'Team Finland 2', number: 2, placement: 1, points: 155, seriesId: 'breed' },
+        'Dog d': { code: '2B', name: 'Team Finland 2', number: 2, placement: 1, points: 155, seriesId: 'breed' },
+      })
+    })
+
+    it("publishes a series' standings once its own dogs' results are out, whatever another series' are", async () => {
+      mockGetLiveEvent.mockResolvedValue({
+        ...standingsEvent,
+        resultsPublished: { ALO: true, AVO: false },
+        teamCompetition: {
+          series: [
+            { id: 'open', name: { fi: 'Avoin' } },
+            { id: 'breed', name: { fi: 'Rotu' } },
+          ],
+        },
+        teams: [
+          { registrationIds: ['a'], seriesId: 'open' },
+          { registrationIds: ['c'], seriesId: 'open' },
+          { registrationIds: ['b', 'd'], seriesId: 'breed' },
+        ],
+      })
+
+      const teams = await teamsOf()
+
+      expect(teams['Dog a']).toEqual({ code: '1A', number: 1, placement: 1, points: 90, seriesId: 'open' })
+      expect(teams['Dog c']).toEqual({ code: '2A', number: 2, placement: 2, points: 85, seriesId: 'open' })
+      expect(teams['Dog b']).toEqual({ code: '3A', number: 3, seriesId: 'breed' })
+    })
+
+    it('ranks a team added to a published list beside the teams already on it', async () => {
+      mockGetLiveEvent.mockResolvedValue({
+        ...standingsEvent,
+        teams: [...standingsEvent.teams, { registrationIds: ['e'] }],
+      })
+      mockReadEventRegistrations.mockResolvedValue([
+        dog('a', 'ALO', 1, 90),
+        dog('b', 'AVO', 2, 80),
+        dog('c', 'ALO', 3, 85),
+        dog('d', 'AVO', 4, 70),
+        dog('e', 'ALO', 5, 160),
+      ])
+
+      const teams = await teamsOf()
+
+      expect(teams['Dog a']).toEqual(expect.objectContaining({ placement: 1, points: 170 }))
+      expect(teams['Dog e']).toEqual({ code: '3A', number: 3, placement: 2, points: 160 })
+      expect(teams['Dog c']).toEqual(expect.objectContaining({ placement: 3, points: 155 }))
+    })
+
     it('gives no standing in a format without points', async () => {
       mockGetLiveEvent.mockResolvedValue({ ...standingsEvent, eventType: 'NOME-B' })
 
