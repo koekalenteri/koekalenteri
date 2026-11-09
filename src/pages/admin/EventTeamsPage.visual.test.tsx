@@ -154,7 +154,7 @@ it('lists the teams with their dogs by code, a cancelled and a reserve dog marke
 })
 
 it("shows each team's points and placing, and the run-off of a tie for first (KOE-1717)", async () => {
-  await page.viewport(900, 1300)
+  await page.viewport(900, 1500)
   const screen = await renderPage(standingsEvent, standingsRegistrations)
 
   await expect.element(screen.getByText('Joukkueen tulos: 1. sija, 90 pistettä (uusintatehtävä)')).toBeVisible()
@@ -162,7 +162,7 @@ it("shows each team's points and placing, and the run-off of a tie for first (KO
 })
 
 it('counts the days chosen, and names them beside each team result (KOE-1726)', async () => {
-  await page.viewport(900, 1500)
+  await page.viewport(900, 1700)
   const screen = await renderPage(countedDaysEvent, countedDaysRegistrations)
 
   await expect.element(screen.getByText('Joukkueen tulos: 1. sija, 90 pistettä, ke 10.2. tuloksista')).toBeVisible()
@@ -205,7 +205,7 @@ describeInLanguage('en', () => {
   })
 
   it('counts the days chosen, and names them beside each team result (KOE-1726)', async () => {
-    await page.viewport(900, 1500)
+    await page.viewport(900, 1700)
     const screen = await renderPage(countedDaysEvent, countedDaysRegistrations)
 
     await expect
@@ -215,7 +215,7 @@ describeInLanguage('en', () => {
   })
 
   it("shows each team's points and placing, and the run-off of a tie for first (KOE-1717)", async () => {
-    await page.viewport(900, 1300)
+    await page.viewport(900, 1500)
     const screen = await renderPage(standingsEvent, standingsRegistrations)
 
     await expect.element(screen.getByText('Team result: place 1, 90 points (run-off)')).toBeVisible()
