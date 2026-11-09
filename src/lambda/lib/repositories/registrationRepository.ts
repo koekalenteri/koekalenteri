@@ -168,27 +168,24 @@ export const writeKcResult = async (
 }
 
 /**
- * Stores a result recomputed for a change of the event's posts (KOE-1666), only over the result it was
- * recomputed from: `previousUpdatedAt` is the `eventResult.updatedAt` that was read, so a score a post
- * saved meanwhile is never carried away. Answers whether it was written.
+ * Stores a dog's result over the result it was worked out from: a save's (KOE-1490), or a recompute's
+ * for a change of the event's posts (KOE-1666). `readUpdatedAt` is the `eventResult.updatedAt` that was
+ * read, none when no result was stored or the stored one is older than its version, so a result another
+ * request wrote meanwhile is never carried away. Moves the row's `updatedAt`, so the incremental fetch
+ * hands the row on. Throws the condition failure when the result has moved (`retryOnConditionFailure`).
  */
-export const writeRecomputedEventResult = async (
+export const writeEventResult = async (
   eventId: JsonRegistration['eventId'],
   id: JsonRegistration['id'],
   eventResult: NonNullable<JsonRegistration['eventResult']>,
-  previousUpdatedAt: string
-): Promise<boolean> => {
-  try {
-    await dynamoDB.update({ eventId, id }, { set: { eventResult, updatedAt: new Date().toISOString() } }, 'NONE', {
-      expression: '#eventResult.#updatedAt = :previous',
-      names: { '#eventResult': 'eventResult', '#updatedAt': 'updatedAt' },
-      values: { ':previous': previousUpdatedAt },
-    })
-    return true
-  } catch (error) {
-    if (isConditionalCheckFailure(error)) return false
-    throw error
-  }
+  readUpdatedAt: string | undefined
+): Promise<void> => {
+  await dynamoDB.update(
+    { eventId, id },
+    { set: { eventResult, updatedAt: new Date().toISOString() } },
+    'NONE',
+    foldedFrom('#eventResult.#updatedAt', { '#eventResult': 'eventResult', '#updatedAt': 'updatedAt' }, readUpdatedAt)
+  )
 }
 
 /**
