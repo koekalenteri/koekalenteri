@@ -1,5 +1,5 @@
 import type { TeamStanding } from '@/lib/teamStandings'
-import type { DogEvent, EventTeam } from '@/types'
+import type { DogEvent, EventTeam, TeamCompetition } from '@/types'
 import Cancel from '@mui/icons-material/Cancel'
 import Save from '@mui/icons-material/Save'
 import Box from '@mui/material/Box'
@@ -14,13 +14,16 @@ import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
 import { withStoredTotals } from '@/lib/results'
-import { isTeamCandidate } from '@/lib/team'
+import { teamSeriesName } from '@/lib/startListView'
+import { isTeamCandidate, teamCompetitionErrors } from '@/lib/team'
 import { teamStandings, withRunOffWinner } from '@/lib/teamStandings'
 import { Path } from '@/routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
+import { languageAtom } from '../state/user/atoms'
 import { EntryPageHeader } from './components/EntryPageHeader'
 import EventNotFound from './components/EventNotFound'
 import TeamCard from './eventTeamsPage/TeamCard'
+import TeamCompetitionSettings from './eventTeamsPage/TeamCompetitionSettings'
 import useEventForm from './hooks/useEventForm'
 import { adminEventAtom, adminEventRegistrationsAtom } from './state'
 import { useAdminEventScope } from './state/eventScope'
@@ -42,6 +45,26 @@ const withTeams = (event: DogEvent, teams: EventTeam[], stored: EventTeam[] | un
   return teams.length || stored ? { ...rest, teams } : rest
 }
 
+/**
+ * The event with these competition settings (KOE-1720), and its teams out of a series removed with
+ * them, as the save has them refused otherwise (`unknownSeries`). Settings left empty are none.
+ */
+const withTeamCompetition = (event: DogEvent, teamCompetition: TeamCompetition, removedSeriesId?: string): DogEvent => {
+  const { teamCompetition: _teamCompetition, ...rest } = event
+  const teams = removedSeriesId
+    ? event.teams?.map((team) => {
+        if (team.seriesId !== removedSeriesId) return team
+        const { seriesId: _seriesId, ...left } = team
+        return left
+      })
+    : event.teams
+  return {
+    ...rest,
+    ...(Object.keys(teamCompetition).length ? { teamCompetition } : {}),
+    ...(teams ? { teams } : {}),
+  }
+}
+
 /** The count typed, or undefined while the field holds no whole number of teams. */
 const typedCount = (value: string): number | undefined => {
   const count = Number(value)
@@ -50,7 +73,8 @@ const typedCount = (value: string): number | undefined => {
 
 /**
  * The teams of a team competition (KOE-1714), on a page of their own like the posts: any event can run
- * one, and the count is what turns it on. The page edits a draft of its own (KOE-1700), so the secretary
+ * one, and the count is what turns it on. The competition's series are set here too, and each team's
+ * series; the standings are worked out series by series (KOE-1720). The page edits a draft of its own (KOE-1700), so the secretary
  * saves or cancels the teams as one.
  */
 export default function EventTeamsPage() {
@@ -59,6 +83,7 @@ export default function EventTeamsPage() {
   useAdminEventScope(eventId)
   const storedEvent = useAtomValue(adminEventAtom(eventId))
   const registrations = useAtomValue(adminEventRegistrationsAtom(eventId))
+  const language = useAtomValue(languageAtom)
   const { event, canSave, discardChanges, handleChange, handleSave, handleCancel } = useEventForm({
     eventId,
     form: 'teams',
@@ -92,6 +117,24 @@ export default function EventTeamsPage() {
     const scored = registrations.map((registration) => withStoredTotals(event, registration))
     return new Map(teamStandings(event, teams, scored).map((standing) => [standing.team, standing]))
   }, [event, registrations, teams])
+
+  // The series as the teams' choice names them, in the secretary's language (KOE-1720).
+  const series = useMemo(
+    () =>
+      (event?.teamCompetition?.series ?? []).map(({ id }) => ({ id, name: teamSeriesName(event ?? {}, id, language) })),
+    [event, language]
+  )
+
+  // A series the save would refuse, unnamed in Finnish or given an id twice, keeps the save closed: the
+  // rule the server holds the settings to (`teamCompetitionErrors`, KOE-1720).
+  const seriesUnsettled = teamCompetitionErrors(event?.teamCompetition).length > 0
+
+  const handleTeamCompetition = useCallback(
+    (teamCompetition: TeamCompetition, removedSeriesId?: string) => {
+      if (event) handleChange(withTeamCompetition(event, teamCompetition, removedSeriesId))
+    },
+    [event, handleChange]
+  )
 
   const setTeams = useCallback(
     (next: EventTeam[]) => {
@@ -137,6 +180,9 @@ export default function EventTeamsPage() {
             type="number"
             value={countText ?? teams.length}
           />
+          {(teams.length > 0 || !!event.teamCompetition?.series?.length) && (
+            <TeamCompetitionSettings teamCompetition={event.teamCompetition} onChange={handleTeamCompetition} />
+          )}
           {numbered.map(({ number, team }) => (
             <TeamCard
               key={number}
@@ -145,6 +191,7 @@ export default function EventTeamsPage() {
               number={number}
               onChange={(changed) => setTeams(teams.map((item, at) => (at === number - 1 ? changed : item)))}
               onRunOffChange={(won) => setTeams(withRunOffWinner(teams, number - 1, won))}
+              series={series}
               standing={standings.get(number - 1)}
               team={team}
             />
@@ -156,7 +203,13 @@ export default function EventTeamsPage() {
         direction="row"
         sx={{ borderColor: '#bdbdbd', borderTop: '1px solid', justifyContent: 'flex-end', p: 1 }}
       >
-        <AsyncButton color="primary" disabled={!canSave} startIcon={<Save />} variant="contained" onClick={handleSave}>
+        <AsyncButton
+          color="primary"
+          disabled={!canSave || seriesUnsettled}
+          startIcon={<Save />}
+          variant="contained"
+          onClick={handleSave}
+        >
           {t('save')}
         </AsyncButton>
         <Button startIcon={<Cancel />} variant="outlined" onClick={handleCancel}>

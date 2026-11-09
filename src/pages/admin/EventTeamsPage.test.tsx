@@ -306,6 +306,169 @@ describe('EventTeamsPage', () => {
     })
   })
 
+  // KOE-1720: a competition in series, each team in one or in none, each series ranked on its own.
+  describe('series', () => {
+    const series = [
+      { id: 'open', name: { fi: 'Avoin' } },
+      { id: 'breed', name: { en: 'Breed', fi: 'Rotu' } },
+    ]
+    const seriesEvent = {
+      ...eventWithStations,
+      teamCompetition: { series },
+      teams: [{ registrationIds: ['run-1'] }, { registrationIds: ['run-2'], seriesId: 'breed' }],
+    }
+    const seriesPick = (team: HTMLElement) => within(team).getByRole('combobox', { name: 'teams.teamSeries' })
+    const pickSeries = async (user: User, team: HTMLElement, name: string) => {
+      await user.click(seriesPick(team))
+      await user.click(await screen.findByRole('option', { name }))
+      await flushPromises()
+    }
+    const expectSaved = (fields: object) =>
+      expect(putEvent).toHaveBeenLastCalledWith(expect.objectContaining(fields), TEST_ID_TOKEN, undefined, undefined)
+
+    it('adds a series, names it, puts a team in it and saves both', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const { user } = await renderPage({ ...eventWithStations, teams: [{ registrationIds: ['run-1'] }] })
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'teams.addSeries' }))
+      await user.type(screen.getAllByRole('textbox', { name: 'teams.seriesName language' })[0], 'Avoin')
+      await pickSeries(user, teamSections()[0], 'Avoin')
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+
+      expectSaved({
+        teamCompetition: { series: [{ id: expect.any(String), name: { fi: 'Avoin' } }] },
+        teams: [{ registrationIds: ['run-1'], seriesId: expect.any(String) }],
+      })
+    })
+
+    it('counts a change of a team series alone as a change to save', async () => {
+      const { user } = await renderPage(seriesEvent)
+      await flushPromises()
+      expect(screen.getByRole('button', { name: 'save' })).toBeDisabled()
+
+      await pickSeries(user, teamSections()[0], 'Avoin')
+
+      expect(screen.getByRole('button', { name: 'save' })).toBeEnabled()
+    })
+
+    it('takes a removed series out of its teams', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const { user } = await renderPage(seriesEvent)
+      await flushPromises()
+
+      await user.click(screen.getAllByRole('button', { name: 'teams.removeSeries name' })[1])
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+
+      expectSaved({
+        teamCompetition: { series: [series[0]] },
+        teams: [{ registrationIds: ['run-1'] }, { registrationIds: ['run-2'] }],
+      })
+    })
+
+    it('takes a team out of its series', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const { user } = await renderPage(seriesEvent)
+      await flushPromises()
+
+      await pickSeries(user, teamSections()[1], 'teams.noSeries')
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+
+      expectSaved({ teams: [{ registrationIds: ['run-1'] }, { registrationIds: ['run-2'] }] })
+    })
+
+    it('keeps the save closed while a series has no Finnish name, as the save would refuse it', async () => {
+      const { user } = await renderPage({ ...eventWithStations, teams: [{ registrationIds: ['run-1'] }] })
+      await flushPromises()
+      const save = () => screen.getByRole('button', { name: 'save' })
+
+      await user.click(screen.getByRole('button', { name: 'teams.addSeries' }))
+      expect(save()).toBeDisabled()
+
+      const [finnish] = screen.getAllByRole('textbox', { name: 'teams.seriesName language' })
+      await user.type(finnish, '  ')
+      expect(save()).toBeDisabled()
+
+      await user.type(finnish, 'Avoin')
+      expect(save()).toBeEnabled()
+    })
+
+    it('shows the series while the draft has them, though the teams went to nought, and no panel otherwise', async () => {
+      const { user } = await renderPage(seriesEvent)
+      await flushPromises()
+
+      await setCount(user, '0')
+      expect(screen.getByRole('heading', { name: 'teams.series' })).toBeInTheDocument()
+
+      cleanup()
+      sessionStorage.clear()
+      await renderPage({ ...eventWithStations })
+      await flushPromises()
+      expect(screen.queryByRole('heading', { name: 'teams.series' })).not.toBeInTheDocument()
+    })
+
+    it('removes the settings once the last series is removed', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const oneSeries = { ...seriesEvent, teamCompetition: { series: [series[1]] } }
+      const { user } = await renderPage(oneSeries)
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'teams.removeSeries name' }))
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+
+      expect(putEvent).toHaveBeenLastCalledWith(
+        expect.not.objectContaining({ teamCompetition: expect.anything() }),
+        TEST_ID_TOKEN,
+        undefined,
+        undefined
+      )
+      expectSaved({ teams: [{ registrationIds: ['run-1'] }, { registrationIds: ['run-2'] }] })
+    })
+
+    it('drops the run-off a team won when it moves to another series', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const won = {
+        ...seriesEvent,
+        teams: [{ registrationIds: ['run-1'] }, { ...seriesEvent.teams[1], runOffWon: true }],
+      }
+      const { user } = await renderPage(won)
+      await flushPromises()
+
+      await pickSeries(user, teamSections()[1], 'Avoin')
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+
+      expectSaved({ teams: [{ registrationIds: ['run-1'] }, { registrationIds: ['run-2'], seriesId: 'open' }] })
+    })
+
+    it('asks for the Finnish name of a series', async () => {
+      const { user } = await renderPage(seriesEvent)
+      await flushPromises()
+
+      await user.clear(screen.getAllByRole('textbox', { name: 'teams.seriesName language' })[0])
+
+      expect(screen.getByText('teams.seriesNameRequired')).toBeInTheDocument()
+    })
+
+    it('ranks each series on its own: two teams level on points in two series both first, with no run-off', async () => {
+      const scored = (registration: Registration, points: number): Registration => ({
+        ...registration,
+        eventResult: { maxPoints: 60, points, result: 'ALO1', updatedAt: new Date(), updatedBy: 'Sihteeri' },
+      })
+      await renderPage(
+        { ...seriesEvent, teams: [{ registrationIds: ['run-1'], seriesId: 'open' }, seriesEvent.teams[1]] },
+        [scored(registrations[0], 50), scored(registrations[1], 50)]
+      )
+      await flushPromises()
+
+      for (const team of teamSections()) expect(within(team).queryByRole('checkbox')).not.toBeInTheDocument()
+    })
+  })
+
   it('saves an empty list once the count is back at nought, so a whole-event save clears them too', async () => {
     vi.mocked(putEvent).mockResolvedValue(eventWithStations)
     const { user } = await renderPage({ ...eventWithStations, teams: [{ registrationIds: ['run-1'] }] })

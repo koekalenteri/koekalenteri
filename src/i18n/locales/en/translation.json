@@ -729,9 +729,9 @@
   "judgeMockTrial": "Mock trial",
   "judges": "Judges",
   "language": {
-    "en": "english",
-    "fi": "finnish",
-    "sv": "swedish"
+    "en": "English",
+    "fi": "Finnish",
+    "sv": "Swedish"
   },
   "languageMenu": "Language",
   "languages": "Judging languages",
@@ -1599,6 +1599,7 @@
   "teams": {
     "addDog": "Add a dog",
     "addDogFull": "The team already has {{count}} dogs, so no more can be added.",
+    "addSeries": "Add series",
     "count": "Number of teams",
     "handler": "handler {{name}}",
     "info": "The teams are numbered in order, and a dog's identifier in its team follows the order the dogs were added: 1A, 1B, 1C. To change a dog's identifier, move it up or down in the team.",
@@ -1608,11 +1609,18 @@
     "moveUp": "Move {{code}} up",
     "name": "Team name",
     "noDogs": "The team has no dogs yet.",
+    "noSeries": "No series",
     "remove": "Remove {{code}} from the team",
+    "removeSeries": "Remove series {{name}}",
     "result": "Team result",
     "runOffWon": "Won the run-off",
     "saved": "Teams saved",
+    "series": "Series",
+    "seriesInfo": "Each team is ranked within its own series, and the public start list shows each series under its name. Without series, all teams compete against each other.",
+    "seriesName": "Name ({{language}})",
+    "seriesNameRequired": "Give the series a name in Finnish.",
     "team": "Team {{number}}",
+    "teamSeries": "Series",
     "title": "Teams"
   },
   "templateEditor": {
