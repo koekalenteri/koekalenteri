@@ -1,10 +1,11 @@
 import type { ResultTasksDroppedBody } from '@/lib/resultTasks'
 import type { DogEvent, Patch } from '@/types'
 import type { DroppedTasksDialogProps } from '../components/DroppedTasksDialog'
+import type { EventDraftForm } from '../state'
 import { useAtom, useSetAtom } from 'jotai'
 import { useResetAtom } from 'jotai/utils'
 import { useSnackbar } from 'notistack'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
@@ -13,10 +14,15 @@ import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { getEventSavedMessage } from '@/lib/event'
 import { isResultTasksDroppedBody } from '@/lib/resultTasks'
 import { getChanges, isEmptyObject, isObject } from '@/lib/utils'
-import { adminEditableEventByIdAtom, adminNewEventAtom, adminSaveEventAtom } from '../state'
+import { adminEditableEventByIdAndFormAtom, adminNewEventAtom, adminSaveEventAtom, isStaleEventDraft } from '../state'
 
-type EventFormOptions = {
-  eventId?: string
+/**
+ * A stored event is edited on the draft of the view that edits it, so a change left on one view does not
+ * turn up in another (KOE-1700). A new event has one draft.
+ */
+type EventDraftOptions = { eventId: string; form: EventDraftForm } | { eventId?: undefined; form?: undefined }
+
+type EventFormOptions = EventDraftOptions & {
   storedEvent?: DogEvent | null
   onDoneRedirect?: string
   /**
@@ -82,10 +88,21 @@ const droppedTasksOf = (error: unknown): ResultTasksDroppedBody | undefined =>
  * A hook that handles common event form operations for both create and edit scenarios
  */
 export default function useEventForm(options: EventFormOptions = {}) {
-  const { eventId, storedEvent = null, onDoneRedirect, onSaved, savedMessage } = options
+  const { eventId, form, storedEvent = null, onDoneRedirect, onSaved, savedMessage } = options
 
-  const [event, setEvent] = useAtom(eventId ? adminEditableEventByIdAtom(eventId) : adminNewEventAtom)
-  const resetEvent = useResetAtom(eventId ? adminEditableEventByIdAtom(eventId) : adminNewEventAtom)
+  const draftAtom = eventId ? adminEditableEventByIdAndFormAtom({ eventId, form }) : adminNewEventAtom
+  const [draft, setEvent] = useAtom(draftAtom)
+  const resetEvent = useResetAtom(draftAtom)
+  // Decided once, as the view opens: a draft begun before the event was last saved is dropped, but a
+  // change made while the view is open stays, whoever saves the event meanwhile (KOE-1700).
+  const [staleDraft, setStaleDraft] = useState(() => !!eventId && isStaleEventDraft(draft, storedEvent, eventId))
+  // Until the effect has dropped it, the stale draft is not shown: the view opens on the event as stored.
+  const event = (staleDraft ? storedEvent : null) ?? draft
+  useEffect(() => {
+    if (!staleDraft) return
+    resetEvent()
+    setStaleDraft(false)
+  }, [resetEvent, staleDraft])
   const initialEvent = useRef(event)
 
   const { t } = useTranslation()
@@ -185,7 +202,7 @@ export default function useEventForm(options: EventFormOptions = {}) {
   return {
     canSave,
     changes,
-    /** Drops the draft and stays put, for a page whose leaving is decided elsewhere. */
+    /** Drops this view's draft, and only that, and stays put, for a page whose leaving is decided elsewhere. */
     discardChanges: resetEvent,
     dropsDialogProps,
     event,

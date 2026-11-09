@@ -31,7 +31,9 @@ The families keyed by an event (`adminEventAtom`, `adminEventRegistrationsAtom`,
 copies, ...) hold one instance per event ever opened. Every page that opens an event claims it with
 `useAdminEventScope(eventId)`; a moment after the last such page unmounts, `releaseAdminEventAtoms`
 drops the event's instances from every family, and the next visit builds them again from storage and
-the server. Add a new event-keyed family to `eventScope.ts`, or it leaks.
+the server. A family keyed by an event and one more key (a registration's id, or the view a draft is
+for) is released by `releaseEventKeyed`, which walks its `getParams()` for the event's id. Add a new
+event-keyed family to `eventScope.ts`, or it leaks.
 
 `rereadHeldAdminEventsAtom` is write-only: after the socket has been away it runs `adminEventsRereadAtom`
 and, for every held event, `adminEventRegistrationsReloadAtom` and a bump of
@@ -108,22 +110,29 @@ graph LR
 
 ## Events
 
-`adminEventsAtom` is `adminEventsRemoteAtom` under a second name, and `adminEditableEventByIdAtom`
-and the `(eventId)` atoms are families keyed by the event. The fetched list is kept in sessionStorage
-(`adminEvents`, with the user's id, admin flag and roles under `adminEvents:scope`), and the next
-fetch in the same tab with the same scope asks `getAdminEvents` only for the events changed since the
-newest stamp in it, merged by id. A local write (a save, a websocket patch) is not kept: the server
-stamps it, so the next fetch brings it. A change of roles or user fetches the whole list again, and
-signing out clears the storage (KOE-1668). `adminEventsRereadAtom` is write-only: the same read for a
-socket that was away, written over the list without moving the fetch key, so a failure leaves the list
-as it is and only rejects to its caller; a row in hand with a newer stamp stays (`keepNewerRows`), and
-the answer is dropped if the key moved during the read (KOE-1698). `adminEditableEventByIdAtom(eventId)` is one draft per
-event in sessionStorage, shared by every form on the event: the stations page, the teams page (KOE-1714), the edit page and
-the event view's details dialog, which also picks up a draft another of them left (KOE-1700). The stations
-and teams pages leave none behind: leaving it unsaved asks, and the answer to leave discards the draft (KOE-1699),
-also one another form left there, since it is the same draft (KOE-1700).
-`adminSaveEventAtom` is write-only: after the read and the call shown here, it
-writes `adminEventIdAtom`, `adminCurrentEventAtom` and the public `eventsAtom`.
+`adminEventsAtom` is `adminEventsRemoteAtom` under a second name, the `(eventId)` atoms are families
+keyed by the event, and `adminEditableEventByIdAndFormAtom` is keyed by the event and the view. The
+fetched list is kept in sessionStorage (`adminEvents`, with the user's id, admin flag and roles under
+`adminEvents:scope`), and the next fetch in the same tab with the same scope asks `getAdminEvents`
+only for the events changed since the newest stamp in it, merged by id. A local write (a save, a
+websocket patch) is not kept: the server stamps it, so the next fetch brings it. A change of roles or
+user fetches the whole list again, and signing out clears the storage (KOE-1668).
+`adminEventsRereadAtom` is write-only: the same read for a socket that was away, written over the list
+without moving the fetch key, so a failure leaves the list as it is and only rejects to its caller; a
+row in hand with a newer stamp stays (`keepNewerRows`), and the answer is dropped if the key moved
+during the read (KOE-1698).
+
+`adminEditableEventByIdAndFormAtom({ eventId, form })` is the draft of one view of a stored event in
+sessionStorage (`adminEditableEvent/<form>/Id__<eventId>`): the edit page, the stations page, the
+teams page (KOE-1714) and the event view's details dialog each edit their own, so a change left on one
+never turns up in another (KOE-1700). A view that opens on a draft whose `modifiedAt` is not the
+stored event's drops it once (`isStaleEventDraft`), since the draft was begun before the last save; a
+save that comes while the view is open leaves its change alone. An event gone from the list keeps the
+draft, which is then all there is of it. The details dialog mounts its form only while open, and Esc
+and a click outside discard its draft as Cancel does. The stations and teams pages leave none behind:
+leaving unsaved asks, and the answer to leave discards that page's draft (KOE-1699). A new event has
+one draft, `adminNewEventAtom`. `adminSaveEventAtom` is write-only: after the read and the call shown
+here, it writes `adminEventIdAtom`, `adminCurrentEventAtom` and the public `eventsAtom`.
 
 ```mermaid
 graph LR
@@ -168,8 +177,8 @@ graph LR
   adminEventClassAtom-->sessionStorage
   adminEventClassAtom-->adminCurrentEventAtom
 
-  adminEditableEventByIdAtom-->sessionStorage
-  adminEditableEventByIdAtom-->adminEventAtom
+  adminEditableEventByIdAndFormAtom-->sessionStorage
+  adminEditableEventByIdAndFormAtom-->adminEventAtom
 
   adminSaveEventAtom-->adminCurrentEventAtom
   adminSaveEventAtom-->validIdTokenAtom

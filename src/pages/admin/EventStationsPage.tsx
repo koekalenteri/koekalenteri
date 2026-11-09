@@ -36,13 +36,15 @@ export default function EventStationsPage() {
   const storedEvent = useAtomValue(adminEventAtom(eventId))
   const { event, canSave, discardChanges, dropsDialogProps, handleChange, handleSave, handleCancel } = useEventForm({
     eventId,
+    form: 'stations',
     onDoneRedirect: Path.admin.viewEvent(eventId),
     savedMessage: t('event.stationsSaved'),
     storedEvent,
   })
 
   // The draft lives in session storage, so leaving has to lose it as the question says it will; it would
-  // otherwise wait unseen behind the old posts on the event view (KOE-1699).
+  // otherwise wait for the next opening of this page, until a save of the event drops it (KOE-1699,
+  // KOE-1700).
   useUnsavedChangesWarning(canSave, discardChanges)
 
   // A rotation that leaves a dog out, or that the server would refuse, is not saved (KOE-1665).
@@ -68,8 +70,9 @@ export default function EventStationsPage() {
       elevation={2}
       sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, maxHeight: '100%', maxWidth: '100%' }}
     >
-      {/* The trial as stored: the draft is shared with the event form and can hold an unsaved name or day.
-          An event no longer in the list reads as a new one with no id, and then the draft is all there is. */}
+      {/* The trial as stored: the page's draft is a copy of the event from when the page opened, and keeps
+          the name and days of then if another save changes them meanwhile. An event no longer in the list
+          reads as a new one with no id, and then the draft is all there is. */}
       <EntryPageHeader event={storedEvent?.id ? storedEvent : event} title={t('event.stationsSectionTitle')}>
         <Typography
           variant="body2"

@@ -7,7 +7,7 @@ import {
   adminKnownKcGuidsAtom,
   adminLinkedKcGuidsAtom,
 } from './events/derivedAtoms'
-import { adminEditableEventByIdAtom } from './events/editableAtoms'
+import { adminEditableEventByIdAndFormAtom } from './events/editableAtoms'
 import { adminEventsRereadAtom } from './events/remoteAtoms'
 import {
   adminDuplicatePaymentsAtom,
@@ -31,7 +31,6 @@ const EVENT_FAMILIES = [
   adminConfirmedEventAtom,
   adminDuplicatePaymentsAtom,
   adminDuplicatePaymentsRefreshAtom,
-  adminEditableEventByIdAtom,
   adminEventAtom,
   adminEventOfficialFormatLockedAtom,
   adminEventPaymentLockedAtom,
@@ -44,8 +43,17 @@ const EVENT_FAMILIES = [
   adminProjectedEventRegistrationsAtom,
 ] as const
 
-/** The families keyed by an event and one of its registrations. */
-const REGISTRATION_FAMILIES = [adminEditableEventRegistrationByEventIdAndIdAtom, adminEventRegistrationAtom] as const
+/** A family keyed by an event and one more key: one of its registrations, or the view a draft is for. */
+interface EventKeyedFamily<P extends { eventId: string }> {
+  getParams(): Iterable<P>
+  remove(params: P): void
+}
+
+const releaseEventKeyed = <P extends { eventId: string }>(family: EventKeyedFamily<P>, eventId: string) => {
+  for (const params of family.getParams()) {
+    if (params.eventId === eventId) family.remove(params)
+  }
+}
 
 /**
  * Drops every atom instance the families hold for the event. An atom family remembers each
@@ -55,11 +63,9 @@ const REGISTRATION_FAMILIES = [adminEditableEventRegistrationByEventIdAndIdAtom,
  */
 export const releaseAdminEventAtoms = (eventId: string) => {
   for (const family of EVENT_FAMILIES) family.remove(eventId)
-  for (const family of REGISTRATION_FAMILIES) {
-    for (const params of family.getParams()) {
-      if (params.eventId === eventId) family.remove(params)
-    }
-  }
+  releaseEventKeyed(adminEditableEventByIdAndFormAtom, eventId)
+  releaseEventKeyed(adminEditableEventRegistrationByEventIdAndIdAtom, eventId)
+  releaseEventKeyed(adminEventRegistrationAtom, eventId)
 }
 
 /** How long an event's atoms outlive its last view: long enough for the next view of the same event to mount. */

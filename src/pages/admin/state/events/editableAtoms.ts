@@ -22,21 +22,35 @@ export const adminEventClassAtom = atom(
   (_get, set, value: RegistrationClass) => set(storedEventClassAtom, value)
 )
 
-export const adminEditableEventByIdAtom = atomFamily((eventId: string) => {
-  const storedAtom = atomWithSessionStorage<DogEvent | undefined, JsonDogEvent>(
-    `adminEditableEvent/Id__${eventId}`,
-    undefined,
-    { revive: toDogEvent }
-  )
-  return atom(
-    // Only await the initial hydration from adminEventAtom. Once storedAtom holds a value,
-    // read synchronously instead of via an `async` getter: an async function always returns a
-    // new Promise identity on every call, and since storedAtom changes on every keystroke while
-    // editing, that would make Suspense re-throw (and remount the whole form) on every keystroke.
-    (get) => {
-      const stored = get(storedAtom)
-      return stored ?? get(adminEventAtom(eventId))
-    },
-    (_get, set, value: DogEvent | typeof RESET) => set(storedAtom, value)
-  )
-})
+/** The views that edit a stored event, each on a draft of its own (KOE-1700). */
+export type EventDraftForm = 'details' | 'edit' | 'stations' | 'teams'
+
+export const adminEditableEventByIdAndFormAtom = atomFamily(
+  ({ eventId, form }: { eventId: string; form: EventDraftForm }) => {
+    const storedAtom = atomWithSessionStorage<DogEvent | undefined, JsonDogEvent>(
+      `adminEditableEvent/${form}/Id__${eventId}`,
+      undefined,
+      { revive: toDogEvent }
+    )
+    return atom(
+      // Only await the initial hydration from adminEventAtom. Once storedAtom holds a value,
+      // read synchronously instead of via an `async` getter: an async function always returns a
+      // new Promise identity on every call, and since storedAtom changes on every keystroke while
+      // editing, that would make Suspense re-throw (and remount the whole form) on every keystroke.
+      (get) => {
+        const stored = get(storedAtom)
+        return stored ?? get(adminEventAtom(eventId))
+      },
+      (_get, set, value: DogEvent | typeof RESET) => set(storedAtom, value)
+    )
+  },
+  (left, right) => left.eventId === right.eventId && left.form === right.form
+)
+
+/**
+ * A draft begun on an older save of the event than the stored one. Saving it would be refused as
+ * stale, and it would undo what that save changed, so a view drops it when it opens. Only a stored
+ * event counts: one gone from the list leaves the draft as all there is.
+ */
+export const isStaleEventDraft = (draft: DogEvent, stored: DogEvent | null, eventId: string) =>
+  stored?.id === eventId && draft.modifiedAt.getTime() !== stored.modifiedAt.getTime()

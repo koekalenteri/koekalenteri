@@ -49,8 +49,8 @@ const typedCount = (value: string): number | undefined => {
 
 /**
  * The teams of a team competition (KOE-1714), on a page of their own like the posts: any event can run
- * one, and the count is what turns it on. The draft is the event form's, so the secretary saves or
- * cancels the teams as one.
+ * one, and the count is what turns it on. The page edits a draft of its own (KOE-1700), so the secretary
+ * saves or cancels the teams as one.
  */
 export default function EventTeamsPage() {
   const { t } = useTranslation()
@@ -60,6 +60,7 @@ export default function EventTeamsPage() {
   const registrations = useAtomValue(adminEventRegistrationsAtom(eventId))
   const { event, canSave, discardChanges, handleChange, handleSave, handleCancel } = useEventForm({
     eventId,
+    form: 'teams',
     onDoneRedirect: Path.admin.viewEvent(eventId),
     savedMessage: t('teams.saved'),
     storedEvent,

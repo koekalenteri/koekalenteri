@@ -11,7 +11,7 @@ import { getDuplicatePayments, getRegistrations, getStartList } from '../api/reg
 import { stationDogsInOrder } from '../lib/results'
 import { useAdminEventScope } from '../pages/admin/state/eventScope'
 import { adminEventAtom, adminEventsAtom } from '../pages/admin/state/events'
-import { adminEditableEventByIdAtom } from '../pages/admin/state/events/editableAtoms'
+import { adminEditableEventByIdAndFormAtom } from '../pages/admin/state/events/editableAtoms'
 import {
   adminDuplicatePaymentsAtom,
   adminEventRegistrationsAtom,
@@ -380,13 +380,15 @@ describe('useWebSocket after the connection comes back', () => {
     it('leaves the unsaved edits of the event form alone', async () => {
       const { store } = await openSecretaryView()
       const edited = { ...eventWithOrder(['post-1', 'post-2'], BEFORE), location: 'edited' }
-      store.set(adminEditableEventByIdAtom(EVENT_ID), edited)
+      store.set(adminEditableEventByIdAndFormAtom({ eventId: EVENT_ID, form: 'edit' }), edited)
 
       vi.mocked(getAdminEvents).mockResolvedValue([eventWithOrder(['post-2', 'post-1'], DURING_OUTAGE)])
       await reconnectSubscribed()
 
       await vi.waitFor(async () => expect(await orderAtPost(store, 'post-2')).toEqual(['post-2', 'post-1']))
-      expect(store.get(adminEditableEventByIdAtom(EVENT_ID))).toMatchObject({ location: 'edited' })
+      expect(store.get(adminEditableEventByIdAndFormAtom({ eventId: EVENT_ID, form: 'edit' }))).toMatchObject({
+        location: 'edited',
+      })
     }, 10_000)
   })
 
