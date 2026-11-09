@@ -1,5 +1,5 @@
 import type { OwnClass } from '../types'
-import { classLabel, classOrder, isEventClass, ownClassErrors } from './eventClass'
+import { classLabel, classOrder, isEventClass, ownClassErrors, registrationOrder } from './eventClass'
 
 // KOE-674: an unofficial event may run classes of its own, named and ordered by the secretary.
 const derby: OwnClass = { code: 'DERBY', name: { en: 'Derby', fi: 'Derby' } }
@@ -138,6 +138,35 @@ describe('classOrder', () => {
   it('orders the official classes ALO, AVO, VOI without own classes', () => {
     expect(['VOI', 'ALO', 'AVO'].sort(classOrder({}))).toEqual(['ALO', 'AVO', 'VOI'])
     expect([undefined, 'DERBY'].sort(classOrder(unofficial))).toEqual(['DERBY', undefined])
+  })
+})
+
+// KOE-674: the entries of one day are listed class by class in the event's own order.
+describe('registrationOrder', () => {
+  const entry = (eventClass: string, number: number, date = '2026-08-01' as const) => ({
+    class: eventClass,
+    group: { date, key: `${date}-ap`, number, time: 'ap' as const },
+  })
+
+  it('lists a day class by class as the secretary listed them, then by time and number', () => {
+    const entries = [entry('DERBY', 1), entry('VET10', 2), entry('DERBY', 2, '2026-07-31'), entry('VET10', 1)]
+
+    expect([...entries].sort(registrationOrder(unofficial))).toEqual([
+      entry('DERBY', 2, '2026-07-31'),
+      entry('VET10', 1),
+      entry('VET10', 2),
+      entry('DERBY', 1),
+    ])
+  })
+
+  it('lists the official classes ALO, AVO, VOI without own classes', () => {
+    const entries = [entry('VOI', 1), entry('ALO', 1), entry('AVO', 1)]
+
+    expect([...entries].sort(registrationOrder({})).map(({ class: eventClass }) => eventClass)).toEqual([
+      'ALO',
+      'AVO',
+      'VOI',
+    ])
   })
 })
 
