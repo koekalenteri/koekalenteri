@@ -1,12 +1,12 @@
-import type { JsonKcResult, JsonRegistration } from '../../../types'
+import type { DeepPartial, JsonEventResult, JsonKcResult, JsonRegistration } from '../../../types'
 import { uniqueId } from '../../test-utils/integration'
 import CustomDynamoClient from '../../utils/CustomDynamoClient'
 import {
   readRegistration,
   readRegistrationsForStats,
   writeDogRegNo,
+  writeEventResult,
   writeKcResult,
-  writeRecomputedEventResult,
 } from './registrationRepository'
 
 /** `state` is a word DynamoDB reserves, and a projection naming it directly is refused only by a real table. */
@@ -133,44 +133,73 @@ describe('writeDogRegNo against DynamoDB-local', () => {
 })
 
 /**
- * A recomputed result is written over the result it was recomputed from only (KOE-1666), on a condition
+ * A result is written over the result it was worked out from only (KOE-1490, KOE-1666), on a condition
  * that reads a field inside the stored result; the expression has to be one DynamoDB takes.
  */
-describe('writeRecomputedEventResult against DynamoDB-local', () => {
+describe('writeEventResult against DynamoDB-local', () => {
   const client = new CustomDynamoClient('EventRegistrationTable')
   const result = (updatedAt: string, points: number) => ({ points, updatedAt, updatedBy: 'Sihteeri' })
 
-  const storedRegistration = async () => {
+  const group = { date: '2026-11-01', key: 'ALO-AP', number: 3 }
+  const storedRegistration = async (eventResult?: DeepPartial<JsonEventResult>) => {
+    // The rest of the row, which a result write leaves as it is.
     const registration = {
       eventId: uniqueId('event'),
-      eventResult: result('2026-11-01T10:00:00.000Z', 40),
+      group,
       id: uniqueId('registration'),
+      internalNotes: 'sihteerin muistiinpano',
+      ...(eventResult ? { eventResult } : {}),
     }
     await client.write(registration)
     return registration
   }
+  const conditionFailed = { name: 'ConditionalCheckFailedException' }
 
-  it('writes over the result it was recomputed from', async () => {
-    const { eventId, id } = await storedRegistration()
+  it('writes over the result it was worked out from', async () => {
+    const { eventId, id } = await storedRegistration(result('2026-11-01T10:00:00.000Z', 40))
+
+    await writeEventResult(eventId, id, result('2026-11-01T11:00:00.000Z', 20), '2026-11-01T10:00:00.000Z')
+
+    await expect(readRegistration(eventId, id, true)).resolves.toMatchObject({
+      eventResult: result('2026-11-01T11:00:00.000Z', 20),
+      group,
+      internalNotes: 'sihteerin muistiinpano',
+    })
+  })
+
+  it('leaves a result saved meanwhile as it is', async () => {
+    const { eventId, id } = await storedRegistration(result('2026-11-01T10:00:00.000Z', 40))
 
     await expect(
-      writeRecomputedEventResult(eventId, id, result('2026-11-01T11:00:00.000Z', 20), '2026-11-01T10:00:00.000Z')
-    ).resolves.toBe(true)
+      writeEventResult(eventId, id, result('2026-11-01T11:00:00.000Z', 20), '2026-11-01T09:00:00.000Z')
+    ).rejects.toMatchObject(conditionFailed)
+
+    await expect(readRegistration(eventId, id, true)).resolves.toMatchObject({
+      eventResult: result('2026-11-01T10:00:00.000Z', 40),
+    })
+  })
+
+  it.each([
+    ['no result', undefined],
+    ['a result older than its version', { points: 40, updatedBy: 'Sihteeri' }],
+  ])('writes the first versioned result over %s', async (_, stored) => {
+    const { eventId, id } = await storedRegistration(stored)
+
+    await writeEventResult(eventId, id, result('2026-11-01T11:00:00.000Z', 20), undefined)
 
     await expect(readRegistration(eventId, id, true)).resolves.toMatchObject({
       eventResult: result('2026-11-01T11:00:00.000Z', 20),
     })
   })
 
-  it('leaves a result saved meanwhile as it is', async () => {
-    const { eventId, id } = await storedRegistration()
+  it('refuses a first result when another one was saved meanwhile, and a row that is gone', async () => {
+    const { eventId, id } = await storedRegistration(result('2026-11-01T10:00:00.000Z', 40))
 
     await expect(
-      writeRecomputedEventResult(eventId, id, result('2026-11-01T11:00:00.000Z', 20), '2026-11-01T09:00:00.000Z')
-    ).resolves.toBe(false)
-
-    await expect(readRegistration(eventId, id, true)).resolves.toMatchObject({
-      eventResult: result('2026-11-01T10:00:00.000Z', 40),
-    })
+      writeEventResult(eventId, id, result('2026-11-01T11:00:00.000Z', 20), undefined)
+    ).rejects.toMatchObject(conditionFailed)
+    await expect(
+      writeEventResult(eventId, uniqueId('missing'), result('2026-11-01T11:00:00.000Z', 20), undefined)
+    ).rejects.toMatchObject(conditionFailed)
   })
 })

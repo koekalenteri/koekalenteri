@@ -15,6 +15,7 @@ import { jsonRegistrationsToEventWithParticipantsInvited } from '../../__mockDat
 import { legacyDayValue } from '../../test-utils/finnishDays'
 import koemuotoNOWT from '../lib/KLIntegraatio-fixtures/koemuoto-NOWT.json'
 import { constructAPIGwEvent } from '../test-utils/helpers'
+import { conditionalCheckFailure, registrationStore } from '../test-utils/registrationStore'
 // Loaded before the clock is faked: @date-fns/tz's TZDate extends the Date it finds at load, and on a
 // fake Date it formats in the host zone, so a CI runner in UTC read Finnish midnight as the day before.
 import '../../i18n/dates'
@@ -60,24 +61,13 @@ const mockReadEventRegistrations = vi.fn()
  * and the event save write here, and the readers read back what was written.
  */
 const storedRegistrations = new Map<string, JsonRegistration>()
-const storeEventResult = (id: string, eventResult: JsonEventResult) => {
-  const registration = storedRegistrations.get(id)
-  if (registration) storedRegistrations.set(id, { ...registration, eventResult })
-}
-/** Writes over the result it was recomputed from only, as the repository's condition does. */
-const mockWriteRecomputedEventResult = vi.fn(
-  async (_eventId: string, id: string, eventResult: JsonEventResult, previousUpdatedAt: string) => {
-    if (storedRegistrations.get(id)?.eventResult?.updatedAt !== previousUpdatedAt) return false
-    storeEventResult(id, eventResult)
-    return true
-  }
-)
+/** Writes over the result it was worked out from only, as the repository's condition does. */
+const results = registrationStore(storedRegistrations)
+const mockWriteEventResult = vi.fn(results.writeEventResult)
 vi.doMock('../lib/repositories/registrationRepository', () => ({
   readEventRegistrations: mockReadEventRegistrations,
-  updateRegistrationField: vi.fn(async (_eventId: string, id: string, field: string, value: JsonEventResult) => {
-    if (field === 'eventResult') storeEventResult(id, value)
-  }),
-  writeRecomputedEventResult: mockWriteRecomputedEventResult,
+  readRegistration: results.readRegistration,
+  writeEventResult: mockWriteEventResult,
 }))
 
 /** A dog picked into a group of the class, and invited: nothing left for the start list to wait on. */
@@ -2335,6 +2325,8 @@ describe('putEventLambda', () => {
         Object.entries(results).map(([id, tasks]) => ({ eventResult: { tasks }, id })),
         'Sihteeri'
       )
+      // The tests count the writes the event save makes; these were the result save's.
+      mockWriteEventResult.mockClear()
     }
     const patchStations = (stations: EventStation[], query?: Record<string, string>) => {
       signIn(mockSecretary)
@@ -2420,7 +2412,7 @@ describe('putEventLambda', () => {
 
       expect(res.statusCode).toEqual(409)
       expect(JSON.parse(res.body)).toMatchObject({ dogs: [{ id: 'dog-a', tasks: 1 }], error: 'resultTasksDropped' })
-      expect(mockWriteRecomputedEventResult).not.toHaveBeenCalled()
+      expect(mockWriteEventResult).not.toHaveBeenCalled()
     })
 
     it('recomputes without asking where nothing is dropped, and the patch removes a prize the round no longer has', async () => {
@@ -2508,7 +2500,7 @@ describe('putEventLambda', () => {
 
       expect(res.statusCode).toEqual(423)
       expect(JSON.parse(res.body)).toEqual({ error: 'resultsLocked' })
-      expect(mockWriteRecomputedEventResult).not.toHaveBeenCalled()
+      expect(mockWriteEventResult).not.toHaveBeenCalled()
       expect(patchEventMock).not.toHaveBeenCalled()
     })
 
@@ -2526,7 +2518,7 @@ describe('putEventLambda', () => {
       const res = await patchRotations(firstOnly, { confirmDrops: asked.confirmation })
 
       expect(res.statusCode).toEqual(423)
-      expect(mockWriteRecomputedEventResult).toHaveBeenCalledTimes(1)
+      expect(mockWriteEventResult).toHaveBeenCalledTimes(1)
       expect(patchEventMock).not.toHaveBeenCalled()
     })
 
@@ -2552,14 +2544,27 @@ describe('putEventLambda', () => {
     it('stops before the event is saved when a post saved the dog meanwhile', async () => {
       await record(nowtEvent, { 'dog-a': scores([10, 20], 10), 'dog-b': scores([12, 12], 12) })
       const asked = JSON.parse((await patchRotations(firstOnly)).body)
-      mockWriteRecomputedEventResult.mockResolvedValueOnce(false)
+      mockWriteEventResult.mockRejectedValueOnce(conditionalCheckFailure())
 
       const res = await patchRotations(firstOnly, { confirmDrops: asked.confirmation })
 
       expect(res.statusCode).toEqual(409)
       expect(JSON.parse(res.body)).toMatchObject({ error: 'staleData' })
-      expect(mockWriteRecomputedEventResult).toHaveBeenCalledTimes(1)
+      expect(mockWriteEventResult).toHaveBeenCalledTimes(1)
       expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    it('fails the save, not as stale, when the write fails for another reason', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      await record(nowtEvent, { 'dog-a': scores([10, 20], 10), 'dog-b': scores([12, 12], 12) })
+      const asked = JSON.parse((await patchRotations(firstOnly)).body)
+      mockWriteEventResult.mockRejectedValueOnce(new Error('throttled'))
+
+      const res = await patchRotations(firstOnly, { confirmDrops: asked.confirmation })
+
+      expect(res.statusCode).toEqual(500)
+      expect(patchEventMock).not.toHaveBeenCalled()
+      errorSpy.mockRestore()
     })
 
     it('recomputes without asking where the task dropped is an empty field', async () => {
@@ -2625,7 +2630,7 @@ describe('putEventLambda', () => {
         const res = await putEventLambda(constructAPIGwEvent({ id: 'existing', ...corrected }, { method: 'PATCH' }))
 
         expect(res.statusCode).toEqual(200)
-        expect(mockWriteRecomputedEventResult).not.toHaveBeenCalled()
+        expect(mockWriteEventResult).not.toHaveBeenCalled()
         expect(
           shownResult({ ...fourPostEvent, ...corrected }, storedRegistrations.get('dog-a') ?? dogAt('dog-a', 1))
         ).toMatchObject({
@@ -2682,7 +2687,7 @@ describe('putEventLambda', () => {
         const res = await patchRotations([reordered])
 
         expect(res.statusCode).toEqual(200)
-        expect(mockWriteRecomputedEventResult).not.toHaveBeenCalled()
+        expect(mockWriteEventResult).not.toHaveBeenCalled()
       })
 
       it('recomputes the dogs of a class moved to another day, whose group is then no longer read', async () => {

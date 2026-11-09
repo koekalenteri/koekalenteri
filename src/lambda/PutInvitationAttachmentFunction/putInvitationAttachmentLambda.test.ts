@@ -80,6 +80,7 @@ describe('putInvitationAttachmentLambda', () => {
     mockGetParam.mockImplementation((_event: unknown, name: string) => (name === 'eventId' ? 'event123' : ''))
 
     mockGetEvent.mockResolvedValue({
+      classes: [{ class: 'ALO' }, { class: 'AVO' }, { class: 'AVO' }],
       id: 'event123',
       invitationAttachment: 'old-attachment-key',
       invitationAttachmentHistory: {
@@ -96,9 +97,8 @@ describe('putInvitationAttachmentLambda', () => {
     })
 
     mockParsePostFile.mockResolvedValue({
-      contentType: 'application/pdf',
       data: Buffer.from('%PDF-1.7 test-file-content'),
-      filename: 'test.pdf',
+      error: null,
     })
 
     mockDeleteFile.mockResolvedValue({})
@@ -172,9 +172,7 @@ describe('putInvitationAttachmentLambda', () => {
 
   it('returns 400 if no file data', async () => {
     mockParsePostFile.mockResolvedValueOnce({
-      contentType: 'application/pdf',
-      data: null,
-      filename: 'test.pdf',
+      error: null,
     })
 
     await putInvitationAttachmentLambda(event)
@@ -194,9 +192,8 @@ describe('putInvitationAttachmentLambda', () => {
 
   it('returns 400 if the file is not a PDF', async () => {
     mockParsePostFile.mockResolvedValueOnce({
-      contentType: 'application/pdf',
       data: Buffer.from('<html>not a pdf</html>'),
-      filename: 'test.pdf',
+      error: null,
     })
 
     await putInvitationAttachmentLambda(event)
@@ -208,6 +205,68 @@ describe('putInvitationAttachmentLambda', () => {
     expect(loggedLines(errorSpy)).toContainEqual(
       expect.objectContaining({ eventId: 'event123', message: 'uploaded invitation attachment is not a PDF' })
     )
+  })
+
+  const expectNothingStored = () => {
+    expect(mockUploadFile).not.toHaveBeenCalled()
+    expect(mockDeleteFile).not.toHaveBeenCalled()
+    expect(mockWriteEventFields).not.toHaveBeenCalled()
+    expect(mockPublishAdminEventPatch).not.toHaveBeenCalled()
+  }
+
+  const withClassParam = (className: string) =>
+    mockGetParam.mockImplementation((_event: unknown, name: string) => (name === 'eventId' ? 'event123' : className))
+
+  // InfoPanel tells the secretary the file is too large only on a 413.
+  it.each([
+    ['tooManyFiles', 400, 'only one file is allowed'],
+    ['tooLarge', 413, 'file is too large'],
+  ])('answers a %s body with %i and stores nothing', async (rejection, status, body) => {
+    mockParsePostFile.mockResolvedValueOnce({ error: null, rejection })
+
+    await putInvitationAttachmentLambda(event)
+
+    expect(mockResponse).toHaveBeenCalledWith(status, body, event)
+    expectNothingStored()
+  })
+
+  it('returns 400 for a class the event does not have, before reading the body', async () => {
+    withClassParam('VOI')
+
+    await putInvitationAttachmentLambda(event)
+
+    expect(mockResponse).toHaveBeenCalledWith(400, 'unknown class', event)
+    expect(mockParsePostFile).not.toHaveBeenCalled()
+    expectNothingStored()
+  })
+
+  it('returns 400 for any class of an event without classes', async () => {
+    withClassParam('AVO')
+    mockGetEvent.mockResolvedValueOnce({ id: 'event123', organizer: { id: 'org789', name: 'Test Organizer' } })
+
+    await putInvitationAttachmentLambda(event)
+
+    expect(mockResponse).toHaveBeenCalledWith(400, 'unknown class', event)
+    expectNothingStored()
+  })
+
+  it('tells an outsider nothing about the classes', async () => {
+    withClassParam('VOI')
+    mockAuthorize.mockResolvedValueOnce({ id: 'user123', name: 'Test User', roles: { other_org: 'admin' } })
+
+    await putInvitationAttachmentLambda(event)
+
+    expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
+    expectNothingStored()
+  })
+
+  it('stores the whole-event attachment of an event without classes', async () => {
+    mockGetEvent.mockResolvedValueOnce({ id: 'event123', organizer: { id: 'org789', name: 'Test Organizer' } })
+
+    await putInvitationAttachmentLambda(event)
+
+    expect(mockUploadFile).toHaveBeenCalledTimes(1)
+    expect(mockResponse).toHaveBeenCalledWith(200, expect.objectContaining({ key: expect.any(String) }), event)
   })
 
   it('uploads new attachment and preserves the old one', async () => {

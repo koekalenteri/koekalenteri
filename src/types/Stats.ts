@@ -224,8 +224,11 @@ export interface EventClassStatsRow {
   entryStartDate?: DayKey
   entryEndDate?: DayKey
   priority: string[]
-  /** The normal entry fee; early bird, breed and custom prices are not in the export. */
-  cost: number
+  /**
+   * The normal entry fee; early bird, breed and custom prices are not in the export. Unset for a
+   * trial saved without a price (a tentative one), which the sheet leaves empty rather than 0.
+   */
+  cost?: number
   costMember?: number
   class: string
   days: DayKey[]

@@ -62,6 +62,8 @@ vi.mock(import('../../api/user'), async (importOriginal) => ({
 vi.mock(import('../../api/stats'), async (importOriginal) => ({
   ...(await importOriginal()),
   getAllYearlyStats: async () => stats,
+  // Never answers, so the class download stays in progress for its capture.
+  getEventClassStats: () => new Promise(() => {}),
 }))
 vi.mock(import('../../api/organizer'), async (importOriginal) => ({
   ...(await importOriginal()),
@@ -71,10 +73,8 @@ vi.mock(import('../../api/organizer'), async (importOriginal) => ({
   ],
 }))
 
-it('tabulates the year per club and event type under the page heading', async () => {
-  await page.viewport(1000, 520)
-
-  const screen = await render(
+const renderPage = () =>
+  render(
     <div data-testid="visual-root" style={{ background: '#fff', width: 1000 }}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
@@ -89,6 +89,11 @@ it('tabulates the year per club and event type under the page heading', async ()
     </div>
   )
 
+it('tabulates the year per club and event type under the page heading', async () => {
+  await page.viewport(1000, 520)
+
+  const screen = await renderPage()
+
   // An admin page of its own: the title is its one heading, the table needs none (KOE-1506).
   await expect.element(screen.getByText('Hämeen Noutajat ry').first()).toBeVisible()
   await expect.element(screen.getByRole('heading', { level: 1 })).toBeVisible()
@@ -96,4 +101,16 @@ it('tabulates the year per club and event type under the page heading', async ()
   // The frozen day decides the year picked.
   await expect.element(screen.getByRole('button', { name: '2026', pressed: true })).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-breakdown-page')
+})
+
+it('shows progress on the class download button while the file is worked out (KOE-1713)', async () => {
+  await page.viewport(1000, 520)
+
+  const screen = await renderPage()
+
+  await expect.element(screen.getByText('Hämeen Noutajat ry').first()).toBeVisible()
+  await screen.getByRole('button', { name: 'Lataa kokeet luokittain' }).click()
+  await expect.element(screen.getByRole('progressbar')).toBeVisible()
+  await expect.element(screen.getByRole('button', { name: 'Lataa kokeet luokittain' })).toBeDisabled()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-breakdown-page-class-download-loading')
 })

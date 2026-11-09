@@ -19,6 +19,12 @@ export const foldedFrom = (path: string, names: Record<string, string>, previous
   }
 }
 
+/**
+ * How many times a results write made from a reading is tried before it is a conflict: the publish flag's
+ * (`setResultsPublishedState`) and a dog's result (`processResultSubmissions`).
+ */
+export const RESULTS_WRITE_ATTEMPTS = 3
+
 interface ConditionalWrite<R, T> {
   /** The reading the caller already has, which the first attempt works from. */
   initial: R

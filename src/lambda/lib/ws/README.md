@@ -33,7 +33,7 @@ All client messages are JSON objects sent to `$default`.
 
 | Action                             | Payload                                                                                                                                         | Result                                                                                                                                                                                                                                                                                                         |
 | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Authenticate                       | `{ "action": "authenticate", "token": "<cognito-id-token>" }`                                                                                   | Verifies the Cognito ID token, resolves application authorization, and stores `userId`, `memberOf`, `admin`, and token expiry on the connection.                                                                                                                                                               |
+| Authenticate                       | `{ "action": "authenticate", "token": "<cognito-id-token>" }`                                                                                   | Verifies the Cognito ID token, resolves the application user, also one without a role, and stores `userId`, `admin` (a boolean), `memberOf` (when not empty) and token expiry on the connection.                                                                                                               |
 | Subscribe to admin                 | `{ "action": "subscribe", "channel": "admin" }`                                                                                                 | Marks the connection as admin-subscribed. The connection must be an admin or belong to at least one organizer. Acknowledged with `{ adminSubscribed: true }`, which the client's re-read depends on ("After a reconnect").                                                                                     |
 | Subscribe to event                 | `{ "action": "subscribe", "channel": "event", "eventId": "<event-id>" }`                                                                        | Subscribes the connection to one event's admin updates. The connection must be an admin or member of the event organizer. Acknowledged with `{ eventId, subscribed: true }`.                                                                                                                                   |
 | Subscribe to public start list     | `{ "action": "subscribe", "channel": "public-event", "eventId": "<event-id>" }`                                                                 | Watches one event's published start list. No authentication, and the connection stays in the public audience, so it keeps receiving the event patches broadcast to every anonymous connection. Acknowledged with `{ eventId, subscribed: true }`, which the client answers with a fetch ("After a reconnect"). |
@@ -45,6 +45,14 @@ All client messages are JSON objects sent to `$default`.
 | Keepalive                          | `{ "action": "ping" }`                                                                                                                          | Answered with `{ pong: true }` without a connection lookup. API Gateway closes a WebSocket after 10 minutes without traffic, so clients ping well inside that window rather than reconnecting, and once on waking to find out whether the socket is still alive ("After a reconnect").                         |
 
 Authentication is optional for public broadcasts, but required for admin and event subscriptions.
+
+Authentication says who the user is; each channel decides what they may see. A signed-in user
+without admin or club roles authenticates (`admin: false`, no `memberOf`), keeps the public start
+list and registration channels, and is refused the admin and event channels by
+`connectionPolicy.ts` and `subscriptionService.ts` (KOE-1735). The client (`src/hooks/useWebSocket.ts`)
+reads any `{ ok: false, status: 401 }` or `403` answer as a failed authentication and closes the
+socket for good, so it sends the admin and event subscribes only for a user with admin access: the
+hooks that send them mount under `AdminAccessGuard` (KOE-1734).
 
 ## Outbound payload scopes
 
@@ -157,7 +165,7 @@ Important fields:
 
 - `actions.ts`: public API for publishing patches, viewer updates, and connection counts; best effort, with the strict variants named above.
 - `livePush.ts`: `bestEffort`, the rule that a push never fails the write before it.
-- `authentication.ts`: verifies Cognito ID tokens and maps claims to application authorization.
+- `authentication.ts`: verifies Cognito ID tokens and resolves the application user with their admin flag and clubs; it refuses only a token without a user, never a user without a role.
 - `broadcast.ts`: sends payloads to recipients in bounded-concurrency batches and reports sent, gone, and failed counts.
 - `connectionLifecycle.ts`: handles connection creation, authentication updates, lookup, disconnect cleanup, and viewer notifications.
 - `connectionPolicy.ts`: centralizes expiry and admin/organizer authorization checks.

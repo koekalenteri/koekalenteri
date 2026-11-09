@@ -15,7 +15,7 @@ covers:
   - src/lambda/PaymentCreateFunction/**
   - src/lambda/GetDuplicatePaymentsFunction/**
   - src/lambda/RefundCreateFunction/**
-sourceHash: 7bff1c
+sourceHash: a4e9af
 ---
 
 Koekalenteri is a web shop: the entrant pays the entry fee in the calendar, and the money goes
@@ -57,6 +57,11 @@ from, and the club can keep a handling fee of the amount put in the
 *{t:registration.refundDialog.handlingCost}* field. With some payment methods Paytrail asks the
 entrant for an account number by email, and the refund shows as pending until the entrant has
 answered.
+
+The refund and the handling fee together can be at most what is left of the selected payment and of
+the entry's money. A refund still pending counts, so the same money cannot go back twice. If a refund
+fails, its amount can be refunded again. If someone else got to the same money first, the calendar
+refuses the refund and says how much is left.
 
 A payment can be refunded for an entry that keeps its place too, when more was paid than the entry
 now costs: the secretary has removed an extra service, say, or corrected the fee to the member

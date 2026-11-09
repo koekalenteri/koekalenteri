@@ -47,7 +47,7 @@ const {
   updateRegistrationField,
   writeEmailDeliveryStatus,
   writeKcResult,
-  writeRecomputedEventResult,
+  writeEventResult,
   writeMigratedRegistration,
   writeRegistration,
   writeRegistrationFields,
@@ -286,33 +286,41 @@ describe('registrationRepository', () => {
     })
   })
 
-  describe('writeRecomputedEventResult (KOE-1666)', () => {
+  describe('writeEventResult (KOE-1490, KOE-1666)', () => {
     const eventResult = { result: 'ALO3', updatedAt: '2026-11-01T12:00:00.000Z', updatedBy: 'Sihteeri' }
+    const names = { '#eventResult': 'eventResult', '#id': 'id', '#updatedAt': 'updatedAt' }
 
-    it('writes over the result it was recomputed from only, and moves the row on', async () => {
+    it('writes over the result it was worked out from only, and moves the row on', async () => {
       mockUpdate.mockResolvedValueOnce({})
 
-      await expect(writeRecomputedEventResult('e1', 'r1', eventResult, '2026-10-31T12:00:00.000Z')).resolves.toBe(true)
+      await writeEventResult('e1', 'r1', eventResult, '2026-10-31T12:00:00.000Z')
       expect(mockUpdate).toHaveBeenCalledWith(
         { eventId: 'e1', id: 'r1' },
         { set: { eventResult, updatedAt: expect.any(String) } },
         'NONE',
         {
-          expression: '#eventResult.#updatedAt = :previous',
-          names: { '#eventResult': 'eventResult', '#updatedAt': 'updatedAt' },
-          values: { ':previous': '2026-10-31T12:00:00.000Z' },
+          expression: 'attribute_exists(#id) AND #eventResult.#updatedAt = :foldedFrom',
+          names,
+          values: { ':foldedFrom': '2026-10-31T12:00:00.000Z' },
         }
       )
     })
 
-    it('answers false for a result written meanwhile, and lets any other failure through', async () => {
-      mockUpdate.mockRejectedValueOnce(namedError('ConditionalCheckFailedException'))
-      await expect(writeRecomputedEventResult('e1', 'r1', eventResult, 'old')).resolves.toBe(false)
+    it('writes where no versioned result was read only while there still is none', async () => {
+      mockUpdate.mockResolvedValueOnce({})
 
-      mockUpdate.mockRejectedValueOnce(namedError('ProvisionedThroughputExceededException'))
-      await expect(writeRecomputedEventResult('e1', 'r1', eventResult, 'old')).rejects.toThrow(
-        'ProvisionedThroughputExceededException'
-      )
+      await writeEventResult('e1', 'r1', eventResult, undefined)
+      expect(mockUpdate).toHaveBeenCalledWith(expect.anything(), expect.anything(), 'NONE', {
+        expression: 'attribute_exists(#id) AND attribute_not_exists(#eventResult.#updatedAt)',
+        names,
+      })
+    })
+
+    it('lets the failure through for a result written meanwhile', async () => {
+      const error = namedError('ConditionalCheckFailedException')
+      mockUpdate.mockRejectedValueOnce(error)
+
+      await expect(writeEventResult('e1', 'r1', eventResult, 'old')).rejects.toBe(error)
     })
   })
 

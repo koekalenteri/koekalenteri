@@ -14,6 +14,7 @@ import { Path } from '../../routeConfig'
 import { frozenInstant } from '../../test-utils/freezeClock'
 import { DataMemoryRouter, flushPromises, renderSuspended, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS } from '../../types/Stats'
+import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
 import EventBreakdownPage from './EventBreakdownPage'
 
@@ -48,9 +49,11 @@ const renderAsAdmin = () =>
     <ThemeProvider theme={theme}>
       <Provider initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
         <MemoryRouter>
-          <Suspense fallback={<div>loading...</div>}>
-            <EventBreakdownPage />
-          </Suspense>
+          <AppSnackbarProvider>
+            <Suspense fallback={<div>loading...</div>}>
+              <EventBreakdownPage />
+            </Suspense>
+          </AppSnackbarProvider>
         </MemoryRouter>
       </Provider>
     </ThemeProvider>
@@ -266,7 +269,35 @@ describe('EventBreakdownPage', () => {
     })
   })
 
-  it('reports a failed class download and lets the button be pressed again (KOE-1595)', async () => {
+  it('shows progress on the class download button while the file is worked out, and no notice after (KOE-1713)', async () => {
+    vi.mocked(getAllYearlyStats).mockResolvedValue(payload(undefined))
+    let answer: (rows: EventClassStatsRow[]) => void = () => {}
+    vi.mocked(getEventClassStats).mockReturnValueOnce(
+      new Promise((resolve) => {
+        answer = resolve
+      })
+    )
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+
+    await renderAsAdmin()
+    await flushPromises()
+    const button = await screen.findByRole('button', { name: 'stats.admin.eventClassStatsExport' })
+    await user.click(button)
+    await flushPromises()
+
+    expect(button).toBeDisabled()
+    expect(screen.getByRole('progressbar')).toBeInTheDocument()
+
+    answer([])
+    await flushPromises()
+
+    expect(downloadXlsx).toHaveBeenCalled()
+    expect(button).toBeEnabled()
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
+
+  it('reports a failed class download and lets the button be pressed again (KOE-1595, KOE-1713)', async () => {
     vi.mocked(getAllYearlyStats).mockResolvedValue(payload(undefined))
     const error = new Error('network down')
     vi.mocked(getEventClassStats).mockRejectedValueOnce(error)
@@ -279,6 +310,7 @@ describe('EventBreakdownPage', () => {
     await flushPromises()
 
     expect(reportError).toHaveBeenCalledWith(error)
+    expect(await screen.findByText('stats.admin.eventClassStatsFailed')).toBeInTheDocument()
     expect(downloadXlsx).not.toHaveBeenCalled()
     expect(button).toBeEnabled()
   })

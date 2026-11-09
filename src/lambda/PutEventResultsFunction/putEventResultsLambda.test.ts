@@ -4,6 +4,7 @@ import { vi } from 'vitest'
 import { httpError } from '../lib/lambda'
 import { answerRejections, asJsonRegistration } from '../test-utils/helpers'
 import { loggedLines } from '../test-utils/logs'
+import { registrationStore } from '../test-utils/registrationStore'
 
 const mockLambda = vi.fn((_name, fn) => answerRejections(fn, mockResponse))
 const mockResponse = vi.fn()
@@ -13,8 +14,12 @@ const mockAudit = vi.fn()
 const mockRegistrationAuditKey = vi.fn(({ eventId, id }: { eventId: string; id: string }) => `${eventId}:${id}`)
 const mockGetAuthorizedEvent = vi.fn()
 const mockGetEvent = vi.fn()
-const mockReadEventRegistrations = vi.fn()
-const mockUpdateRegistrationField = vi.fn()
+const registrations = registrationStore()
+const storeRows = registrations.store
+const mockReadEventRegistrations = vi.fn(registrations.readEventRegistrations)
+const mockReadRegistration = vi.fn(registrations.readRegistration)
+const mockWriteEventResult = vi.fn(registrations.writeEventResult)
+const mockWrittenResult = registrations.written
 const mockPublishRegistrationPatches = vi.fn()
 const mockPublishPublicStartList = vi.fn()
 
@@ -39,7 +44,8 @@ vi.doMock('../lib/eventAuth', () => ({ getAuthorizedEvent: mockGetAuthorizedEven
 vi.doMock('../lib/event', () => ({ getEvent: mockGetEvent }))
 vi.doMock('../lib/repositories/registrationRepository', () => ({
   readEventRegistrations: mockReadEventRegistrations,
-  updateRegistrationField: mockUpdateRegistrationField,
+  readRegistration: mockReadRegistration,
+  writeEventResult: mockWriteEventResult,
 }))
 // The real publishers run, their guard included (KOE-1583); the connection scan below them is the boundary.
 const mockQueryAdminConnections = vi.fn()
@@ -98,7 +104,7 @@ describe('putEventResultsLambda', () => {
     mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org-1'], user: { id: 'u1', name: 'Sihteeri' } })
     mockGetAuthorizedEvent.mockResolvedValue(nowtEvent)
     mockGetEvent.mockResolvedValue(nowtEvent)
-    mockReadEventRegistrations.mockResolvedValue([registration('reg-1'), registration('reg-2')])
+    storeRows([registration('reg-1'), registration('reg-2')])
     mockQueryAdminConnections.mockResolvedValue([])
     mockPublishRegistrationPatches.mockImplementation(actualActions.publishRegistrationPatches)
     mockPublishPublicStartList.mockImplementation(actualActions.publishPublicStartList)
@@ -110,7 +116,7 @@ describe('putEventResultsLambda', () => {
 
     await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
 
-    expect(mockUpdateRegistrationField).toHaveBeenCalledWith('event-1', 'reg-1', 'eventResult', expect.anything())
+    expect(mockWrittenResult).toHaveBeenCalledWith('event-1', 'reg-1', expect.anything())
     expect(mockResponse).toHaveBeenCalledWith(200, expect.anything(), expect.anything())
     expect(loggedLines(errorSpy)).toEqual([
       expect.objectContaining({ message: 'live push failed', publication: 'registration patches' }),
@@ -118,13 +124,16 @@ describe('putEventResultsLambda', () => {
     ])
   })
 
-  const savedResult = () => mockUpdateRegistrationField.mock.calls[0][3]
+  // What the save left stored for the dog, as the table holds it.
+  const savedResult = (id = 'reg-1') => registrations.resultOf(id)
 
   it('derives the totals and the result from the submitted scores', async () => {
     await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
 
-    expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
-    expect(mockUpdateRegistrationField).toHaveBeenCalledWith('event-1', 'reg-1', 'eventResult', expect.anything())
+    // As last written, or a second save right after the first reads as someone else's (KOE-1490).
+    expect(mockReadEventRegistrations).toHaveBeenCalledWith('event-1', true)
+    expect(mockWrittenResult).toHaveBeenCalledTimes(1)
+    expect(mockWrittenResult).toHaveBeenCalledWith('event-1', 'reg-1', expect.anything())
     expect(savedResult()).toMatchObject({
       maxPoints: 80,
       percentage: 81.25,
@@ -148,7 +157,7 @@ describe('putEventResultsLambda', () => {
       ...nowtEvent,
       rotations: [{ class: 'ALO', exercises: [{ parts: 2, stationId: 'post-1' }] }],
     })
-    mockReadEventRegistrations.mockResolvedValue([registration('reg-1', 'ALO')])
+    storeRows([registration('reg-1', 'ALO')])
 
     await putEventResultsLambda(
       apiEvent([
@@ -185,7 +194,7 @@ describe('putEventResultsLambda', () => {
         },
       ],
     })
-    mockReadEventRegistrations.mockResolvedValue([registration('reg-1', 'AVO', 3), registration('reg-2', 'AVO', 12)])
+    storeRows([registration('reg-1', 'AVO', 3), registration('reg-2', 'AVO', 12)])
 
     await putEventResultsLambda(
       apiEvent([
@@ -211,7 +220,7 @@ describe('putEventResultsLambda', () => {
   it('publishes the start list only after every result is written (KOE-1516)', async () => {
     // The published list's version is the time it was read, so it has to be read after the writes.
     const steps: string[] = []
-    mockUpdateRegistrationField.mockImplementation(async (_eventId: string, id: string) => {
+    mockWrittenResult.mockImplementation(async (_eventId: string, id: string) => {
       await Promise.resolve()
       steps.push(`write ${id}`)
     })
@@ -237,7 +246,7 @@ describe('putEventResultsLambda', () => {
       ])
     )
 
-    expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(2)
+    expect(mockWrittenResult).toHaveBeenCalledTimes(2)
     expect(mockPublishRegistrationPatches).toHaveBeenCalledTimes(1)
     expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
       'event-1',
@@ -271,7 +280,7 @@ describe('putEventResultsLambda', () => {
   })
 
   it('audits a changed result as a change', async () => {
-    mockReadEventRegistrations.mockResolvedValue([
+    storeRows([
       { ...registration('reg-1'), eventResult: { points: 40, result: 'AVO3', tasks: scores(10, 10, 10, 10) } },
     ])
 
@@ -289,10 +298,9 @@ describe('putEventResultsLambda', () => {
     const retirement = { cause: 'illness' as const }
     await putEventResultsLambda(apiEvent([{ eventResult: { retirement, tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
 
-    expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+    expect(mockWrittenResult).toHaveBeenCalledWith(
       'event-1',
       'reg-1',
-      'eventResult',
       expect.objectContaining({ maxPoints: 80, points: 65, result: 'AVO-', retirement })
     )
     expect(mockAudit).toHaveBeenCalledWith({
@@ -309,7 +317,7 @@ describe('putEventResultsLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(422, 'no results', expect.anything())
     // The event itself is read first — parsing validates against its round — but nothing is written.
     expect(mockReadEventRegistrations).not.toHaveBeenCalled()
-    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    expect(mockWrittenResult).not.toHaveBeenCalled()
   })
 
   it('strips fields the result schema does not know rather than storing them', async () => {
@@ -338,7 +346,7 @@ describe('putEventResultsLambda', () => {
       putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(30, 10, 10, 10) }, id: 'reg-1' }]))
     ).rejects.toThrow('out of range')
 
-    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    expect(mockWrittenResult).not.toHaveBeenCalled()
   })
 
   it.each([0, 1.5, '3'])('refuses a retirement exercise of %j', async (exercise) => {
@@ -353,12 +361,7 @@ describe('putEventResultsLambda', () => {
     const retirement = { cause: 'injury' as const, exercise: 3 }
     await putEventResultsLambda(apiEvent([{ eventResult: { retirement, tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
 
-    expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
-      'event-1',
-      'reg-1',
-      'eventResult',
-      expect.objectContaining({ retirement })
-    )
+    expect(mockWrittenResult).toHaveBeenCalledWith('event-1', 'reg-1', expect.objectContaining({ retirement }))
   })
 
   describe('where a round ended, by the way the type is scored (KOE-1665)', () => {
@@ -375,23 +378,21 @@ describe('putEventResultsLambda', () => {
         apiEvent([
           {
             eventResult: { elimination: { exercise: 2, fault: 'hardMouth', stationId: 'post-1' }, tasks: [] },
-            id: 'reg-1',
+            id: 'reg-2',
           },
         ])
       )
 
-      expect(mockUpdateRegistrationField).toHaveBeenNthCalledWith(
+      expect(mockWrittenResult).toHaveBeenNthCalledWith(
         1,
         'event-1',
         'reg-1',
-        'eventResult',
         expect.objectContaining({ retirement: { cause: 'injury', exercise: 3 } })
       )
-      expect(mockUpdateRegistrationField).toHaveBeenNthCalledWith(
+      expect(mockWrittenResult).toHaveBeenNthCalledWith(
         2,
         'event-1',
-        'reg-1',
-        'eventResult',
+        'reg-2',
         expect.objectContaining({ elimination: { exercise: 2, fault: 'hardMouth' } })
       )
     })
@@ -410,23 +411,21 @@ describe('putEventResultsLambda', () => {
         apiEvent([
           {
             eventResult: { elimination: { exercise: 2, fault: 'aggression', stationId: 'post-2' }, resultCode: '-' },
-            id: 'reg-1',
+            id: 'reg-2',
           },
         ])
       )
 
-      expect(mockUpdateRegistrationField).toHaveBeenNthCalledWith(
+      expect(mockWrittenResult).toHaveBeenNthCalledWith(
         1,
         'event-1',
         'reg-1',
-        'eventResult',
         expect.objectContaining({ retirement: { cause: 'judgeStopped', stationId: 'post-1' } })
       )
-      expect(mockUpdateRegistrationField).toHaveBeenNthCalledWith(
+      expect(mockWrittenResult).toHaveBeenNthCalledWith(
         2,
         'event-1',
-        'reg-1',
-        'eventResult',
+        'reg-2',
         expect.objectContaining({ elimination: { fault: 'aggression', stationId: 'post-2' } })
       )
     })
@@ -470,7 +469,7 @@ describe('putEventResultsLambda', () => {
     await expect(request).rejects.toMatchObject({ statusCode: 422 })
     await expect(request).rejects.toThrow(`Unknown zero fault '${zeroFault}'`)
 
-    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    expect(mockWrittenResult).not.toHaveBeenCalled()
   })
 
   it.each(['failedRetrieve', 'physicalContact'])('stores the §5.3.4 zero fault %s (KOE-1678)', async (zeroFault) => {
@@ -478,10 +477,9 @@ describe('putEventResultsLambda', () => {
       apiEvent([{ eventResult: { tasks: [{ exercise: 1, points: 0, zeroFault }] }, id: 'reg-1' }])
     )
 
-    expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+    expect(mockWrittenResult).toHaveBeenCalledWith(
       'event-1',
       'reg-1',
-      'eventResult',
       expect.objectContaining({ tasks: [expect.objectContaining({ points: 0, zeroFault })] })
     )
   })
@@ -495,7 +493,7 @@ describe('putEventResultsLambda', () => {
         )
       ).rejects.toThrow(`Unknown zero fault '${zeroFault}'`)
 
-      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockWrittenResult).not.toHaveBeenCalled()
     }
   )
 
@@ -506,7 +504,7 @@ describe('putEventResultsLambda', () => {
       )
     ).rejects.toThrow("Result code '2' is not taken for NOWT: its result is derived from the scores")
 
-    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    expect(mockWrittenResult).not.toHaveBeenCalled()
   })
 
   it('caps how many dogs one request may carry', async () => {
@@ -516,7 +514,7 @@ describe('putEventResultsLambda', () => {
     }))
 
     await expect(putEventResultsLambda(apiEvent(batch))).rejects.toThrow('Too many submissions')
-    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    expect(mockWrittenResult).not.toHaveBeenCalled()
   })
 
   it('refuses a result for a dog that is not in the event', async () => {
@@ -524,7 +522,7 @@ describe('putEventResultsLambda', () => {
       putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(20, 20, 20, 20) }, id: 'stranger' }]))
     ).rejects.toThrow("Registration 'stranger' not found")
 
-    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    expect(mockWrittenResult).not.toHaveBeenCalled()
   })
 
   it.each([
@@ -532,7 +530,7 @@ describe('putEventResultsLambda', () => {
     ['a dog that never got a place at all', { group: undefined }],
     ['an entry that was cancelled', { cancelled: true }],
   ])('refuses a result for %s', async (_case, state) => {
-    mockReadEventRegistrations.mockResolvedValue([{ ...registration('reg-1'), ...state }])
+    storeRows([{ ...registration('reg-1'), ...state }])
 
     // The views never offer these a row, so a submission naming one is a client working from a list
     // that has moved on. Believing it would attribute a round to a dog that did not run it.
@@ -540,7 +538,7 @@ describe('putEventResultsLambda', () => {
       putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(20, 20, 20, 20) }, id: 'reg-1' }]))
     ).rejects.toThrow("Registration 'reg-1' did not run")
 
-    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    expect(mockWrittenResult).not.toHaveBeenCalled()
     expect(mockAudit).not.toHaveBeenCalled()
   })
 
@@ -549,7 +547,7 @@ describe('putEventResultsLambda', () => {
 
     await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(20, 20, 20, 20) }, id: 'reg-1' }]))
 
-    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    expect(mockWrittenResult).not.toHaveBeenCalled()
     expect(mockPublishRegistrationPatches).not.toHaveBeenCalled()
   })
 
@@ -566,15 +564,13 @@ describe('putEventResultsLambda', () => {
 
     it('treats a resubmission of an already stored result as nothing new', async () => {
       // The venue's connection drops, the secretary saves again, and the first attempt had landed.
-      mockReadEventRegistrations.mockResolvedValue([
-        { ...registration('reg-1'), eventResult: stored('2026-09-12T10:00:00.000Z', 40) },
-      ])
+      storeRows([{ ...registration('reg-1'), eventResult: stored('2026-09-12T10:00:00.000Z', 40) }])
 
       await putEventResultsLambda(
         apiEvent([{ basedOn: undefined, eventResult: { tasks: scores(10, 10, 10, 10) }, id: 'reg-1' }])
       )
 
-      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockWrittenResult).not.toHaveBeenCalled()
       expect(mockPublishRegistrationPatches).not.toHaveBeenCalled()
       const [status, body] = mockResponse.mock.calls[0]
       expect(status).toBe(200)
@@ -584,9 +580,7 @@ describe('putEventResultsLambda', () => {
     })
 
     it('reports a conflict when someone else changed the result meanwhile', async () => {
-      mockReadEventRegistrations.mockResolvedValue([
-        { ...registration('reg-1'), eventResult: stored('2026-09-12T11:00:00.000Z', 80) },
-      ])
+      storeRows([{ ...registration('reg-1'), eventResult: stored('2026-09-12T11:00:00.000Z', 80) }])
 
       await putEventResultsLambda(
         apiEvent([
@@ -595,7 +589,7 @@ describe('putEventResultsLambda', () => {
         ])
       )
 
-      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockWrittenResult).not.toHaveBeenCalled()
 
       const [status, body] = mockResponse.mock.calls[0]
       expect(status).toBe(409)
@@ -608,7 +602,7 @@ describe('putEventResultsLambda', () => {
     })
 
     it('saves the dogs that do not conflict rather than losing the screenful', async () => {
-      mockReadEventRegistrations.mockResolvedValue([
+      storeRows([
         { ...registration('reg-1'), eventResult: stored('2026-09-12T11:00:00.000Z', 80) },
         registration('reg-2'),
       ])
@@ -620,8 +614,8 @@ describe('putEventResultsLambda', () => {
         ])
       )
 
-      expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
-      expect(mockUpdateRegistrationField).toHaveBeenCalledWith('event-1', 'reg-2', 'eventResult', expect.anything())
+      expect(mockWrittenResult).toHaveBeenCalledTimes(1)
+      expect(mockWrittenResult).toHaveBeenCalledWith('event-1', 'reg-2', expect.anything())
 
       const [, body] = mockResponse.mock.calls[0]
       expect(body.saved.map((item: { id: string }) => item.id)).toEqual(['reg-2'])
@@ -630,7 +624,7 @@ describe('putEventResultsLambda', () => {
 
     it('takes a stored reason away when the same zero comes back without one (KOE-1709)', async () => {
       const [first, ...rest] = scores(0, 10, 10, 10)
-      mockReadEventRegistrations.mockResolvedValue([
+      storeRows([
         {
           ...registration('reg-1'),
           eventResult: {
@@ -649,15 +643,13 @@ describe('putEventResultsLambda', () => {
     })
 
     it('accepts an edit made against the version that is actually stored', async () => {
-      mockReadEventRegistrations.mockResolvedValue([
-        { ...registration('reg-1'), eventResult: stored('2026-09-12T10:00:00.000Z', 40) },
-      ])
+      storeRows([{ ...registration('reg-1'), eventResult: stored('2026-09-12T10:00:00.000Z', 40) }])
 
       await putEventResultsLambda(
         apiEvent([{ basedOn: '2026-09-12T10:00:00.000Z', eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }])
       )
 
-      expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
+      expect(mockWrittenResult).toHaveBeenCalledTimes(1)
       const [status, body] = mockResponse.mock.calls[0]
       expect(status).toBe(200)
       expect(body.saved).toEqual([{ eventResult: expect.objectContaining({ points: 65 }), id: 'reg-1' }])
@@ -670,7 +662,7 @@ describe('putEventResultsLambda', () => {
 
     beforeEach(() => {
       mockGetAuthorizedEvent.mockResolvedValue(nomeB)
-      mockReadEventRegistrations.mockResolvedValue([
+      storeRows([
         {
           ...registration('reg-1', 'ALO'),
           eventResult: { judge, result: 'ALO1', updatedAt: '2026-09-12T10:00:00.000Z', updatedBy: 'Sihteeri' },
@@ -703,7 +695,7 @@ describe('putEventResultsLambda', () => {
       const [status, body] = mockResponse.mock.calls[0]
       expect(status).toBe(200)
       expect(body.unchanged.map((item: { id: string }) => item.id)).toEqual(['reg-1'])
-      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockWrittenResult).not.toHaveBeenCalled()
     })
 
     it("versions the post's save on the whole result, as the results page does", async () => {
@@ -715,7 +707,7 @@ describe('putEventResultsLambda', () => {
 
       const [status] = mockResponse.mock.calls[0]
       expect(status).toBe(409)
-      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockWrittenResult).not.toHaveBeenCalled()
     })
   })
 
@@ -730,7 +722,7 @@ describe('putEventResultsLambda', () => {
     })
 
     const withStored = (...tasks: ReturnType<typeof scoredAt>[]) =>
-      mockReadEventRegistrations.mockResolvedValue([
+      storeRows([
         {
           ...registration('reg-1'),
           eventResult: { tasks, updatedAt: '2026-09-12T10:00:00.000Z', updatedBy: 'Rasti 1' },
@@ -744,7 +736,7 @@ describe('putEventResultsLambda', () => {
         apiEvent([{ eventResult: { tasks: [{ exercise: 3, points: 18 }] }, id: 'reg-1', stationId: 'post-3' }])
       )
 
-      const stored = mockUpdateRegistrationField.mock.calls[0][3]
+      const stored = savedResult()
       expect(stored.tasks).toEqual([
         expect.objectContaining({ exercise: 1, points: 17 }),
         expect.objectContaining({ exercise: 3, part: 0, points: 18 }),
@@ -754,7 +746,7 @@ describe('putEventResultsLambda', () => {
 
     // The link's rule is the link's (KOE-1615): the secretary's post view may change any outcome.
     it("lets the secretary's post view change an outcome stored at another post", async () => {
-      mockReadEventRegistrations.mockResolvedValue([
+      storeRows([
         {
           ...registration('reg-1'),
           eventResult: {
@@ -788,7 +780,7 @@ describe('putEventResultsLambda', () => {
         apiEvent([{ eventResult: { tasks: [{ exercise: 1, points: 17 }] }, id: 'reg-1', stationId: 'post-1' }])
       )
 
-      expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
+      expect(mockWrittenResult).toHaveBeenCalledTimes(1)
       const [, body] = mockResponse.mock.calls[0]
       expect(body.saved.map((item: { id: string }) => item.id)).toEqual(['reg-1'])
       expect(body.conflicts).toEqual([])
@@ -808,7 +800,7 @@ describe('putEventResultsLambda', () => {
         ])
       )
 
-      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockWrittenResult).not.toHaveBeenCalled()
 
       const [status, body] = mockResponse.mock.calls[0]
       expect(status).toBe(409)
@@ -823,7 +815,7 @@ describe('putEventResultsLambda', () => {
         apiEvent([{ eventResult: { tasks: [{ exercise: 1, points: 17 }] }, id: 'reg-1', stationId: 'post-1' }])
       )
 
-      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockWrittenResult).not.toHaveBeenCalled()
       const [, body] = mockResponse.mock.calls[0]
       expect(body.unchanged.map((item: { id: string }) => item.id)).toEqual(['reg-1'])
     })
@@ -847,8 +839,8 @@ describe('putEventResultsLambda', () => {
         ])
       )
 
-      expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
-      expect(mockUpdateRegistrationField.mock.calls[0][3]).toMatchObject({
+      expect(mockWrittenResult).toHaveBeenCalledTimes(1)
+      expect(savedResult()).toMatchObject({
         elimination: { exercise: 1, fault: 'aggression' },
         result: 'AVO0',
       })
@@ -876,7 +868,7 @@ describe('putEventResultsLambda', () => {
 
       expect(mockResponse).toHaveBeenCalledWith(409, expect.objectContaining({ error: 'staleData' }), expect.anything())
 
-      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockWrittenResult).not.toHaveBeenCalled()
     })
   })
 
@@ -905,12 +897,12 @@ describe('putEventResultsLambda', () => {
     it('stores every post in one go', async () => {
       await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
 
-      expect(mockUpdateRegistrationField.mock.calls[0][3].tasks).toHaveLength(4)
-      expect(mockUpdateRegistrationField.mock.calls[0][3]).toMatchObject({ points: 65, result: 'AVO1' })
+      expect(savedResult().tasks).toHaveLength(4)
+      expect(savedResult()).toMatchObject({ points: 65, result: 'AVO1' })
     })
 
     it('builds on what a post already recorded, when working from the current version', async () => {
-      mockReadEventRegistrations.mockResolvedValue([
+      storeRows([
         {
           ...registration('reg-1'),
           eventResult: {
@@ -925,12 +917,12 @@ describe('putEventResultsLambda', () => {
         apiEvent([{ basedOn: '2026-09-12T10:00:00.000Z', eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }])
       )
 
-      expect(mockUpdateRegistrationField.mock.calls[0][3]).toMatchObject({ points: 65, result: 'AVO1' })
+      expect(savedResult()).toMatchObject({ points: 65, result: 'AVO1' })
     })
 
     it('will not silently overwrite a post it never saw', async () => {
       // A stale page believing nothing was stored must not wipe the post someone entered meanwhile.
-      mockReadEventRegistrations.mockResolvedValue([
+      storeRows([
         {
           ...registration('reg-1'),
           eventResult: {
@@ -943,7 +935,7 @@ describe('putEventResultsLambda', () => {
 
       await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(1, 1, 1, 1) }, id: 'reg-1' }]))
 
-      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockWrittenResult).not.toHaveBeenCalled()
       expect(mockResponse.mock.calls[0][0]).toBe(409)
     })
 
@@ -951,9 +943,9 @@ describe('putEventResultsLambda', () => {
       // Whole round first, then one post rescored on its own.
       await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
 
-      const afterRound = mockUpdateRegistrationField.mock.calls[0][3]
-      mockReadEventRegistrations.mockResolvedValue([{ ...registration('reg-1'), eventResult: afterRound }])
-      mockUpdateRegistrationField.mockClear()
+      const afterRound = savedResult()
+      storeRows([{ ...registration('reg-1'), eventResult: afterRound }])
+      mockWrittenResult.mockClear()
 
       await putEventResultsLambda(
         apiEvent([
@@ -966,7 +958,7 @@ describe('putEventResultsLambda', () => {
         ])
       )
 
-      const afterPost = mockUpdateRegistrationField.mock.calls[0][3]
+      const afterPost = savedResult()
       expect(afterPost.tasks).toHaveLength(4)
       expect(afterPost.points).toBe(69)
     })
@@ -985,10 +977,8 @@ describe('putEventResultsLambda', () => {
         (task: { exercise: number }) => task.exercise === 2
       ).updatedAt
 
-      mockReadEventRegistrations.mockResolvedValue([
-        { ...registration('reg-1'), eventResult: first.saved[0].eventResult },
-      ])
-      mockUpdateRegistrationField.mockClear()
+      storeRows([{ ...registration('reg-1'), eventResult: first.saved[0].eventResult }])
+      mockWrittenResult.mockClear()
       mockResponse.mockClear()
 
       await putEventResultsLambda(
@@ -1003,7 +993,7 @@ describe('putEventResultsLambda', () => {
       )
 
       expect(mockResponse.mock.calls[0][0]).toBe(200)
-      expect(mockUpdateRegistrationField.mock.calls[0][3].points).toBe(15)
+      expect(savedResult().points).toBe(15)
     })
 
     it('records a pass or fail for an event type with no posts at all', async () => {
@@ -1012,11 +1002,11 @@ describe('putEventResultsLambda', () => {
         eventType: 'NOU',
         organizer: { id: 'org-1', name: 'Org' },
       })
-      mockReadEventRegistrations.mockResolvedValue([{ ...registration('reg-1'), class: undefined }])
+      storeRows([{ ...registration('reg-1'), class: undefined }])
 
       await putEventResultsLambda(apiEvent([{ eventResult: { resultCode: '1' }, id: 'reg-1' }]))
 
-      expect(mockUpdateRegistrationField.mock.calls[0][3]).toMatchObject({ result: 'NOU1' })
+      expect(savedResult()).toMatchObject({ result: 'NOU1' })
     })
 
     it('stores a NOME-A result with its prefix and audits it as Kennelliitto lists it (KOE-1592)', async () => {
@@ -1025,16 +1015,11 @@ describe('putEventResultsLambda', () => {
         eventType: 'NOME-A',
         organizer: { id: 'org-1', name: 'Org' },
       })
-      mockReadEventRegistrations.mockResolvedValue([{ ...registration('reg-1'), class: undefined }])
+      storeRows([{ ...registration('reg-1'), class: undefined }])
 
       await putEventResultsLambda(apiEvent([{ eventResult: { resultCode: '1' }, id: 'reg-1' }]))
 
-      expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
-        'event-1',
-        'reg-1',
-        'eventResult',
-        expect.objectContaining({ result: 'NOME-A1' })
-      )
+      expect(mockWrittenResult).toHaveBeenCalledWith('event-1', 'reg-1', expect.objectContaining({ result: 'NOME-A1' }))
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'event-1:reg-1',
         messageKey: 'audit.messages.resultSavedDetail',
@@ -1049,14 +1034,14 @@ describe('putEventResultsLambda', () => {
         eventType: 'NOU',
         organizer: { id: 'org-1', name: 'Org' },
       })
-      mockReadEventRegistrations.mockResolvedValue([{ ...registration('reg-1'), class: undefined }])
+      storeRows([{ ...registration('reg-1'), class: undefined }])
 
       // A pass/fail test has no prizes: a '2' can only be a client working from the wrong alphabet.
       await expect(
         putEventResultsLambda(apiEvent([{ eventResult: { resultCode: '2' }, id: 'reg-1' }]))
       ).rejects.toThrow("Result code '2' is not valid for NOU")
 
-      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockWrittenResult).not.toHaveBeenCalled()
     })
 
     // KOE-1718: an unofficial trial that follows NOU is judged pass or fail, and its result is spelled NOU1.
@@ -1068,20 +1053,13 @@ describe('putEventResultsLambda', () => {
           officialFormat: 'NOU',
           organizer: { id: 'org-1', name: 'Org' },
         })
-        mockReadEventRegistrations.mockResolvedValue([
-          { ...registration('reg-1'), class: undefined, eventType: 'NOU-harjoitus' },
-        ])
+        storeRows([{ ...registration('reg-1'), class: undefined, eventType: 'NOU-harjoitus' }])
       })
 
       it('stores the pass spelled by the type it follows', async () => {
         await putEventResultsLambda(apiEvent([{ eventResult: { resultCode: '1' }, id: 'reg-1' }]))
 
-        expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
-          'event-1',
-          'reg-1',
-          'eventResult',
-          expect.objectContaining({ result: 'NOU1' })
-        )
+        expect(mockWrittenResult).toHaveBeenCalledWith('event-1', 'reg-1', expect.objectContaining({ result: 'NOU1' }))
       })
 
       it('refuses a prize the type it follows cannot award', async () => {
@@ -1089,7 +1067,7 @@ describe('putEventResultsLambda', () => {
           putEventResultsLambda(apiEvent([{ eventResult: { resultCode: '2' }, id: 'reg-1' }]))
         ).rejects.toThrow("Result code '2' is not valid for NOU")
 
-        expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+        expect(mockWrittenResult).not.toHaveBeenCalled()
       })
     })
   })
@@ -1102,10 +1080,9 @@ describe('putEventResultsLambda', () => {
 
     // Which post threw the dog out is worth knowing, and it is lost the moment only the fault is kept. A
     // round that ended early keeps what a post had already scored, as every ended round does (KOE-1669).
-    expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+    expect(mockWrittenResult).toHaveBeenCalledWith(
       'event-1',
       'reg-1',
-      'eventResult',
       expect.objectContaining({ elimination, points: 17, result: 'AVO0' })
     )
   })
@@ -1139,12 +1116,12 @@ describe('putEventResultsLambda', () => {
         expect.objectContaining({ error: 'resultsLocked' }),
         expect.anything()
       )
-      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockWrittenResult).not.toHaveBeenCalled()
     })
 
     it('refuses a disputed save too, as locked rather than as a conflict', async () => {
       mockGetEvent.mockResolvedValue(handedOver)
-      mockReadEventRegistrations.mockResolvedValue([{ ...registration('reg-1'), eventResult: stored }])
+      storeRows([{ ...registration('reg-1'), eventResult: stored }])
 
       await putEventResultsLambda(
         apiEvent([{ basedOn: '2026-09-12T09:00:00.000Z', eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }])
@@ -1159,7 +1136,7 @@ describe('putEventResultsLambda', () => {
 
     it('still answers a retry of a save that already landed', async () => {
       mockGetEvent.mockResolvedValue(handedOver)
-      mockReadEventRegistrations.mockResolvedValue([{ ...registration('reg-1'), eventResult: stored }])
+      storeRows([{ ...registration('reg-1'), eventResult: stored }])
 
       await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(10, 10, 10, 10) }, id: 'reg-1' }]))
 
@@ -1177,8 +1154,8 @@ describe('putEventResultsLambda', () => {
         ])
       )
 
-      expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
-      expect(mockUpdateRegistrationField).toHaveBeenCalledWith('event-1', 'reg-1', 'eventResult', expect.anything())
+      expect(mockWrittenResult).toHaveBeenCalledTimes(1)
+      expect(mockWrittenResult).toHaveBeenCalledWith('event-1', 'reg-1', expect.anything())
       expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
         'event-1',
         [expect.objectContaining({ id: 'reg-1' })],
@@ -1212,7 +1189,7 @@ describe('putEventResultsLambda', () => {
         )
       ).rejects.toThrow("Registration 'stranger' not found")
 
-      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockWrittenResult).not.toHaveBeenCalled()
     })
 
     it('refuses a finished trial the same way', async () => {
@@ -1232,7 +1209,7 @@ describe('putEventResultsLambda', () => {
 
       await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(17, 18, 16, 14) }, id: 'reg-1' }]))
 
-      expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
+      expect(mockWrittenResult).toHaveBeenCalledTimes(1)
     })
 
     it('reads the lock as last written', async () => {
@@ -1257,9 +1234,9 @@ describe('putEventResultsLambda', () => {
     const unstamped = (...tasks: { exercise: number; part: number; points: number | null }[]) =>
       tasks.map(({ exercise, part, points }) => ({ exercise, part, points }))
     const storedWith = (eventResult: object, number = 1) => {
-      mockUpdateRegistrationField.mockClear()
+      mockWrittenResult.mockClear()
       mockResponse.mockClear()
-      mockReadEventRegistrations.mockResolvedValue([
+      storeRows([
         {
           ...registration('reg-1', 'AVO', number),
           eventResult: { updatedAt: second, updatedBy: 'Sihteeri', ...eventResult },
@@ -1268,7 +1245,7 @@ describe('putEventResultsLambda', () => {
     }
     const save = (submission: object) => putEventResultsLambda(apiEvent([{ id: 'reg-1', ...submission }]))
     const expectConflict = () => {
-      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockWrittenResult).not.toHaveBeenCalled()
       expect(mockResponse).toHaveBeenCalledWith(
         409,
         expect.objectContaining({ error: 'resultConflict' }),
@@ -1315,7 +1292,7 @@ describe('putEventResultsLambda', () => {
         stationId: 'post-1',
       })
 
-      expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
+      expect(mockWrittenResult).toHaveBeenCalledTimes(1)
       expect(savedResult().tasks).toEqual(
         expect.arrayContaining([
           expect.objectContaining({ exercise: 1, points: 18 }),
@@ -1349,7 +1326,7 @@ describe('putEventResultsLambda', () => {
         stationId: 'post-1',
       })
 
-      expect(mockUpdateRegistrationField).toHaveBeenCalledTimes(1)
+      expect(mockWrittenResult).toHaveBeenCalledTimes(1)
     })
 
     it('still gives a post a conflict when a whole-round save did change its score', async () => {

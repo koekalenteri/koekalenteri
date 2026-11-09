@@ -2,7 +2,7 @@ import type { JsonConfirmedEvent } from '../../types'
 import { formatTypeOf } from '../../lib/event'
 import { stationExercises } from '../../lib/resultTasks'
 import { getLiveEvent } from '../lib/event'
-import { parseSubmissions, processResultSubmissions, stationScopedSubmission } from '../lib/eventResults'
+import { parseSubmissions, processResultSubmissions } from '../lib/eventResults'
 import { getParam, httpError, lambda, response } from '../lib/lambda'
 import { readEventRegistrations } from '../lib/repositories/registrationRepository'
 import { authorizeStationEntry, scopeResultToStation } from '../lib/stationEntry'
@@ -21,20 +21,19 @@ const putStationEntryLambda = lambda('putStationEntry', async (event) => {
   const confirmedEvent = await getLiveEvent<JsonConfirmedEvent>(eventId)
   const station = authorizeStationEntry(event, eventId, confirmedEvent, stationId)
 
-  const parsed = parseSubmissions(event.body, confirmedEvent)
-  if (parsed.length === 0) throw httpError(422, 'no results')
+  const submissions = parseSubmissions(event.body, confirmedEvent)
+  if (submissions.length === 0) throw httpError(422, 'no results')
 
-  const registrations = await readEventRegistrations(eventId)
+  // As last written, as on the event secretary's endpoint (KOE-1490).
+  const registrations = await readEventRegistrations(eventId, true)
   const registrationOf = (id: string) => registrations.find((item) => item.id === id)
-  const submissions = parsed.map((submission) =>
-    stationScopedSubmission(submission, stationId, confirmedEvent, registrationOf(submission.id))
-  )
   const { conflicts, locked, patches, saved, unchanged } = await processResultSubmissions(
     eventId,
     confirmedEvent,
     registrations,
     submissions,
-    `Suorituspaikka ${station.number}`
+    `Suorituspaikka ${station.number}`,
+    stationId
   )
 
   // The post stays open after the results are published, so a score corrected here must reach open

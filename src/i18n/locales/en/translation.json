@@ -1528,6 +1528,7 @@
       "eventClassStatsDays": "Class days",
       "eventClassStatsEntries": "Entries",
       "eventClassStatsExport": "Download trials by class",
+      "eventClassStatsFailed": "Downloading the trials by class failed. Try again in a moment.",
       "eventClassStatsPaid": "Paid in total",
       "eventClassStatsPickedFromReserve": "Picked from reserve",
       "eventClassStatsPlaces": "Places in class",
