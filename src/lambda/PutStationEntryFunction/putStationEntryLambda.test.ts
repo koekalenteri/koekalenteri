@@ -508,7 +508,7 @@ describe('putStationEntryLambda', () => {
 
       await expect(request).rejects.toMatchObject({ statusCode: 422 })
       await expect(request).rejects.toThrow('Task exercise 1#0 is sent twice')
-      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockWriteEventResult).not.toHaveBeenCalled()
       expect(mockAudit).not.toHaveBeenCalled()
     })
 
@@ -518,7 +518,7 @@ describe('putStationEntryLambda', () => {
       await expect(putStationEntryLambda(apiEvent([{ eventResult: { tasks }, id: 'reg-1' }]))).rejects.toMatchObject({
         statusCode: 422,
       })
-      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockWriteEventResult).not.toHaveBeenCalled()
       expect(mockAudit).not.toHaveBeenCalled()
     })
 
@@ -543,7 +543,7 @@ describe('putStationEntryLambda', () => {
 
       await expect(request).rejects.toMatchObject({ statusCode: 422 })
       await expect(request).rejects.toThrow('Tasks are not taken for NOME-B')
-      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockWriteEventResult).not.toHaveBeenCalled()
       expect(mockAudit).not.toHaveBeenCalled()
     })
 
@@ -557,7 +557,7 @@ describe('putStationEntryLambda', () => {
 
       await expect(request).rejects.toMatchObject({ statusCode: 422 })
       await expect(request).rejects.toThrow("Registration 'reg-1' is sent twice")
-      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockWriteEventResult).not.toHaveBeenCalled()
       expect(mockAudit).not.toHaveBeenCalled()
     })
   })
