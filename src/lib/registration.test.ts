@@ -15,6 +15,7 @@ import i18n from 'i18next'
 import { eventWithStaticDates } from '../__mockData__/events'
 import { registrationWithStaticDates } from '../__mockData__/registrations'
 import { legacyDayValue } from '../test-utils/finnishDays'
+import { compareRegistrationClasses } from './event'
 import { getPaymentPicture } from './payment'
 import { PRIORITY_INVITED, PRIORITY_MEMBER, PRIORIZED_BREED_CODES } from './priority'
 import {
@@ -45,7 +46,6 @@ import {
   hasInvalidRegistrationArrayFields,
   hasPriority,
   hasRefundableBalance,
-  inRegistrationOrder,
   isAdminRegistrationOperationField,
   isCompleteRegistration,
   isFinishedEntry,
@@ -66,13 +66,13 @@ import {
   priorityDescriptionKey,
   REGISTRATION_MONEY_FIELDS,
   registrationActor,
+  registrationSort,
   resolveInvitationRead,
   resolveOwnerPerson,
   resolveOwnerSelection,
   selectsSomeoneElse,
   shouldSendInvitationAfterPayment,
   shouldSendInvitationToRegistration,
-  sortRegistrationsByDateClassTimeAndNumber,
   withoutAdminProtectedFields,
   withoutParticipantResponses,
   withoutRegistrationMoney,
@@ -616,7 +616,9 @@ describe('lib/registration', () => {
     })
   })
 
-  describe('sortRegistrationsByDateClassTimeAndNumber', () => {
+  describe('registrationSort', () => {
+    const byDayClassTimeAndNumber = registrationSort(compareRegistrationClasses)
+
     it('sorts hydrated registrations and leaves reserves last', () => {
       const firstDate = '2026-08-08' as const
       const secondDate = '2026-08-09' as const
@@ -654,7 +656,7 @@ describe('lib/registration', () => {
         },
       ]
 
-      regs.sort(sortRegistrationsByDateClassTimeAndNumber)
+      regs.sort(byDayClassTimeAndNumber)
 
       expect(regs.map(({ id }) => id)).toEqual([
         'first-ap-1',
@@ -690,7 +692,7 @@ describe('lib/registration', () => {
         },
       ]
 
-      regs.sort(sortRegistrationsByDateClassTimeAndNumber)
+      regs.sort(byDayClassTimeAndNumber)
 
       expect(regs.map(({ id }) => id)).toEqual(['alo-key', 'avo-instant', 'alo-next-day'])
     })
@@ -708,7 +710,7 @@ describe('lib/registration', () => {
         { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 23, time: 'ip' } },
         { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 24, time: 'ip' } },
       ]
-      regs.sort(sortRegistrationsByDateClassTimeAndNumber)
+      regs.sort(byDayClassTimeAndNumber)
       expect(regs.map((r) => r.group?.number)).toEqual([19, 20, 22, 23, 23.5, 24])
     })
 
@@ -727,64 +729,8 @@ describe('lib/registration', () => {
         { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 23, time: 'ip' } },
         { group: { date: legacyDayValue('2024-08-02T21:00:00.000Z'), key: '2024-08-02-ip', number: 24, time: 'ip' } },
       ]
-      regs2.sort(sortRegistrationsByDateClassTimeAndNumber)
+      regs2.sort(byDayClassTimeAndNumber)
       expect(regs2.map((r) => r.group?.number)).toEqual([19, 20, 22, 23, 23.5, 24])
-    })
-  })
-
-  describe('inRegistrationOrder (KOE-1652)', () => {
-    const placed = (id: string, eventClass: string, number: number, extra: Partial<SortableRegistration> = {}) => ({
-      class: eventClass,
-      group: { date: '2026-08-08' as const, key: 'ap', number, time: 'ap' as const },
-      id,
-      ...extra,
-    })
-    const report = (id: string) => ({ id, name: `Koira ${id}` })
-
-    it('puts the items in the order of the start list: day, class, time and number', () => {
-      const registrations = [
-        placed('avo', 'AVO', 1),
-        placed('alo-2', 'ALO', 3),
-        placed('alo-ip', 'ALO', 5, { group: { date: '2026-08-08', key: 'ip', number: 0, time: 'ip' } }),
-        placed('alo-1', 'ALO', 2),
-        placed('next-day', 'ALO', 4, { group: { date: '2026-08-09', key: 'ap', number: 4, time: 'ap' } }),
-      ]
-
-      const ordered = inRegistrationOrder(['next-day', 'avo', 'alo-ip', 'alo-2', 'alo-1'].map(report), registrations)
-
-      expect(ordered.map(({ id }) => id)).toEqual(['alo-1', 'alo-2', 'alo-ip', 'avo', 'next-day'])
-    })
-
-    it('reads the drawn number over the working order, as the start list does', () => {
-      const registrations = [
-        placed('first', 'ALO', 1, { startGroup: { date: '2026-08-08', key: 'ap', number: 2, time: 'ap' } }),
-        placed('second', 'ALO', 2, { startGroup: { date: '2026-08-08', key: 'ap', number: 1, time: 'ap' } }),
-      ]
-
-      const ordered = inRegistrationOrder([report('first'), report('second')], registrations)
-
-      expect(ordered.map(({ id }) => id)).toEqual(['second', 'first'])
-    })
-
-    it('puts items not on the list last, in the order they came in', () => {
-      const ordered = inRegistrationOrder(
-        [report('gone-b'), report('on-list'), report('gone-a')],
-        [placed('on-list', 'ALO', 1)]
-      )
-
-      expect(ordered.map(({ id }) => id)).toEqual(['on-list', 'gone-b', 'gone-a'])
-    })
-
-    it('leaves the items it is given as they were', () => {
-      const items = [report('b'), report('a')]
-
-      inRegistrationOrder(items, [placed('a', 'ALO', 1), placed('b', 'ALO', 2)])
-
-      expect(items.map(({ id }) => id)).toEqual(['b', 'a'])
-    })
-
-    it('answers nothing for nothing', () => {
-      expect(inRegistrationOrder([], [placed('a', 'ALO', 1)])).toEqual([])
     })
   })
 

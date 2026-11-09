@@ -13,6 +13,7 @@ import type {
   JsonDogEvent,
   JsonPublicDogEvent,
   Language,
+  OwnClass,
   Patch,
   PublicDogEvent,
   RegistrationClass,
@@ -290,15 +291,20 @@ export const eventDates = (event?: Pick<PublicDogEvent, 'classes' | 'startDate' 
   return classes.length ? unique(classes.map((eventClass) => eventClass.date ?? event.startDate)) : getEventDays(event)
 }
 
-const REG_CLASS_ORDER: readonly string[] = ['ALO', 'AVO', 'VOI']
+/** The official classes in their order, lowest first: the one copy of it (KOE-674). */
+const OFFICIAL_CLASS_ORDER: readonly RegistrationClass[] = ['ALO', 'AVO', 'VOI']
+
+/** An official class's place in the official order, lowest first; -1 for any other key. */
+export const officialClassPlace = (key: string | null | undefined): number =>
+  OFFICIAL_CLASS_ORDER.findIndex((officialClass) => officialClass === key)
 
 /** Standard class order: ALO, AVO, VOI first, anything else (e.g. a classless event type) after them. */
 export const compareRegistrationClasses = (a: string | undefined, b: string | undefined): number => {
   if (a === b) return 0
   if (a === undefined) return 1
   if (b === undefined) return -1
-  const aIndex = REG_CLASS_ORDER.indexOf(a)
-  const bIndex = REG_CLASS_ORDER.indexOf(b)
+  const aIndex = officialClassPlace(a)
+  const bIndex = officialClassPlace(b)
   if (aIndex !== bIndex) {
     if (aIndex === -1) return 1
     if (bIndex === -1) return -1
@@ -307,16 +313,35 @@ export const compareRegistrationClasses = (a: string | undefined, b: string | un
   return a.localeCompare(b, 'fi')
 }
 
+/** What the class order reads of an event: the own classes an unofficial event lists, in their order. */
+export type ClassOrderOwner = { ownClasses?: readonly Partial<Pick<OwnClass, 'code'>>[] | null }
+
 /**
- * The event's classes, each once, as ALO, AVO, VOI: `event.classes` keeps the order they were picked
- * in, and a trial of several days the form's date-first order (KOE-1596). Only `class` is read, so this
- * accepts both the `Date`- and `string`-dated event shapes.
+ * The order of an event's classes (KOE-674): its own classes as the secretary listed them, then the
+ * rest in the official order, ALO, AVO, VOI, and anything else after them. The one class order of
+ * every view (`uniqueClasses`, `registrationOrder`); the reserve numbering keeps its own, so a reorder
+ * never renumbers (`normalizeRegistrationGroups`).
  */
-export const uniqueClasses = (event?: { classes?: Array<Pick<EventClass, 'class'>> | null } | null) => {
+export const classOrder = (event: ClassOrderOwner | null | undefined) => {
+  const codes = (event?.ownClasses ?? []).map(({ code }) => code)
+  const place = (key: string | undefined) => {
+    const index = key === undefined ? -1 : codes.indexOf(key)
+    return index === -1 ? codes.length : index
+  }
+  return (a: string | undefined, b: string | undefined): number =>
+    place(a) - place(b) || compareRegistrationClasses(a, b)
+}
+
+/**
+ * The event's classes, each once, in the event's order (`classOrder`): `event.classes` keeps the order
+ * they were picked in, and a trial of several days the form's date-first order (KOE-1596). Only `class`
+ * is read, so this accepts both the `Date`- and `string`-dated event shapes.
+ */
+export const uniqueClasses = (
+  event?: ({ classes?: Array<Pick<EventClass, 'class'>> | null } & ClassOrderOwner) | null
+) => {
   const classes = event?.classes
-  return Array.isArray(classes)
-    ? unique(classes.map((eventClass) => eventClass.class)).sort(compareRegistrationClasses)
-    : []
+  return Array.isArray(classes) ? unique(classes.map((eventClass) => eventClass.class)).sort(classOrder(event)) : []
 }
 
 const classAndDayTotals = (

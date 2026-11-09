@@ -33,15 +33,12 @@ import { reportError } from '../../lib/client/error'
 import { resultConflictResponse } from '../../lib/client/resultConflict'
 import { errorSnackbarOptions } from '../../lib/client/snackbar'
 import { formatTypeOf, UNLOADED_EVENT } from '../../lib/event'
+import { registrationOrder } from '../../lib/eventClass'
 import { liveViewEnabled } from '../../lib/features'
 import { makeArray } from '../../lib/judge'
 import { countSentResults, kcResultBadges } from '../../lib/kennelliittoResults'
 import { IMPLICIT_STATION_ID, liveFormat, scoresAtPosts } from '../../lib/liveFormat'
-import {
-  getRegistrationClass,
-  isScorableRegistration,
-  sortRegistrationsByDateClassTimeAndNumber,
-} from '../../lib/registration'
+import { getRegistrationClass, isScorableRegistration } from '../../lib/registration'
 import { placementsFor } from '../../lib/results'
 import { dogRound, editVersion, exercisePostsOf, exercisesAtPost, roundColumns } from '../../lib/resultTasks'
 import { dayStations, rotationDogOf } from '../../lib/rotation'
@@ -116,18 +113,16 @@ export default function EventResultsPage() {
   // survive a day switch, so a disputed dog may no longer be on screen when the answer comes back.
   const classRegistrations = useMemo(
     () =>
-      scorable
-        .filter((reg) => getRegistrationClass(reg, formatOwner) === eventClass)
-        .sort(sortRegistrationsByDateClassTimeAndNumber),
-    [eventClass, formatOwner, scorable]
+      scorable.filter((reg) => getRegistrationClass(reg, formatOwner) === eventClass).sort(registrationOrder(event)),
+    [eventClass, formatOwner, scorable, event]
   )
 
   const rows = useMemo(
     () =>
       dayRegistrations
         .filter((reg) => getRegistrationClass(reg, formatOwner) === eventClass)
-        .sort(sortRegistrationsByDateClassTimeAndNumber),
-    [dayRegistrations, eventClass, formatOwner]
+        .sort(registrationOrder(event)),
+    [dayRegistrations, eventClass, formatOwner, event]
   )
 
   // The posts of the day on screen: a dog's round is made of its own day's posts (KOE-1665), so another

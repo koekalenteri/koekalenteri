@@ -21,6 +21,7 @@ import { reportError } from '../../lib/client/error'
 import { downloadXlsx } from '../../lib/client/xlsx'
 import { breedAbbreviation, formatDogName } from '../../lib/dog'
 import {
+  classOrder,
   eventRegistrationDateKey,
   isStartListAvailableForClass,
   isStartListAvailableForRegistration,
@@ -390,11 +391,13 @@ function getStartListItems(participants: PublicRegistration[], event: PublicConf
     return [{ date, eventClass, order: participants.length + order, type: 'emptyClass' }]
   })
 
+  // The classes of a day in the event's order: its own classes as listed, else ALO, AVO, VOI (KOE-674).
+  const byClass = classOrder(event)
   return registrations.concat(emptyClasses).sort((a, b) => {
     const dateDiff = startListDateKey(a.date).localeCompare(startListDateKey(b.date))
     if (dateDiff) return dateDiff
 
-    const classDiff = startListItemClass(a).localeCompare(startListItemClass(b))
+    const classDiff = byClass(startListItemClass(a), startListItemClass(b))
     if (classDiff) return classDiff
 
     const timeDiff = startListItemTime(a).localeCompare(startListItemTime(b))

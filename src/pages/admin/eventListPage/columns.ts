@@ -11,14 +11,15 @@ type StartEndDate = { start: DayKey; end: DayKey }
 export const compareByStartDayLatestFirst = (a: StartEndDate, b: StartEndDate) => b.start.localeCompare(a.start)
 
 /**
- * The classes column: each class once, as ALO, AVO, VOI, whatever order they were picked in and however
- * many days they run on (KOE-1596). An event saved by the first versions holds the class names as plain
+ * The classes column: each class once, in the event's order (`classOrder`: its own classes as listed,
+ * else ALO, AVO, VOI, KOE-674), whatever order they were picked in and however many days they run on
+ * (KOE-1596). An event saved by the first versions holds the class names as plain
  * strings, and a malformed one no array at all.
  */
-export const classesText = (classes: unknown): string => {
+export const classesText = (classes: unknown, ownClasses?: DogEvent['ownClasses']): string => {
   if (!Array.isArray(classes)) return ''
   const items = classes.map((c) => (typeof c === 'string' ? { class: c } : c))
-  return uniqueClasses({ classes: items }).join(', ')
+  return uniqueClasses({ classes: items, ownClasses }).join(', ')
 }
 
 type EventWithDate = DogEvent & {
@@ -53,7 +54,7 @@ export default function useEventListColumns(): GridColDef<EventWithDate>[] {
       flex: 1,
       headerName: t('event.classes'),
       minWidth: 100,
-      valueGetter: (_value, row) => classesText(row.classes),
+      valueGetter: (_value, row) => classesText(row.classes, row.ownClasses),
     },
     {
       field: 'organizer',

@@ -1,5 +1,7 @@
-import type { OwnClass } from '../types'
-import { classLabel, classOrder, isEventClass, ownClassErrors, registrationOrder } from './eventClass'
+import type { DayKey, OwnClass } from '../types'
+import type { SortableRegistration } from './registration'
+import { classOrder } from './event'
+import { classLabel, inRegistrationOrder, isEventClass, ownClassErrors, registrationOrder } from './eventClass'
 
 // KOE-674: an unofficial event may run classes of its own, named and ordered by the secretary.
 const derby: OwnClass = { code: 'DERBY', name: { en: 'Derby', fi: 'Derby' } }
@@ -143,7 +145,7 @@ describe('classOrder', () => {
 
 // KOE-674: the entries of one day are listed class by class in the event's own order.
 describe('registrationOrder', () => {
-  const entry = (eventClass: string, number: number, date = '2026-08-01' as const) => ({
+  const entry = (eventClass: string, number: number, date: DayKey = '2026-08-01') => ({
     class: eventClass,
     group: { date, key: `${date}-ap`, number, time: 'ap' as const },
   })
@@ -167,6 +169,71 @@ describe('registrationOrder', () => {
       'AVO',
       'VOI',
     ])
+  })
+})
+
+describe('inRegistrationOrder (KOE-1652)', () => {
+  const placed = (id: string, eventClass: string, number: number, extra: Partial<SortableRegistration> = {}) => ({
+    class: eventClass,
+    group: { date: '2026-08-08' as const, key: 'ap', number, time: 'ap' as const },
+    id,
+    ...extra,
+  })
+  const report = (id: string) => ({ id, name: `Koira ${id}` })
+
+  it('puts the items in the order of the start list: day, class, time and number', () => {
+    const registrations = [
+      placed('avo', 'AVO', 1),
+      placed('alo-2', 'ALO', 3),
+      placed('alo-ip', 'ALO', 5, { group: { date: '2026-08-08', key: 'ip', number: 0, time: 'ip' } }),
+      placed('alo-1', 'ALO', 2),
+      placed('next-day', 'ALO', 4, { group: { date: '2026-08-09', key: 'ap', number: 4, time: 'ap' } }),
+    ]
+
+    const ordered = inRegistrationOrder(['next-day', 'avo', 'alo-ip', 'alo-2', 'alo-1'].map(report), registrations, {})
+
+    expect(ordered.map(({ id }) => id)).toEqual(['alo-1', 'alo-2', 'alo-ip', 'avo', 'next-day'])
+  })
+
+  it('reads the drawn number over the working order, as the start list does', () => {
+    const registrations = [
+      placed('first', 'ALO', 1, { startGroup: { date: '2026-08-08', key: 'ap', number: 2, time: 'ap' } }),
+      placed('second', 'ALO', 2, { startGroup: { date: '2026-08-08', key: 'ap', number: 1, time: 'ap' } }),
+    ]
+
+    const ordered = inRegistrationOrder([report('first'), report('second')], registrations, {})
+
+    expect(ordered.map(({ id }) => id)).toEqual(['second', 'first'])
+  })
+
+  it('puts items not on the list last, in the order they came in', () => {
+    const ordered = inRegistrationOrder(
+      [report('gone-b'), report('on-list'), report('gone-a')],
+      [placed('on-list', 'ALO', 1)],
+      {}
+    )
+
+    expect(ordered.map(({ id }) => id)).toEqual(['on-list', 'gone-b', 'gone-a'])
+  })
+
+  it('leaves the items it is given as they were', () => {
+    const items = [report('b'), report('a')]
+
+    inRegistrationOrder(items, [placed('a', 'ALO', 1), placed('b', 'ALO', 2)], {})
+
+    expect(items.map(({ id }) => id)).toEqual(['b', 'a'])
+  })
+
+  it("follows the event's own class order (KOE-674)", () => {
+    const registrations = [placed('derby', 'DERBY', 1), placed('vet', 'VET10', 2)]
+
+    const ordered = inRegistrationOrder([report('derby'), report('vet')], registrations, unofficial)
+
+    expect(ordered.map(({ id }) => id)).toEqual(['vet', 'derby'])
+  })
+
+  it('answers nothing for nothing', () => {
+    expect(inRegistrationOrder([], [placed('a', 'ALO', 1)], {})).toEqual([])
   })
 })
 

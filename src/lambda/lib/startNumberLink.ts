@@ -9,11 +9,8 @@ import type {
 } from '../../types'
 import type { StartNumberEntry } from './startNumbers'
 import { formatTypeOf, uniqueClasses } from '../../lib/event'
-import {
-  getRegistrationClass,
-  isScorableRegistration,
-  sortRegistrationsByDateClassTimeAndNumber,
-} from '../../lib/registration'
+import { registrationOrder } from '../../lib/eventClass'
+import { getRegistrationClass, isScorableRegistration } from '../../lib/registration'
 import { linkedEventProjection } from './event'
 import { httpError, LambdaError } from './lambda'
 import { DEFAULT_LINK_TOKEN_VERSION, deriveLinkToken, getBearerToken, linkTokensMatch } from './linkToken'
@@ -23,7 +20,7 @@ type LinkVersionFields = Pick<JsonConfirmedEvent, 'startNumberLinkVersions'>
 
 /** The classes a link can be issued for: the trial's own, or its format where it runs none (KOE-1718). */
 export const startNumberLinkClasses = (
-  confirmedEvent: Pick<JsonConfirmedEvent, 'classes' | 'eventType' | 'officialFormat'>
+  confirmedEvent: Pick<JsonConfirmedEvent, 'classes' | 'eventType' | 'officialFormat' | 'ownClasses'>
 ): string[] => {
   const classes = uniqueClasses(confirmedEvent)
   return classes.length ? classes : [formatTypeOf(confirmedEvent)]
@@ -172,7 +169,7 @@ export const classStartNumbersResponse = (
   eventClass,
   registrations: registrations
     .filter((registration) => runsInClass(confirmedEvent, registration, eventClass))
-    .sort(sortRegistrationsByDateClassTimeAndNumber)
+    .sort(registrationOrder(confirmedEvent))
     .map(classStartNumberDog),
   reserved: reservedStartNumbers(confirmedEvent, registrations, eventClass),
 })

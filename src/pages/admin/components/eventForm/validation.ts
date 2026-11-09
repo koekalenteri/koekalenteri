@@ -230,9 +230,11 @@ export const VALIDATORS: EventValidators = {
       return false
     }
 
-    // Each class once, as ALO, AVO, VOI: event.classes has an entry per class and day, in picked order (KOE-1596).
+    // Each class once, in the event's order: event.classes has an entry per class and day, in picked order
+    // (KOE-1596), and an unofficial event lists its own classes in an order of its own (KOE-674).
     const list = uniqueClasses({
       classes: event.classes.filter((c) => (Array.isArray(c.judge) ? !c.judge.length : !c.judge?.id)),
+      ownClasses: event.ownClasses,
     })
     return list.length ? { key: 'classesJudge', opts: { field: 'judges', length: list.length, list } } : false
   },
@@ -242,7 +244,9 @@ export const VALIDATORS: EventValidators = {
       return true
     }
     const list =
-      required && requiresClassPlaces(event) ? uniqueClasses({ classes: event.classes.filter((c) => !c.places) }) : []
+      required && requiresClassPlaces(event)
+        ? uniqueClasses({ classes: event.classes.filter((c) => !c.places), ownClasses: event.ownClasses })
+        : []
     return list.length ? { key: 'placesClass', opts: { field: 'places', length: list.length, list } } : false
   },
   // A stored null is as missing as an absent value, which the default validator would let through.

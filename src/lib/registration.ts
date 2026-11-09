@@ -678,36 +678,21 @@ const byTimeAndNumber = <T extends SortableRegistration>(a: T, b: T): number =>
     : getRegistrationGroupTime(a).localeCompare(getRegistrationGroupTime(b))
 
 /**
- * The class as the order compares it. The entries of one trial all run in classes or none does, and a
- * classless trial's key is the same for every entry, so the order needs no format (KOE-1718).
+ * The order of a start list, by a class order of the caller's: day, then class (`compareClass`), then
+ * time and number. The entries of one trial all run in classes or none does, and a classless trial's
+ * key is the same for every entry, so the order needs no format (KOE-1718). The class order is the
+ * event's (`registrationOrder` in `eventClass.ts`, KOE-674).
  */
-const sortClass = (registration: SortableRegistration): string => registration.class ?? ''
-
-const byClassTimeAndNumber = <T extends SortableRegistration>(a: T, b: T): number =>
-  sortClass(a) === sortClass(b) ? byTimeAndNumber(a, b) : sortClass(a).localeCompare(sortClass(b))
-
-export const sortRegistrationsByDateClassTimeAndNumber = <T extends SortableRegistration>(a: T, b: T): number =>
-  sortableDate(placementOf(a)?.date) === sortableDate(placementOf(b)?.date)
-    ? byClassTimeAndNumber(a, b)
-    : sortableDate(placementOf(a)?.date).localeCompare(sortableDate(placementOf(b)?.date))
-
-/**
- * Items that name a registration by its id, in the order the secretary's start list has those
- * registrations (KOE-1652): day, class, time and number. An item whose registration is not in the
- * list goes last, and items the list cannot tell apart keep the order they came in.
- */
-export const inRegistrationOrder = <T extends { readonly id: string }>(
-  items: readonly T[],
-  registrations: readonly (SortableRegistration & { readonly id: string })[]
-): T[] => {
-  const rank = new Map(
-    [...registrations]
-      .sort(sortRegistrationsByDateClassTimeAndNumber)
-      .map((registration, index) => [registration.id, index])
-  )
-  const rankOf = (item: T) => rank.get(item.id) ?? rank.size
-  return [...items].sort((a, b) => rankOf(a) - rankOf(b))
-}
+export const registrationSort =
+  (compareClass: (a: string, b: string) => number) =>
+  <T extends SortableRegistration>(a: T, b: T): number => {
+    const aDay = sortableDate(placementOf(a)?.date)
+    const bDay = sortableDate(placementOf(b)?.date)
+    if (aDay !== bDay) return aDay.localeCompare(bDay)
+    const aClass = a.class ?? ''
+    const bClass = b.class ?? ''
+    return aClass === bClass ? byTimeAndNumber(a, b) : compareClass(aClass, bClass)
+  }
 
 export const getRegistrationNumberingGroupKey = <T extends JsonRegistration | Registration>(
   reg: Pick<T, 'cancelled' | 'class' | 'group'>,
