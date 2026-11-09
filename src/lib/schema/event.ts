@@ -1,5 +1,6 @@
-import { integer, literal, maxValue, minValue, nonEmpty, optional, pipe, union } from 'valibot'
-import { OFFICIAL_FORMATS } from '../../types'
+import { check, integer, literal, maxValue, minValue, nonEmpty, optional, pipe, union } from 'valibot'
+import { LANGUAGES, OFFICIAL_FORMATS } from '../../types'
+import { isDayKey } from '../day'
 import { MAX_DOGS_AT_ONCE } from '../liveFormat'
 import { arrayOf, bool, maybe, num, objectOf, oneOf, str } from './common'
 
@@ -47,20 +48,29 @@ const team = objectOf({
   seriesId: optional(str),
 })
 
-/** A series of a team competition (KOE-1720). Its own id and its Finnish name are `teamCompetitionErrors`'. */
+/**
+ * A series of a team competition (KOE-1720): its name is text in any of the languages, each optional.
+ * That its id is its own and that it has a Finnish name is `teamCompetitionErrors`'.
+ */
 const teamSeries = objectOf({
   id: pipe(str, nonEmpty('must not be empty')),
-  name: objectOf({ en: optional(str), fi: optional(str) }),
+  name: objectOf(Object.fromEntries(LANGUAGES.map((language) => [language, optional(str)]))),
 })
+
+/** A calendar day as a key, `yyyy-MM-dd` (`isDayKey`). */
+const dayKey = pipe(
+  str,
+  check((value) => isDayKey(value), 'must be a day as yyyy-MM-dd')
+)
 
 /**
  * The settings of a team competition (KOE-1720). Each field may arrive as null, which a PATCH reads as
- * removing that one setting (`patchMerge`). Which days count is not checked against the trial's days:
- * a day the trial no longer has is left out of them (KOE-1726).
+ * removing that one setting (`patchMerge`). The counted days are days; whether the trial still has
+ * them is not refused, since a day the trial no longer has is left out of them (KOE-1726).
  */
 const teamCompetition = objectOf({
   askAtEntry: maybe(bool),
-  days: maybe(arrayOf(str)),
+  days: maybe(arrayOf(dayKey)),
   litters: maybe(bool),
   series: maybe(arrayOf(teamSeries)),
 })

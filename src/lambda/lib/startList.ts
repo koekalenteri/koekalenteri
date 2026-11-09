@@ -133,14 +133,15 @@ type PublishedStanding = Pick<PublicTeamPlace, 'placement' | 'points' | 'runOff'
 
 /**
  * Each team's standing over the trial in its series, by the team's place in the list (KOE-1717,
- * KOE-1720). It is worked out once
- * per team and given to every row of it, so whichever row a reader takes it from says the same. The
- * standings are public only when every dog any team counts is on the published list with its result:
- * a total holds its dogs' points, and a placing compares it with every other team's, so one dog still
- * withheld would leak through either. A dog withheld is one whose class or day has no results out yet,
- * and one whose row is not published at all (`publicRow` answers none: its list is not out, or it was
- * added after the numbers went out and has none entered, KOE-1272). The release is read from the dog's
- * `group` as `publicRow` reads it. The preview shows them as they stand.
+ * KOE-1720). It is worked out once per team and given to every row of it, so whichever row a reader
+ * takes it from says the same. A series' standings are public only when every dog any of its teams
+ * counts is on the published list with its result: a total holds its dogs' points, and a placing
+ * compares it with the other teams of the series, so one dog still withheld would leak through either.
+ * Another series' dogs are in neither, so each series is released on its own; the teams in no series
+ * are one. A dog withheld is one whose class or day has no results out yet, and one whose row is not
+ * published at all (`publicRow` answers none: its list is not out, or it was added after the numbers
+ * went out and has none entered, KOE-1272). The release is read from the dog's `group` as `publicRow`
+ * reads it. The preview shows them as they stand.
  */
 const publishedStandings = (
   confirmedEvent: JsonDogEvent,
@@ -148,19 +149,23 @@ const publishedStandings = (
   published: ReadonlyMap<string, unknown>,
   preview: boolean
 ): Map<number, PublishedStanding> => {
-  const { teams } = confirmedEvent
+  const teams = confirmedEvent.teams ?? []
   const released = (reg: JsonRegistration) =>
     published.has(reg.id) &&
     !!reg.group &&
     isResultsAvailableForRegistration(confirmedEvent, { class: reg.class, group: reg.group })
-  const isPublic = preview || countedTeamMembers(teams, registrations).every((dogs) => dogs.every(released))
-  if (!isPublic) return new Map()
+  const withheld = new Set(
+    preview
+      ? []
+      : countedTeamMembers(teams, registrations).flatMap((dogs, team) =>
+          dogs.every(released) ? [] : [teams[team].seriesId]
+        )
+  )
 
   return new Map(
-    teamStandings(confirmedEvent, teams, registrations).map(({ placement, points, runOff, team }) => [
-      team,
-      { placement, points, ...(runOff ? { runOff } : {}) },
-    ])
+    teamStandings(confirmedEvent, teams, registrations)
+      .filter(({ team }) => !withheld.has(teams[team].seriesId))
+      .map(({ placement, points, runOff, team }) => [team, { placement, points, ...(runOff ? { runOff } : {}) }])
   )
 }
 

@@ -112,14 +112,17 @@ export const teamCompetitionErrors = (teamCompetition: TeamCompetition | undefin
   return errors
 }
 
+/** Day keys sort as text; the order only lines two sets up for comparing. */
+const byText = (x: string, y: string) => x.localeCompare(y)
+
 const sameDays = (a: readonly string[] | undefined, b: readonly string[] | undefined) =>
-  sameIds([...(a ?? [])].sort(), [...(b ?? [])].sort())
+  sameIds([...(a ?? [])].sort(byText), [...(b ?? [])].sort(byText))
 
 /**
  * Whether two sets of competition settings make a different start list (KOE-1720): only the days
- * counted, which decide a team's points once the standings read them (KOE-1726). A series' name is not on the list, whose rows name the series
- * by id, and a series no team is in ranks no one; the question at entry and the litters are the
- * secretary's.
+ * counted, which decide a team's points once the standings read them (KOE-1726). A series' name is not
+ * on the list, whose rows name the series by id, and a series no team is in ranks no one; the question
+ * at entry and the litters are the secretary's.
  */
 export const teamCompetitionDiffers = (
   before: TeamCompetition | null | undefined,

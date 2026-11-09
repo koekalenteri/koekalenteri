@@ -1829,7 +1829,7 @@ describe('putEventLambda', () => {
       expect(mockReadEventRegistrations).not.toHaveBeenCalled()
     })
 
-    it('leaves the stored teams unchecked by a save that does not carry them', async () => {
+    it('leaves the stored teams unchecked by a save that carries nothing they rest on (KOE-1720)', async () => {
       signIn(mockSecretary)
       getEventMock.mockResolvedValueOnce({ ...mockEvent, teams: [{ registrationIds: ['a', 'a'] }] })
 
@@ -1887,6 +1887,19 @@ describe('putEventLambda', () => {
         expect(patchEventMock).not.toHaveBeenCalled()
       })
 
+      it('stores a series removed together with moving its team out of it', async () => {
+        const teams = [{ registrationIds: ['a'], seriesId: 'breed' }]
+
+        const res = await patch(inSeries, { teamCompetition: { series: [series[1]] }, teams })
+
+        expect(res.statusCode).toEqual(200)
+        expect(patchEventMock).toHaveBeenCalledWith(
+          'existing',
+          inSeries,
+          expect.objectContaining({ teamCompetition: { series: [series[1]] }, teams })
+        )
+      })
+
       it('refuses removing the competition settings while a team is in a series', async () => {
         const res = await patch(inSeries, { teamCompetition: null })
 
@@ -1913,6 +1926,7 @@ describe('putEventLambda', () => {
         ['a series name that is not text', { series: [{ id: 'open', name: { fi: 1 } }] }],
         ['a question at entry that is not a boolean', { askAtEntry: 'yes' }],
         ['counted days that are not a list', { days: '2025-06-01' }],
+        ['a counted day that is not a day', { days: ['1.6.2025'] }],
       ])('refuses competition settings with %s', async (_name, teamCompetition) => {
         const res = await patch(mockEvent, { teamCompetition })
 

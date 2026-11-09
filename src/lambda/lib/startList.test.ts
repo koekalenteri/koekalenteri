@@ -581,6 +581,30 @@ describe('readPublishedStartList (KOE-1516)', () => {
       })
     })
 
+    it("publishes a series' standings once its own dogs' results are out, whatever another series' are", async () => {
+      mockGetLiveEvent.mockResolvedValue({
+        ...standingsEvent,
+        resultsPublished: { ALO: true, AVO: false },
+        teamCompetition: {
+          series: [
+            { id: 'open', name: { fi: 'Avoin' } },
+            { id: 'breed', name: { fi: 'Rotu' } },
+          ],
+        },
+        teams: [
+          { registrationIds: ['a'], seriesId: 'open' },
+          { registrationIds: ['c'], seriesId: 'open' },
+          { registrationIds: ['b', 'd'], seriesId: 'breed' },
+        ],
+      })
+
+      const teams = await teamsOf()
+
+      expect(teams['Dog a']).toEqual({ code: '1A', number: 1, placement: 1, points: 90, seriesId: 'open' })
+      expect(teams['Dog c']).toEqual({ code: '2A', number: 2, placement: 2, points: 85, seriesId: 'open' })
+      expect(teams['Dog b']).toEqual({ code: '3A', number: 3, seriesId: 'breed' })
+    })
+
     it('ranks a team added to a published list beside the teams already on it', async () => {
       mockGetLiveEvent.mockResolvedValue({
         ...standingsEvent,
