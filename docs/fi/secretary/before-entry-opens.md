@@ -62,7 +62,9 @@ kun kaikki vaadittu on paikallaan. Käy osiot läpi ja tarkista erityisesti:
   ALO-, AVO- ja VOI-luokat poistuvat, sillä koe ajaa vain omia luokkiaan. Yksipäiväisessä kokeessa
   luokka saa kokeen päivän heti, kun sillä on koodi; pidemmässä kokeessa luokan päivät valitaan
   kohdasta **{t:event.classes}**. Luokan rivillä kerrotaan, mitä siinä on korjattavaa ennen
-  tallennusta. Kun luokassa on ilmoittautumisia, sen koodia ei voi muuttaa eikä luokkaa poistaa,
+  tallennusta. Kun luokassa on ilmoittautumisia, sen koodia ei voi muuttaa eikä luokkaa poistaa.
+  Kun kokeen luokissa on jo ilmoittautumisia, omia luokkia ei voi ottaa käyttöön eikä niitä voi
+  poistaa vaihtamalla koetyyppiä,
 - **tuomarit ja luokat, joita kukin arvostelee**,
 - **{t:event.kcIdSectionTitle}**: koe liitetään Kennelliiton kokeeseen, jotta tulokset voi tallentaa,
 - **yhteystiedot** — mitkä vastaavan koetoimitsijan ja koesihteerin tiedot ilmoittautuja saa nähdä.

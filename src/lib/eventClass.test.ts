@@ -1,7 +1,14 @@
 import type { DayKey, OwnClass } from '../types'
 import type { SortableRegistration } from './registration'
 import { classOrder } from './event'
-import { inRegistrationOrder, isEventClass, isRunClass, ownClassErrors, registrationOrder } from './eventClass'
+import {
+  enteredClassCodes,
+  inRegistrationOrder,
+  isEventClass,
+  isRunClass,
+  ownClassErrors,
+  registrationOrder,
+} from './eventClass'
 
 // KOE-674: an unofficial event may run classes of its own, named and ordered by the secretary.
 const derby: OwnClass = { code: 'DERBY', name: { en: 'Derby', fi: 'Derby' } }
@@ -249,5 +256,18 @@ describe('isRunClass', () => {
     ])
     const official = { classes: [{ class: 'ALO', date: '2026-08-01' as const }], eventType: 'NOWT' }
     expect(['ALO', 'AVO', 'DERBY'].map((key) => isRunClass(official, key))).toEqual([true, false, false])
+  })
+})
+
+describe('enteredClassCodes', () => {
+  it('names the classes whose days hold entries, each once', () => {
+    expect(
+      enteredClassCodes([
+        { class: 'YKS', entries: 2 },
+        { class: 'YKS', entries: 1 },
+        { class: 'VET' },
+        { class: 'JUN', entries: 0 },
+      ])
+    ).toEqual(['YKS'])
   })
 })

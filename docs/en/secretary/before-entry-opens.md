@@ -10,7 +10,7 @@ covers:
   - src/pages/admin/EventCreatePage.tsx
   - src/pages/admin/EventEditPage.tsx
   - src/pages/admin/OrganizerListPage.tsx
-sourceHash: f8d027
+sourceHash: 866685
 ---
 
 Once a trial has been created in the calendar, the secretary's job before entry opens is to make
@@ -62,7 +62,8 @@ required is in place. Go through the sections and check in particular:
   VOI classes go, as the trial runs only its own classes. On a one-day trial a class gets the trial's
   day as soon as it has a code; on a longer trial its days are chosen under **{t:event.classes}**.
   A class's row says what to correct before saving. Once a class has entries, its code cannot be
-  changed and the class cannot be removed,
+  changed and the class cannot be removed. Once the trial's classes have entries, the trial cannot
+  take up own classes or drop them by changing its type,
 - **the judges and the classes each of them judges**,
 - **{t:event.kcIdSectionTitle}**: the trial is linked to the Kennel Club event so that the results can be saved,
 - **contact details** — which of the chief officer's and the secretary's details entrants may see.

@@ -6,11 +6,10 @@ import { getCostValue } from '@/lib/cost'
 import { dayOf, TIME_ZONE } from '@/lib/day'
 import { isDevEnv } from '@/lib/env'
 import { formatTypeOf, hasRetrieveTypeChoice, OFFICIAL_EVENT_TYPES, uniqueClasses } from '@/lib/event'
-import { ownClassErrors } from '@/lib/eventClass'
+import { enteredClassCodes, ownClassErrors } from '@/lib/eventClass'
 import { judgesMockTrialIndependently, MIN_INDEPENDENT_MOCK_TRIAL_JUDGES } from '@/lib/judge'
 import { keysOf } from '@/lib/typeGuards'
 import { unique } from '@/lib/utils'
-import { registeredClasses } from './components/OwnClassesEditor'
 import { requiresClassPlaces } from './places'
 
 /**
@@ -41,6 +40,9 @@ const STATE_INCLUSION: Record<EventState, EventState[]> = {
   started: ['confirmed'],
   tentative: ['tentative', 'draft'],
 }
+
+/** How the list of own classes to correct names one still without its code. */
+const NO_CODE = '?'
 
 /** The formats a confirmed trial must name its classes for. */
 const CLASSES_REQUIRED = new Set(['NOME-B', 'NOWT'])
@@ -242,7 +244,8 @@ export const VALIDATORS: EventValidators = {
   },
 
   // The own classes by the rule the save holds them to (KOE-674), the classes with entries read from the
-  // class days: each class with something to correct is named once, in the secretary's order.
+  // class days: each class with something to correct is named once, in the secretary's order, and one
+  // still without its code by a placeholder, as it keeps the save from going through too.
   ownClasses: (event) => {
     const errors = ownClassErrors(
       {
@@ -250,9 +253,9 @@ export const VALIDATORS: EventValidators = {
         eventType: event.eventType ?? '',
         ownClasses: (event.ownClasses ?? []).map(({ code, name }) => ({ code: code ?? '', name: { ...name } })),
       },
-      registeredClasses(event.classes)
+      enteredClassCodes(event.classes)
     )
-    const list = unique(errors.map((error) => ('code' in error ? error.code : '')).filter(Boolean))
+    const list = unique(errors.map((error) => ('code' in error && error.code ? error.code : NO_CODE)))
     return list.length ? { key: 'ownClasses', opts: { field: 'ownClasses', length: list.length, list } } : false
   },
 

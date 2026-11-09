@@ -386,6 +386,7 @@
     "ownClasses": {
       "add": "Lisää oma luokka",
       "code": "Koodi",
+      "entered": "Luokissa on ilmoittautumisia, joten kokeen luokkia ei voi vaihtaa omiin luokkiin eikä omia luokkia poistaa vaihtamalla koetyyppiä.",
       "errors": {
         "badCode": "Koodissa on kirjain ja sen jälkeen kirjaimia A–Z tai numeroita, enintään 10 merkkiä.",
         "codeTwice": "Kahdella luokalla on sama koodi.",

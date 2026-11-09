@@ -386,6 +386,7 @@
     "ownClasses": {
       "add": "Add an own class",
       "code": "Code",
+      "entered": "The classes have entries, so the trial cannot switch to classes of its own, nor drop its own classes by changing its type.",
       "errors": {
         "badCode": "A code is a letter followed by letters A–Z or digits, 10 characters at most.",
         "codeTwice": "Two classes have the same code.",

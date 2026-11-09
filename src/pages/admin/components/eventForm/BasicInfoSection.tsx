@@ -46,6 +46,7 @@ import {
   OFFICIAL_EVENT_TYPES,
   ownClassCodes,
 } from '@/lib/event'
+import { enteredClassCodes } from '@/lib/eventClass'
 import { isRegistrationClass } from '@/lib/registration'
 import CollapsibleSection from '@/pages/components/CollapsibleSection'
 import DateRange from '@/pages/components/DateRange'
@@ -145,6 +146,11 @@ function BasicInfoSection({
   // instead of showing "required" or an empty list (KOE-1473).
   const secretaryGuidance = !event.organizer?.id && !disabled ? t('event.secretaryRequiresOrganizer') : undefined
   const hasEntries = eventHasEntries(event)
+  // The type is kept once there are entries, by the event's count or its class days' (KOE-674): an
+  // official type would take away the own classes the entries are in, which the save refuses.
+  const classDaysEntered = enteredClassCodes(event.classes).length > 0
+  const typeLocked = hasEntries || classDaysEntered
+  const ownClassesEntered = typeLocked && !!event.ownClasses?.length
   // The event's days are day keys (KOE-1547), counted and moved as days whatever zone the browser is in.
   const eventStartDay = event.startDate
   const eventEndDay = event.endDate
@@ -316,7 +322,8 @@ function BasicInfoSection({
           <Grid sx={{ width: 300 }}>
             <EventProperty
               id="eventType"
-              disabled={hasEntries || disabled}
+              disabled={typeLocked || disabled}
+              helperText={ownClassesEntered ? t('event.ownClasses.entered') : undefined}
               event={event}
               fields={fields}
               options={eventTypes ?? []}
@@ -335,7 +342,7 @@ function BasicInfoSection({
               requiredState={fields?.state.classes}
               value={event.classes}
               classes={typeOptions}
-              ownClasses={event.ownClasses}
+              ownClasses={event.ownClasses ?? undefined}
               label={t('event.classes')}
               showCount
               onChange={handleClassesChange}
@@ -361,7 +368,12 @@ function BasicInfoSection({
         {followsOfficialFormat && (
           <Grid container spacing={1}>
             <Grid sx={{ width: 900 }}>
-              <OwnClassesEditor disabled={disabled} event={event} onChange={onChange ?? noChange} />
+              <OwnClassesEditor
+                disabled={disabled}
+                event={event}
+                hasEntries={hasEntries}
+                onChange={onChange ?? noChange}
+              />
             </Grid>
           </Grid>
         )}

@@ -318,6 +318,21 @@ describe('validation', () => {
     })
   })
 
+  describe('an own class without a code', () => {
+    it('keeps the form from saving, named by a placeholder', () => {
+      const event: PartialEvent = {
+        ...emptyEvent,
+        classes: [],
+        eventType: 'Harjoitus',
+        ownClasses: [{ code: '', name: {} }],
+      }
+      expect(validateEventField(event, 'ownClasses', false)).toEqual({
+        key: 'ownClasses',
+        opts: { field: 'ownClasses', length: 1, list: ['?'], state: 'confirmed', type: 'Harjoitus' },
+      })
+    })
+  })
+
   describe('validateEventField()', () => {
     it('returns validationError for unknown fields when required and empty', () => {
       const event: PartialEvent = { ...emptyEvent, name: '', state: 'draft' }

@@ -307,6 +307,106 @@ describe('BasicInfoSection', () => {
         expect(screen.getByText('event.ownClasses.errors.noClassDay')).toBeInTheDocument()
       })
 
+      // While a code is typed two rows can share it; the days of a code another row holds are its own,
+      // so they are never moved or removed with the row being edited.
+      describe('two rows sharing a code', () => {
+        const judged = { class: 'OPEN', date: newEventStartDate, judge: { id: 1, name: 'Tuomari' }, places: 10 }
+        const open: PartialEvent = {
+          ...unofficial,
+          classes: [judged],
+          ownClasses: [{ code: 'OPEN', name: { fi: 'Avoin' } }],
+        }
+
+        it("types a second row's code through the first row's without touching the first row's day", async () => {
+          const { changed, user } = renderEditing(open)
+
+          await user.click(screen.getByRole('button', { name: 'event.ownClasses.add' }))
+          await user.type(codeField(1), 'open2')
+
+          expect(changed).toHaveBeenLastCalledWith(
+            expect.objectContaining({ classes: [judged, { class: 'OPEN2', date: newEventStartDate }] })
+          )
+        })
+
+        it("edits a code into another row's and back, every day staying with its row", async () => {
+          const longer: PartialEvent = {
+            ...open,
+            classes: [judged, { class: 'OPENB', date: addDays(newEventStartDate, 1) }],
+            endDate: addDays(newEventStartDate, 1),
+            ownClasses: [...(open.ownClasses ?? []), { code: 'OPENB', name: { fi: 'Avoin B' } }],
+          }
+          const { changed, user } = renderEditing(longer)
+
+          await user.type(codeField(1), '{Backspace}b')
+
+          expect(changed).toHaveBeenLastCalledWith(expect.objectContaining({ classes: longer.classes }))
+        })
+
+        it('removes a row whose code another row has without its days', async () => {
+          const { changed, user } = renderEditing({
+            ...open,
+            ownClasses: [...(open.ownClasses ?? []), { code: 'OPEN', name: {} }],
+          })
+
+          await user.click(screen.getAllByRole('button', { name: 'event.ownClasses.remove code' })[1])
+
+          expect(changed).toHaveBeenLastCalledWith(
+            expect.objectContaining({ classes: [judged], ownClasses: [{ code: 'OPEN', name: { fi: 'Avoin' } }] })
+          )
+        })
+      })
+
+      it('drops the days of a code cleared on a longer trial', async () => {
+        const { changed, user } = renderEditing({
+          ...derby,
+          classes: [
+            { class: 'DERBY', date: newEventStartDate },
+            { class: 'DERBY', date: addDays(newEventStartDate, 1) },
+          ],
+          endDate: addDays(newEventStartDate, 1),
+        })
+
+        await user.clear(codeField())
+
+        expect(changed).toHaveBeenLastCalledWith(
+          expect.objectContaining({ classes: [], ownClasses: [{ code: '', name: { fi: 'Derby' } }] })
+        )
+      })
+
+      it('names a class day of no class in the list', () => {
+        renderComponent({
+          event: { ...derby, classes: [...derby.classes, { class: 'VET', date: newEventStartDate }] },
+          open: true,
+          selectedEventType: harjoitus,
+        })
+
+        expect(screen.getByText('event.ownClasses.errors.notOwnClass: VET')).toBeInTheDocument()
+      })
+
+      // The save reads the registrations; the form knows the entries by the class days' counts.
+      it('adds no own classes while the official classes have entries, and says why', () => {
+        renderComponent({
+          event: { ...unofficial, classes: [{ class: 'ALO', date: newEventStartDate, entries: 2 }] },
+          open: true,
+          selectedEventType: harjoitus,
+        })
+
+        expect(screen.getByRole('button', { name: 'event.ownClasses.add' })).toBeDisabled()
+        expect(screen.getByText('event.ownClasses.entered')).toBeInTheDocument()
+      })
+
+      it('keeps the type of a trial whose own classes have entries, and says why', () => {
+        renderComponent({
+          event: { ...derby, classes: [{ class: 'DERBY', date: newEventStartDate, entries: 2 }] },
+          eventTypes: ['Harjoitus', 'NOWT'],
+          open: true,
+          selectedEventType: harjoitus,
+        })
+
+        expect(screen.getByRole('combobox', { name: 'event.eventType' })).toBeDisabled()
+        expect(screen.getAllByText('event.ownClasses.entered').length).toBeGreaterThan(0)
+      })
+
       it('keeps the code of a class with entries', () => {
         renderComponent({
           event: { ...derby, classes: [{ class: 'DERBY', date: newEventStartDate, entries: 3 }], entries: 3 },

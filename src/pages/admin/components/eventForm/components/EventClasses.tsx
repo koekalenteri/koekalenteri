@@ -28,7 +28,7 @@ interface Props {
   readonly helperTexts?: { [Property in keyof DogEvent]?: string }
   readonly showCount?: boolean
   /** The event's own classes, whose order the chosen classes keep within a day (KOE-674). */
-  readonly ownClasses?: ClassOrderOwner['ownClasses']
+  readonly ownClasses?: NonNullable<ClassOrderOwner['ownClasses']>
   readonly onChange?: (
     event: SyntheticEvent,
     value: readonly DeepPartial<EventClass>[],

@@ -280,7 +280,41 @@ describe("an unofficial trial's own classes (KOE-674)", () => {
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('basic-info-section-own-classes')
   })
 
+  // Entries hold the official classes: the first own class would take them away, so none is offered.
+  const renderEntered = () =>
+    render(
+      <TestProvider initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
+        <Frame>
+          <BasicInfoSection
+            event={{
+              ...event,
+              classes: [{ class: 'ALO' as const, date: '2026-06-01' as const, entries: 3 }],
+              ownClasses: undefined,
+            }}
+            eventTypeClasses={EVENT_TYPE_CLASSES}
+            eventTypes={['Hankinome']}
+            open
+            selectedEventType={selectedEventType}
+          />
+        </Frame>
+      </TestProvider>
+    )
+
+  it('offers none while the official classes have entries', async () => {
+    const screen = await renderEntered()
+
+    await expect.element(screen.getByRole('button', { name: 'Lisää oma luokka' })).toBeDisabled()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('basic-info-section-own-classes-entered')
+  })
+
   describeInLanguage('en', () => {
+    it('offers none while the official classes have entries', async () => {
+      const screen = await renderEntered()
+
+      await expect.element(screen.getByRole('button', { name: 'Add an own class' })).toBeDisabled()
+      await expect(screen.getByTestId('visual-root')).toMatchScreenshot('basic-info-section-own-classes-entered-en')
+    })
+
     it('lists them with what to correct', async () => {
       const screen = await renderOwnClasses()
 

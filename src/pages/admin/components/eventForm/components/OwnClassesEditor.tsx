@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography'
 import { nanoid } from 'nanoid'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ownClassErrors } from '@/lib/eventClass'
+import { enteredClassCodes, ownClassErrors } from '@/lib/eventClass'
 import { LANGUAGES } from '@/types'
 
 /** What the editor reads of the event: its type, its days, its class days and its own classes. */
@@ -35,53 +35,84 @@ type OwnClassErrorKind = ReturnType<typeof ownClassErrors>[number]['kind']
 interface Props {
   readonly event: OwnClassesEvent
   readonly disabled?: boolean
+  /** The event has entries by its own count, which the class days may not show yet. */
+  readonly hasEntries?: boolean
   readonly onChange: (change: OwnClassesChange) => void
 }
-
-/**
- * The classes entries were made in (KOE-674): the class days that hold entries. What the save reads
- * from the stored entries, as the form knows it, so a code an entry holds is neither changed nor
- * removed (`ownClassErrors`).
- */
-export const registeredClasses = (classes: readonly Pick<EventClass, 'class' | 'entries'>[]) =>
-  classes.filter((eventClass) => !!eventClass.entries).map((eventClass) => eventClass.class)
 
 const changeOf = (classes: EventClass[], ownClasses: OwnClass[]): OwnClassesChange => ({
   classes,
   ownClasses: ownClasses.length ? ownClasses : null,
 })
 
+const daysOf = (classes: readonly EventClass[], code: string) => classes.some((eventClass) => eventClass.class === code)
+
 /**
- * The class days with an own class's code changed: its days take the new code, and on a trial of one
- * day a class that had no code yet gets the day at once. A code cleared takes its days with it.
+ * A row of the editor: an id of its own, as its code changes while it is typed, and the code its class
+ * days are stored under. The two codes part while the row's code is one another row holds: typing OPEN2
+ * passes through OPEN, and that row's days stay its own.
  */
-const renamedDays = (event: OwnClassesEvent, from: string, to: string): EventClass[] => {
-  if (!to) return event.classes.filter((eventClass) => eventClass.class !== from)
-  if (from)
-    return event.classes.map((eventClass) => (eventClass.class === from ? { ...eventClass, class: to } : eventClass))
-  return event.startDate === event.endDate
-    ? [...event.classes, { class: to, date: event.startDate }]
+interface Row {
+  id: string
+  dayCode: string
+}
+
+const rowOf = (code: string): Row => ({ dayCode: code, id: nanoid() })
+
+/**
+ * Where a row's days go when its code becomes `to` (KOE-674). `held` is every code another row shows or
+ * keeps its days under. Days move only out of a code no other row holds, and only into a code free of
+ * other rows and of days, so no two rows' days are ever merged or taken: a blocked row keeps its days
+ * where they are, and they follow it once its code is free. A code cleared takes its days along, and
+ * on a trial of one day a code that comes to have no day gets the day at once.
+ */
+const movedDays = (
+  event: OwnClassesEvent,
+  held: ReadonlySet<string>,
+  row: Row,
+  to: string
+): { classes: EventClass[]; dayCode: string } => {
+  const own = row.dayCode
+  const ownsDays = !!own && !held.has(own)
+  if (!to) {
+    return {
+      classes: ownsDays ? event.classes.filter((eventClass) => eventClass.class !== own) : [...event.classes],
+      dayCode: '',
+    }
+  }
+  if (to === own) return { classes: [...event.classes], dayCode: own }
+  if (held.has(to) || daysOf(event.classes, to)) return { classes: [...event.classes], dayCode: own }
+  const classes = ownsDays
+    ? event.classes.map((eventClass) => (eventClass.class === own ? { ...eventClass, class: to } : eventClass))
     : [...event.classes]
+  return {
+    classes:
+      event.startDate === event.endDate && !daysOf(classes, to)
+        ? [...classes, { class: to, date: event.startDate }]
+        : classes,
+    dayCode: to,
+  }
 }
 
 /**
  * An unofficial trial's own classes (KOE-674): each with its code, its name in Finnish and in English,
  * and its place in the list, which is the order every view shows them in. The first one added takes
- * the trial off the official classes, so their days go; a code changed moves its days, and a class
- * removed takes them along. Its days are chosen among the classes, except on a trial of one day, where
- * a class gets the day as soon as it has a code. A class entries were made in keeps its code. What the
- * save would refuse shows on the row, read by the save's own rule (`ownClassErrors`).
+ * the trial off the official classes, so their days go, and is not offered while entries hold them; a
+ * code changed moves its days, and a class removed takes them along, never another row's
+ * (`movedDays`). Its days are chosen among the classes, except on a trial of one day, where a class
+ * gets the day as soon as it has a code. A class entries were made in keeps its code. What the save
+ * would refuse shows on the row, read by the save's own rule (`ownClassErrors`).
  */
-export default function OwnClassesEditor({ event, disabled, onChange }: Props) {
+export default function OwnClassesEditor({ event, disabled, hasEntries, onChange }: Props) {
   const { t } = useTranslation()
   const ownClasses = useMemo(
     () => (event.ownClasses ?? []).map(({ code, name }): OwnClass => ({ code: code ?? '', name: { ...name } })),
     [event.ownClasses]
   )
   // The code changes as it is typed, so a row is known by an id of its own, which moves with it.
-  const [rowIds, setRowIds] = useState(() => ownClasses.map(() => nanoid()))
-  if (rowIds.length !== ownClasses.length) setRowIds(ownClasses.map((_, at) => rowIds[at] ?? nanoid()))
-  const registered = useMemo(() => new Set(registeredClasses(event.classes)), [event.classes])
+  const [rows, setRows] = useState(() => ownClasses.map(({ code }) => rowOf(code)))
+  if (rows.length !== ownClasses.length) setRows(ownClasses.map(({ code }, at) => rows[at] ?? rowOf(code)))
+  const registered = useMemo(() => new Set(enteredClassCodes(event.classes)), [event.classes])
   const errors = useMemo(
     () =>
       ownClassErrors({ classes: [...event.classes], eventType: event.eventType ?? '', ownClasses }, [...registered]),
@@ -95,19 +126,33 @@ export default function OwnClassesEditor({ event, disabled, onChange }: Props) {
     'code' in error && !ownClasses.some(({ code }) => code === error.code) ? [error] : []
   )
 
+  // The first own class takes away the official classes, which entries already hold: the save would
+  // refuse it, so it is not offered.
+  const addBlocked = !ownClasses.length && (hasEntries || registered.size > 0)
+
   const add = () => {
     // The first own class takes the trial off the official classes: their days go.
     const classes = ownClasses.length ? [...event.classes] : []
-    setRowIds([...rowIds, nanoid()])
+    setRows([...rows, rowOf('')])
     onChange(changeOf(classes, [...ownClasses, { code: '', name: {} }]))
   }
 
+  /** The codes the other rows show or keep their days under. */
+  const heldBesides = (at: number) =>
+    new Set(
+      ownClasses
+        .flatMap(({ code }, index) => (index === at ? [] : [code, rows[index]?.dayCode ?? code]))
+        .filter(Boolean)
+    )
+
   const setCode = (at: number, value: string) => {
     const code = value.toUpperCase()
-    const from = ownClasses[at].code
+    const row = rows[at] ?? rowOf(ownClasses[at].code)
+    const { classes, dayCode } = movedDays(event, heldBesides(at), row, code)
+    setRows(rows.map((item, index) => (index === at ? { ...row, dayCode } : item)))
     onChange(
       changeOf(
-        renamedDays(event, from, code),
+        classes,
         ownClasses.map((item, index) => (index === at ? { ...item, code } : item))
       )
     )
@@ -126,19 +171,21 @@ export default function OwnClassesEditor({ event, disabled, onChange }: Props) {
     const next = [...ownClasses]
     next[at] = ownClasses[other]
     next[other] = ownClasses[at]
-    const ids = [...rowIds]
-    ids[at] = rowIds[other]
-    ids[other] = rowIds[at]
-    setRowIds(ids)
+    const swapped = [...rows]
+    swapped[at] = rows[other]
+    swapped[other] = rows[at]
+    setRows(swapped)
     onChange(changeOf([...event.classes], next))
   }
 
   const remove = (at: number) => {
-    const { code } = ownClasses[at]
-    setRowIds(rowIds.filter((_, index) => index !== at))
+    // The days go with the class, unless another row holds their code and so the days.
+    const dayCode = rows[at]?.dayCode ?? ownClasses[at].code
+    const shared = !dayCode || heldBesides(at).has(dayCode)
+    setRows(rows.filter((_, index) => index !== at))
     onChange(
       changeOf(
-        event.classes.filter((eventClass) => eventClass.class !== code),
+        shared ? [...event.classes] : event.classes.filter((eventClass) => eventClass.class !== dayCode),
         ownClasses.filter((_, index) => index !== at)
       )
     )
@@ -156,7 +203,7 @@ export default function OwnClassesEditor({ event, disabled, onChange }: Props) {
         const entered = registered.has(item.code)
         const reasons = errorsOf(item.code)
         return (
-          <Stack key={rowIds[at] ?? item.code} spacing={0.5}>
+          <Stack key={rows[at]?.id ?? item.code} spacing={0.5}>
             <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start', flexWrap: 'wrap', pt: 1 }}>
               <TextField
                 disabled={disabled || entered}
@@ -216,10 +263,15 @@ export default function OwnClassesEditor({ event, disabled, onChange }: Props) {
         </Typography>
       ))}
       <div>
-        <Button disabled={disabled} onClick={add} size="small" startIcon={<Add />}>
+        <Button disabled={disabled || addBlocked} onClick={add} size="small" startIcon={<Add />}>
           {t('event.ownClasses.add')}
         </Button>
       </div>
+      {addBlocked && (
+        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+          {t('event.ownClasses.entered')}
+        </Typography>
+      )}
     </Stack>
   )
 }
