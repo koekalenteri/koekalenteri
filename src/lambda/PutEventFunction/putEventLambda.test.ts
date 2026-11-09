@@ -1947,6 +1947,70 @@ describe('putEventLambda', () => {
         )
       })
 
+      // KOE-1726: a change of the trial's days leaves out a counted day it no longer has, never refusing.
+      describe('the counted days', () => {
+        const counted: JsonDogEvent = {
+          ...mockEvent,
+          teamCompetition: { askAtEntry: true, days: ['2025-06-01', '2025-06-02'] },
+          teams: [{ registrationIds: ['a'] }],
+        }
+
+        it.each([
+          ['a later first day', { startDate: '2025-06-02' }, { askAtEntry: true, days: ['2025-06-02'] }],
+          [
+            'an earlier last day',
+            { endDate: '2025-06-01', startDate: '2025-06-01' },
+            { askAtEntry: true, days: ['2025-06-01'] },
+          ],
+          [
+            'classes on other days',
+            { classes: [{ class: 'ALO', date: '2025-06-03' }], endDate: '2025-06-03' },
+            { askAtEntry: true },
+          ],
+        ])(
+          'leaves out the days a save of %s takes from the trial, and publishes the list',
+          async (_name, body, kept) => {
+            const res = await patch(counted, body)
+
+            expect(res.statusCode).toEqual(200)
+            expect(patchEventMock).toHaveBeenCalledWith(
+              'existing',
+              counted,
+              expect.objectContaining({ teamCompetition: kept })
+            )
+            expect(mockPublishPublicStartList).toHaveBeenCalledWith('existing')
+          }
+        )
+
+        it('leaves out a counted day the trial does not have from a save of the settings', async () => {
+          const res = await patch(counted, { teamCompetition: { days: ['2025-06-02', '2025-07-01'] } })
+
+          expect(res.statusCode).toEqual(200)
+          expect(patchEventMock).toHaveBeenCalledWith(
+            'existing',
+            counted,
+            expect.objectContaining({ teamCompetition: { askAtEntry: true, days: ['2025-06-02'] } })
+          )
+        })
+
+        it('keeps the counted days, and publishes nothing, on a save that leaves the trial its days', async () => {
+          const res = await patch(counted, {
+            classes: [
+              { class: 'ALO', date: '2025-06-01' },
+              { class: 'AVO', date: '2025-06-02' },
+            ],
+          })
+
+          expect(res.statusCode).toEqual(200)
+          expect(patchEventMock).toHaveBeenCalledWith(
+            'existing',
+            counted,
+            expect.objectContaining({ teamCompetition: counted.teamCompetition })
+          )
+          expect(mockPublishPublicStartList).not.toHaveBeenCalled()
+        })
+      })
+
       // A stored row whose teams break a rule: the save that changes what they rest on reads them again.
       const broken = { ...mockEvent, teams: [{ registrationIds: ['a', 'a'] }] }
 

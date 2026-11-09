@@ -1,6 +1,8 @@
 import type { EventTeam, TeamCompetition } from '../types'
 import {
+  isTeamCountedDay,
   MAX_TEAM_MEMBERS,
+  pruneTeamDays,
   teamCompetitionDiffers,
   teamCompetitionErrors,
   teamErrors,
@@ -165,5 +167,68 @@ describe('teamCompetitionDiffers (KOE-1720)', () => {
     ['a counted day removed', { days: ['2026-08-01', '2026-08-02'] }, { days: ['2026-08-01'] }],
   ])('reads %s as a change of the list', (_name, a, b) => {
     expect(teamCompetitionDiffers(a, b)).toBe(true)
+  })
+})
+
+// KOE-1726: the days of the trial whose results the teams count.
+describe('the counted days (KOE-1726)', () => {
+  const trial = {
+    classes: [
+      { class: 'ALO' as const, date: '2026-08-01' as const },
+      { class: 'AVO' as const, date: '2026-08-02' as const },
+    ],
+    endDate: '2026-08-02' as const,
+    startDate: '2026-08-01' as const,
+  }
+
+  describe('isTeamCountedDay', () => {
+    const days = ['2026-07-31', '2026-08-01', '2026-08-02', undefined] as const
+
+    it.each<[string, TeamCompetition | undefined, boolean[]]>([
+      ['every dog without a choice, also one on no day', undefined, [true, true, true, true]],
+      ['every dog for an empty choice', { days: [] }, [true, true, true, true]],
+      ['the dogs of the chosen days', { days: ['2026-08-01'] }, [false, true, false, false]],
+      [
+        'the dogs of the chosen days the trial still has',
+        { days: ['2026-07-31', '2026-08-02'] },
+        [false, false, true, false],
+      ],
+      ['every dog when the trial has none of the chosen', { days: ['2026-07-31'] }, [true, true, true, true]],
+    ])('counts %s', (_name, teamCompetition, expected) => {
+      expect(days.map(isTeamCountedDay({ ...trial, teamCompetition }))).toEqual(expected)
+    })
+
+    it('reads the days of a trial without classes from its dates', () => {
+      const counts = isTeamCountedDay({
+        classes: [],
+        endDate: '2026-08-03',
+        startDate: '2026-08-01',
+        teamCompetition: { days: ['2026-08-03'] },
+      })
+
+      expect([counts('2026-08-02'), counts('2026-08-03')]).toEqual([false, true])
+    })
+  })
+
+  describe('pruneTeamDays', () => {
+    it('drops a day the trial no longer has, and keeps the other settings', () => {
+      const teamCompetition: TeamCompetition = { askAtEntry: true, days: ['2026-08-02', '2026-08-03'] }
+
+      expect(pruneTeamDays({ ...trial, teamCompetition })).toEqual({ askAtEntry: true, days: ['2026-08-02'] })
+    })
+
+    it('removes the choice once none of its days is left, so every day counts', () => {
+      const pruned = pruneTeamDays({ ...trial, teamCompetition: { askAtEntry: true, days: ['2026-07-31'] } })
+
+      expect(pruned).toEqual({ askAtEntry: true })
+      expect(pruned).not.toHaveProperty('days')
+    })
+
+    it('gives the same settings back when every chosen day is still in the trial', () => {
+      const teamCompetition: TeamCompetition = { days: ['2026-08-02', '2026-08-01'] }
+
+      expect(pruneTeamDays({ ...trial, teamCompetition })).toBe(teamCompetition)
+      expect(pruneTeamDays({ ...trial, teamCompetition: undefined })).toBeUndefined()
+    })
   })
 })
