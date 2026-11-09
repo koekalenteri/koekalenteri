@@ -1,5 +1,5 @@
 import { integer, literal, maxValue, minValue, optional, pipe, union } from 'valibot'
-import { OFFICIAL_FORMATS } from '../../types'
+import { LANGUAGES, OFFICIAL_FORMATS } from '../../types'
 import { MAX_DOGS_AT_ONCE } from '../liveFormat'
 import { arrayOf, bool, maybe, num, objectOf, oneOf, str } from './common'
 
@@ -46,6 +46,15 @@ const team = objectOf({
 })
 
 /**
+ * An unofficial event's own class (KOE-674): its code and its name in any of the languages. What a code
+ * may be, and which names it needs, is checked on the merged event (`ownClassErrors`).
+ */
+const ownClass = objectOf({
+  code: str,
+  name: objectOf(Object.fromEntries(LANGUAGES.map((language) => [language, optional(str)]))),
+})
+
+/**
  * The shape of an event body on the wire, read the same partial, non-stripping way as
  * `registrationBodySchema`: one endpoint serves create, update and PATCH, so every field is optional.
  *
@@ -82,6 +91,7 @@ export const eventBodySchema = objectOf({
   /** One of the four official types, or an explicit null that stops following one (KOE-1718). */
   officialFormat: maybe(oneOf(OFFICIAL_FORMATS)),
   organizer: maybe(objectOf({ id: maybe(str), name: maybe(str) })),
+  ownClasses: maybe(arrayOf(ownClass)),
   paymentTime: maybe(oneOf(['registration', 'confirmation'])),
   places: maybe(num),
   placesPerDay: maybe(objectOf({})),

@@ -25,12 +25,12 @@ import { useAdminEventRegistrationGroups } from '@/hooks/useAdminEventRegistrati
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { rowSelectionModel } from '@/lib/datagrid'
 import { eventRegistrationDateKey, formatTypeOf, isEntryEditingClosed, isPaymentWindowOpen } from '@/lib/event'
+import { isEventClass } from '@/lib/eventClass'
 import {
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
   getRegistrationClass,
   getRegistrationGroupKey,
-  isRegistrationClass,
 } from '@/lib/registration'
 import { isConfirmedEvent } from '@/lib/typeGuards'
 import { NullComponent } from '../../components/NullComponent'
@@ -363,7 +363,7 @@ const ClassEntrySelection = ({
         // On the whole-trial tab the numbers belong to the dog's own class (KOE-912).
         const numberClass = eventClass ?? getRegistrationClass(registration, event)
         await eventActions.enterStartNumbers(event.id, {
-          ...(isRegistrationClass(numberClass) ? { eventClass: numberClass } : {}),
+          ...(isEventClass(event, numberClass) ? { eventClass: numberClass } : {}),
           numbers: [{ id: registration.id, startNumber: position }],
         })
       } finally {

@@ -116,6 +116,7 @@ describe('classOrder', () => {
 
   it('orders the official classes ALO, AVO, VOI without own classes', () => {
     expect(['VOI', 'ALO', 'AVO'].sort(classOrder({}))).toEqual(['ALO', 'AVO', 'VOI'])
+    expect([undefined, 'DERBY'].sort(classOrder(unofficial))).toEqual(['DERBY', undefined])
   })
 })
 
@@ -125,5 +126,6 @@ describe('classLabel', () => {
     expect(classLabel(unofficial, 'VET10', 'en')).toBe('Veteraanit')
     expect(classLabel(unofficial, 'ALO', 'fi')).toBe('ALO')
     expect(classLabel({}, 'AVO', 'en')).toBe('AVO')
+    expect(classLabel({ ownClasses: [{ code: 'YKS', name: { en: ' ' } }] }, 'YKS', 'en')).toBe('YKS')
   })
 })

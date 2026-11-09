@@ -9,6 +9,7 @@ import type {
   JsonUser,
   Language,
   NotOptional,
+  OwnClassCode,
   PublicJudge,
   PublicOrganizer,
   RegistrationGroup,
@@ -86,6 +87,12 @@ export interface JsonDogEvent extends JsonDbRecord {
   registrationPaymentsLock?: { expiresAt: number; token: string }
   paymentTime?: PaymentTime
   classes: Array<EventClass>
+  /**
+   * An unofficial event's own classes (KOE-674), such as DERBY: their codes, their names and their
+   * order. The days they run are still `classes`; each own class has one, and there are no others
+   * (`ownClassErrors`). Absent, the event runs the official classes of its type.
+   */
+  ownClasses?: OwnClass[]
   /**
    * Where a copy in test or dev came from (KOE-1471): the environment, the event there, when and by
    * whom. Its people are stand-ins; absent on every event that is not such a copy.
@@ -641,6 +648,12 @@ export type PublicDogEvent = Omit<DogEvent, NonPublicDogEventProperties> & {
 }
 export type SanitizedPublicDogEvent = PublicDogEvent & {
   [K in NonPublicDogEventProperties]?: never
+}
+
+/** An event's own class (KOE-674): the code its entries and links carry, and its name by language. */
+export interface OwnClass {
+  code: OwnClassCode
+  name: Partial<Record<Language, string>>
 }
 
 export type EventClass = {
