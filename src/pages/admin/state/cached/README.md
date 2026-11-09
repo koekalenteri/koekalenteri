@@ -13,6 +13,7 @@ The `users` version follows the same visibility rules as `/admin/user`, and is s
 ## Storage model
 
 Data is stored in IndexedDB through two stores:
+
 - `keystore`: one non-extractable AES-GCM `CryptoKey` plus `{ userId }` metadata.
 - `datasets`: encrypted blobs keyed by `${userId}:${datasetName}`.
 
