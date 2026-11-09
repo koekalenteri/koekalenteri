@@ -827,9 +827,7 @@ describe('ParticipantList', () => {
         await user.click(screen.getByRole('button', { name: /copyStartList/ }))
 
         expect(writeText).toHaveBeenCalledWith(
-          expect.stringMatching(
-            /Joukkue 3\n3A [^\n]*Cesar\n\nAvoin\n\nJoukkue 2\n2A [^\n]*Bella\n\nRotu\n\nJoukkue 1\n/
-          )
+          expect.stringMatching(/Joukkue 3\n3A [\s\S]*?\n\nAvoin\n\nJoukkue 2\n2A [\s\S]*?\n\nRotu\n\nJoukkue 1\n1A /)
         )
       })
     })

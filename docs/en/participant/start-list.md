@@ -5,7 +5,7 @@ order: 30
 covers:
   - src/pages/StartListPage.tsx
   - src/pages/startListPage/**
-sourceHash: d55a16
+sourceHash: d151fe
 ---
 
 The start list is the trial's public page, where the organizer publishes the participants, the
@@ -64,12 +64,23 @@ for first place is decided by a run-off task: its winner is first and the others
 place. Until then they share first place.
 
 A team's place and points show in its heading once the secretary has published the results of every
-team's dogs, for example *place 2, 170 points*. Before that no team shows a result, nor while one of the teams' dogs is not on the list yet, for
-example because its start number has not been entered. In a trial of
-several days, the same line heads the team under every day. The teams that were level for first
+dog of the teams in its series, for example *place 2, 170 points*. Before that no team of the series
+shows a result, nor while one of the series' teams' dogs is not on the list yet, for example because
+its start number has not been entered. In a trial without series, all teams are one series. In a
+trial of several days, the same line heads the team under every day. The teams that were level for first
 place also show *({t:startList.teamRunOff})*. In a trial without points the teams have no result.
 
 !shot[ParticipantList/start-list-team-standings] The team results: teams 1 and 2 were level on points, and team 2 won the run-off
+
+### Series
+
+A team competition may have several series, for example an open series and a breed series. Then the
+list by team goes series by series under each series' name, and the teams in no series come first.
+Each series is placed on its own: every series has its own first place and, for a tie, its own
+run-off task. The series' name shows in the page's language where the organizer has given it in that
+language, and otherwise in Finnish.
+
+!shot[ParticipantList/start-list-team-series] A team competition in two series: team 4 is in no series, and each series has its own first place
 
 ## When the order is final
 

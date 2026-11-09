@@ -5,8 +5,10 @@ import { ThemeProvider } from '@mui/material/styles'
 import { page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import theme from '../../assets/Theme'
+import { TestProvider } from '../../test-utils/AtomProvider'
 import { startOfFinnishDay } from '../../test-utils/finnishDays'
 import { describeInLanguage } from '../../test-utils/language'
+import { languageAtom } from '../state/user/atoms'
 import { ParticipantList } from './ParticipantList'
 
 /** Wrapper the screenshot is taken of: a fixed width and an opaque background keep captures stable. */
@@ -281,10 +283,13 @@ it('lists a team competition series by series (KOE-1720)', async () => {
 
 describeInLanguage('en', () => {
   it('lists a team competition series by series (KOE-1720)', async () => {
+    // A store of its own: the series name follows the language atom, which a shared store keeps Finnish.
     const screen = await render(
-      <Frame>
-        <ParticipantList event={seriesTrial} participants={seriesDogs} />
-      </Frame>
+      <TestProvider initializeState={({ set }) => set(languageAtom, 'en')}>
+        <Frame>
+          <ParticipantList event={seriesTrial} participants={seriesDogs} />
+        </Frame>
+      </TestProvider>
     )
 
     await expect.element(screen.getByText('Open series')).toBeVisible()

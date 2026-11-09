@@ -1,11 +1,12 @@
 /**
  * How the public start list page arranges its rows: the notes that say a class's list or numbers are
- * not out yet, and the view by team (KOE-1715). Kept apart from `startList.ts`, which the API client
+ * not out yet, and the view by team (KOE-1715), series by series (KOE-1720). Kept apart from `startList.ts`, which the API client
  * loads with the first page of the calendar, so that this loads with the start list page alone.
  */
 import type { TFunction } from 'i18next'
+import type { Language } from '../types'
 import type { DayKey } from '../types/Day'
-import type { PublicConfirmedEvent } from '../types/Event'
+import type { PublicConfirmedEvent, TeamCompetition } from '../types/Event'
 import type { PublicRegistration, PublicTeamPlace } from '../types/Registration'
 import { isStartListAvailableForRegistration, isStartNumbersAvailableForRegistration } from './event'
 
@@ -90,8 +91,23 @@ function entryOf<K, V>(map: Map<K, V>, key: K, make: () => V): V {
 const letterOrder = (a: PublicRegistration, b: PublicRegistration) =>
   (a.team?.code ?? '').localeCompare(b.team?.code ?? '')
 
-function teamDay(date: DayKey, draft: TeamDayDraft): StartListTeamDay {
-  const teams = [...draft.teams.values()].sort((a, b) => a.number - b.number)
+/** What the team view reads of the event: the series of its team competition, which name and order them. */
+type SeriesOwner = { teamCompetition?: Pick<TeamCompetition, 'series'> | null }
+
+/**
+ * Where a series is in the order of the team view (KOE-1720): the teams in no series first, then each
+ * series in the competition's order, and one the competition no longer names after them.
+ */
+const seriesPlace = (event: SeriesOwner, seriesId: string | undefined): number => {
+  if (seriesId === undefined) return -1
+  const index = event.teamCompetition?.series?.findIndex(({ id }) => id === seriesId) ?? -1
+  return index === -1 ? Number.MAX_SAFE_INTEGER : index
+}
+
+function teamDay(date: DayKey, draft: TeamDayDraft, event: SeriesOwner): StartListTeamDay {
+  const teams = [...draft.teams.values()].sort(
+    (a, b) => seriesPlace(event, a.seriesId) - seriesPlace(event, b.seriesId) || a.number - b.number
+  )
   for (const team of teams) team.rows.sort(letterOrder)
   const classRows = [...draft.classRows.values()]
   return { classRows, date, noTeam: draft.noTeam, showClass: classRows.length > 1, teams }
@@ -121,9 +137,9 @@ export const teamRowPrefix = (registration: PublicRegistration, showClass: boole
  * The start list by team, from the rows in the running order the list already has: day by day, so a
  * dog of a multi-day trial is under the day it runs. The dogs in no team keep that order. A cancelled
  * dog has no team (KOE-1017) and is left out, and a team none of whose dogs is listed that day is not
- * shown.
+ * shown. In a competition in series the teams are listed series by series (`seriesPlace`, KOE-1720).
  */
-export function startListTeamDays(rows: readonly StartListDayRow[]): StartListTeamDay[] {
+export function startListTeamDays(rows: readonly StartListDayRow[], event: SeriesOwner = {}): StartListTeamDay[] {
   const days = new Map<DayKey, TeamDayDraft>()
   for (const { date, registration } of rows) {
     if (registration.cancelled) continue
@@ -138,5 +154,15 @@ export function startListTeamDays(rows: readonly StartListDayRow[]): StartListTe
     }
   }
 
-  return [...days].map(([date, draft]) => teamDay(date, draft))
+  return [...days].map(([date, draft]) => teamDay(date, draft, event))
+}
+
+/**
+ * A series as the team view heads it (KOE-1720): its name in the viewer's language, in Finnish where it
+ * has none, and its id once the competition no longer names it. The rows carry only the id, so a
+ * renamed series needs no new list.
+ */
+export const teamSeriesName = (event: SeriesOwner, seriesId: string, language: Language): string => {
+  const name = event.teamCompetition?.series?.find(({ id }) => id === seriesId)?.name
+  return [name?.[language], name?.fi].find((text) => text?.trim()) ?? seriesId
 }

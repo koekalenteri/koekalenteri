@@ -5,8 +5,10 @@ import type { PublicConfirmedEvent } from '../../types/Event'
 import type { PublicRegistration } from '../../types/Registration'
 import Box from '@mui/material/Box'
 import TableCell from '@mui/material/TableCell'
+import { useAtomValue } from 'jotai'
 import { useTranslation } from 'react-i18next'
-import { formatTeamStanding, teamDayNoteLines, teamRowPrefix } from '../../lib/startListView'
+import { formatTeamStanding, teamDayNoteLines, teamRowPrefix, teamSeriesName } from '../../lib/startListView'
+import { languageAtom } from '../state/user/atoms'
 import { DateHeader } from './DateHeader'
 import { RegistrationDetails } from './RegistrationDetails'
 import { StyledTableRow } from './StyledTableRow'
@@ -27,6 +29,15 @@ const TeamHeader = ({ title, name, standing }: TeamHeaderProps) => (
       {title && <Box sx={{ fontWeight: 500 }}>{title}</Box>}
       {name && <Box sx={{ fontWeight: 'bold' }}>{name}</Box>}
       {standing && <Box>{standing}</Box>}
+    </TableCell>
+  </StyledTableRow>
+)
+
+/** A series' heading in a competition in series (KOE-1720): its name, above its teams. */
+const SeriesHeader = ({ name }: { readonly name: string }) => (
+  <StyledTableRow data-testid="team-series-header">
+    <TableCell colSpan={6} sx={{ fontSize: '1.05em', fontWeight: 'bold', pt: 3 }}>
+      {name}
     </TableCell>
   </StyledTableRow>
 )
@@ -59,10 +70,13 @@ interface TeamStartListProps {
  * The start list by team (KOE-1715): under each day the notes of its classes whose list or numbers are
  * not out yet, which the running order shows in the class headings, then its teams, each with its
  * number, its name, its standing over the trial (KOE-1717) and its dogs in letter order, then the dogs
- * in no team. The rows are the running order's own, the code in front of the number.
+ * in no team. In a competition in series each series is headed by its name in the viewer's language,
+ * the teams in no series first (KOE-1720). The rows are the running order's own, the code in front of
+ * the number.
  */
 export const TeamStartList = ({ days, event, warnNumberPending }: TeamStartListProps) => {
   const { t } = useTranslation()
+  const language = useAtomValue(languageAtom)
 
   return days.map((day) => [
     <DateHeader key={day.date} date={day.date} />,
@@ -73,17 +87,21 @@ export const TeamStartList = ({ days, event, warnNumberPending }: TeamStartListP
         </TableCell>
       </StyledTableRow>
     )),
-    ...teamDayRows(day, t, warnNumberPending),
+    ...teamDayRows(day, t, warnNumberPending, (seriesId) => teamSeriesName(event, seriesId, language)),
   ])
 }
 
-/** A day's teams and its dogs in no team, each under its heading. */
+/** A day's teams and its dogs in no team, each under its heading, and a series' heading above its first team. */
 const teamDayRows = (
   { date, noTeam, showClass, teams }: StartListTeamDay,
   t: TFunction,
-  warnNumberPending: TeamStartListProps['warnNumberPending']
+  warnNumberPending: TeamStartListProps['warnNumberPending'],
+  seriesName: (seriesId: string) => string
 ) => [
-  ...teams.flatMap((team) => [
+  ...teams.flatMap((team, index) => [
+    ...(team.seriesId && team.seriesId !== teams[index - 1]?.seriesId
+      ? [<SeriesHeader key={`series-${date}-${team.seriesId}`} name={seriesName(team.seriesId)} />]
+      : []),
     <TeamHeader
       key={`team-${date}-${team.number}`}
       name={team.name}
