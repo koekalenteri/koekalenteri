@@ -66,13 +66,23 @@ ratkaistaan uusintatehtävällä: sen voittaja on ensimmäinen ja muut jakavat s
 asti ne jakavat ensimmäisen sijan.
 
 Joukkueen sijoitus ja pisteet näkyvät joukkueen otsikossa, kun koesihteeri on julkaissut kaikkien
-joukkueiden koirien tulokset, esimerkiksi *2. sija, 170 pistettä*. Ennen sitä tulosta ei näytetä
-yhdellekään joukkueelle. Tulosta ei näytetä myöskään silloin, kun joku joukkueiden koirista ei vielä
-ole listalla, esimerkiksi koska sen starttinumeroa ei ole syötetty. Monipäiväisessä kokeessa sama rivi on joukkueen otsikossa jokaisen päivän
-alla. Ensimmäisestä sijasta tasapisteissä olleiden joukkueiden rivillä lukee lisäksi
+sen sarjan joukkueiden koirien tulokset, esimerkiksi *2. sija, 170 pistettä*. Ennen sitä tulosta ei
+näytetä yhdellekään sarjan joukkueelle. Tulosta ei näytetä myöskään silloin, kun joku sarjan
+joukkueiden koirista ei vielä ole listalla, esimerkiksi koska sen starttinumeroa ei ole syötetty.
+Kokeessa, jossa ei ole sarjoja, kaikki joukkueet ovat yhtä sarjaa. Monipäiväisessä kokeessa sama
+rivi on joukkueen otsikossa jokaisen päivän alla. Ensimmäisestä sijasta tasapisteissä olleiden joukkueiden rivillä lukee lisäksi
 *({t:startList.teamRunOff})*. Kokeessa, jossa ei jaeta pisteitä, joukkueilla ei ole tulosta.
 
 !shot[ParticipantList/start-list-team-standings] Joukkueiden tulokset: joukkueet 1 ja 2 olivat tasapisteissä, ja joukkue 2 voitti uusintatehtävän
+
+### Sarjat
+
+Joukkuekilpailussa voi olla useita sarjoja, esimerkiksi avoin sarja ja rotusarja. Silloin joukkueet
+on jaettu sarjoihin, kukin sarjan nimen alla, ja sarjaan kuulumattomat joukkueet ovat ensimmäisinä. Jokainen sarja sijoitetaan erikseen: kullakin sarjalla on oma ensimmäinen sijansa ja
+tasapisteissä oma uusintatehtävänsä. Sarjan nimi näkyy sivun kielellä, jos järjestäjä on antanut
+sen sillä kielellä, ja muuten suomeksi.
+
+!shot[ParticipantList/start-list-team-series] Joukkuekilpailu kahdessa sarjassa: joukkue 4 ei kuulu sarjaan, ja kummallakin sarjalla on oma ensimmäinen sijansa
 
 ## Milloin järjestys on lopullinen
 

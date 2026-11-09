@@ -11,6 +11,7 @@ import {
   startListTeamDays,
   teamDayNoteLines,
   teamRowPrefix,
+  teamSeriesName,
 } from './startListView'
 import { toPublicRegistration } from './wire'
 
@@ -98,6 +99,34 @@ describe('startListTeamDays', () => {
         ],
       },
       { date: DAY_2, noTeam: [], showClass: false, teams: [{ name: undefined, number: 2, rows: ['Fanni'] }] },
+    ])
+  })
+
+  // KOE-1720: a competition in series lists its teams series by series, the teams in none first.
+  it('lists the teams series by series, in the order of the competition, the teams in no series first', () => {
+    const event = {
+      teamCompetition: {
+        series: [
+          { id: 'open', name: { fi: 'Avoin' } },
+          { id: 'breed', name: { fi: 'Rotu' } },
+        ],
+      },
+    }
+    const [day] = startListTeamDays(
+      [
+        row('Aapo', DAY_1, { team: { code: '1A', number: 1, seriesId: 'breed' } }),
+        row('Bella', DAY_1, { team: { code: '2A', number: 2, seriesId: 'open' } }),
+        row('Cesar', DAY_1, { team: { code: '3A', number: 3 } }),
+        row('Dora', DAY_1, { team: { code: '4A', number: 4, seriesId: 'open' } }),
+      ],
+      event
+    )
+
+    expect(day.teams.map((team) => [team.number, team.seriesId])).toEqual([
+      [3, undefined],
+      [2, 'open'],
+      [4, 'open'],
+      [1, 'breed'],
     ])
   })
 
@@ -202,5 +231,23 @@ describe('formatTeamStanding (KOE-1717)', () => {
     ['no standing while it is not public', {}, undefined],
   ])('writes %s', (_what, standing, expected) => {
     expect(formatTeamStanding(standing, t)).toBe(expected)
+  })
+})
+
+describe('teamSeriesName (KOE-1720)', () => {
+  const event = {
+    teamCompetition: {
+      series: [
+        { id: 'open', name: { en: 'Open', fi: 'Avoin' } },
+        { id: 'breed', name: { fi: 'Rotu' } },
+      ],
+    },
+  }
+
+  it("names a series in the viewer's language, in Finnish without one, and by its id once it is gone", () => {
+    expect(teamSeriesName(event, 'open', 'en')).toBe('Open')
+    expect(teamSeriesName(event, 'breed', 'en')).toBe('Rotu')
+    expect(teamSeriesName(event, 'gone', 'fi')).toBe('gone')
+    expect(teamSeriesName({}, 'open', 'fi')).toBe('open')
   })
 })

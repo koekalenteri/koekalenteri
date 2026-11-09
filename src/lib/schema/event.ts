@@ -43,6 +43,8 @@ const rotationGroup = objectOf({
  */
 const team = objectOf({
   name: optional(str),
+  /** The first team of its club or kennel (KOE-1722), drawn first. */
+  primary: optional(literal(true)),
   registrationIds: arrayOf(str),
   runOffWon: optional(bool),
   seriesId: optional(str),

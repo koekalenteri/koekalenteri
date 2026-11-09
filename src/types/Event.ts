@@ -559,6 +559,11 @@ export interface EventTeam {
    */
   runOffWon?: boolean
   /**
+   * The first team of its club or kennel (KOE-1722, "ykkösjoukkue"): drawn for the places before the
+   * other teams (`teamDraw`) when more teams enter than the trial holds.
+   */
+  primary?: true
+  /**
    * The series the team competes in (KOE-1720), one of the event's `teamCompetition.series`. Teams are
    * ranked within their series, and the teams in none among themselves.
    */
@@ -579,7 +584,11 @@ export interface TeamSeries {
 export interface TeamCompetition {
   /** The series the teams are ranked in, each on its own. None is one series of every team. */
   series?: TeamSeries[]
-  /** The days whose results a team counts (KOE-1726). None counts every day of the trial. */
+  /**
+   * The days whose results a team counts (KOE-1726), such as a derby's qualifying day. None, or none the
+   * trial still has, counts every day (`isTeamCountedDay`); an event save leaves out a day the trial no
+   * longer has, and a copy moves them with the trial's days.
+   */
   days?: DayKey[]
   /** The entry form asks for the dog's team (KOE-1721). */
   askAtEntry?: boolean
