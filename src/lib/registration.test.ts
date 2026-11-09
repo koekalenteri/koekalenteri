@@ -1294,6 +1294,51 @@ describe('lib/registration', () => {
       expect(result.groupNumber).toBe(5)
     })
 
+    // KOE-674: an own class reaches the registrant by its name in their language; the code is for links.
+    it.each([
+      ['en', 'Derby (open)'],
+      ['fi', 'Derby'],
+    ] as const)('names an own class in the email in the registrant language %s', (language, expected) => {
+      const registration = asJsonRegistration({
+        class: 'DERBY',
+        dates: [],
+        dog: {},
+        eventId: 'event1',
+        id: 'reg1',
+        language,
+        qualifyingResults: [],
+      })
+      const confirmedEvent = asJsonEvent({
+        endDate: '2024-08-02' as const,
+        eventType: 'WT-harjoitus',
+        ownClasses: [{ code: 'DERBY', name: { en: 'Derby (open)', fi: 'Derby' } }],
+        startDate: '2024-08-01' as const,
+      })
+
+      const data = getRegistrationEmailTemplateData(registration, confirmedEvent, undefined, '', undefined, t)
+
+      expect(data.reg.class).toBe(expected)
+      // The registration itself keeps the code.
+      expect(registration.class).toBe('DERBY')
+    })
+
+    it('leaves an official class as its code in the email', () => {
+      const registration = asJsonRegistration({
+        class: 'ALO',
+        dates: [],
+        dog: {},
+        eventId: 'event1',
+        id: 'reg1',
+        language: 'en',
+        qualifyingResults: [],
+      })
+      const confirmedEvent = asJsonEvent({ endDate: '2024-08-02' as const, startDate: '2024-08-01' as const })
+
+      expect(
+        getRegistrationEmailTemplateData(registration, confirmedEvent, undefined, '', undefined, t).reg.class
+      ).toBe('ALO')
+    })
+
     it('should give the entered dates as the group date of a dog not placed on a day (KOE-1458)', () => {
       const echo = ((key: string, options?: { date?: string }) =>
         options?.date ? `${key}:${options.date}` : key) as unknown as TFunction

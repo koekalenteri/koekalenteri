@@ -578,6 +578,30 @@ describe('ParticipantList', () => {
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('2. startList.absent'))
   })
 
+  // KOE-674: the copied list names an own class as the page does, by its name.
+  it('copies an own class under its name', async () => {
+    const user = userEvent.setup()
+    mockClipboard()
+    const ownClassEvent: PublicConfirmedEvent = {
+      ...mockEvent,
+      classes: [{ class: 'DERBY', date: '2023-01-01', judge: { id: 1, name: 'Judge One' }, state: 'invited' }],
+      eventType: 'WT-harjoitus',
+      ownClasses: [{ code: 'DERBY', name: { fi: 'Derby-luokka' } }],
+    }
+
+    render(
+      <ParticipantList
+        participants={[createMockRegistration('DERBY', 'Dog 1', 1, '2023-01-01', 'ap')]}
+        event={ownClassEvent}
+        showExportActions
+      />
+    )
+    await user.click(screen.getByRole('button', { name: /copy|kopioi/i }))
+
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('Derby-luokka Judge One'))
+    expect(writeText).toHaveBeenCalledWith(expect.not.stringContaining('DERBY'))
+  })
+
   // The same class on two days, judged by different people: each day's heading names its own judge,
   // the class's day key matched to the dog's (KOE-1547).
   it("copies each day's judge under the same class on two days", async () => {

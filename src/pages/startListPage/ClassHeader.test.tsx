@@ -6,6 +6,7 @@ import { ClassHeader } from './ClassHeader'
 // Mock i18next
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
+    i18n: { language: 'fi' },
     t: vi.fn((key) => key),
   }),
 }))
@@ -64,6 +65,25 @@ describe('ClassHeader', () => {
 
     // Check that class is rendered
     expect(screen.getByText(/^AVO Judge One$/)).toBeInTheDocument()
+  })
+
+  // KOE-674: an own class is headed by its name.
+  it('heads an own class by its name', () => {
+    const ownClassEvent: PublicConfirmedEvent = {
+      ...mockEvent,
+      classes: [{ class: 'DERBY', date: mockDate, judge: { id: 1, name: 'Judge One' } }],
+      eventType: 'WT-harjoitus',
+      ownClasses: [{ code: 'DERBY', name: { fi: 'Derby-luokka' } }],
+    }
+    render(
+      <table>
+        <tbody>
+          <ClassHeader classValue="DERBY" event={ownClassEvent} lastDate={mockDate} />
+        </tbody>
+      </table>
+    )
+
+    expect(screen.getByText(/^Derby-luokka Judge One$/)).toBeInTheDocument()
   })
 
   it('renders class header with multiple judges correctly', () => {

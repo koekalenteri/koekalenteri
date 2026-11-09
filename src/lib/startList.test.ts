@@ -155,6 +155,28 @@ describe('a published result on the exported list', () => {
     expect(row.at(-1)).toBe('')
   })
 
+  // KOE-674: the downloaded list names an own class as the page does.
+  it('names an own class in the class column', () => {
+    const event: PublicConfirmedEvent = {
+      ...eventWithStaticDates,
+      classes: [],
+      eventType: 'WT-harjoitus',
+      ownClasses: [{ code: 'DERBY', name: { en: 'Derby class', fi: 'Derby-luokka' } }],
+    }
+    const registration: PublicRegistration = {
+      breeder: 'Test Breeder',
+      class: 'DERBY',
+      dog: { name: 'Test Dog', regNo: 'REG1' },
+      group: { key: 'DERBY', number: 2 },
+      handler: 'Test Handler',
+      owner: 'Test Owner',
+    }
+
+    const [, row] = startListSpreadsheetRows([registration], event, t, 'en')
+
+    expect(row[2]).toBe('Derby class')
+  })
+
   it('carries the placement in its own column', () => {
     const event: PublicConfirmedEvent = { ...eventWithStaticDates, classes: [] }
     const registration: PublicRegistration = {

@@ -96,6 +96,40 @@ describe('EntryInfo', () => {
     )
   })
 
+  // KOE-674: the registrant picks an own class by its name; the registration stores the code.
+  it("offers an event's own classes by their names and stores the code", async () => {
+    const ownClassEvent = {
+      ...eventWithStaticDatesAnd3Classes,
+      classes: eventWithStaticDatesAnd3Classes.classes.map((eventClass) => ({
+        ...eventClass,
+        class: eventClass.class === 'ALO' ? 'DERBY' : 'VET10',
+      })),
+      eventType: 'WT-harjoitus',
+      ownClasses: [
+        { code: 'DERBY', name: { fi: 'Derby-luokka' } },
+        { code: 'VET10', name: { fi: 'Veteraanit' } },
+      ],
+    }
+    const reg = merge(registrationWithStaticDatesAndClass, { class: 'DERBY', eventType: 'WT-harjoitus' })
+    const changeHandler = vi.fn((props) => Object.assign(reg, props))
+
+    const { user } = renderWithUserEvents(
+      <EntryInfo reg={reg} event={ownClassEvent} errorStates={{}} helperTexts={{}} onChange={changeHandler} />,
+      { wrapper: Wrapper },
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+
+    const classInput = screen.getByRole('combobox', { name: 'registration.class' })
+    expect(classInput).toHaveValue('Derby-luokka')
+
+    await user.click(classInput)
+    await flushPromises()
+    await user.click(screen.getByRole('option', { name: 'Veteraanit' }))
+    await flushPromises()
+
+    expect(changeHandler).toHaveBeenCalledWith(expect.objectContaining({ class: 'VET10' }))
+  })
+
   it('should clear class when event does not have classes', async () => {
     const reg = merge(registrationWithStaticDatesAndClass, {})
     const changeHandler = vi.fn()
