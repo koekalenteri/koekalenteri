@@ -35,18 +35,19 @@ const seedUnofficialType = () => {
 }
 
 /**
- * An unofficial trial that runs a class of its own (KOE-674): a derby's DERBY. The class is the event's
- * own code, its days are the event's class days, and the trial has no Kennelliitto link.
+ * An unofficial trial that runs a class of its own (KOE-674): a derby's one class, coded DRB and named
+ * Derby, since a code may not be the type's name (`ownClassErrors`). The class is the event's own
+ * code, its days are the event's class days, and the trial has no Kennelliitto link.
  */
 const seedDerby = async () => {
   const organizer = await seedOrganizer()
   return seedEvent({
-    classes: [{ class: 'DERBY', date: helsinkiDay(14), places: 20 }],
+    classes: [{ class: 'DRB', date: helsinkiDay(14), places: 20 }],
     eventType: 'Derby',
     kcGuid: undefined,
     kcId: undefined,
     organizer: { id: organizer.id, name: organizer.name },
-    ownClasses: [{ code: 'DERBY', name: { en: 'Derby', fi: 'Derby' } }],
+    ownClasses: [{ code: 'DRB', name: { en: 'Derby', fi: 'Derby' } }],
   })
 }
 
@@ -65,7 +66,7 @@ test.describe('an own class of an unofficial trial', { annotation: issue('KOE-67
     await form.submit.click()
 
     const key = await new PaymentPage(page).registrationKey()
-    expect(await readRegistration(key.eventId, key.id)).toMatchObject({ class: 'DERBY' })
+    expect(await readRegistration(key.eventId, key.id)).toMatchObject({ class: 'DRB' })
   })
 
   test('the server refuses an entry in a class the trial does not run', async () => {
