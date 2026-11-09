@@ -1,6 +1,7 @@
 import { useAtomValue } from 'jotai'
 import { useParams } from 'react-router'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
+import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning'
 import { Path } from '../../routeConfig'
 import DroppedTasksDialog from './components/DroppedTasksDialog'
 import EventForm from './components/EventForm'
@@ -15,12 +16,17 @@ export default function EventEditPage() {
   useAdminEventScope(eventId)
   const { viewers } = useEventSubscription(eventId)
   const storedEvent = useAtomValue(adminEventAtom(eventId))
-  const { event, changes, canSave, dropsDialogProps, handleChange, handleSave, handleCancel } = useEventForm({
-    eventId,
-    form: 'edit',
-    onDoneRedirect: Path.admin.events,
-    storedEvent,
-  })
+  const { event, changes, canSave, discardChanges, dropsDialogProps, handleChange, handleSave, handleCancel } =
+    useEventForm({
+      eventId,
+      form: 'edit',
+      onDoneRedirect: Path.admin.events,
+      storedEvent,
+    })
+
+  // The draft lives in session storage, so leaving unsaved asks first, and the answer to leave drops this
+  // page's draft and only that, as on the posts and teams pages (KOE-1700).
+  useUnsavedChangesWarning(canSave, discardChanges)
 
   if (!event?.id) {
     return <EventNotFound />

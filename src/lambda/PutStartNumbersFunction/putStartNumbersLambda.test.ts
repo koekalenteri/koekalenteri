@@ -349,11 +349,77 @@ describe('putStartNumbersLambda', () => {
     expect(mockPublishPublicStartList).toHaveBeenCalledWith('event-1')
   })
 
+  describe('a dog numbered twice in one draw (KOE-1616)', () => {
+    const repeated = expect.objectContaining({ error: 'startNumberEntryRepeated', id: 'run-1' })
+
+    it.each([
+      ['the same number', 4],
+      ['another number', 5],
+    ])('refuses it with %s, and writes and audits nothing', async (_name, again) => {
+      await putStartNumbersLambda(
+        apiEvent({
+          eventClass: 'ALO',
+          numbers: [
+            { id: 'run-1', startNumber: 4 },
+            { id: 'run-1', startNumber: again },
+          ],
+        })
+      )
+
+      expect(mockResponse).toHaveBeenCalledWith(422, repeated, expect.anything())
+      expect(mockLockRegistrationGroups).not.toHaveBeenCalled()
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockAudit).not.toHaveBeenCalled()
+    })
+
+    it('refuses it before a publish in the same request freezes anything', async () => {
+      await putStartNumbersLambda(
+        apiEvent({
+          eventClass: 'ALO',
+          numbers: [
+            { id: 'run-1', startNumber: 4 },
+            { id: 'run-1', startNumber: 4 },
+          ],
+          published: true,
+        })
+      )
+
+      expect(mockResponse).toHaveBeenCalledWith(422, repeated, expect.anything())
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockWriteEventFields).not.toHaveBeenCalled()
+      expect(mockAudit).not.toHaveBeenCalled()
+    })
+
+    it('refuses more entries than the event has dogs, which only repeats can make', async () => {
+      const numbers = Array.from({ length: 100 }, () => ({ id: 'run-1', startNumber: 4 }))
+
+      await putStartNumbersLambda(apiEvent({ eventClass: 'ALO', numbers }))
+
+      expect(mockResponse).toHaveBeenCalledWith(422, repeated, expect.anything())
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockAudit).not.toHaveBeenCalled()
+    })
+  })
+
   it('releases the lock when a validation refuses the write', async () => {
     await expect(
-      putStartNumbersLambda(apiEvent({ eventClass: 'ALO', numbers: [{ id: 'run-1', startNumber: 0 }] }))
+      putStartNumbersLambda(apiEvent({ eventClass: 'ALO', numbers: [{ id: 'nobody', startNumber: 4 }] }))
+    ).rejects.toThrow("Registration 'nobody' not found")
+
+    expect(mockLockRegistrationGroups).toHaveBeenCalled()
+    expect(mockReleaseLock).toHaveBeenCalled()
+  })
+
+  it('refuses a number that is no start number before a publish in the same request freezes anything (KOE-1616)', async () => {
+    await expect(
+      putStartNumbersLambda(
+        apiEvent({ eventClass: 'ALO', numbers: [{ id: 'run-1', startNumber: 0 }], published: true })
+      )
     ).rejects.toThrow("Invalid start number '0'")
 
-    expect(mockReleaseLock).toHaveBeenCalled()
+    expect(mockLockRegistrationGroups).not.toHaveBeenCalled()
+    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    expect(mockWriteEventFields).not.toHaveBeenCalled()
+    expect(mockAudit).not.toHaveBeenCalled()
   })
 })

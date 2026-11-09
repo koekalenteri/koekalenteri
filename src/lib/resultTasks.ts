@@ -195,6 +195,21 @@ type TaskAddress = Pick<JsonEventResultTask, 'exercise' | 'part'>
 
 const addressKey = ({ exercise, part }: TaskAddress): string => `${exercise}#${part}`
 
+/**
+ * The first address a task list names twice, or none (KOE-1616). A round holds one score at each address,
+ * so a list that repeats one is no round: the write boundary refuses it, which also bounds a list by the
+ * slots of the round it must fit.
+ */
+export const repeatedAddress = <T extends TaskAddress>(tasks: readonly T[]): T | undefined => {
+  const seen = new Set<string>()
+  return tasks.find((task) => {
+    const key = addressKey(task)
+    if (seen.has(key)) return true
+    seen.add(key)
+    return false
+  })
+}
+
 /** Whether a dog's slot holds this score. */
 export const holdsScore = (slot: TaskAddress, task: TaskAddress): boolean =>
   slot.exercise === task.exercise && slot.part === task.part
