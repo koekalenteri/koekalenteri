@@ -21,6 +21,7 @@ import AutocompleteSingle from '../../components/AutocompleteSingle'
 import {
   adminActiveEventTypesAtom,
   adminActiveJudgesAtom,
+  adminEventEnteredClassesAtom,
   adminEventOfficialFormatLockedAtom,
   adminEventPaymentLockedAtom,
   adminEventTypeClassesAtom,
@@ -85,7 +86,9 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
   // A turn or a result locks the official type an unofficial trial follows, as PutEvent does (KOE-1718).
   const officialFormatLocked = useAtomValue(adminEventOfficialFormatLockedAtom(event.id ?? ''))
   const entryStartLocked = paymentLocked && hasEarlyBirdPrice(event)
-  const [errors, setErrors] = useState(event ? validateEvent(event, { judges: activeJudges }) : [])
+  // The classes the registrations are in, cancelled ones too, which PutEvent keeps (KOE-674).
+  const enteredClasses = useAtomValue(adminEventEnteredClassesAtom(event.id ?? ''))
+  const [errors, setErrors] = useState(event ? validateEvent(event, { enteredClasses, judges: activeJudges }) : [])
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({
     basic: true,
     contact: md,
@@ -190,6 +193,8 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       judges: event.judges,
       mockTrial: event.mockTrial,
       officialFormat: event.officialFormat,
+      // The classes a judge judges are listed in the event's order (KOE-674).
+      ownClasses: event.ownClasses,
       startDate: event.startDate,
     }),
     [
@@ -199,6 +204,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       event.judges,
       event.mockTrial,
       event.officialFormat,
+      event.ownClasses,
       event.startDate,
     ]
   )
@@ -288,12 +294,12 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       // Keep the previous errors reference when nothing actually changed, so the errorStates/
       // helperTexts memo below (and any memoized section relying on them) can skip recomputing.
       setErrors((prev) => {
-        const next = validateEvent(newState, { judges: activeJudges })
+        const next = validateEvent(newState, { enteredClasses, judges: activeJudges })
         return objectsDiffer(prev, next) ? next : prev
       })
       onChange?.(newState)
     },
-    [activeJudges, onChange]
+    [activeJudges, enteredClasses, onChange]
   )
 
   const handleOpenChange = useCallback(
@@ -386,6 +392,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       >
         <BasicInfoSection
           disabled={allDisabled}
+          enteredClasses={enteredClasses}
           errorStates={errorStates}
           event={basicInfoEvent}
           eventTypeClasses={eventTypeClasses}

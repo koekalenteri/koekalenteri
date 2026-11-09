@@ -64,7 +64,8 @@ kun kaikki vaadittu on paikallaan. Käy osiot läpi ja tarkista erityisesti:
   kohdasta **{t:event.classes}**. Luokan rivillä kerrotaan, mitä siinä on korjattavaa ennen
   tallennusta. Kun luokassa on ilmoittautumisia, sen koodia ei voi muuttaa eikä luokkaa poistaa.
   Kun kokeen luokissa on jo ilmoittautumisia, omia luokkia ei voi ottaa käyttöön eikä niitä voi
-  poistaa vaihtamalla koetyyppiä,
+  poistaa vaihtamalla koetyyppiä. Ilmoittautumisiksi lasketaan myös perutut ja maksamattomat;
+  jos tallennus torjutaan niiden takia, Koekalenteri kertoo, mistä luokista on kyse,
 - **tuomarit ja luokat, joita kukin arvostelee**,
 - **{t:event.kcIdSectionTitle}**: koe liitetään Kennelliiton kokeeseen, jotta tulokset voi tallentaa,
 - **yhteystiedot** — mitkä vastaavan koetoimitsijan ja koesihteerin tiedot ilmoittautuja saa nähdä.

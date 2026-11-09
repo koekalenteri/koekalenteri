@@ -318,6 +318,19 @@ describe('validation', () => {
     })
   })
 
+  it('holds the own classes to the classes cancelled entries are in, as the save does', () => {
+    const event: PartialEvent = {
+      ...emptyEvent,
+      classes: [{ class: 'YKS', date: '2099-06-06' }],
+      eventType: 'Harjoitus',
+      ownClasses: [{ code: 'YKS', name: { fi: 'Yksilö' } }],
+    }
+    expect(validateEventField(event, 'ownClasses', false, { enteredClasses: ['VET'] })).toEqual({
+      key: 'ownClasses',
+      opts: { field: 'ownClasses', length: 1, list: ['VET'], state: 'confirmed', type: 'Harjoitus' },
+    })
+  })
+
   describe('an own class without a code', () => {
     it('keeps the form from saving, named by a placeholder', () => {
       const event: PartialEvent = {

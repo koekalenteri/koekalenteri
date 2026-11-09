@@ -67,6 +67,11 @@ export interface Props extends Readonly<Omit<SectionProps, 'event'>> {
   readonly selectedEventType?: EventType
   /** A post has run a turn or a dog has a result: the official type followed stays (KOE-1718). */
   readonly officialFormatLocked?: boolean
+  /**
+   * The classes the event's registrations are in, cancelled ones too (KOE-674): the save refuses to take
+   * one away, and the class days' entry counts leave the cancelled out.
+   */
+  readonly enteredClasses?: readonly string[]
 }
 
 /** A stable default for `useLocalState`, so its initial-value effect does not fire on every render. */
@@ -107,6 +112,7 @@ function BasicInfoSection({
   secretaries,
   selectedEventType,
   officialFormatLocked = false,
+  enteredClasses,
 }: Props) {
   const { t } = useTranslation()
   // The classes on offer are the format's: an unofficial trial following NOWT runs NOWT's (KOE-1718).
@@ -148,7 +154,7 @@ function BasicInfoSection({
   const hasEntries = eventHasEntries(event)
   // The type is kept once there are entries, by the event's count or its class days' (KOE-674): an
   // official type would take away the own classes the entries are in, which the save refuses.
-  const classDaysEntered = enteredClassCodes(event.classes).length > 0
+  const classDaysEntered = enteredClassCodes(event.classes).length > 0 || !!enteredClasses?.length
   const typeLocked = hasEntries || classDaysEntered
   const ownClassesEntered = typeLocked && !!event.ownClasses?.length
   // The event's days are day keys (KOE-1547), counted and moved as days whatever zone the browser is in.
@@ -371,6 +377,7 @@ function BasicInfoSection({
               <OwnClassesEditor
                 disabled={disabled}
                 event={event}
+                enteredClasses={enteredClasses}
                 hasEntries={hasEntries}
                 onChange={onChange ?? noChange}
               />

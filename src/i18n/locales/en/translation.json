@@ -401,6 +401,7 @@
       "moveDown": "Move {{code}} down",
       "moveUp": "Move {{code}} up",
       "name": "Name ({{language}})",
+      "refused": "Classes {{list}} have entries, cancelled or unpaid ones included, so they cannot be removed or their codes changed.",
       "remove": "Remove class {{code}}",
       "title": "Own classes"
     },

@@ -18,6 +18,8 @@ import { requiresClassPlaces } from './places'
  */
 interface EventValidationContext {
   judges?: Judge[]
+  /** The classes the event's registrations are in, cancelled ones too, which the save keeps (KOE-674). */
+  enteredClasses?: readonly string[]
 }
 
 type EventValidationResult = WideValidationResult<PartialEvent, 'event'>
@@ -246,14 +248,14 @@ export const VALIDATORS: EventValidators = {
   // The own classes by the rule the save holds them to (KOE-674), the classes with entries read from the
   // class days: each class with something to correct is named once, in the secretary's order, and one
   // still without its code by a placeholder, as it keeps the save from going through too.
-  ownClasses: (event) => {
+  ownClasses: (event, _required, context) => {
     const errors = ownClassErrors(
       {
         classes: event.classes,
         eventType: event.eventType ?? '',
         ownClasses: (event.ownClasses ?? []).map(({ code, name }) => ({ code: code ?? '', name: { ...name } })),
       },
-      enteredClassCodes(event.classes)
+      [...enteredClassCodes(event.classes), ...(context?.enteredClasses ?? [])]
     )
     const list = unique(errors.map((error) => ('code' in error && error.code ? error.code : NO_CODE)))
     return list.length ? { key: 'ownClasses', opts: { field: 'ownClasses', length: list.length, list } } : false

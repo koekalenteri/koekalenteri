@@ -44,6 +44,23 @@ export const adminEventPaymentLockedAtom = atomFamily((eventId: string) =>
   })
 )
 
+const NO_CLASSES: string[] = []
+
+/**
+ * The classes the event's registrations are in, each once (KOE-674), cancelled ones too: PutEvent
+ * refuses to take one away while a registration holds it. The list the page reads holds the finished
+ * registrations only, so an unpaid one is left for the save to name. An event not yet saved has none,
+ * and nothing is fetched for it.
+ */
+export const adminEventEnteredClassesAtom = atomFamily((eventId: string) =>
+  atom((get) => {
+    if (!eventId) return NO_CLASSES
+    return mapMaybe(get(adminEventRegistrationsAtom(eventId)), (registrations) => [
+      ...new Set(registrations.flatMap((registration) => (registration.class ? [registration.class] : []))),
+    ])
+  })
+)
+
 /**
  * Whether the official type an unofficial trial follows is locked (KOE-1718): a post has run a turn or a
  * dog has a result, by the rule PutEvent refuses a change with (`isOfficialFormatLocked`). An event not

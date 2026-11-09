@@ -422,6 +422,35 @@ describe('useEventForm', () => {
     }
   )
 
+  // KOE-674: the save reads every registration, cancelled and unpaid ones too, which the form cannot
+  // all see; a class taken from under them is named.
+  it('names the classes whose entries keep the save from taking them away', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    mockSave.mockRejectedValue(
+      new APIError({ status: 400, statusText: 'Bad Request' } as Response, {
+        error: 'invalidOwnClasses',
+        errors: [
+          { code: 'ALO', kind: 'registered' },
+          { code: 'AVO', kind: 'registered' },
+        ],
+      })
+    )
+
+    const { result } = renderHook(() => useEventForm(), {
+      wrapper: Provider,
+    })
+
+    await act(async () => {
+      await result.current.handleSave()
+    })
+
+    expect(mockEnqueueSnackbar).toHaveBeenCalledWith('event.ownClasses.refused list', errorSnackbarOptions)
+    expect(consoleErrorSpy).not.toHaveBeenCalled()
+    expect(mockNavigate).not.toHaveBeenCalled()
+
+    consoleErrorSpy.mockRestore()
+  })
+
   it('should not attempt to save if event is null', async () => {
     ;(useAtom as import('vitest').Mock).mockReturnValue([null, mockSetEvent])
 

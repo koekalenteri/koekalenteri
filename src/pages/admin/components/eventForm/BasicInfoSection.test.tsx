@@ -3,7 +3,7 @@ import type { Props } from './BasicInfoSection'
 import type { PartialEvent } from './types'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor } from '@testing-library/react'
 import { useState } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { locales } from '@/i18n'
@@ -342,6 +342,60 @@ describe('BasicInfoSection', () => {
           expect(changed).toHaveBeenLastCalledWith(expect.objectContaining({ classes: longer.classes }))
         })
 
+        it('gives the days to the row left with the code when one of two is removed', async () => {
+          const longer: PartialEvent = {
+            ...open,
+            classes: [{ ...judged, class: 'OPE' }],
+            endDate: addDays(newEventStartDate, 1),
+            ownClasses: [
+              { code: 'OPE', name: { fi: 'Avoin' } },
+              { code: 'OPEN', name: {} },
+            ],
+          }
+          const { changed, user } = renderEditing(longer)
+
+          // The second row passes through the first row's code: the days stay with the first row.
+          await user.type(codeField(1), '{Backspace}')
+          await user.click(screen.getAllByRole('button', { name: 'event.ownClasses.remove code' })[0])
+          await user.type(codeField(0), 'N')
+
+          expect(changed).toHaveBeenLastCalledWith(
+            expect.objectContaining({ classes: [judged], ownClasses: [{ code: 'OPEN', name: {} }] })
+          )
+        })
+
+        it('gives each row the days of the code it shows once two rows trade codes', async () => {
+          const longer: PartialEvent = {
+            ...open,
+            classes: [
+              { class: 'AA', date: newEventStartDate },
+              { class: 'BB', date: addDays(newEventStartDate, 1) },
+            ],
+            endDate: addDays(newEventStartDate, 1),
+            ownClasses: [
+              { code: 'AA', name: { fi: 'A' } },
+              { code: 'BB', name: { fi: 'B' } },
+            ],
+          }
+          const { changed, user } = renderEditing(longer)
+
+          // Each code replaced at once, as a paste does: the rows trade codes, and with them the days a
+          // class day's code names.
+          fireEvent.change(codeField(0), { target: { value: 'BB' } })
+          fireEvent.change(codeField(1), { target: { value: 'AA' } })
+          await user.type(codeField(0), 'X')
+          await user.type(codeField(1), 'Y')
+
+          expect(changed).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+              classes: [
+                { class: 'AAY', date: newEventStartDate },
+                { class: 'BBX', date: addDays(newEventStartDate, 1) },
+              ],
+            })
+          )
+        })
+
         it('removes a row whose code another row has without its days', async () => {
           const { changed, user } = renderEditing({
             ...open,
@@ -354,6 +408,27 @@ describe('BasicInfoSection', () => {
             expect.objectContaining({ classes: [judged], ownClasses: [{ code: 'OPEN', name: { fi: 'Avoin' } }] })
           )
         })
+      })
+
+      // The edit page knows the classes of the registrations it reads, cancelled ones too, which the
+      // class days' counts leave out.
+      it('adds no own classes while a cancelled entry holds an official class', () => {
+        renderComponent({
+          enteredClasses: ['ALO'],
+          event: unofficial,
+          open: true,
+          selectedEventType: harjoitus,
+        })
+
+        expect(screen.getByRole('button', { name: 'event.ownClasses.add' })).toBeDisabled()
+        expect(screen.getByRole('combobox', { name: 'event.eventType' })).toBeDisabled()
+      })
+
+      it('keeps the code of an own class a cancelled entry holds', () => {
+        renderComponent({ enteredClasses: ['DERBY'], event: derby, open: true, selectedEventType: harjoitus })
+
+        expect(codeField()).toBeDisabled()
+        expect(screen.getByRole('button', { name: 'event.ownClasses.remove code' })).toBeDisabled()
       })
 
       it('drops the days of a code cleared on a longer trial', async () => {

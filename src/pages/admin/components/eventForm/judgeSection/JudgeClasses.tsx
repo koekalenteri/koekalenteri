@@ -32,6 +32,7 @@ const JudgeClasses = ({ disabled, event, index, judge, onChange }: Props) => {
         value={filterClassesByJudgeId(event.classes, judge.id)}
         classes={[...event.classes]}
         label={t('event.judgesEditor.classes')}
+        ownClasses={event.ownClasses ?? undefined}
         onChange={(_e, values) =>
           onChange?.({
             classes: updateJudge(event, judge.id, judge, [...values]),

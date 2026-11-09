@@ -78,7 +78,10 @@ export default function EventClasses(props: Props) {
   } = props
   const error = errorStates?.classes
   const helperText = helperTexts?.classes ?? ''
+  // The chosen classes and the options alike in the event's order: a day's classes as the secretary
+  // listed the own ones, whatever order the class days were picked in.
   const sortedValue = useMemo(() => value?.slice().sort(eventClassOrder({ ownClasses })), [ownClasses, value])
+  const sortedOptions = useMemo(() => classes.slice().sort(eventClassOrder({ ownClasses })), [classes, ownClasses])
   const groupByWeekday = useCallback((c: { date?: DayKey }) => t('dateFormat.wdshort', { date: c.date }), [t])
   const getLabel = useCallback((c: { class?: string }) => c.class ?? '', [])
   const isEqual = useCallback((a: DeepPartial<EventClass>, b: DeepPartial<EventClass>) => sameEventClass(a, b), [])
@@ -99,7 +102,7 @@ export default function EventClasses(props: Props) {
       disablePortal
       multiple
       groupBy={groupBy ? groupByWeekday : undefined}
-      options={classes}
+      options={sortedOptions}
       getOptionLabel={getLabel}
       isOptionEqualToValue={isEqual}
       renderOption={(optionProps, option, { selected }) => (

@@ -37,6 +37,11 @@ interface Props {
   readonly disabled?: boolean
   /** The event has entries by its own count, which the class days may not show yet. */
   readonly hasEntries?: boolean
+  /**
+   * The classes the event's registrations are in, cancelled ones too, which the class days' counts
+   * leave out: the save reads every registration (KOE-674).
+   */
+  readonly enteredClasses?: readonly string[]
   readonly onChange: (change: OwnClassesChange) => void
 }
 
@@ -58,6 +63,25 @@ interface Row {
 }
 
 const rowOf = (code: string): Row => ({ dayCode: code, id: nanoid() })
+
+/**
+ * The rows with their day codes paired to the codes they show where two rows traded codes: a row whose
+ * code another row keeps its days under, while that row shows another code, takes those days, and the
+ * other row its. Days belong to the code a class day names, so after a trade each row has the days of
+ * the code it shows, and a later rename moves those.
+ */
+const rePaired = (rows: readonly Row[], codes: readonly string[]): Row[] => {
+  const paired = [...rows]
+  paired.forEach((row, at) => {
+    const code = codes[at]
+    if (!code || row.dayCode === code) return
+    const other = paired.findIndex((item, index) => index !== at && item.dayCode === code && codes[index] !== code)
+    if (other === -1) return
+    paired[at] = { ...row, dayCode: paired[other].dayCode }
+    paired[other] = { ...paired[other], dayCode: row.dayCode }
+  })
+  return paired
+}
 
 /**
  * Where a row's days go when its code becomes `to` (KOE-674). `held` is every code another row shows or
@@ -103,7 +127,7 @@ const movedDays = (
  * gets the day as soon as it has a code. A class entries were made in keeps its code. What the save
  * would refuse shows on the row, read by the save's own rule (`ownClassErrors`).
  */
-export default function OwnClassesEditor({ event, disabled, hasEntries, onChange }: Props) {
+export default function OwnClassesEditor({ event, disabled, enteredClasses, hasEntries, onChange }: Props) {
   const { t } = useTranslation()
   const ownClasses = useMemo(
     () => (event.ownClasses ?? []).map(({ code, name }): OwnClass => ({ code: code ?? '', name: { ...name } })),
@@ -112,7 +136,10 @@ export default function OwnClassesEditor({ event, disabled, hasEntries, onChange
   // The code changes as it is typed, so a row is known by an id of its own, which moves with it.
   const [rows, setRows] = useState(() => ownClasses.map(({ code }) => rowOf(code)))
   if (rows.length !== ownClasses.length) setRows(ownClasses.map(({ code }, at) => rows[at] ?? rowOf(code)))
-  const registered = useMemo(() => new Set(enteredClassCodes(event.classes)), [event.classes])
+  const registered = useMemo(
+    () => new Set([...enteredClassCodes(event.classes), ...(enteredClasses ?? [])]),
+    [enteredClasses, event.classes]
+  )
   const errors = useMemo(
     () =>
       ownClassErrors({ classes: [...event.classes], eventType: event.eventType ?? '', ownClasses }, [...registered]),
@@ -149,13 +176,14 @@ export default function OwnClassesEditor({ event, disabled, hasEntries, onChange
     const code = value.toUpperCase()
     const row = rows[at] ?? rowOf(ownClasses[at].code)
     const { classes, dayCode } = movedDays(event, heldBesides(at), row, code)
-    setRows(rows.map((item, index) => (index === at ? { ...row, dayCode } : item)))
-    onChange(
-      changeOf(
-        classes,
-        ownClasses.map((item, index) => (index === at ? { ...item, code } : item))
+    const next = ownClasses.map((item, index) => (index === at ? { ...item, code } : item))
+    setRows(
+      rePaired(
+        rows.map((item, index) => (index === at ? { ...row, dayCode } : item)),
+        next.map((item) => item.code)
       )
     )
+    onChange(changeOf(classes, next))
   }
 
   const setName = (at: number, language: Language, text: string) => {
@@ -182,7 +210,14 @@ export default function OwnClassesEditor({ event, disabled, hasEntries, onChange
     // The days go with the class, unless another row holds their code and so the days.
     const dayCode = rows[at]?.dayCode ?? ownClasses[at].code
     const shared = !dayCode || heldBesides(at).has(dayCode)
-    setRows(rows.filter((_, index) => index !== at))
+    // The days kept for another row that shows their code are that row's from now on.
+    const left = rows
+      .filter((_, index) => index !== at)
+      .map((row, index) => {
+        const code = ownClasses.filter((_, other) => other !== at)[index]?.code
+        return shared && dayCode && code === dayCode ? { ...row, dayCode } : row
+      })
+    setRows(left)
     onChange(
       changeOf(
         shared ? [...event.classes] : event.classes.filter((eventClass) => eventClass.class !== dayCode),

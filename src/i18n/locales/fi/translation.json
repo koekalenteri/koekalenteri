@@ -401,6 +401,7 @@
       "moveDown": "Siirrä {{code}} alemmas",
       "moveUp": "Siirrä {{code}} ylemmäs",
       "name": "Nimi ({{language}})",
+      "refused": "Luokissa {{list}} on ilmoittautumisia, myös peruttuja tai maksamattomia, joten niitä ei voi poistaa eikä niiden koodia muuttaa.",
       "remove": "Poista luokka {{code}}",
       "title": "Omat luokat"
     },
