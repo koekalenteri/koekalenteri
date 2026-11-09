@@ -3,7 +3,7 @@ import type { StartNumberEntry } from '../lib/startNumbers'
 import { startNumbersEnteredAudit, startNumbersPublishedAudit } from '../../lib/audit'
 import { isDayKey } from '../../lib/day'
 import { formatTypeOf, getStartNumbersDayTimes, isStartNumbersTime } from '../../lib/event'
-import { isRunClass } from '../../lib/eventClass'
+import { isEventClass, isRunClass } from '../../lib/eventClass'
 import { getStartNumbersBlocker } from '../../lib/publishing'
 import { getRegistrationClass, groupParticipantsByClass, isScorableRegistration } from '../../lib/registration'
 import { audit, eventAuditKey } from '../lib/audit'
@@ -34,6 +34,10 @@ interface StartNumbersRequest {
   numbers?: StartNumberEntry[]
 }
 
+/** A class whose numbers may be written (KOE-674): an official class of the event, or an own class it runs. */
+const isStartNumbersClass = (event: JsonConfirmedEvent, key: string): boolean =>
+  event.ownClasses?.length ? isRunClass(event, key) : isEventClass(event, key)
+
 /**
  * The one endpoint that writes start numbers (KOE-1017, KOE-1218). Publishing freezes each
  * participant's current group into `startGroup` in the same locked request that flips the flag, so
@@ -60,9 +64,10 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
   const time = isStartNumbersTime(body.time) ? body.time : undefined
 
   const confirmedEvent = await getAuthorizedEvent<JsonConfirmedEvent>(user, memberOf, eventId)
-  // A class the event runs, an own class among them (KOE-674); none is the classless trial's whole list.
-  // A key it does not run is refused, never read as the whole event.
-  if (body.eventClass !== undefined && !isRunClass(confirmedEvent, body.eventClass)) {
+  // A class of the event (KOE-674), scoped to that class; none is the classless trial's whole list. An
+  // official class whose day was dropped while it still has entries keeps its numbers; an own class is
+  // one the event runs. Any other key is refused, never read as the whole event.
+  if (body.eventClass !== undefined && !isStartNumbersClass(confirmedEvent, body.eventClass)) {
     return response(422, 'invalid class', event)
   }
   const eventClass: ClassKey | undefined = body.eventClass
