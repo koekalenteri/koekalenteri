@@ -21,4 +21,16 @@ describe('releaseFocus', () => {
     expect(() => releaseFocus()).not.toThrow()
     expect(document.activeElement).toBe(document.body)
   })
+
+  // An SVG element can hold the focus but is no HTMLElement; it keeps it.
+  it('leaves the focus on an element that is not an HTML one', () => {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    svg.setAttribute('tabindex', '0')
+    document.body.append(svg)
+    svg.focus()
+    expect(document.activeElement).toBe(svg)
+
+    releaseFocus()
+    expect(document.activeElement).toBe(svg)
+  })
 })
