@@ -59,6 +59,18 @@ describe('teamSuggestions', () => {
     ])
   })
 
+  // The admin list comes in the order of the table's keys, so the entry made first names the team.
+  it('names a team as the first entry made spelled it, and lists its dogs in the order they entered', () => {
+    const entries = [
+      { ...entry('late', { teamEntry: { name: 'golden ring' } }), createdAt: new Date('2026-11-02T10:00:00Z') },
+      { ...entry('early', { teamEntry: { name: 'Golden Ring' } }), createdAt: '2026-11-01T10:00:00.000Z' },
+    ]
+
+    expect(teamSuggestions(event(), entries)).toEqual([
+      { kind: 'name', name: 'Golden Ring', registrationIds: ['early', 'late'] },
+    ])
+  })
+
   it('reads an event without teams as one whose dogs are in none', () => {
     const { teams: _teams, ...noTeams } = event()
 

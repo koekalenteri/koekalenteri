@@ -83,9 +83,10 @@ const memberState = (registration: Registration): 'memberCancelled' | 'memberRes
 }
 
 /**
- * One team of a team competition (KOE-1714): its number, its name, its series where the competition has
- * them (KOE-1720), and its dogs, each by its code (`teamMembers`). A dog's place is its letter, so moving
- * it is the only way to change one.
+ * One team of a team competition (KOE-1714): its number, its name, whether it is its club's or kennel's
+ * first team (KOE-1722), which the draw reads, its series where the competition has them (KOE-1720),
+ * and its dogs, each by its code (`teamMembers`). A dog's place is its letter, so moving it is the only
+ * way to change one.
  */
 export default function TeamCard({
   number,
@@ -105,6 +106,14 @@ export default function TeamCard({
     (name: string) => {
       const { name: _name, ...rest } = team
       onChange(name ? { ...rest, name } : rest)
+    },
+    [onChange, team]
+  )
+
+  const handlePrimary = useCallback(
+    (primary: boolean) => {
+      const { primary: _primary, ...rest } = team
+      onChange(primary ? { ...rest, primary } : rest)
     },
     [onChange, team]
   )
@@ -146,6 +155,10 @@ export default function TeamCard({
           onChange={(e) => handleName(e.target.value)}
           size="small"
           value={team.name ?? ''}
+        />
+        <FormControlLabel
+          control={<Checkbox checked={!!team.primary} onChange={(e) => handlePrimary(e.target.checked)} size="small" />}
+          label={t('teams.primary')}
         />
         {series.length > 0 && (
           <TextField

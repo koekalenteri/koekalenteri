@@ -1,3 +1,4 @@
+import type { TeamSuggestion } from '@/lib/client/teamAssembly'
 import type { TeamStanding } from '@/lib/teamStandings'
 import type { DogEvent, EventTeam, TeamCompetition } from '@/types'
 import Cancel from '@mui/icons-material/Cancel'
@@ -13,6 +14,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
+import { teamSuggestions } from '@/lib/client/teamAssembly'
 import { withStoredTotals } from '@/lib/results'
 import { teamSeriesName } from '@/lib/startListView'
 import { isTeamCandidate, teamCompetitionErrors, teamCountedDays, teamTrialDays } from '@/lib/team'
@@ -24,6 +26,7 @@ import { EntryPageHeader } from './components/EntryPageHeader'
 import EventNotFound from './components/EventNotFound'
 import TeamCard from './eventTeamsPage/TeamCard'
 import TeamCompetitionSettings from './eventTeamsPage/TeamCompetitionSettings'
+import TeamSuggestions from './eventTeamsPage/TeamSuggestions'
 import useEventForm from './hooks/useEventForm'
 import { adminEventAtom, adminEventRegistrationsAtom } from './state'
 import { useAdminEventScope } from './state/eventScope'
@@ -65,6 +68,16 @@ const withTeamCompetition = (event: DogEvent, teamCompetition: TeamCompetition, 
   }
 }
 
+/**
+ * The teams with a suggestion made into one (KOE-1721): its name, its dogs and its first-team mark, in
+ * the first team still empty, of no name and no dogs, or else in a new team at the end.
+ */
+const withSuggestion = (teams: EventTeam[], { name, primary, registrationIds }: TeamSuggestion): EventTeam[] => {
+  const team: EventTeam = { name, ...(primary ? { primary } : {}), registrationIds }
+  const empty = teams.findIndex((item) => !item.name && !item.registrationIds.length)
+  return empty < 0 ? [...teams, team] : teams.map((item, at) => (at === empty ? { ...item, ...team } : item))
+}
+
 /** The count typed, or undefined while the field holds no whole number of teams. */
 const typedCount = (value: string): number | undefined => {
   const count = Number(value)
@@ -73,9 +86,11 @@ const typedCount = (value: string): number | undefined => {
 
 /**
  * The teams of a team competition (KOE-1714), on a page of their own like the posts: any event can run
- * one, and the count is what turns it on. The competition's series are set here too, and each team's
- * series; the standings are worked out series by series (KOE-1720). The page edits a draft of its own (KOE-1700), so the secretary
- * saves or cancels the teams as one.
+ * one, and the count is what turns it on. The competition's settings are set here too, before any team
+ * is made: whether the entry form asks for the dog's team (KOE-1721), the series, and each team's
+ * series; the standings are worked out series by series (KOE-1720). The names given at entry are
+ * suggested as teams. The page edits a draft of its own (KOE-1700), so the secretary saves or cancels
+ * the teams as one.
  */
 export default function EventTeamsPage() {
   const { t } = useTranslation()
@@ -108,6 +123,11 @@ export default function EventTeamsPage() {
       (registration) => !!event && isTeamCandidate(event, registration) && !taken.has(registration.id)
     )
   }, [event, registrations, teams])
+  // The teams the names given at entry make, of the dogs in none yet (KOE-1721).
+  const suggestions = useMemo(
+    () => (event ? teamSuggestions({ ...event, teams }, registrations) : []),
+    [event, registrations, teams]
+  )
   // A team is its number, its place in the list: only the last ones come and go (KOE-1714).
   const numbered = useMemo(() => teams.map((team, index) => ({ number: index + 1, team })), [teams])
   // The standings of the draft, so a run-off marked shows before it is saved; the totals a round stored
@@ -185,13 +205,16 @@ export default function EventTeamsPage() {
             type="number"
             value={countText ?? teams.length}
           />
-          {(teams.length > 0 || !!event.teamCompetition?.series?.length) && (
-            <TeamCompetitionSettings
-              teamCompetition={event.teamCompetition}
-              trialDays={trialDays}
-              onChange={handleTeamCompetition}
-            />
-          )}
+          <TeamCompetitionSettings
+            teamCompetition={event.teamCompetition}
+            trialDays={trialDays}
+            onChange={handleTeamCompetition}
+          />
+          <TeamSuggestions
+            entries={entries}
+            onTake={(suggestion) => setTeams(withSuggestion(teams, suggestion))}
+            suggestions={suggestions}
+          />
           {numbered.map(({ number, team }) => (
             <TeamCard
               key={number}

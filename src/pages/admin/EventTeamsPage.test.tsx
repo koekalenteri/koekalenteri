@@ -266,7 +266,7 @@ describe('EventTeamsPage', () => {
       const [first, second] = teamSections()
       expect(within(first).getByText(/^teams\.result/)).toBeInTheDocument()
       expect(within(second).getByText(/^teams\.result/)).toBeInTheDocument()
-      expect(within(first).queryByRole('checkbox')).not.toBeInTheDocument()
+      expect(within(first).queryByRole('checkbox', { name: 'teams.runOffWon' })).not.toBeInTheDocument()
     })
 
     it('records one winner of the run-off for a tie for first, and saves it', async () => {
@@ -453,18 +453,13 @@ describe('EventTeamsPage', () => {
       expect(save()).toBeEnabled()
     })
 
-    it('shows the series while the draft has them, though the teams went to nought, and no panel otherwise', async () => {
-      const { user } = await renderPage(seriesEvent)
-      await flushPromises()
-
-      await setCount(user, '0')
-      expect(screen.getByRole('heading', { name: 'teams.series' })).toBeInTheDocument()
-
-      cleanup()
-      sessionStorage.clear()
+    // The question at entry is set before any team is made (KOE-1721), so the settings show on every event.
+    it('shows the settings on an event with no teams and no series', async () => {
       await renderPage({ ...eventWithStations })
       await flushPromises()
-      expect(screen.queryByRole('heading', { name: 'teams.series' })).not.toBeInTheDocument()
+
+      expect(screen.getByRole('heading', { name: 'teams.settings' })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'teams.series' })).toBeInTheDocument()
     })
 
     it('removes the settings once the last series is removed', async () => {
@@ -522,7 +517,9 @@ describe('EventTeamsPage', () => {
       )
       await flushPromises()
 
-      for (const team of teamSections()) expect(within(team).queryByRole('checkbox')).not.toBeInTheDocument()
+      for (const team of teamSections()) {
+        expect(within(team).queryByRole('checkbox', { name: 'teams.runOffWon' })).not.toBeInTheDocument()
+      }
     })
   })
 
@@ -607,9 +604,24 @@ describe('EventTeamsPage', () => {
       expect(members(teamSections()[1])).toEqual(['2A Ensimmainen', '2B Toinen'])
     })
 
+    it('marks a team the first team of its club', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const { user } = await renderPage({ ...eventWithStations, teams: [{ registrationIds: ['run-1'] }] })
+      await flushPromises()
+
+      await user.click(primaryBox(teamSections()[0]))
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+
+      expectSaved({ teams: [{ primary: true, registrationIds: ['run-1'] }] })
+    })
+
     it('counts a first-team mark alone as a change to save, and stores none once it is cleared', async () => {
       vi.mocked(putEvent).mockResolvedValue(eventWithStations)
-      const { user } = await renderPage({ ...eventWithStations, teams: [{ primary: true, registrationIds: ['run-1'] }] })
+      const { user } = await renderPage({
+        ...eventWithStations,
+        teams: [{ primary: true, registrationIds: ['run-1'] }],
+      })
       await flushPromises()
       expect(screen.getByRole('button', { name: 'save' })).toBeDisabled()
 

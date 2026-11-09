@@ -183,9 +183,13 @@ Kokeessa voi olla joukkuekilpailu, olipa koemuoto mikä tahansa. Joukkueet mää
 **{t:teams.count}** kirjoitetaan, montako joukkuetta kilpailussa on, ja sivulle tulee yhtä monta
 joukkuetta numeroituina: Joukkue 1, Joukkue 2 ja niin edelleen. Kun määrää pienennetään, joukkueet
 poistuvat lopusta ja niiden koirat vapautuvat muihin joukkueisiin. Jos määrä on nolla, kokeessa ei
-ole joukkuekilpailua.
+ole joukkuekilpailua. Joukkueiden yläpuolella on paneeli *{t:teams.settings}*, joka näkyy aina,
+jotta kilpailun asetukset voi tehdä jo ennen kuin joukkueita on.
 
 Joukkueelle voi antaa numeron lisäksi nimen kenttään **{t:teams.name}**, esimerkiksi Team Finland 1.
+Valinta **{t:teams.primary}** merkitsee joukkueen yhdistyksensä tai kennelinsä ykkösjoukkueeksi.
+Järjestelmä ei tiedä, mihin yhdistykseen tai kenneliin joukkue kuuluu, joten se ei rajoita
+ykkösjoukkueita yhteen yhdistystä kohden: merkinnät ovat koesihteerin vastuulla.
 Koirat lisätään joukkueeseen valikosta **{t:teams.addDog}**, joka tarjoaa kokeen ilmoittautuneista
 ne, jotka eivät ole peruneet eivätkä jo ole jossakin joukkueessa. Koira voi siis kuulua vain yhteen
 joukkueeseen. Ennen kuin koiran luokan osallistujat on valittu, myös varasijalla oleva koira kelpaa;
@@ -214,6 +218,28 @@ tulos myöhemmin korjataan niin, ettei tasapisteitä enää ole, valinnalla ei o
 
 !shot[EventTeamsPage/teams-standings] Joukkueiden tulokset: joukkueet 1 ja 2 ovat tasapisteissä, ja joukkue 2 on merkitty uusintatehtävän voittajaksi
 
+### Joukkue ilmoittautumisessa
+
+Jos ilmoittautujien halutaan kertovan koiransa joukkue, rastita paneelin *{t:teams.settings}*
+kohdasta *{t:teams.entry}* valinta **{t:teams.askAtEntry}** ja tallenna ennen ilmoittautumisen
+alkua. Silloin ilmoittautumislomakkeella on osio, johon ilmoittautuja kirjoittaa joukkueen nimen ja
+voi merkitä joukkueen yhdistyksen tai kennelin ykkösjoukkueeksi
+([Ilmoittautuminen](/docs/participant/entering)). Kun valinnan poistaa, lomake ei enää kysy
+joukkuetta, mutta jo ilmoitetut nimet säilyvät.
+
+Ilmoitetuista nimistä sivulla on paneeli *{t:teams.suggestions}*, jossa on yksi ehdotus kutakin
+nimeä kohden. Nimet, jotka eroavat vain isoilta ja pieniltä kirjaimilta tai väleiltä, ovat sama
+joukkue, ja ehdotus on nimetty niin kuin ensimmäinen ilmoittautuja sen kirjoitti. Ehdotuksessa ovat
+ne koirat, jotka voisi lisätä joukkueeseen valikosta **{t:teams.addDog}** ja jotka eivät vielä ole
+missään joukkueessa, ilmoittautumisjärjestyksessä. Jos joku koirista on merkinnyt joukkueen
+ykkösjoukkueeksi, ehdotuksessa lukee *{t:teams.primary}*. Painike **{t:teams.takeSuggestionShort}**
+tekee ehdotuksesta joukkueen: se täyttää ensimmäisen tyhjän joukkueen, jolla ei ole nimeä eikä
+koiria, tai lisää uuden joukkueen loppuun. Joukkueen nimeä, koiria ja ykkösjoukkueen merkintää voi
+sen jälkeen muuttaa kuten muidenkin joukkueiden, ja muutokset tallennetaan
+painikkeella **{t:save}**.
+
+!shot[EventTeamsPage/teams-suggestions] Kysymys ilmoittautumisessa on päällä, ja kahdella kirjoitusasulla ilmoitettu Kultaiset Noutajat on yksi ehdotus ykkösjoukkueen merkinnällä
+
 ### Sarjat
 
 Joukkuekilpailussa voi olla useita sarjoja, esimerkiksi avoin sarja ja rotusarja. Sarjat lisätään
@@ -234,8 +260,7 @@ tahansa; starttilistalla näkyy aina sarjan nykyinen nimi.
 
 Monipäiväisessä kokeessa voi valita, minkä päivien tulokset lasketaan joukkueiden pisteisiin,
 esimerkiksi derbyn karsintapäivän mutta ei finaalia. Valinta on samassa paneelissa kuin sarjat,
-*{t:teams.settings}*, otsikon *{t:teams.countedDays}* alla, ja paneeli tulee näkyviin, kun kokeella
-on vähintään yksi joukkue tai sarja. Oletuksena kaikki päivät lasketaan. Kun päivän valinnan
+*{t:teams.settings}*, otsikon *{t:teams.countedDays}* alla. Oletuksena kaikki päivät lasketaan. Kun päivän valinnan
 poistaa, sen päivän tulokset eivät kuulu joukkueille. Vähintään yhden päivän on oltava valittuna,
 joten viimeistä laskettavaa päivää ei voi poistaa: jos haluat vaihtaa päivän, valitse ensin uusi
 päivä ja poista sitten vanha. Kun kaikki päivät on taas
