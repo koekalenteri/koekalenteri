@@ -499,7 +499,6 @@ function BasicInfoSection({
 
 export default memo(BasicInfoSection)
 
-/** What the official type choice says under it: why it is locked, or which types it still offers. */
 /**
  * The class days a trial keeps when its type or the format it follows changes: the days of its own
  * classes while it has any (KOE-674), else the days of the official classes `typeClasses` runs.
@@ -512,6 +511,7 @@ function keptClasses(event: Pick<BasicInfoEvent, 'classes' | 'ownClasses'>, type
   return event.classes.filter((c) => isRegistrationClass(c.class) && typeClasses.includes(c.class))
 }
 
+/** What the official type choice says under it: why it is locked, or which types it still offers. */
 function officialFormatGuidance(locked: boolean, hasEntries: boolean, t: TFunction): string | undefined {
   if (locked) return t('event.officialFormatLocked')
   if (hasEntries) return t('event.officialFormatClassShape')
