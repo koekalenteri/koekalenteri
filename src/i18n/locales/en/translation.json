@@ -420,7 +420,8 @@
       "error": {
         "noExercises": "Group {{group}} has no exercises. Remove the group and add it again.",
         "overlap": "The number ranges of groups {{group}} and {{other}} overlap.",
-        "range": "The number range of group {{group}} lacks its first or last number, or the first is after the last."
+        "range": "The number range of group {{group}} lacks its first or last number, or the first is after the last.",
+        "unknownClass": "The class of group {{group}} is no longer in the trial. Remove the group."
       },
       "errorsTitle": "The running order cannot be saved:",
       "exerciseMany": "exercises {{list}} and {{last}}",

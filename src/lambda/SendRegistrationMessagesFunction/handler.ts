@@ -1,5 +1,5 @@
 import type { JsonConfirmedEvent, JsonRegistration, RegistrationMessage } from '../../types'
-import { isRegistrationClass } from '../../lib/registration'
+import { isEventClass } from '../../lib/eventClass'
 import { getOrigin } from '../lib/api-gw'
 import { audit } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
@@ -36,7 +36,8 @@ const markClassesAsReceived = async (
 
   for (const classKey of classesToMark) {
     const state = getStateFromTemplate(template)
-    const classToUse = isRegistrationClass(classKey) ? classKey : undefined
+    // A class of the event, an own class among them (KOE-674); a classless trial's key is its format.
+    const classToUse = isEventClass(confirmedEvent, classKey) ? classKey : undefined
 
     updatedEvent = await markParticipants(updatedEvent, state, classToUse)
   }

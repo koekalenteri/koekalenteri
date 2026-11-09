@@ -22,7 +22,7 @@ import {
   isStartListAvailableForClass,
   isStartListPublishedForClass,
 } from './event'
-import { getInvitationRecipients, getRegistrationGroupDay, isRegistrationClass } from './registration'
+import { getInvitationRecipients, getRegistrationGroupDay } from './registration'
 import { isObject } from './utils'
 
 /**
@@ -130,8 +130,10 @@ const isDayScope = (value: unknown): value is ResultsDayScope =>
 
 /**
  * A value shaped like a stored results flag (KOE-1510): one day scope, or a map of them keyed by
- * class. Read where a written row comes back from the database, so nothing is taken on trust.
+ * class. Read where a written row comes back from the database, so nothing is taken on trust. The shape
+ * only: any class key, an own class among them (KOE-674); whether it is a class of the event is the
+ * writer's to say.
  */
 export const isResultsPublishedState = (value: unknown): value is ResultsPublishedState =>
   isDayScope(value) ||
-  (isObject(value) && Object.entries(value).every(([key, scope]) => isRegistrationClass(key) && isDayScope(scope)))
+  (isObject(value) && Object.entries(value).every(([key, scope]) => key !== '' && isDayScope(scope)))

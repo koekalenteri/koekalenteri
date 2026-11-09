@@ -420,6 +420,14 @@ type RotationShapeError =
   | { kind: 'unknownPost'; group: number; stationId: string }
   | { kind: 'mixedDays'; group: number }
   | { kind: 'overlap'; group: number; other: number }
+  | { kind: 'unknownClass'; group: number }
+
+/**
+ * Whether a group's class is one the event runs (KOE-674): one of its class days, an own class's among
+ * them. An event without classes, a classless trial, keys its groups by its format and is not read here.
+ */
+const runsGroupClass = (event: RotationEvent, group: EventRotationGroup): boolean =>
+  !event.classes?.length || event.classes.some((eventClass) => eventClass.class === group.class)
 
 const exerciseErrors = (event: RotationEvent, group: EventRotationGroup, index: number): RotationShapeError[] => {
   const exercises = groupExercises(group)
@@ -453,8 +461,9 @@ const overlaps = (a: RotationGroup, b: RotationGroup): boolean => {
 }
 
 /**
- * What makes a stored running order unreadable: a group with no exercises, a post the event does not
- * have, posts of different days in one group, or two groups of one class and day sharing a number. A
+ * What makes a stored running order unreadable: a group of a class the event does not run (KOE-674), a
+ * group with no exercises, a post the event does not have, posts of different days in one group, or two
+ * groups of one class and day sharing a number. A
  * post may come more than once, in a row or apart (Jukka 1.11.2026). A group without a range holds every
  * number, so it may not share its class and day with any other group. A range is both numbers or
  * neither, the first not after the last. The posts page and the event save read this same rule.
@@ -463,6 +472,7 @@ export const rotationShapeErrors = (event: RotationEvent): RotationShapeError[] 
   const rotations = event.rotations ?? []
   const errors = rotations.flatMap((group, index) => [
     ...(rangeIsWhole(group) ? [] : [{ group: index, kind: 'range' as const }]),
+    ...(runsGroupClass(event, group) ? [] : [{ group: index, kind: 'unknownClass' as const }]),
     ...exerciseErrors(event, group, index),
   ])
 

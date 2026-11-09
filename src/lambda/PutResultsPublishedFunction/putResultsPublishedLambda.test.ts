@@ -282,6 +282,24 @@ describe('putResultsPublishedLambda', () => {
     expect(row.resultsPublished).toEqual({ ALO: ['2026-09-12'], AVO: false })
   })
 
+  // KOE-674: an own class is published as a class of its own, never as the whole event.
+  it("publishes an unofficial event's own class as that class", async () => {
+    store(
+      twoDays({
+        classes: [{ class: 'DERBY', date: '2026-09-12', state: 'invited' }],
+        eventType: 'Labradorien derby',
+        ownClasses: [{ code: 'DERBY', name: { fi: 'Derby' } }],
+        resultsPublished: { DERBY: false },
+      })
+    )
+    mockReadEventRegistrations.mockResolvedValue([dog('DERBY', '2026-09-12')])
+
+    await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'DERBY', published: true }))
+
+    expect(mockResponse).toHaveBeenCalledWith(200, expect.anything(), expect.anything())
+    expect(row.resultsPublished).toEqual({ DERBY: ['2026-09-12'] })
+  })
+
   it('publishes a class the stored map does not name yet', async () => {
     store(twoDays({ resultsPublished: { ALO: ['2026-09-12'] } }))
 

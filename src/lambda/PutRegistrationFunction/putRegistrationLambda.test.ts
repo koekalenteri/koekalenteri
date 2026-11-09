@@ -1922,7 +1922,7 @@ describe('putRegistrationLabmda', () => {
   it.each([
     [{ dates: { 0: { date: '2026-05-16' as const } } }, 'dates must be an array'],
     [{ dog: { regNo: 42 } }, 'dog.regNo must be a string'],
-    [{ class: 'KVA' }, 'class must be one of: ALO, AVO, VOI'],
+    [{ class: 1 }, 'class must be a string'],
     [{ language: 'sv' }, 'language must be one of: fi, en'],
     [{ agreeToTerms: 'yes' }, 'agreeToTerms must be a boolean'],
     [{ optionalCosts: { 0: 1 } }, 'optionalCosts must be an array'],
@@ -2147,6 +2147,46 @@ describe('putRegistrationLabmda', () => {
           qualifyingResults: [expect.objectContaining({ official: true, result: 'NOU1', type: 'NOU' })],
         })
       )
+    })
+  })
+
+  // KOE-674: an entry's class is a class the event runs, an own class among them.
+  describe('the class of an entry (KOE-674)', () => {
+    const { id: _1, paidAmount: _2, paidAt: _3, paymentStatus: _4, ...entry } = registrationWithStaticDatesAndClass
+    const derbyEvent = () => {
+      const event = JSON.parse(JSON.stringify(eventWithStaticDatesAndClass))
+      return {
+        ...event,
+        classes: [{ class: 'DERBY', date: event.classes[0].date }],
+        eventType: 'Labradorien derby',
+        ownClasses: [{ code: 'DERBY', name: { fi: 'Derby' } }],
+      }
+    }
+
+    beforeEach(() => {
+      vi.setSystemTime(eventWithStaticDatesAndClass.entryStartDate)
+    })
+
+    it('stores an entry in an own class of the event', async () => {
+      mockGetLiveEvent.mockResolvedValueOnce(derbyEvent())
+
+      const res = await putRegistrationLabmda(constructAPIGwEvent({ ...entry, class: 'DERBY', state: 'ready' }))
+
+      expect(res.statusCode).toBe(200)
+      expect(mockWriteRegistration).toHaveBeenCalledWith(expect.objectContaining({ class: 'DERBY' }))
+    })
+
+    it.each([
+      ['an official class beside the own ones', 'ALO'],
+      ['a code the event does not have', 'YKS'],
+    ])('refuses an entry in %s', async (_name, eventClass) => {
+      mockGetLiveEvent.mockResolvedValueOnce(derbyEvent())
+
+      const res = await putRegistrationLabmda(constructAPIGwEvent({ ...entry, class: eventClass, state: 'ready' }))
+
+      expect(res.statusCode).toBe(400)
+      expect(JSON.parse(res.body)).toMatchObject({ error: 'invalidClass' })
+      expect(mockWriteRegistration).not.toHaveBeenCalled()
     })
   })
 

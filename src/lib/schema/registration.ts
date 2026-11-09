@@ -48,7 +48,8 @@ export const registrationBodySchema = objectOf({
   breeder: maybe(objectOf({ name: maybe(str) })),
   cancelled: maybe(bool),
   cancelReason: maybe(str),
-  class: maybe(oneOf(['ALO', 'AVO', 'VOI'])),
+  /** A class key; whether the event runs it is `assertEntryClass`'s to say (KOE-674). */
+  class: maybe(str),
   confirmed: maybe(bool),
   creationIdempotencyKey: maybe(str),
   dates: maybe(arrayOf(registrationDate)),

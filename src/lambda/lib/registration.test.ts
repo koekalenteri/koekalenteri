@@ -55,6 +55,7 @@ vi.doMock('./audit', () => ({
 
 const {
   applyOwnerOverrides,
+  assertEntryClass,
   authorizeRegistrationEdit,
   authorizeRegistrationRead,
   createRegistrationPatch,
@@ -1277,5 +1278,34 @@ describe('registration access', () => {
         id: 'registration',
       })
     })
+  })
+})
+
+// KOE-674: an entry's class is a class the event runs; a class the save leaves as it was is not read.
+describe('assertEntryClass', () => {
+  const classless = { classes: [], eventType: 'NOU' }
+  const derby = {
+    classes: [{ class: 'DERBY', date: '2026-08-01' as const }],
+    eventType: 'Labradorien derby',
+    ownClasses: [{ code: 'DERBY', name: { fi: 'Derby' } }],
+  }
+
+  it('takes an official class on a trial without classes, and refuses any other', () => {
+    expect(() => assertEntryClass({ class: 'ALO' }, undefined, classless)).not.toThrow()
+    expect(() => assertEntryClass({ class: 'DERBY' }, undefined, classless)).toThrow(
+      expect.objectContaining({ body: expect.objectContaining({ error: 'invalidClass' }), status: 400 })
+    )
+  })
+
+  it('takes a class the event runs, and refuses one it does not', () => {
+    expect(() => assertEntryClass({ class: 'DERBY' }, undefined, derby)).not.toThrow()
+    expect(() => assertEntryClass({ class: 'ALO' }, undefined, derby)).toThrow(
+      expect.objectContaining({ body: expect.objectContaining({ error: 'invalidClass' }), status: 400 })
+    )
+  })
+
+  it('reads no class the save leaves as it was, nor an entry without one', () => {
+    expect(() => assertEntryClass({ class: 'ALO' }, { class: 'ALO' }, derby)).not.toThrow()
+    expect(() => assertEntryClass({ class: null }, { class: 'ALO' }, derby)).not.toThrow()
   })
 })

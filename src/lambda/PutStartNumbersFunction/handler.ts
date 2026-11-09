@@ -3,13 +3,9 @@ import type { StartNumberEntry } from '../lib/startNumbers'
 import { startNumbersEnteredAudit, startNumbersPublishedAudit } from '../../lib/audit'
 import { isDayKey } from '../../lib/day'
 import { formatTypeOf, getStartNumbersDayTimes, isStartNumbersTime } from '../../lib/event'
+import { isEventClass, isRunClass } from '../../lib/eventClass'
 import { getStartNumbersBlocker } from '../../lib/publishing'
-import {
-  getRegistrationClass,
-  groupParticipantsByClass,
-  isRegistrationClass,
-  isScorableRegistration,
-} from '../../lib/registration'
+import { getRegistrationClass, groupParticipantsByClass, isScorableRegistration } from '../../lib/registration'
 import { audit, eventAuditKey } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { lockRegistrationGroups } from '../lib/event'
@@ -38,6 +34,10 @@ interface StartNumbersRequest {
   numbers?: StartNumberEntry[]
 }
 
+/** A class whose numbers may be written (KOE-674): an official class of the event, or an own class it runs. */
+const isStartNumbersClass = (event: JsonConfirmedEvent, key: string): boolean =>
+  event.ownClasses?.length ? isRunClass(event, key) : isEventClass(event, key)
+
 /**
  * The one endpoint that writes start numbers (KOE-1017, KOE-1218). Publishing freezes each
  * participant's current group into `startGroup` in the same locked request that flips the flag, so
@@ -49,7 +49,6 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
 
   const eventId = getParam(event, 'eventId')
   const body = parseJSONWithFallback<StartNumbersRequest>(event.body, {})
-  const eventClass: ClassKey | undefined = isRegistrationClass(body.eventClass) ? body.eventClass : undefined
   const numbers = parseStartNumberEntries(body.numbers)
 
   if (typeof body.published !== 'boolean' && numbers.length === 0) {
@@ -65,6 +64,13 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
   const time = isStartNumbersTime(body.time) ? body.time : undefined
 
   const confirmedEvent = await getAuthorizedEvent<JsonConfirmedEvent>(user, memberOf, eventId)
+  // A class of the event (KOE-674), scoped to that class; none is the classless trial's whole list. An
+  // official class whose day was dropped while it still has entries keeps its numbers; an own class is
+  // one the event runs. Any other key is refused, never read as the whole event.
+  if (body.eventClass !== undefined && !isStartNumbersClass(confirmedEvent, body.eventClass)) {
+    return response(422, 'invalid class', event)
+  }
+  const eventClass: ClassKey | undefined = body.eventClass
 
   const releaseGroupsLock = await lockRegistrationGroups(eventId, 8)
   const patches: Patch<JsonRegistration>[] = []

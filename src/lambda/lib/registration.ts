@@ -22,10 +22,12 @@ import {
   registrationCancelledAudit,
 } from '../../lib/audit'
 import { objectsDiffer } from '../../lib/diff'
+import { isRunClass } from '../../lib/eventClass'
 import { getPaymentPicture } from '../../lib/payment'
 import {
   getRegistrationClass,
   getRegistrationGroupKey,
+  isRegistrationClass,
   isStarter,
   NEW_REGISTRATION_WORKFLOW_FIELDS,
   PUBLIC_REGISTRATION_FIELDS,
@@ -608,6 +610,25 @@ export const hasRegistrationChanges = (existing: JsonRegistration, data: JsonReg
     withRegistrationDayKeys(omitTechnicalRegistrationFields(existing)),
     withRegistrationDayKeys(omitTechnicalRegistrationFields(data))
   )
+}
+
+/**
+ * An entry's class is a class the event runs (KOE-674): one of its class days, an own class's among
+ * them (`isRunClass`). A trial without classes takes none but an official one, as before. Only a class
+ * the save sets or changes is read, so a stored entry whose class the event no longer runs is saved as
+ * it is.
+ */
+export const assertEntryClass = (
+  data: Pick<JsonRegistration, 'class'>,
+  existing: Pick<JsonRegistration, 'class'> | undefined,
+  event: Parameters<typeof isRunClass>[0]
+) => {
+  const eventClass = data.class
+  if (!eventClass || eventClass === existing?.class) return
+  const known = event.classes?.length ? isRunClass(event, eventClass) : isRegistrationClass(eventClass)
+  if (!known) {
+    throw httpError(400, { error: 'invalidClass', message: `Bad request: the event runs no class ${eventClass}` })
+  }
 }
 
 /**
