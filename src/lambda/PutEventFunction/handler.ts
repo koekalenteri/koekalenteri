@@ -17,6 +17,7 @@ import {
   OFFICIAL_EVENT_TYPES,
   uniqueClasses,
 } from '../../lib/event'
+import { isEventClass, ownClassErrors } from '../../lib/eventClass'
 import { scoresAtPosts } from '../../lib/liveFormat'
 import { hasPaymentLockingRegistrations, paymentTermsDiffer } from '../../lib/payment'
 import { getStartListBlocker, isStartListFlagPublished } from '../../lib/publishing'
@@ -25,7 +26,7 @@ import { isOfficialFormatLocked } from '../../lib/results'
 import { rotationShapeErrors } from '../../lib/rotation'
 import { eventBodySchema } from '../../lib/schema/event'
 import { legacyEventDay, rekeyEventDays, requestDay } from '../../lib/storedDays'
-import { teamCompetitionDiffers, teamCompetitionErrors, teamErrors, teamsDiffer } from '../../lib/team'
+import { pruneTeamDays, teamCompetitionDiffers, teamCompetitionErrors, teamErrors, teamsDiffer } from '../../lib/team'
 import { patchMerge } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { audit, eventAuditKey, getEventAuditMessages } from '../lib/audit'
@@ -207,13 +208,25 @@ const invalidEventDateField = (data: JsonConfirmedEvent, item: Patch<JsonConfirm
  */
 const TEAM_GROUND = ['teams', 'teamCompetition', 'classes', 'startDate', 'endDate', 'officialFormat'] as const
 
+const restsOnTeamGround = (item: Patch<JsonConfirmedEvent>) => TEAM_GROUND.some((field) => Object.hasOwn(item, field))
+
+/**
+ * The counted days the trial no longer has are left out (KOE-1726), on the merged event: a change of the
+ * trial's days is the secretary's to make, so it is saved, not refused, and the choice keeps the days
+ * that are left. With none left every day counts. A change of the counted days changes the standings,
+ * so the start list is published anew (`teamCompetitionDiffers`).
+ */
+const pruneDaysOutOfTrial = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>) => {
+  if (restsOnTeamGround(item) && data.teamCompetition) data.teamCompetition = pruneTeamDays(data)
+}
+
 /**
  * Any event type may run a team competition (KOE-1714). The shape is checked here, on the merged event:
  * the series the teams are in and the settings themselves (KOE-1720), each dog in one team and a letter
  * for each. Which dogs may join a team is read from the registrations after it (`checkTeamCandidates`).
  */
 const checkTeams = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>) => {
-  if (!TEAM_GROUND.some((field) => Object.hasOwn(item, field))) return
+  if (!restsOnTeamGround(item)) return
 
   const competitionErrors = teamCompetitionErrors(data.teamCompetition)
   if (competitionErrors.length) {
@@ -227,6 +240,44 @@ const checkTeams = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>) =
   if (errors.length) {
     throw httpError(400, { error: 'invalidTeams', errors, message: 'Bad request: the teams do not fit together' })
   }
+}
+
+/** The fields of a save an event's own classes rest on (KOE-674): the list, the class days and the type. */
+const OWN_CLASS_GROUND = ['ownClasses', 'classes', 'eventType', 'officialFormat'] as const
+
+const invalidOwnClasses = (errors: ReturnType<typeof ownClassErrors>) =>
+  httpError(400, { error: 'invalidOwnClasses', errors, message: 'Bad request: the own classes do not fit the event' })
+
+/**
+ * An event's classes (KOE-674), read on the merged event when the save carries what they rest on: the
+ * own classes' codes and names, a class day for each own class, and every class day of a class of the
+ * event (`ownClassErrors`). Whether an
+ * entry holds a code the save takes away is read from the registrations (`checkOwnClassEntries`).
+ */
+const checkOwnClasses = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>) => {
+  if (!OWN_CLASS_GROUND.some((field) => Object.hasOwn(item, field))) return
+  const errors = ownClassErrors(data)
+  if (errors.length) throw invalidOwnClasses(errors)
+}
+
+/**
+ * An entry's class stays one of the event's classes (KOE-674): a save that takes away a class the event
+ * had, by changing an own code, removing an own class or the own classes altogether, is refused while
+ * a registration holds it. Every registration counts, a cancelled or an unpaid one too, since its row
+ * keeps its class; the event's count of entries holds neither. The registrations are read only for a
+ * save that takes a class away.
+ */
+const checkOwnClassEntries = async (existing: JsonConfirmedEvent | undefined, data: JsonConfirmedEvent) => {
+  if (!existing) return
+  const before = [
+    ...existing.classes.map((eventClass) => eventClass.class),
+    ...(existing.ownClasses ?? []).map(({ code }) => code),
+  ]
+  if (before.every((key) => !key || isEventClass(data, key))) return
+
+  const registered = (await readEventRegistrations(existing.id)).map((reg) => reg.class)
+  const errors = ownClassErrors(data, registered).filter(({ kind }) => kind === 'registered')
+  if (errors.length) throw invalidOwnClasses(errors)
 }
 
 /**
@@ -286,6 +337,7 @@ const checkMergedEvent = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEve
     }
   }
   checkTeams(data, item)
+  checkOwnClasses(data, item)
 }
 
 const updateEventDerivedFields = async (data: JsonConfirmedEvent) => {
@@ -544,12 +596,14 @@ const putEventLambda = lambda('putEvent', async (event) => {
   // The index key for the club's own list; a copy, because an index cannot key on a map's field (KOE-1341).
   data.organizerId = data.organizer?.id
   checkMergedEvent(data, item, !!existing)
+  pruneDaysOutOfTrial(data, item)
 
   // The registration-group lock is server-owned. Never accept it from an
   // admin payload, including when the stored event currently has no lock.
   restoreServerOwnedLocks(data, existing)
   await checkOrganizerExists(existing, data)
   await checkTeamCandidates(existing, data, item)
+  await checkOwnClassEntries(existing, data)
   await checkPaymentLock(existing, data)
   const { renumber } = await checkOfficialFormatChange(existing, data)
   freezeAbsentStartNumbersState(data, existing, item)

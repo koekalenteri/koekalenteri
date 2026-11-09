@@ -788,6 +788,50 @@ describe('ParticipantList', () => {
       expect(screen.queryByTestId('cancelled-registration')).not.toBeInTheDocument()
     })
 
+    // KOE-1720: the series is named from the public event, the row carrying only its id.
+    describe('in series', () => {
+      const inSeries = (reg: PublicRegistration, code: string, seriesId?: string): PublicRegistration => ({
+        ...reg,
+        team: { code, number: Number.parseInt(code, 10), ...(seriesId ? { seriesId } : {}) },
+      })
+      const seriesEvent: PublicConfirmedEvent = {
+        ...mockEvent,
+        teamCompetition: {
+          series: [
+            { id: 'open', name: { en: 'Open', fi: 'Avoin' } },
+            { id: 'breed', name: { fi: 'Rotu' } },
+          ],
+        },
+      }
+      const seriesParticipants = () => [
+        inSeries(createMockRegistration('AVO', 'Aapo', 1, '2023-01-01'), '1A', 'breed'),
+        inSeries(createMockRegistration('AVO', 'Bella', 2, '2023-01-01'), '2A', 'open'),
+        inSeries(createMockRegistration('AVO', 'Cesar', 3, '2023-01-01'), '3A'),
+      ]
+
+      it('heads each series with its name, the teams in no series first', () => {
+        render(<ParticipantList participants={seriesParticipants()} event={seriesEvent} />)
+
+        expect(screen.getAllByTestId('team-series-header').map((header) => header.textContent)).toEqual([
+          'Avoin',
+          'Rotu',
+        ])
+        expect(rows()).toEqual(['3A Cesar (index: 0)', '2A Bella (index: 0)', '1A Aapo (index: 0)'])
+      })
+
+      it('copies the series headings', async () => {
+        const user = userEvent.setup()
+        mockClipboard()
+        render(<ParticipantList participants={seriesParticipants()} event={seriesEvent} showExportActions />)
+
+        await user.click(screen.getByRole('button', { name: /copyStartList/ }))
+
+        expect(writeText).toHaveBeenCalledWith(
+          expect.stringMatching(/Joukkue 3\n3A [\s\S]*?\n\nAvoin\n\nJoukkue 2\n2A [\s\S]*?\n\nRotu\n\nJoukkue 1\n1A /)
+        )
+      })
+    })
+
     it('names the class in front of the code where the day teams mix classes', () => {
       render(
         <ParticipantList

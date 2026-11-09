@@ -1,13 +1,15 @@
 import type {
+  DayKey,
   DogEvent,
   EventClass,
   EventState,
   EventTeam,
   JsonDogEvent,
   JsonRegistration,
+  PublicDogEvent,
   TeamCompetition,
 } from '../types'
-import { getEventStateForClass } from './event'
+import { eventDates, getEventStateForClass } from './event'
 import { isStarter } from './registration'
 
 /** The letters a team's dogs are told apart by: so many dogs a team can hold (KOE-1714). */
@@ -102,7 +104,8 @@ const sameTeam = (a: EventTeam, b: EventTeam) =>
  * team's dogs, since each changes a heading or a code there (KOE-1715), a run-off won, which changes
  * a placing (KOE-1717), or a team's series, which its rows name and its placing is counted in
  * (KOE-1720). No teams and an empty list are the same, and so are no name and an empty one, and no
- * run-off mark and a false one.
+ * run-off mark and a false one. The comparison decides only whether the public start list is published
+ * anew, so the first-team mark (`primary`, KOE-1722) is left out: no row shows it.
  */
 export const teamsDiffer = (
   before: readonly EventTeam[] | null | undefined,
@@ -192,11 +195,46 @@ const sameDays = (a: readonly string[] | undefined, b: readonly string[] | undef
 
 /**
  * Whether two sets of competition settings make a different start list (KOE-1720): only the days
- * counted, which decide a team's points once the standings read them (KOE-1726). A series' name is not
- * on the list, whose rows name the series by id, and a series no team is in ranks no one; the question
- * at entry and the litters are the secretary's.
+ * counted, which decide a team's points (KOE-1726). A series' name is not on the list, whose rows name
+ * the series by id, and a series no team is in ranks no one; the question at entry and the litters are
+ * the secretary's.
  */
 export const teamCompetitionDiffers = (
   before: TeamCompetition | null | undefined,
   after: TeamCompetition | null | undefined
 ): boolean => !sameDays(before?.days, after?.days)
+
+/** What the counted days are read from: the trial's days, and the competition's choice of them. */
+export type TeamDaysOwner = Pick<PublicDogEvent, 'classes' | 'endDate' | 'startDate'> & {
+  teamCompetition?: TeamCompetition | null
+}
+
+/** The chosen days the trial still has, in the order chosen. */
+const chosenTeamDays = (event: TeamDaysOwner): DayKey[] => {
+  const trialDays = eventDates(event)
+  return (event.teamCompetition?.days ?? []).filter((day) => trialDays.includes(day))
+}
+
+/**
+ * Whether a dog's day counts for its team (KOE-1726): one of the chosen days the trial still has, such
+ * as a derby's qualifying day without its final. With no choice, or none of its days left in the trial,
+ * every dog counts, also one not yet placed on a day, as before the choice.
+ */
+export const isTeamCountedDay = (event: TeamDaysOwner): ((day: DayKey | undefined) => boolean) => {
+  const chosen = chosenTeamDays(event)
+  return chosen.length ? (day) => day !== undefined && chosen.includes(day) : () => true
+}
+
+/**
+ * The competition's settings without the counted days the trial no longer has (KOE-1726), for a change
+ * of the trial's days that is saved, not refused. Once none is left the choice goes, and every day
+ * counts. Settings with nothing to leave out are given back as they are.
+ */
+export const pruneTeamDays = (event: TeamDaysOwner): TeamCompetition | undefined => {
+  const { teamCompetition } = event
+  if (!teamCompetition?.days) return teamCompetition ?? undefined
+  const days = chosenTeamDays(event)
+  if (days.length === teamCompetition.days.length) return teamCompetition
+  const { days: _days, ...rest } = teamCompetition
+  return days.length ? { ...rest, days } : rest
+}

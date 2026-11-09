@@ -84,6 +84,11 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   kept per class and an entry's class. `RegistrationClass` ('ALO' | 'AVO' | 'VOI') is for the official
   paths alone, eligibility (`rules.ts`, `qualification.ts`), Kennelliitto, the Mock trial and a type's
   own class list (`EVENT_TYPE_CLASSES`), and a key reaches them through `isRegistrationClass`.
+- An unofficial event may run classes of its own (`ownClasses`, KOE-674): the list names them and
+  orders them, and `classes` holds their days. `src/lib/eventClass.ts` holds the rules:
+  `ownClassErrors` (PutEvent refuses with `invalidOwnClasses`), `isEventClass` for whether a key is
+  one of the event's classes (never a classless trial's format), `classOrder` and `classLabel`. A
+  check that a key is a class of the event takes `isEventClass`, not `isRegistrationClass`.
 - These stay on the trial's own `eventType`: who may enter (`qualification.ts`, `rules.ts`), everything
   official (`isOfficialEventType`, Kennelliitto, Omakoira, the kcId), the statistics, the event's
   name and labels, and the B-trial's game-or-dummies and the NOWT's Mock trial choices.

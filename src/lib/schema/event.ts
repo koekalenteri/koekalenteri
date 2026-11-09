@@ -43,6 +43,8 @@ const rotationGroup = objectOf({
  */
 const team = objectOf({
   name: optional(str),
+  /** The first team of its club or kennel (KOE-1722), drawn first. */
+  primary: optional(literal(true)),
   registrationIds: arrayOf(str),
   runOffWon: optional(bool),
   seriesId: optional(str),
@@ -73,6 +75,15 @@ const teamCompetition = objectOf({
   days: maybe(arrayOf(dayKey)),
   litters: maybe(bool),
   series: maybe(arrayOf(teamSeries)),
+})
+
+/**
+ * An unofficial event's own class (KOE-674): its code and its name in any of the languages. What a code
+ * may be, and which names it needs, is checked on the merged event (`ownClassErrors`).
+ */
+const ownClass = objectOf({
+  code: str,
+  name: objectOf(Object.fromEntries(LANGUAGES.map((language) => [language, optional(str)]))),
 })
 
 /**
@@ -112,6 +123,7 @@ export const eventBodySchema = objectOf({
   /** One of the four official types, or an explicit null that stops following one (KOE-1718). */
   officialFormat: maybe(oneOf(OFFICIAL_FORMATS)),
   organizer: maybe(objectOf({ id: maybe(str), name: maybe(str) })),
+  ownClasses: maybe(arrayOf(ownClass)),
   paymentTime: maybe(oneOf(['registration', 'confirmation'])),
   places: maybe(num),
   placesPerDay: maybe(objectOf({})),

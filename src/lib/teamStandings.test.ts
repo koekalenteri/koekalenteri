@@ -2,9 +2,10 @@ import type { EventTeam, JsonEventResult } from '../types'
 import { teamStandings, withRunOffWinner } from './teamStandings'
 
 describe('teamStandings', () => {
-  const NOWT = { eventType: 'NOWT' }
   const day1 = '2026-08-01'
   const day2 = '2026-08-02'
+  type Trial = Parameters<typeof teamStandings>[0]
+  const NOWT: Trial = { classes: [], endDate: day2, eventType: 'NOWT', startDate: day1 }
 
   // A stored row holds more of its result than the standings read: the whole result, as stored.
   type Entry = Parameters<typeof teamStandings>[2][number] & {
@@ -200,8 +201,45 @@ describe('teamStandings', () => {
     })
   })
 
+  // KOE-1726: a trial may count only some of its days for the teams, such as a derby's qualifiers.
+  describe('on the counted days', () => {
+    const teams: EventTeam[] = [{ registrationIds: ['a1', 'a2'] }, { registrationIds: ['b1', 'b2'] }]
+    const entries = [
+      dog('a1', 50),
+      dog('a2', 90, { group: { date: day2, key: 'participants', number: 2 } }),
+      dog('b1', 70),
+      dog('b2', 40, { group: { date: day2, key: 'participants', number: 3 } }),
+    ]
+
+    it('counts only the results of the days the competition counts', () => {
+      const event: Trial = { ...NOWT, teamCompetition: { days: [day1] } }
+
+      expect(teamStandings(event, teams, entries)).toEqual([
+        { placement: 1, points: 70, team: 1 },
+        { placement: 2, points: 50, team: 0 },
+      ])
+    })
+
+    it('leaves out a team with no dog on a counted day', () => {
+      const event: Trial = { ...NOWT, teamCompetition: { days: [day1] } }
+      const late: EventTeam[] = [...teams, { registrationIds: ['c1'] }]
+      const lateEntries = [...entries, dog('c1', 99, { group: { date: day2, key: 'participants', number: 4 } })]
+
+      expect(teamStandings(event, late, lateEntries).map(({ team }) => team)).toEqual([1, 0])
+    })
+
+    it('counts every day when no counted day is one the trial has', () => {
+      const event: Trial = { ...NOWT, teamCompetition: { days: ['2026-07-31'] } }
+
+      expect(teamStandings(event, teams, entries)).toEqual([
+        { placement: 1, points: 140, team: 0 },
+        { placement: 2, points: 110, team: 1 },
+      ])
+    })
+  })
+
   it('has no standings in a format without points, nor without teams', () => {
-    expect(teamStandings({ eventType: 'NOME-B' }, [{ registrationIds: ['a'] }], [dog('a', 90)])).toEqual([])
+    expect(teamStandings({ ...NOWT, eventType: 'NOME-B' }, [{ registrationIds: ['a'] }], [dog('a', 90)])).toEqual([])
     expect(teamStandings(NOWT, undefined, [dog('a', 90)])).toEqual([])
   })
 })

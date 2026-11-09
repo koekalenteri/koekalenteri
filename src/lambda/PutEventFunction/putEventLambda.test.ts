@@ -1787,6 +1787,167 @@ describe('putEventLambda', () => {
     expect(saveEventMock).not.toHaveBeenCalled()
   })
 
+  // KOE-674: an unofficial event's own classes, checked on the merged event through the real rule.
+  describe('the own classes of an unofficial event (KOE-674)', () => {
+    const derby = { code: 'DERBY', name: { fi: 'Derby' } }
+    const veterans = { code: 'VET10', name: { fi: 'Veteraanit' } }
+    const own: JsonDogEvent = {
+      ...mockEvent,
+      classes: [
+        { class: 'DERBY', date: '2025-06-01' },
+        { class: 'VET10', date: '2025-06-02' },
+      ],
+      eventType: 'Labradorien derby',
+      ownClasses: [derby, veterans],
+    }
+    const patch = async (stored: JsonDogEvent, body: Record<string, unknown>) => {
+      signIn(mockSecretary)
+      getEventMock.mockResolvedValueOnce(stored)
+      return putEventLambda(constructAPIGwEvent({ id: 'existing', ...body }, { method: 'PATCH' }))
+    }
+
+    it('stores own classes, each with its class day, without reading the entries of an event with none', async () => {
+      const { classes, ownClasses } = own
+
+      const res = await patch({ ...mockEvent, eventType: own.eventType }, { classes, ownClasses })
+
+      expect(res.statusCode).toEqual(200)
+      expect(patchEventMock).toHaveBeenCalledWith(
+        'existing',
+        expect.anything(),
+        expect.objectContaining({ ownClasses })
+      )
+      expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+    })
+
+    it.each([
+      ['on an official type', { eventType: 'NOWT' }, { kind: 'officialType' }],
+      [
+        'with a code that is no code',
+        { ownClasses: [{ ...derby, code: 'DERBY 1' }, veterans] },
+        { code: 'DERBY 1', kind: 'badCode' },
+      ],
+      [
+        'without a class day',
+        { classes: [{ class: 'DERBY', date: '2025-06-01' }] },
+        { code: 'VET10', kind: 'noClassDay' },
+      ],
+      [
+        'without a Finnish name',
+        { ownClasses: [derby, { ...veterans, name: { en: 'Veterans' } }] },
+        { code: 'VET10', kind: 'unnamed' },
+      ],
+      [
+        'with a code twice',
+        { ownClasses: [derby, veterans, { ...derby, name: { fi: 'Toinen' } }] },
+        { code: 'DERBY', kind: 'codeTwice' },
+      ],
+      [
+        'with a class day of no own class',
+        { classes: [...own.classes, { class: 'ALO', date: '2025-06-02' }] },
+        { code: 'ALO', kind: 'notOwnClass' },
+      ],
+      ['taken away while their class days stay', { ownClasses: [] }, { code: 'DERBY', kind: 'notOwnClass' }],
+    ])('refuses own classes %s', async (_name, body, error) => {
+      const res = await patch(own, body)
+
+      expect(res.statusCode).toEqual(400)
+      expect(JSON.parse(res.body)).toMatchObject({
+        error: 'invalidOwnClasses',
+        errors: expect.arrayContaining([error]),
+      })
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    it('refuses own classes that are not a list of named codes', async () => {
+      const res = await patch(own, { ownClasses: [{ code: 1, name: { fi: 'Derby' } }] })
+
+      expect(res.statusCode).toEqual(400)
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    // The event's count of entries holds neither a cancelled nor an unpaid registration; both keep their class.
+    const renamed = {
+      classes: [own.classes[0], { class: 'VET', date: '2025-06-02' }],
+      ownClasses: [derby, { ...veterans, code: 'VET' }],
+    }
+
+    it.each([
+      ['an entry', {}],
+      ['a cancelled entry', { cancelled: true }],
+      ['an unpaid entry', { state: 'creating' }],
+    ])('refuses changing a code %s holds, whatever the count of entries', async (_name, registration) => {
+      mockReadEventRegistrations.mockResolvedValue([
+        { ...invitedParticipant(), class: 'DERBY' },
+        { ...invitedParticipant(), ...registration, class: 'VET10' },
+      ])
+
+      const res = await patch({ ...own, entries: 0 }, renamed)
+
+      expect(res.statusCode).toEqual(400)
+      expect(JSON.parse(res.body)).toMatchObject({
+        error: 'invalidOwnClasses',
+        errors: [{ code: 'VET10', kind: 'registered' }],
+      })
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    it('stores a changed code once no registration holds it', async () => {
+      mockReadEventRegistrations.mockResolvedValue([{ ...invitedParticipant(), class: 'DERBY' }])
+
+      expect((await patch(own, renamed)).statusCode).toEqual(200)
+    })
+
+    it.each([
+      ['an empty list', []],
+      ['a null', null],
+    ])('refuses taking the own classes away with %s while an entry holds one', async (_name, ownClasses) => {
+      mockReadEventRegistrations.mockResolvedValue([{ ...invitedParticipant(), cancelled: true, class: 'DERBY' }])
+
+      const res = await patch(own, { classes: [{ class: 'ALO', date: '2025-06-01' }], ownClasses })
+
+      expect(res.statusCode).toEqual(400)
+      expect(JSON.parse(res.body)).toMatchObject({ errors: [{ code: 'DERBY', kind: 'registered' }] })
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    it('stores the own classes taken away once no registration holds one', async () => {
+      mockReadEventRegistrations.mockResolvedValue([{ ...invitedParticipant(), class: 'ALO' }])
+
+      const res = await patch(own, { classes: [{ class: 'ALO', date: '2025-06-01' }], ownClasses: null })
+
+      expect(res.statusCode).toEqual(200)
+      expect(patchEventMock).toHaveBeenCalledWith(
+        'existing',
+        own,
+        expect.not.objectContaining({ ownClasses: expect.anything() })
+      )
+    })
+
+    it('refuses a class day of no official class on an event without own classes', async () => {
+      const res = await patch(mockEvent, { classes: [{ class: 'DERBY', date: '2025-06-01' }] })
+
+      expect(res.statusCode).toEqual(400)
+      expect(JSON.parse(res.body)).toMatchObject({ errors: [{ code: 'DERBY', kind: 'notOwnClass' }] })
+    })
+
+    it('reads no entries for a save that keeps every class the event had', async () => {
+      const res = await patch(
+        { ...own, entries: 2 },
+        { ownClasses: [veterans, { ...derby, name: { fi: 'Derby 2026' } }] }
+      )
+
+      expect(res.statusCode).toEqual(200)
+      expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+    })
+
+    it('leaves the own classes unchecked by a save that carries nothing they rest on', async () => {
+      const res = await patch({ ...own, classes: [] }, { name: 'Uusi nimi' })
+
+      expect(res.statusCode).toEqual(200)
+    })
+  })
+
   describe('the teams of a team competition (KOE-1714)', () => {
     const putTeams = async (teams: unknown) => {
       signIn(mockSecretary)
@@ -1821,11 +1982,21 @@ describe('putEventLambda', () => {
       ['without a list of dogs', [{ name: 'Joukkue' }]],
       ['with a name that is not text', [{ name: 1, registrationIds: [] }]],
       ['with a run-off mark that is not a boolean', [{ registrationIds: [], runOffWon: 'yes' }]],
+      ['with a first-team mark that is not true (KOE-1722)', [{ primary: false, registrationIds: [] }]],
     ])('refuses a team %s', async (_name, teams) => {
       const res = await putTeams(teams)
 
       expect(res.statusCode).toEqual(400)
       expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    it('stores a first-team mark (KOE-1722)', async () => {
+      const teams = [{ primary: true, registrationIds: ['a'] }, { registrationIds: ['b'] }]
+
+      const res = await putTeams(teams)
+
+      expect(res.statusCode).toEqual(200)
+      expect(patchEventMock).toHaveBeenCalledWith('existing', mockEvent, expect.objectContaining({ teams }))
     })
 
     it('stores named teams, a full one and an empty one among them, reading the entries of the dogs that join', async () => {
@@ -2010,6 +2181,70 @@ describe('putEventLambda', () => {
           stored,
           expect.objectContaining({ teamCompetition: { series } })
         )
+      })
+
+      // KOE-1726: a change of the trial's days leaves out a counted day it no longer has, never refusing.
+      describe('the counted days', () => {
+        const counted: JsonDogEvent = {
+          ...mockEvent,
+          teamCompetition: { askAtEntry: true, days: ['2025-06-01', '2025-06-02'] },
+          teams: [{ registrationIds: ['a'] }],
+        }
+
+        it.each([
+          ['a later first day', { startDate: '2025-06-02' }, { askAtEntry: true, days: ['2025-06-02'] }],
+          [
+            'an earlier last day',
+            { endDate: '2025-06-01', startDate: '2025-06-01' },
+            { askAtEntry: true, days: ['2025-06-01'] },
+          ],
+          [
+            'classes on other days',
+            { classes: [{ class: 'ALO', date: '2025-06-03' }], endDate: '2025-06-03' },
+            { askAtEntry: true },
+          ],
+        ])(
+          'leaves out the days a save of %s takes from the trial, and publishes the list',
+          async (_name, body, kept) => {
+            const res = await patch(counted, body)
+
+            expect(res.statusCode).toEqual(200)
+            expect(patchEventMock).toHaveBeenCalledWith(
+              'existing',
+              counted,
+              expect.objectContaining({ teamCompetition: kept })
+            )
+            expect(mockPublishPublicStartList).toHaveBeenCalledWith('existing')
+          }
+        )
+
+        it('leaves out a counted day the trial does not have from a save of the settings', async () => {
+          const res = await patch(counted, { teamCompetition: { days: ['2025-06-02', '2025-07-01'] } })
+
+          expect(res.statusCode).toEqual(200)
+          expect(patchEventMock).toHaveBeenCalledWith(
+            'existing',
+            counted,
+            expect.objectContaining({ teamCompetition: { askAtEntry: true, days: ['2025-06-02'] } })
+          )
+        })
+
+        it('keeps the counted days, and publishes nothing, on a save that leaves the trial its days', async () => {
+          const res = await patch(counted, {
+            classes: [
+              { class: 'ALO', date: '2025-06-01' },
+              { class: 'AVO', date: '2025-06-02' },
+            ],
+          })
+
+          expect(res.statusCode).toEqual(200)
+          expect(patchEventMock).toHaveBeenCalledWith(
+            'existing',
+            counted,
+            expect.objectContaining({ teamCompetition: counted.teamCompetition })
+          )
+          expect(mockPublishPublicStartList).not.toHaveBeenCalled()
+        })
       })
 
       // A stored row whose teams break a rule: the save that changes what they rest on reads them again.
