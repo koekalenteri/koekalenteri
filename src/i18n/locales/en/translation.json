@@ -963,6 +963,8 @@
     },
     "eventId": "Event ID",
     "eventType": "Type",
+    "groupMoveRefused_closed": "Not moved: the class's entries are closed.",
+    "groupMoveRefused_reserveAfterPicking": "Not moved: the class's participants are already picked, so a participant cannot go to the reserve list.",
     "handler": "Handler information",
     "handlerIsMember": "Handler is a member of the organizing society",
     "internalNotes": "Internal comment (not visible to registrant)",

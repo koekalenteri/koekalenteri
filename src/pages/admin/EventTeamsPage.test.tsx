@@ -457,6 +457,32 @@ describe('EventTeamsPage', () => {
       expect(screen.getByText(/teams\.movePartlyFailed/)).toHaveTextContent('Voittaja')
     })
 
+    it('names the dogs of a class the rule keeps where they are, and moves the others', async () => {
+      const running = (id: string, name: string, eventClass: string): Registration => ({
+        ...onReserve(id, name, eventClass),
+        group: { date: eventWithStations.startDate, key: `${eventWithStations.startDate}-ap`, number: 1, time: 'ap' },
+      })
+      const entries = [running('alo-1', 'Alokas', 'ALO'), running('avo-1', 'Avoin', 'AVO')]
+      vi.mocked(putRegistrationGroups).mockResolvedValueOnce(moved(entries))
+      const aloPicked = {
+        ...teamEvent,
+        classes: teamEvent.classes.map((c) => (c.class === 'ALO' ? { ...c, state: 'picked' as const } : c)),
+      }
+      const { user } = await renderPage(aloPicked, entries)
+      await flushPromises()
+
+      await user.click(within(teamSections()[0]).getByRole('button', { name: 'teams.toReserve' }))
+      await flushPromises()
+
+      expect(putRegistrationGroups).toHaveBeenCalledTimes(1)
+      expect(putRegistrationGroups).toHaveBeenCalledWith(
+        eventWithStations.id,
+        [{ group: { key: 'reserve' }, id: 'avo-1' }],
+        TEST_ID_TOKEN
+      )
+      expect(screen.getByText(/teams\.movePartlyFailed/)).toHaveTextContent('Alokas')
+    })
+
     it('sends the team once, though the button is clicked again while it moves', async () => {
       let land: (value: ReturnType<typeof moved>) => void = () => undefined
       vi.mocked(putRegistrationGroups)

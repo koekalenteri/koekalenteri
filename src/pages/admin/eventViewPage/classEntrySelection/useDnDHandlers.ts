@@ -1,20 +1,12 @@
-import type {
-  DogEvent,
-  EventClassState,
-  EventState,
-  Registration,
-  RegistrationDate,
-  RegistrationGroup,
-  RegistrationGroupMove,
-} from '@/types'
+import type { DogEvent, Registration, RegistrationDate, RegistrationGroup, RegistrationGroupMove } from '@/types'
 import type { ConfirmMove } from './moveConfirmation'
 import type { DragItem } from './types'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import { recordEvent } from '@/lib/client/rum'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
-import { eventRegistrationDateKey } from '@/lib/event'
-import { GROUP_KEY_RESERVE, getRegistrationGroupKey } from '@/lib/registration'
+import { eventRegistrationDateKey, getEventStateForClass } from '@/lib/event'
+import { GROUP_KEY_RESERVE, getRegistrationClass, getRegistrationGroupKey } from '@/lib/registration'
 import { groupMoveError } from '@/lib/registrationGroups'
 import { determineChangesFromDrop } from './dnd'
 import { confirmMoveToParticipants } from './moveConfirmation'
@@ -23,7 +15,6 @@ interface UseDnDHandlersArgs {
   disabled?: boolean
   event: DogEvent
   registrations: Registration[]
-  state?: EventClassState | EventState
   canArrangeReserve: boolean
   confirm: ConfirmMove
   setSelectedRegistrationId?: (id: string | undefined) => void
@@ -43,7 +34,6 @@ const findAnchor = (change: Pick<Registration, 'group' | 'id'>, registrations: R
 export const useDnDHandlers = ({
   event,
   registrations,
-  state,
   disabled,
   canArrangeReserve,
   confirm,
@@ -53,6 +43,9 @@ export const useDnDHandlers = ({
 }: UseDnDHandlersArgs) => {
   const { t } = useTranslation()
   const { enqueueSnackbar } = useSnackbar()
+  // The dog's own class decides what it may do, as on the server (KOE-1722), also on the all-classes
+  // tab, where the page's state is the event's, which is not every class's.
+  const classStateOf = (reg: Registration) => getEventStateForClass(event, getRegistrationClass(reg, event))
 
   const handleDrop = (group: RegistrationGroup) => async (item: DragItem) => {
     if (disabled) return
@@ -60,12 +53,18 @@ export const useDnDHandlers = ({
     const reg = registrations.find((r) => r.id === item.id)
     if (!reg) return
 
+    const refused = groupMoveError(event, classStateOf(reg), item.groupKey, group.key)
+    if (refused) {
+      enqueueSnackbar({ message: t('registration.groupMoveRefused', { context: refused }), variant: 'warning' })
+      return
+    }
+
     const mayMove = await confirmMoveToParticipants({
       confirm,
       event,
       fromGroupKey: item.groupKey,
       registration: reg,
-      state,
+      state: classStateOf(reg),
       t,
       toGroupKey: group.key,
     })
@@ -119,7 +118,7 @@ export const useDnDHandlers = ({
     }
 
     // The rule the server holds every move to (`groupMoveError`, KOE-1722).
-    if (groupMoveError(event, state, getRegistrationGroupKey(reg), group.key) === 'reserveAfterPicking') {
+    if (groupMoveError(event, classStateOf(reg), getRegistrationGroupKey(reg), group.key) === 'reserveAfterPicking') {
       enqueueSnackbar({
         message: t('eventManagement.participantSelection.cannotMoveToReserve'),
         variant: 'warning',

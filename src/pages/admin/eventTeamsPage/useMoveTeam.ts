@@ -10,6 +10,7 @@ import { getEventStateForClass } from '@/lib/event'
 import { getRegistrationGroupKey, isParticipantGroup } from '@/lib/registration'
 import { groupMoveError } from '@/lib/registrationGroups'
 import { teamGroupMoves } from '@/lib/teamSelection'
+import { mapWithConcurrency } from '@/lib/utils'
 import { moveSendsPlaceMessage } from '../eventViewPage/classEntrySelection/moveConfirmation'
 import { useAdminRegistrationActions } from '../state/registrations/actions'
 
@@ -65,7 +66,8 @@ export const useMoveTeam = (event: DogEvent | undefined, registrations: readonly
         if (reason) refused ??= reason
         else moves.push(classMove)
       }
-      const moving = new Set(classMoves.flatMap((classMove) => classMove.moves.map((move) => move.id)))
+      // Only the classes that move: a dog of a class the rule keeps where it is is left behind too.
+      const moving = new Set(moves.flatMap((classMove) => classMove.moves.map((move) => move.id)))
       const leftBehind = team.registrationIds.flatMap((id) => {
         const registration = byId.get(id)
         if (!registration || registration.cancelled || moving.has(id)) return []
@@ -105,11 +107,12 @@ export const useMoveTeam = (event: DogEvent | undefined, registrations: readonly
           if (!confirmed) return
         }
 
-        const notMoved: string[] = []
-        for (const { moves: classMoves } of moves) {
-          if ((await saveGroups(event.id, classMoves)) === false)
-            notMoved.push(...classMoves.map((move) => dogName(move.id)))
-        }
+        // One class at a time, in the event's class order: the endpoint takes one class per request. A
+        // class that fails answers false rather than throwing, so the classes after it still go.
+        const results = await mapWithConcurrency(moves, 1, ({ moves: classMoves }) => saveGroups(event.id, classMoves))
+        const notMoved = moves.flatMap(({ moves: classMoves }, index) =>
+          results[index] === false ? classMoves.map((move) => dogName(move.id)) : []
+        )
         const left = [...notMoved, ...leftBehind]
         if (left.length) {
           enqueueSnackbar(`${t('teams.movePartlyFailed', { number })} ${left.join(', ')}`, { variant: 'error' })

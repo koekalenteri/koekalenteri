@@ -963,6 +963,8 @@
     },
     "eventId": "Tapahtuman tunnus",
     "eventType": "Tyyppi",
+    "groupMoveRefused_closed": "Siirtoa ei tehty: luokan ilmoittautumiset on suljettu.",
+    "groupMoveRefused_reserveAfterPicking": "Siirtoa ei tehty: luokan osallistujat on jo valittu, joten osallistujaa ei voi siirtää varasijalle.",
     "handler": "Ohjaajan tiedot",
     "handlerIsMember": "Ohjaaja on järjestävän yhdistyksen jäsen",
     "internalNotes": "Sisäinen kommentti (ei näy ilmoittautujalle)",

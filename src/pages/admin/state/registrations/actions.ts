@@ -1,6 +1,7 @@
 import type { TFunction } from 'i18next'
 import type { EventResultSubmission } from '@/api/registration'
 import type { KcBlocker, KcDogReport, KcSendReport, KcSendResponse } from '@/lib/kennelliittoResults'
+import type { GroupMoveError } from '@/lib/registrationGroups'
 import type {
   PublicDogEvent,
   RefundRegistration,
@@ -15,7 +16,7 @@ import { useSnackbar } from 'notistack'
 import { useCallback, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { sendTemplatedEmail } from '@/api/email'
-import { APIError } from '@/api/http'
+import { APIError, refusalCode } from '@/api/http'
 import { createRefund } from '@/api/payment'
 import {
   getRegistrations,
@@ -59,6 +60,14 @@ type GroupMoveCommand = {
 
 const registrationDebug = (message: string, details: unknown) => {
   if (!isTestEnv()) console.debug(message, details)
+}
+
+/** The reason PutRegistrationGroups refused a move the class does not allow, where it did (KOE-1722). */
+const groupMoveRefusal = (error: unknown): GroupMoveError | undefined => {
+  if (refusalCode(error) !== 'groupMoveRefused' || !(error instanceof APIError) || !isObject(error.body))
+    return undefined
+  const { reason } = error.body
+  return reason === 'closed' || reason === 'reserveAfterPicking' ? reason : undefined
 }
 
 type GroupMoveResult = Awaited<ReturnType<typeof putRegistrationGroups>>
@@ -506,7 +515,11 @@ export const useAdminRegistrationActions = (eventId: string) => {
           }
         }
         setBackgroundActionsRunning(false)
-        reportError(e)
+        // A move the class does not allow is refused with its reason (`groupMoveError`, KOE-1722): the
+        // secretary is told why, rather than the move failing as an error.
+        const refused = groupMoveRefusal(e)
+        if (refused) enqueueSnackbar(t('registration.groupMoveRefused', { context: refused }), { variant: 'warning' })
+        else reportError(e)
         return false
       }
     })()

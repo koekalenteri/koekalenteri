@@ -232,13 +232,15 @@ const ClassEntrySelection = ({
         if (!reg) return
         setPendingMoveId(id)
         try {
-          await actions.saveGroups(event.id, [
+          const saved = await actions.saveGroups(event.id, [
             {
               group: { key: GROUP_KEY_RESERVE },
               id,
             },
           ])
-          enqueueSnackbar(t('registration.movedToReserve', { name: reg.dog.name }), { variant: 'success' })
+          // A move that failed or was refused has said so already; it is no move to report done.
+          if (saved !== false)
+            enqueueSnackbar(t('registration.movedToReserve', { name: reg.dog.name }), { variant: 'success' })
         } catch (error) {
           console.error('Failed to move to reserve:', error)
           enqueueSnackbar(t('registration.moveToReserveFailed'), errorSnackbarOptions)
@@ -306,7 +308,6 @@ const ClassEntrySelection = ({
     registrations,
     saveGroups: actions.saveGroups,
     setSelectedRegistrationId,
-    state,
   })
   const stateText = state ? t(`event.states.${state}`) : ''
 
