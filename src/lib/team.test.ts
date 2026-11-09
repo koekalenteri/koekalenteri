@@ -1,7 +1,6 @@
 import type { EventTeam, TeamCompetition } from '../types'
 import {
   MAX_TEAM_MEMBERS,
-  movedTeamDays,
   pruneTeamDays,
   teamCompetitionDiffers,
   teamCompetitionErrors,
@@ -219,19 +218,6 @@ describe('the counted days (KOE-1726)', () => {
 
       expect(pruneTeamDays({ ...trial, teamCompetition })).toBe(teamCompetition)
       expect(pruneTeamDays({ ...trial, teamCompetition: undefined })).toBeUndefined()
-    })
-  })
-
-  describe('movedTeamDays', () => {
-    it('moves each counted day, and leaves settings without days as they are', () => {
-      const next = (day: string) => (day === '2026-08-01' ? '2027-08-07' : '2027-08-08')
-
-      expect(movedTeamDays({ days: ['2026-08-01', '2026-08-02'], litters: true }, next)).toEqual({
-        days: ['2027-08-07', '2027-08-08'],
-        litters: true,
-      })
-      const plain: TeamCompetition = { litters: true }
-      expect(movedTeamDays(plain, next)).toBe(plain)
     })
   })
 })

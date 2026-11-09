@@ -1949,7 +1949,7 @@ describe('putEventLambda', () => {
 
       // KOE-1726: a change of the trial's days leaves out a counted day it no longer has, never refusing.
       describe('the counted days', () => {
-        const counted = {
+        const counted: JsonDogEvent = {
           ...mockEvent,
           teamCompetition: { askAtEntry: true, days: ['2025-06-01', '2025-06-02'] },
           teams: [{ registrationIds: ['a'] }],

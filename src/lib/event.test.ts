@@ -100,6 +100,7 @@ import {
   placesForClass,
   registrationDatesOutsideClass,
   sanitizeDogEvent,
+  shiftTeamDays,
   startNumbersSlotKey,
   storedDayKey,
   storedMonthKey,
@@ -1166,6 +1167,17 @@ describe('lib/event', () => {
           })
         }
       )
+    })
+  })
+
+  describe('shiftTeamDays (KOE-1726)', () => {
+    it('moves each counted day, and leaves settings without days as they are', () => {
+      expect(shiftTeamDays({ days: ['2026-08-01', '2026-08-02'], litters: true }, 371)).toEqual({
+        days: ['2027-08-07', '2027-08-08'],
+        litters: true,
+      })
+      const plain = { litters: true }
+      expect(shiftTeamDays(plain, 371)).toBe(plain)
     })
   })
 

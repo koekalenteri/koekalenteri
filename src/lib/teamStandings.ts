@@ -1,16 +1,18 @@
 import type { EventTeam, JsonEventResult, JsonRegistration, Registration } from '../types'
 import type { FormatOwner } from './event'
+import type { TeamDaysOwner } from './team'
 import { formatTypeOf } from './event'
 import { scoresAtPosts } from './liveFormat'
 import { isStarter } from './registration'
 import { sharedRanks } from './results'
+import { isTeamCountedDay } from './team'
 
 /** What `teamStandings` reads of an entry: whether the dog runs, and what its round came to. */
 type StandingEntry = Pick<JsonRegistration | Registration, 'id' | 'cancelled' | 'group'> & {
   eventResult?: Pick<JsonEventResult, 'points' | 'result'>
 }
 
-/** A team's points and placing over the whole trial in its series, in a team competition (KOE-1717). */
+/** A team's points and placing over the trial's counted days in its series, in a team competition (KOE-1717). */
 export interface TeamStanding {
   /** The team's place in the event's list, from 0; its number is one more. */
   team: number
@@ -71,9 +73,9 @@ const bySeries = (teams: readonly EventTeam[]): number[][] => {
 }
 
 /**
- * The teams' points and placings over the whole trial (KOE-1717): a team's dogs run in different
- * classes and on different days, and the competition is settled over all of them, their points summed
- * whatever their class. Each series is ranked on its own, with its own first place and run-off, and the
+ * The teams' points and placings over the trial (KOE-1717): a team's dogs run in different classes
+ * and on different days, and the competition is settled over all of them on the days it counts
+ * (KOE-1726), their points summed whatever their class. Each series is ranked on its own, with its own first place and run-off, and the
  * teams in no series among themselves (KOE-1720). A team with no dog running is not ranked. Before any
  * counted dog of a series has a result the series has no standings, rather than every team first on
  * nought. Only a format scored at posts has points; any other has no standings. The one rule for the
@@ -81,13 +83,13 @@ const bySeries = (teams: readonly EventTeam[]): number[][] => {
  * once every result they read is out.
  */
 export const teamStandings = (
-  event: FormatOwner,
+  event: FormatOwner & TeamDaysOwner,
   teams: readonly EventTeam[] | null | undefined,
   entries: readonly StandingEntry[]
 ): TeamStanding[] => {
   if (!teams?.length || !scoresAtPosts(formatTypeOf(event))) return []
 
-  const members = countedTeamMembers(teams, entries)
+  const members = countedTeamMembers(event, teams, entries)
   return bySeries(teams).flatMap((series) => {
     const running = series.filter((team) => members[team].length)
     if (!running.some((team) => members[team].some(hasResult))) return []
@@ -115,19 +117,22 @@ export const withRunOffWinner = (teams: readonly EventTeam[], index: number, won
 }
 
 /**
- * The dogs each team counts, by the team's place in the list: every member that runs, on whichever day
- * and in whichever class (KOE-1717). A cancelled dog and a reserve run none. What `teamStandings` sums,
- * and what the start list checks is published before it shows the standings.
+ * The dogs each team counts, by the team's place in the list: every member that runs, in whichever
+ * class (KOE-1717), on a day the competition counts (`teamCountedDays`, KOE-1726). A cancelled dog
+ * and a reserve run none, and a dog's result is of the day it runs, its group's. What `teamStandings`
+ * sums, and what the start list checks is published before it shows the standings.
  */
 export const countedTeamMembers = <T extends StandingEntry>(
+  event: TeamDaysOwner,
   teams: readonly EventTeam[] | null | undefined,
   entries: readonly T[]
 ): T[][] => {
   const byId = new Map(entries.map((entry) => [entry.id, entry]))
+  const countsDay = isTeamCountedDay(event)
   return (teams ?? []).map((team) =>
     team.registrationIds.flatMap((id) => {
       const entry = byId.get(id)
-      return entry && isStarter(entry) ? [entry] : []
+      return entry && isStarter(entry) && countsDay(entry.group?.date) ? [entry] : []
     })
   )
 }

@@ -4,7 +4,8 @@ import { teamStandings, withRunOffWinner } from './teamStandings'
 describe('teamStandings', () => {
   const day1 = '2026-08-01'
   const day2 = '2026-08-02'
-  const NOWT = { classes: [], endDate: day2, eventType: 'NOWT', startDate: day1 }
+  type Trial = Parameters<typeof teamStandings>[0]
+  const NOWT: Trial = { classes: [], endDate: day2, eventType: 'NOWT', startDate: day1 }
 
   // A stored row holds more of its result than the standings read: the whole result, as stored.
   type Entry = Parameters<typeof teamStandings>[2][number] & {
@@ -211,7 +212,7 @@ describe('teamStandings', () => {
     ]
 
     it('counts only the results of the days the competition counts', () => {
-      const event = { ...NOWT, teamCompetition: { days: [day1] } }
+      const event: Trial = { ...NOWT, teamCompetition: { days: [day1] } }
 
       expect(teamStandings(event, teams, entries)).toEqual([
         { placement: 1, points: 70, team: 1 },
@@ -220,7 +221,7 @@ describe('teamStandings', () => {
     })
 
     it('leaves out a team with no dog on a counted day', () => {
-      const event = { ...NOWT, teamCompetition: { days: [day1] } }
+      const event: Trial = { ...NOWT, teamCompetition: { days: [day1] } }
       const late: EventTeam[] = [...teams, { registrationIds: ['c1'] }]
       const lateEntries = [...entries, dog('c1', 99, { group: { date: day2, key: 'participants', number: 4 } })]
 
@@ -228,7 +229,7 @@ describe('teamStandings', () => {
     })
 
     it('counts every day when no counted day is one the trial has', () => {
-      const event = { ...NOWT, teamCompetition: { days: ['2026-07-31' as const] } }
+      const event: Trial = { ...NOWT, teamCompetition: { days: ['2026-07-31'] } }
 
       expect(teamStandings(event, teams, entries)).toEqual([
         { placement: 1, points: 140, team: 0 },

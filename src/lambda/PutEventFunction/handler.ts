@@ -25,7 +25,7 @@ import { isOfficialFormatLocked } from '../../lib/results'
 import { rotationShapeErrors } from '../../lib/rotation'
 import { eventBodySchema } from '../../lib/schema/event'
 import { legacyEventDay, rekeyEventDays, requestDay } from '../../lib/storedDays'
-import { teamCompetitionDiffers, teamCompetitionErrors, teamErrors, teamsDiffer } from '../../lib/team'
+import { pruneTeamDays, teamCompetitionDiffers, teamCompetitionErrors, teamErrors, teamsDiffer } from '../../lib/team'
 import { patchMerge } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { audit, eventAuditKey, getEventAuditMessages } from '../lib/audit'
@@ -207,6 +207,18 @@ const invalidEventDateField = (data: JsonConfirmedEvent, item: Patch<JsonConfirm
  */
 const TEAM_GROUND = ['teams', 'teamCompetition', 'classes', 'startDate', 'endDate', 'officialFormat'] as const
 
+const restsOnTeamGround = (item: Patch<JsonConfirmedEvent>) => TEAM_GROUND.some((field) => Object.hasOwn(item, field))
+
+/**
+ * The counted days the trial no longer has are left out (KOE-1726), on the merged event: a change of the
+ * trial's days is the secretary's to make, so it is saved, not refused, and the choice keeps the days
+ * that are left. With none left every day counts. A change of the counted days changes the standings,
+ * so the start list is published anew (`teamCompetitionDiffers`).
+ */
+const pruneDaysOutOfTrial = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>) => {
+  if (restsOnTeamGround(item) && data.teamCompetition) data.teamCompetition = pruneTeamDays(data)
+}
+
 /**
  * Any event type may run a team competition (KOE-1714). Only the shape is checked: the series the teams
  * are in and the settings themselves (KOE-1720), each dog in one team and a letter for each. The page
@@ -214,7 +226,7 @@ const TEAM_GROUND = ['teams', 'teamCompetition', 'classes', 'startDate', 'endDat
  * registrations are not read.
  */
 const checkTeams = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>) => {
-  if (!TEAM_GROUND.some((field) => Object.hasOwn(item, field))) return
+  if (!restsOnTeamGround(item)) return
 
   const competitionErrors = teamCompetitionErrors(data.teamCompetition)
   if (competitionErrors.length) {
@@ -525,6 +537,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   // The index key for the club's own list; a copy, because an index cannot key on a map's field (KOE-1341).
   data.organizerId = data.organizer?.id
   checkMergedEvent(data, item, !!existing)
+  pruneDaysOutOfTrial(data, item)
 
   // The registration-group lock is server-owned. Never accept it from an
   // admin payload, including when the stored event currently has no lock.
