@@ -43,7 +43,8 @@ export default function EventStationsPage() {
   })
 
   // The draft lives in session storage, so leaving has to lose it as the question says it will; it would
-  // otherwise wait unseen behind the old posts on the event view (KOE-1699).
+  // otherwise wait for the next opening of this page, until a save of the event drops it (KOE-1699,
+  // KOE-1700).
   useUnsavedChangesWarning(canSave, discardChanges)
 
   // A rotation that leaves a dog out, or that the server would refuse, is not saved (KOE-1665).

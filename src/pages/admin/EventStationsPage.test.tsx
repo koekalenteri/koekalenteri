@@ -5,7 +5,6 @@ import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { cleanup, screen } from '@testing-library/react'
-import { ConfirmProvider } from 'material-ui-confirm'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -16,6 +15,7 @@ import { putEvent } from '../../api/event'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
+import { renderAdminRoutes } from '../../test-utils/adminRoutes'
 import { expectConsoleOutput } from '../../test-utils/consoleGuard'
 import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
 import AppSnackbarProvider from '../components/AppSnackbarProvider'
@@ -23,7 +23,7 @@ import { idTokenAtom } from '../state'
 import EventEditPage from './EventEditPage'
 import EventStationsPage from './EventStationsPage'
 import EventDetailsDialog from './eventViewPage/EventDetailsDialog'
-import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
+import { adminEventRegistrationsAtom } from './state'
 
 vi.mock('../../api/user')
 vi.mock('../../api/event')
@@ -65,35 +65,15 @@ const renderPage = (language: Language, eventId = eventWithStaticDates.id) => {
 
 /** The page over an event and dogs of its own, seeded rather than read from the mocked API. */
 const renderSeeded = (event: DogEvent, registrations: Registration[], events: DogEvent[] = [event]) =>
-  renderSuspendedWithUserEvents(
-    <ThemeProvider theme={theme}>
-      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-        <Provider
-          initializeState={({ set }) => {
-            set(idTokenAtom, TEST_ID_TOKEN)
-            set(adminEventsAtom, events)
-            set(adminEventRegistrationsAtom(event.id), registrations)
-          }}
-        >
-          <Suspense fallback={<div>loading...</div>}>
-            <AppSnackbarProvider>
-              <ConfirmProvider>
-                <DataMemoryRouter
-                  initialEntries={[Path.admin.stations(event.id)]}
-                  routes={[
-                    { element: <EventStationsPage />, path: Path.admin.stations() },
-                    { element: <div>event view</div>, path: Path.admin.viewEvent() },
-                  ]}
-                />
-              </ConfirmProvider>
-            </AppSnackbarProvider>
-          </Suspense>
-        </Provider>
-      </LocalizationProvider>
-    </ThemeProvider>,
-    undefined,
-    { advanceTimers: vi.advanceTimersByTime }
-  )
+  renderAdminRoutes({
+    events,
+    initialEntry: Path.admin.stations(event.id),
+    initializeState: ({ set }) => set(adminEventRegistrationsAtom(event.id), registrations),
+    routes: [
+      { element: <EventStationsPage />, path: Path.admin.stations() },
+      { element: <div>event view</div>, path: Path.admin.viewEvent() },
+    ],
+  })
 
 describe('EventStationsPage', () => {
   beforeAll(() => vi.useFakeTimers())
@@ -277,35 +257,12 @@ describe('EventStationsPage', () => {
     it('is not offered for saving in the event details dialog', async () => {
       await leavePostAdded(draftEvent)
 
-      await renderSuspendedWithUserEvents(
-        <ThemeProvider theme={theme}>
-          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-            <Provider
-              initializeState={({ set }) => {
-                set(idTokenAtom, TEST_ID_TOKEN)
-                set(adminEventsAtom, [draftEvent])
-                set(adminEventRegistrationsAtom(draftEvent.id), registrationsToEventWithStations)
-              }}
-            >
-              <Suspense fallback={<div>loading...</div>}>
-                <AppSnackbarProvider>
-                  <DataMemoryRouter
-                    initialEntries={[Path.admin.viewEvent(draftEvent.id)]}
-                    routes={[
-                      {
-                        element: <EventDetailsDialog eventId={draftEvent.id} open />,
-                        path: Path.admin.viewEvent(),
-                      },
-                    ]}
-                  />
-                </AppSnackbarProvider>
-              </Suspense>
-            </Provider>
-          </LocalizationProvider>
-        </ThemeProvider>,
-        undefined,
-        { advanceTimers: vi.advanceTimersByTime }
-      )
+      await renderAdminRoutes({
+        events: [draftEvent],
+        initialEntry: Path.admin.viewEvent(draftEvent.id),
+        initializeState: ({ set }) => set(adminEventRegistrationsAtom(draftEvent.id), registrationsToEventWithStations),
+        routes: [{ element: <EventDetailsDialog eventId={draftEvent.id} open />, path: Path.admin.viewEvent() }],
+      })
       await flushPromises()
 
       expect(screen.getByRole('button', { name: 'save' })).toBeDisabled()
@@ -337,39 +294,16 @@ describe('EventStationsPage', () => {
       const saved = { ...draftEvent, modifiedAt: new Date(draftEvent.modifiedAt.getTime() + 60_000) }
       vi.mocked(putEvent).mockResolvedValueOnce(saved)
 
-      const { user } = await renderSuspendedWithUserEvents(
-        <ThemeProvider theme={theme}>
-          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-            <Provider
-              initializeState={({ set }) => {
-                set(idTokenAtom, TEST_ID_TOKEN)
-                set(adminEventsAtom, [draftEvent])
-                set(adminEventRegistrationsAtom(draftEvent.id), registrationsToEventWithStations)
-              }}
-            >
-              <Suspense fallback={<div>loading...</div>}>
-                <AppSnackbarProvider>
-                  <ConfirmProvider>
-                    <DataMemoryRouter
-                      initialEntries={[Path.admin.editEvent(draftEvent.id)]}
-                      routes={[
-                        { element: <EventEditPage />, path: Path.admin.editEvent() },
-                        { element: <EventStationsPage />, path: Path.admin.stations() },
-                        {
-                          element: <Link to={Path.admin.stations(draftEvent.id)}>posts</Link>,
-                          path: Path.admin.events,
-                        },
-                      ]}
-                    />
-                  </ConfirmProvider>
-                </AppSnackbarProvider>
-              </Suspense>
-            </Provider>
-          </LocalizationProvider>
-        </ThemeProvider>,
-        undefined,
-        { advanceTimers: vi.advanceTimersByTime }
-      )
+      const { user } = await renderAdminRoutes({
+        events: [draftEvent],
+        initialEntry: Path.admin.editEvent(draftEvent.id),
+        initializeState: ({ set }) => set(adminEventRegistrationsAtom(draftEvent.id), registrationsToEventWithStations),
+        routes: [
+          { element: <EventEditPage />, path: Path.admin.editEvent() },
+          { element: <EventStationsPage />, path: Path.admin.stations() },
+          { element: <Link to={Path.admin.stations(draftEvent.id)}>posts</Link>, path: Path.admin.events },
+        ],
+      })
       await flushPromises()
       await user.type(screen.getByLabelText('event.description (locale.fi)'), 'Muutos')
       await flushPromises()

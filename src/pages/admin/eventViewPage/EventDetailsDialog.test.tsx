@@ -1,28 +1,14 @@
 import type { TestStore } from '@/test-utils/AtomProvider'
 import type { ConfirmedEvent, DogEvent, Language } from '@/types'
-import { ThemeProvider } from '@mui/material/styles'
-import { LocalizationProvider } from '@mui/x-date-pickers'
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { act, cleanup, fireEvent, screen } from '@testing-library/react'
-import { Suspense, useState } from 'react'
+import { useState } from 'react'
 import { eventWithStaticDates } from '@/__mockData__/events'
 import { putEvent } from '@/api/event'
-import theme from '@/assets/Theme'
-import { locales } from '@/i18n'
 import { Path } from '@/routeConfig'
-import { TestProvider } from '@/test-utils/AtomProvider'
+import { renderAdminRoutes } from '@/test-utils/adminRoutes'
 import { describeInLanguage } from '@/test-utils/language'
-import {
-  DataMemoryRouter,
-  flushPromises,
-  renderSuspended,
-  renderSuspendedWithUserEvents,
-  runPendingTimers,
-  TEST_ID_TOKEN,
-} from '@/test-utils/utils'
-import AppSnackbarProvider from '../../components/AppSnackbarProvider'
-import { idTokenAtom } from '../../state'
-import { adminEventAtom, adminEventIdAtom, adminEventsAtom } from '../state'
+import { flushPromises, runPendingTimers, TEST_ID_TOKEN } from '@/test-utils/utils'
+import { adminEventAtom, adminEventIdAtom } from '../state'
 import EventDetailsDialog from './EventDetailsDialog'
 
 vi.mock('@/api/user')
@@ -39,37 +25,15 @@ const finnishOnly: ConfirmedEvent = { ...eventWithStaticDates, name: 'Kevätkoe'
 // A past trial opens read-only unless it is a draft, and a form with no payment time sets one as it opens.
 const editable: DogEvent = { ...named, paymentTime: 'registration', state: 'draft' }
 
-const dialogTree = (event: DogEvent, language: Language, onClose?: () => void) => (
-  <ThemeProvider theme={theme}>
-    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
-      <TestProvider
-        initializeState={({ set }) => {
-          set(idTokenAtom, TEST_ID_TOKEN)
-          set(adminEventsAtom, [event])
-        }}
-      >
-        <AppSnackbarProvider>
-          <Suspense fallback={<div>loading...</div>}>
-            <DataMemoryRouter
-              initialEntries={[Path.admin.viewEvent(event.id)]}
-              routes={[
-                {
-                  element: <EventDetailsDialog eventId={event.id} onClose={onClose} open />,
-                  path: Path.admin.viewEvent(),
-                },
-              ]}
-            />
-          </Suspense>
-        </AppSnackbarProvider>
-      </TestProvider>
-    </LocalizationProvider>
-  </ThemeProvider>
-)
-
-const renderDialog = async (event: DogEvent, language: Language) => {
-  await renderSuspended(dialogTree(event, language))
-  await flushPromises()
-}
+const renderDialog = (event: DogEvent, language: Language = 'fi', onClose?: () => void) =>
+  renderAdminRoutes({
+    events: [event],
+    initialEntry: Path.admin.viewEvent(event.id),
+    language,
+    routes: [
+      { element: <EventDetailsDialog eventId={event.id} onClose={onClose} open />, path: Path.admin.viewEvent() },
+    ],
+  })
 
 const title = () => screen.getByRole('heading', { level: 2 })
 
@@ -87,7 +51,8 @@ describe('EventDetailsDialog', () => {
   afterAll(() => vi.useRealTimers())
 
   it('is titled with the Finnish name in a Finnish view', async () => {
-    await renderDialog(named, 'fi')
+    await renderDialog(named)
+    await flushPromises()
     expect(title()).toHaveTextContent('Kevätkoe')
   })
 
@@ -97,6 +62,7 @@ describe('EventDetailsDialog', () => {
       ['its Finnish name when it has no English one', finnishOnly, 'Kevätkoe'],
     ])('is titled with %s', async (_case, event, expected) => {
       await renderDialog(event, 'en')
+      await flushPromises()
       expect(title()).toHaveTextContent(expected)
     })
   })
@@ -114,9 +80,7 @@ describe('EventDetailsDialog', () => {
     ],
   ])('drops an unsaved change when closed with %s', async (_way, close) => {
     const onClose = vi.fn()
-    const { user } = await renderSuspendedWithUserEvents(dialogTree(editable, 'fi', onClose), undefined, {
-      advanceTimers: vi.advanceTimersByTime,
-    })
+    const { user } = await renderDialog(editable, 'fi', onClose)
     await flushPromises()
     await user.type(screen.getByLabelText('event.description (locale.fi)'), 'Muutos')
     await flushPromises()
@@ -127,7 +91,8 @@ describe('EventDetailsDialog', () => {
     expect(onClose).toHaveBeenCalledTimes(1)
     cleanup()
 
-    await renderDialog(editable, 'fi')
+    await renderDialog(editable)
+    await flushPromises()
     expect(screen.getByLabelText('event.description (locale.fi)')).toHaveValue(editable.description)
     expect(screen.getByRole('button', { name: 'save' })).toBeDisabled()
   })
@@ -149,32 +114,16 @@ describe('EventDetailsDialog', () => {
         </>
       )
     }
-    const { user } = await renderSuspendedWithUserEvents(
-      <ThemeProvider theme={theme}>
-        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <TestProvider
-            initializeState={(initial) => {
-              store = initial
-              initial.set(idTokenAtom, TEST_ID_TOKEN)
-              initial.set(adminEventsAtom, [editable])
-              // The view selects its event, so a save sends only what changed.
-              initial.set(adminEventIdAtom, editable.id)
-            }}
-          >
-            <AppSnackbarProvider>
-              <Suspense fallback={<div>loading...</div>}>
-                <DataMemoryRouter
-                  initialEntries={[Path.admin.viewEvent(editable.id)]}
-                  routes={[{ element: <Toggled />, path: Path.admin.viewEvent() }]}
-                />
-              </Suspense>
-            </AppSnackbarProvider>
-          </TestProvider>
-        </LocalizationProvider>
-      </ThemeProvider>,
-      undefined,
-      { advanceTimers: vi.advanceTimersByTime }
-    )
+    const { user } = await renderAdminRoutes({
+      events: [editable],
+      initialEntry: Path.admin.viewEvent(editable.id),
+      initializeState: (initial) => {
+        store = initial
+        // The view selects its event, so a save sends only what changed.
+        initial.set(adminEventIdAtom, editable.id)
+      },
+      routes: [{ element: <Toggled />, path: Path.admin.viewEvent() }],
+    })
     await flushPromises()
     // The form loads its options when the dialog first opens; an awaited act lets that suspense finish.
     const openDetails = async () => {

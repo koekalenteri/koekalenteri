@@ -96,7 +96,8 @@ export default function useEventForm(options: EventFormOptions = {}) {
   // Decided once, as the view opens: a draft begun before the event was last saved is dropped, but a
   // change made while the view is open stays, whoever saves the event meanwhile (KOE-1700).
   const [staleDraft, setStaleDraft] = useState(() => !!eventId && isStaleEventDraft(draft, storedEvent, eventId))
-  const event = staleDraft && storedEvent ? storedEvent : draft
+  // Until the effect has dropped it, the stale draft is not shown: the view opens on the event as stored.
+  const event = (staleDraft ? storedEvent : null) ?? draft
   useEffect(() => {
     if (!staleDraft) return
     resetEvent()

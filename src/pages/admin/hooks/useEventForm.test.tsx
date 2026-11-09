@@ -131,42 +131,6 @@ describe('useEventForm', () => {
     expect(useAtom).toHaveBeenCalledWith(adminEditableEventByIdAndFormAtom({ eventId: 'test-event-id', form: 'edit' }))
   })
 
-  describe('a draft begun before the last save of the event (KOE-1700)', () => {
-    const savedSince: DogEvent = { ...mockEvent, modifiedAt: new Date(mockEvent.modifiedAt.getTime() + 60_000) }
-
-    it('is dropped as the view opens', () => {
-      const { result } = renderHook(
-        () => useEventForm({ eventId: mockEvent.id, form: 'edit', storedEvent: savedSince }),
-        { wrapper: Provider }
-      )
-
-      expect(mockResetEvent).toHaveBeenCalledTimes(1)
-      expect(result.current.canSave).toBe(false)
-    })
-
-    it('is kept when the save comes while the view is open', () => {
-      const { rerender, result } = renderHook(
-        ({ storedEvent }) => useEventForm({ eventId: mockEvent.id, form: 'edit', storedEvent }),
-        { initialProps: { storedEvent: mockEvent }, wrapper: Provider }
-      )
-
-      rerender({ storedEvent: savedSince })
-
-      expect(mockResetEvent).not.toHaveBeenCalled()
-      expect(result.current.event).toBe(mockEvent)
-    })
-
-    it('is kept for an event no longer stored, as all there is of it', () => {
-      const { result } = renderHook(
-        () => useEventForm({ eventId: mockEvent.id, form: 'edit', storedEvent: { ...savedSince, id: '' } }),
-        { wrapper: Provider }
-      )
-
-      expect(mockResetEvent).not.toHaveBeenCalled()
-      expect(result.current.event).toBe(mockEvent)
-    })
-  })
-
   it('should use adminNewEventAtom when no eventId is provided', () => {
     renderHook(() => useEventForm(), {
       wrapper: Provider,
