@@ -1,3 +1,4 @@
+import type { TeamSuggestion } from '@/lib/client/teamAssembly'
 import type { TeamStanding } from '@/lib/teamStandings'
 import type { DogEvent, EventTeam, TeamCompetition } from '@/types'
 import type { TeamMoveOption } from './eventTeamsPage/TeamCard'
@@ -15,9 +16,10 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
+import { teamSuggestions } from '@/lib/client/teamAssembly'
 import { withStoredTotals } from '@/lib/results'
 import { teamSeriesName } from '@/lib/startListView'
-import { isTeamCandidate, teamCompetitionErrors, teamCountedDays, teamTrialDays } from '@/lib/team'
+import { isTeamCandidate, teamCompetitionErrors, teamCountedDays, teamErrors, teamTrialDays } from '@/lib/team'
 import { teamSelection } from '@/lib/teamSelection'
 import { teamStandings, withRunOffWinner } from '@/lib/teamStandings'
 import { Path } from '@/routeConfig'
@@ -27,6 +29,7 @@ import { EntryPageHeader } from './components/EntryPageHeader'
 import EventNotFound from './components/EventNotFound'
 import TeamCard from './eventTeamsPage/TeamCard'
 import TeamCompetitionSettings from './eventTeamsPage/TeamCompetitionSettings'
+import TeamSuggestions from './eventTeamsPage/TeamSuggestions'
 import { useMoveTeam } from './eventTeamsPage/useMoveTeam'
 import useEventForm from './hooks/useEventForm'
 import { adminEventAtom, adminEventRegistrationsAtom } from './state'
@@ -69,6 +72,23 @@ const withTeamCompetition = (event: DogEvent, teamCompetition: TeamCompetition, 
   }
 }
 
+/**
+ * The teams with a suggestion made into one (KOE-1721): its name, its dogs and its first-team mark, in
+ * the first team still empty, of no name and no dogs, which keeps its series, or else in a new team at
+ * the end.
+ */
+const withSuggestion = (teams: EventTeam[], { name, primary, registrationIds }: TeamSuggestion): EventTeam[] => {
+  const team: EventTeam = { name, ...(primary ? { primary } : {}), registrationIds }
+  const empty = teams.findIndex((item) => !item.name && !item.registrationIds.length)
+  if (empty < 0) return [...teams, team]
+  // The empty team keeps its series; its first-team mark is the suggestion's, or none.
+  return teams.map((item, at) => {
+    if (at !== empty) return item
+    const { primary: _primary, ...kept } = item
+    return { ...kept, ...team }
+  })
+}
+
 /** The count typed, or undefined while the field holds no whole number of teams. */
 const typedCount = (value: string): number | undefined => {
   const count = Number(value)
@@ -77,9 +97,11 @@ const typedCount = (value: string): number | undefined => {
 
 /**
  * The teams of a team competition (KOE-1714), on a page of their own like the posts: any event can run
- * one, and the count is what turns it on. The competition's series are set here too, and each team's
- * series; the standings are worked out series by series (KOE-1720). The page edits a draft of its own (KOE-1700), so the secretary
- * saves or cancels the teams as one.
+ * one, and the count is what turns it on. The competition's settings are set here too, before any team
+ * is made: whether the entry form asks for the dog's team (KOE-1721), the series, and each team's
+ * series; the standings are worked out series by series (KOE-1720). The names given at entry are
+ * suggested as teams. The page edits a draft of its own (KOE-1700), so the secretary saves or cancels
+ * the teams as one.
  */
 export default function EventTeamsPage() {
   const { t } = useTranslation()
@@ -112,6 +134,12 @@ export default function EventTeamsPage() {
       (registration) => !!event && isTeamCandidate(event, registration) && !taken.has(registration.id)
     )
   }, [event, registrations, teams])
+  // The teams the names given at entry make, of the dogs in none yet (KOE-1721).
+  const suggestions = useMemo(
+    () => (event ? teamSuggestions({ ...event, teams }, registrations) : []),
+    [event, registrations, teams]
+  )
+
   // Where each team's dogs stand in the selection, and the move of a whole team (KOE-1722). A team moves
   // as saved: while the page holds changes the moves wait, so no dog moves for a team then cancelled.
   const selections = useMemo(() => teamSelection(teams, registrations), [teams, registrations])
@@ -154,6 +182,14 @@ export default function EventTeamsPage() {
   // A series the save would refuse, unnamed in Finnish or given an id twice, keeps the save closed: the
   // rule the server holds the settings to (`teamCompetitionErrors`, KOE-1720).
   const seriesUnsettled = teamCompetitionErrors(event?.teamCompetition).length > 0
+  // The teams' shape by the rule the save holds them to (`teamErrors`): a team made from a suggestion
+  // may hold more dogs than a team can, and is kept whole for the secretary to split, so the save stays
+  // closed and the team says why until it fits.
+  const shapeErrors = useMemo(() => (event ? teamErrors(event) : []), [event])
+  const overfull = useMemo(
+    () => new Set(shapeErrors.flatMap((error) => (error.kind === 'tooMany' ? [error.team] : []))),
+    [shapeErrors]
+  )
 
   const handleTeamCompetition = useCallback(
     (teamCompetition: TeamCompetition, removedSeriesId?: string) => {
@@ -206,13 +242,16 @@ export default function EventTeamsPage() {
             type="number"
             value={countText ?? teams.length}
           />
-          {(teams.length > 0 || !!event.teamCompetition?.series?.length) && (
-            <TeamCompetitionSettings
-              teamCompetition={event.teamCompetition}
-              trialDays={trialDays}
-              onChange={handleTeamCompetition}
-            />
-          )}
+          <TeamCompetitionSettings
+            teamCompetition={event.teamCompetition}
+            trialDays={trialDays}
+            onChange={handleTeamCompetition}
+          />
+          <TeamSuggestions
+            entries={entries}
+            onTake={(suggestion) => setTeams(withSuggestion(teams, suggestion))}
+            suggestions={suggestions}
+          />
           {numbered.map(({ number, team }) => (
             <TeamCard
               key={number}
@@ -228,6 +267,7 @@ export default function EventTeamsPage() {
               countedDays={countedDays}
               standing={standings.get(number - 1)}
               team={team}
+              tooMany={overfull.has(number - 1)}
             />
           ))}
         </Stack>
@@ -239,7 +279,7 @@ export default function EventTeamsPage() {
       >
         <AsyncButton
           color="primary"
-          disabled={!canSave || seriesUnsettled}
+          disabled={!canSave || seriesUnsettled || shapeErrors.length > 0}
           startIcon={<Save />}
           variant="contained"
           onClick={handleSave}

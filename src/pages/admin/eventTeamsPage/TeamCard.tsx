@@ -49,6 +49,8 @@ interface Props {
   readonly moveOptions?: Partial<Record<TeamMoveTarget, TeamMoveOption>>
   /** The days the points come from where the competition counts only some (`teamCountedDays`, KOE-1726). */
   readonly countedDays?: readonly DayKey[]
+  /** The team holds more dogs than a team may (`teamErrors`), as a suggestion taken whole can. */
+  readonly tooMany?: boolean
 }
 
 /** A way the whole team can be moved, and why it cannot be now, where it cannot. */
@@ -137,9 +139,10 @@ const memberState = (registration: Registration): 'memberCancelled' | 'memberRes
 }
 
 /**
- * One team of a team competition (KOE-1714): its number, its name, its series where the competition has
- * them (KOE-1720), and its dogs, each by its code (`teamMembers`). A dog's place is its letter, so moving
- * it is the only way to change one.
+ * One team of a team competition (KOE-1714): its number, its name, whether it is its club's or kennel's
+ * first team (KOE-1722), which the draw reads, its series where the competition has them (KOE-1720),
+ * and its dogs, each by its code (`teamMembers`). A dog's place is its letter, so moving it is the only
+ * way to change one.
  */
 export default function TeamCard({
   number,
@@ -154,6 +157,7 @@ export default function TeamCard({
   onMove,
   moveOptions = {},
   countedDays,
+  tooMany,
 }: Props) {
   const { t } = useTranslation()
   const ids = team.registrationIds
@@ -162,6 +166,14 @@ export default function TeamCard({
     (name: string) => {
       const { name: _name, ...rest } = team
       onChange(name ? { ...rest, name } : rest)
+    },
+    [onChange, team]
+  )
+
+  const handlePrimary = useCallback(
+    (primary: boolean) => {
+      const { primary: _primary, ...rest } = team
+      onChange(primary ? { ...rest, primary } : rest)
     },
     [onChange, team]
   )
@@ -204,6 +216,10 @@ export default function TeamCard({
           size="small"
           value={team.name ?? ''}
         />
+        <FormControlLabel
+          control={<Checkbox checked={!!team.primary} onChange={(e) => handlePrimary(e.target.checked)} size="small" />}
+          label={t('teams.primary')}
+        />
         {series.length > 0 && (
           <TextField
             select
@@ -226,6 +242,11 @@ export default function TeamCard({
           runOffWon={!!team.runOffWon}
           onRunOffChange={onRunOffChange}
         />
+        {tooMany && (
+          <Typography variant="body2" sx={{ color: 'error.main' }}>
+            {t('teams.tooMany', { count: MAX_TEAM_MEMBERS })}
+          </Typography>
+        )}
         {selection && onMove && selection !== 'empty' && (
           <TeamMove selection={selection} options={moveOptions} onMove={onMove} />
         )}

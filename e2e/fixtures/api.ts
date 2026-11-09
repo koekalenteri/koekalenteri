@@ -56,9 +56,10 @@ export const postRegistration = (body: object) =>
 export const registerThroughApi = async (
   event: Pick<JsonConfirmedEvent, 'dates' | 'eventType' | 'id'>,
   dog: JsonDog,
-  owner: Person
+  owner: Person,
+  overrides: Partial<JsonRegistration> = {}
 ): Promise<JsonRegistration> => {
-  const response = await postRegistration(registrationBody(event, dog, owner))
+  const response = await postRegistration({ ...registrationBody(event, dog, owner), ...overrides })
   if (!response.ok) throw new Error(`registration failed: ${response.status} ${await response.text()}`)
   return (await response.json()) as JsonRegistration
 }

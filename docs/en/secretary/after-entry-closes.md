@@ -20,7 +20,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 0ba9dd
+sourceHash: 17ff80
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -187,9 +187,14 @@ A trial can run a team competition, whatever its type. The teams are set up with
 **{t:eventManagement.teams}** button in the panel's *{t:eventManagement.actions}* section. Type how
 many teams the competition has in **{t:teams.count}**, and the page shows that many teams, numbered:
 Team 1, Team 2 and so on. Lowering the number removes teams from the end, and their dogs become free
-for the other teams. A number of zero means the trial has no team competition.
+for the other teams. A number of zero means the trial has no team competition. Above the teams is the panel
+*{t:teams.settings}*, which always shows, so the competition can be set up before there are any
+teams.
 
-A team can have a name besides its number, such as Team Finland 1, in **{t:teams.name}**. Dogs are
+A team can have a name besides its number, such as Team Finland 1, in **{t:teams.name}**. The
+choice **{t:teams.primary}** marks the team as the first team of its club or kennel. The system does
+not know which club or kennel a team belongs to, so it does not limit the first teams to one per
+club: the marks are the secretary's to keep right. Dogs are
 added to a team from **{t:teams.addDog}**, which offers the trial's entries that have not cancelled
 and are not in a team already. A dog can therefore be in one team only. Until the participants of a
 dog's class have been picked, a dog on the reserve list can be added too; once the class is picked,
@@ -216,6 +221,28 @@ to first place and the others share the next one. Marking one team clears the ma
 If a result is later corrected so that the teams are no longer level, the mark has no effect.
 
 !shot[EventTeamsPage/teams-standings] The team results: teams 1 and 2 are level on points, and team 2 is marked as the winner of the run-off
+
+### Team at entry
+
+To have the participants name their dog's team, tick **{t:teams.askAtEntry}** under *{t:teams.entry}*
+in the panel *{t:teams.settings}* and save before entry opens. The entry form then has a section
+where the participant types the team's name and can mark it the first team of their club or kennel
+([Entering](/docs/participant/entering)). Clearing the choice stops the form asking, and the names
+already given stay.
+
+From the names given, the page has a panel *{t:teams.suggestions}* with one suggestion for each
+name. Names that differ only in capital letters or spacing are the same team, and a suggestion is
+named as the first participant to enter wrote it. A suggestion holds the dogs that could be added to
+a team from **{t:teams.addDog}** and are in no team yet, in the order they entered. If any of the
+dogs marked the team its first team, the suggestion reads *{t:teams.primary}*. The button
+**{t:teams.takeSuggestionShort}** makes the suggestion a team: it fills the first empty team, with
+no name and no dogs, or adds a new team at the end. The empty team keeps its series, and its
+first-team mark comes from the suggestion. If more dogs gave the name than a team holds, the
+suggestion says so, and once made a team it says how many dogs a team can hold: it can be saved only
+once the extra dogs have moved to other teams. The team's name, dogs and first-team mark can
+then be changed like any other team's, and **{t:save}** stores the changes.
+
+!shot[EventTeamsPage/teams-suggestions] The question at entry is on, and Kultaiset Noutajat, given in two spellings, is one suggestion with the first-team mark
 
 ### Moving a whole team
 
@@ -259,8 +286,7 @@ shows its current name.
 
 In a trial of several days you can choose which days' results count for the teams' points, for
 example a derby's qualifying day but not its final. The choice is in the same panel as the series,
-*{t:teams.settings}*, under *{t:teams.countedDays}*, and the panel shows once the trial has at least
-one team or series. By default every day counts. Clearing a day leaves its results out of the teams'
+*{t:teams.settings}*, under *{t:teams.countedDays}*. By default every day counts. Clearing a day leaves its results out of the teams'
 points. At least one day must be chosen, so the last day counted cannot be cleared: to switch the
 day, choose the new day first and then clear the old one. Once every day is chosen again, every day counts, also a day added to the trial
 later. If the trial's days change, the days it no longer has drop out of the choice, and a copy

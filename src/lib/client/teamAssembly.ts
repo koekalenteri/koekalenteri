@@ -8,16 +8,22 @@ type SuggestionEvent = CandidateEvent & {
   teamCompetition?: Pick<TeamCompetition, 'litters'> | null
 }
 
-/** What the suggestions read of an entry: the candidate rule's fields, the team it named and its parents. */
+/**
+ * What the suggestions read of an entry: the candidate rule's fields, the team it named, its parents, and
+ * when it was made, a date in the browser and its text in JSON.
+ */
 type SuggestionEntry = Pick<JsonRegistration, 'id' | 'cancelled' | 'group' | 'state' | 'teamEntry'> & {
   class?: string | null
+  createdAt?: Date | string
   dog: Pick<JsonPublicDog, 'dob' | 'sire' | 'dam'>
 }
 
 /** A team the page offers the secretary to make: from a name given at entry, or from a litter. */
-interface TeamSuggestion {
+export interface TeamSuggestion {
   kind: 'name' | 'litter'
   name: string
+  /** A dog naming the team marked it its club's or kennel's first team (KOE-1722). */
+  primary?: true
   registrationIds: string[]
 }
 
@@ -35,6 +41,11 @@ const groupBy = <T>(entries: readonly T[], keyOf: (entry: T) => string): T[][] =
 
 const byName = (a: TeamSuggestion, b: TeamSuggestion) => a.name.localeCompare(b.name, 'fi')
 
+const enteredAt = ({ createdAt }: SuggestionEntry) => (createdAt ? new Date(createdAt).getTime() : 0)
+
+/** The entries in the order they were made: the list the page reads comes in no order of its own. */
+const byEntryTime = (a: SuggestionEntry, b: SuggestionEntry) => enteredAt(a) - enteredAt(b)
+
 /**
  * A dog's litter (KOE-1727): its sire, its dam and its birth day, the parents' names compared as team
  * names are, and the litter's suggested name from them, "Isä x Emä". None where any of the three is not
@@ -50,26 +61,31 @@ const litterOf = ({ dog }: SuggestionEntry): { key: string; name: string } | und
 /**
  * The teams the page suggests to the secretary (KOE-1721, KOE-1727), from the dogs that may join a team
  * and are in none yet (`isTeamCandidate`). First a team for each name given at entry, the spellings
- * that differ only in case and spacing taken as one (`teamNameKey`), named as its first entry spelled
- * it. Then, where the competition asks for litters, a team for each litter of two dogs or more, of the
- * dogs that named no team, named after the parents ("Isä x Emä"). A suggestion is not cut to the most
- * a team may hold; the secretary splits a larger one. The breeder's name is never part of one.
+ * that differ only in case and spacing taken as one (`teamNameKey`), named as the first entry made
+ * spelled it, its dogs in the order they entered, and marked the first team where any of them marked it
+ * so: the secretary, who knows the clubs, keeps or clears the mark on the team (KOE-1722). Then, where
+ * the competition asks for litters, a team for each litter of two dogs or more, of the dogs that named
+ * no team, named after the parents ("Isä x Emä"). A suggestion is not cut to the most a team may hold;
+ * the secretary splits a larger one. The breeder's name is never part of one.
  */
 export const teamSuggestions = (
   event: SuggestionEvent,
   registrations: readonly SuggestionEntry[]
 ): TeamSuggestion[] => {
   const inTeams = new Set((event.teams ?? []).flatMap((team) => team.registrationIds))
-  const candidates = registrations.filter((entry) => !inTeams.has(entry.id) && isTeamCandidate(event, entry))
+  const candidates = registrations
+    .filter((entry) => !inTeams.has(entry.id) && isTeamCandidate(event, entry))
+    .sort(byEntryTime)
 
   const teamNames = candidates.flatMap((entry) =>
-    entry.teamEntry ? [{ id: entry.id, name: entry.teamEntry.name }] : []
+    entry.teamEntry ? [{ id: entry.id, name: entry.teamEntry.name, primary: !!entry.teamEntry.primary }] : []
   )
   const named = groupBy(teamNames, (entry) => teamNameKey(entry.name))
     .map(
       (group): TeamSuggestion => ({
         kind: 'name',
         name: normalizeTeamName(group[0].name),
+        ...(group.some((entry) => entry.primary) ? { primary: true } : {}),
         registrationIds: group.map((entry) => entry.id),
       })
     )

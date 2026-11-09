@@ -66,6 +66,12 @@ bug is fixed. See [README.md](README.md) for how they run.
 | --- | --- | --- |
 | the public start list answers with a version the page can read across origins | `@public` | [KOE-1516](https://koekalenteri.atlassian.net/browse/KOE-1516) the page orders its fetches against the live updates by it |
 
+## teams.spec.ts
+
+| Test | Tags | Issues |
+| --- | --- | --- |
+| a team named at entry is suggested on the teams page and made a team with its first-team mark | `@secretary` `@public` | [KOE-1721](https://koekalenteri.atlassian.net/browse/KOE-1721) |
+
 ## registration-form.spec.ts (against dev after a deploy)
 
 | Test | Tags | Issues |
@@ -73,4 +79,4 @@ bug is fixed. See [README.md](README.md) for how they run.
 | dev after a deploy › the front page lists the event and its registration form opens from the list | `@public` | [KOE-1559](https://koekalenteri.atlassian.net/browse/KOE-1559) |
 | dev after a deploy › the registration form lists what is missing and takes the terms off once accepted | `@public` | [KOE-1559](https://koekalenteri.atlassian.net/browse/KOE-1559) |
 
-27 tests.
+28 tests.

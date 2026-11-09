@@ -43,6 +43,12 @@ const withDays = (
   return days.length < trialDays.length ? { ...rest, days: trialDays.filter((day) => days.includes(day)) } : rest
 }
 
+/** The settings asking for the team at entry or not (KOE-1721): not asking is no setting at all. */
+const withAskAtEntry = (teamCompetition: TeamCompetition | undefined, ask: boolean): TeamCompetition => {
+  const { askAtEntry: _askAtEntry, ...rest } = teamCompetition ?? {}
+  return ask ? { ...rest, askAtEntry: true } : rest
+}
+
 /** A part of the settings, one level under the panel's heading. */
 const SectionHeading = ({ children, id }: { readonly children: string; readonly id?: string }) => (
   <Typography id={id} variant="subtitle1" component="h3" sx={{ fontWeight: 500 }}>
@@ -104,10 +110,11 @@ const CountedDays = ({ teamCompetition, trialDays, onChange }: CountedDaysProps)
 }
 
 /**
- * The settings of the event's team competition (KOE-1720): its series, each with its name in Finnish,
- * which every series needs, and in the other languages where the organizer gives one. The teams are
- * ranked within their series, and the public start list heads each with its name. A trial of two days or
- * more also chooses the days the teams count (KOE-1726).
+ * The settings of the event's team competition: whether the entry form asks for the dog's team
+ * (KOE-1721), which the secretary sets before any team is made, and its series (KOE-1720), each with
+ * its name in Finnish, which every series needs, and in the other languages where the organizer gives
+ * one. The teams are ranked within their series, and the public start list heads each with its name. A
+ * trial of two days or more also chooses the days the teams count (KOE-1726).
  */
 export default function TeamCompetitionSettings({ teamCompetition, trialDays, onChange }: Props) {
   const { t } = useTranslation()
@@ -131,6 +138,21 @@ export default function TeamCompetitionSettings({ teamCompetition, trialDays, on
         <Typography variant="h6" component="h2">
           {t('teams.settings')}
         </Typography>
+        <SectionHeading>{t('teams.entry')}</SectionHeading>
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          {t('teams.entryInfo')}
+        </Typography>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={!!teamCompetition?.askAtEntry}
+              onChange={(e) => onChange(withAskAtEntry(teamCompetition, e.target.checked))}
+              size="small"
+            />
+          }
+          label={t('teams.askAtEntry')}
+        />
+        <Divider />
         <SectionHeading>{t('teams.series')}</SectionHeading>
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
           {t('teams.seriesInfo')}

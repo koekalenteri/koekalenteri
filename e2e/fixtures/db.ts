@@ -62,16 +62,16 @@ export const seedOrganizer = async (overrides: Partial<Organizer> = {}): Promise
 
 /**
  * A two-year-old Labrador with no results, fetched from KLAPI "just now": GetDogFunction goes back
- * to KLAPI, which the tests cannot reach, only for a row older than an hour.
+ * to KLAPI, which the tests cannot reach, only for a row older than an hour. It always has a name, the
+ * one given or its own, as the pages name a dog by it.
  */
-export const seedDog = async (overrides: Partial<JsonDog> = {}): Promise<JsonDog> => {
+export const seedDog = async (overrides: Partial<JsonDog> = {}): Promise<JsonDog & { name: string }> => {
   const number = randomInt(10000, 100000)
-  const dog: JsonDog = {
+  const dog: JsonDog & { name: string } = {
     breedCode: '122',
     dam: { name: 'E2E Emä' },
     dob: helsinkiDay(-730),
     gender: 'F',
-    name: `E2E Koira ${number}`,
     refreshDate: new Date().toISOString(),
     regNo: `FI${number}/24`,
     results: [],
@@ -79,6 +79,7 @@ export const seedDog = async (overrides: Partial<JsonDog> = {}): Promise<JsonDog
     sire: { name: 'E2E Isä' },
     titles: '',
     ...overrides,
+    name: overrides.name ?? `E2E Koira ${number}`,
   }
   await putItem(TABLES.dog, dog)
   return dog

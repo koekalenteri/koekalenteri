@@ -5,6 +5,7 @@ import { commands, page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import { eventWithStations, RESULTS_EVENT_DAY, registrationsToEventWithStations } from '@/__mockData__/resultsEvent'
 import theme from '@/assets/Theme'
+import { MAX_TEAM_MEMBERS } from '@/lib/team'
 import { Path } from '@/routeConfig'
 import { TestProvider } from '@/test-utils/AtomProvider'
 import { freezeClockAt } from '@/test-utils/freezeClock'
@@ -121,6 +122,27 @@ const pickedEvent: ConfirmedEvent = {
   teams: [{ name: 'Loistavat Lintukoirat', registrationIds: ['dog-1'] }],
 }
 
+// Teams named at entry (KOE-1721): the question asked, a first team made, two spellings of one name
+// suggested as one team with the first-team mark a dog gave it, and a name of its own.
+const suggestionsEvent: ConfirmedEvent = {
+  ...eventWithStations,
+  teamCompetition: { askAtEntry: true },
+  teams: [{ name: 'Loistavat Lintukoirat', primary: true, registrationIds: ['dog-1'] }, { registrationIds: [] }],
+}
+const suggestionsRegistrations: Registration[] = registrations.map((registration) => {
+  const teamEntry = {
+    'dog-2': { name: 'Kultaiset Noutajat' },
+    'dog-4': { name: 'Metsän Väki' },
+    'dog-5': { name: 'kultaiset  noutajat', primary: true as const },
+  }[registration.id]
+  return teamEntry ? { ...registration, teamEntry } : registration
+})
+
+// A name given by more dogs than a team holds: the suggestion is kept whole and says so.
+const crowdRegistrations: Registration[] = Array.from({ length: MAX_TEAM_MEMBERS + 1 }, (_, at) =>
+  entry(`crowd-${at}`, `Joukkokoira ${at + 1}`, 'Maila Mallinen', { teamEntry: { name: 'Iso Joukkue' } })
+)
+
 const renderPage = (shown: ConfirmedEvent = event, entries: Registration[] = registrations) =>
   render(
     <div data-testid="visual-root" style={{ background: '#fff', width: 900 }}>
@@ -145,7 +167,7 @@ const renderPage = (shown: ConfirmedEvent = event, entries: Registration[] = reg
   )
 
 it('lists the teams with their dogs by code, a cancelled and a reserve dog marked (KOE-1714)', async () => {
-  await page.viewport(900, 1500)
+  await page.viewport(900, 2300)
   const screen = await renderPage()
 
   await expect.element(screen.getByText('1C Rantasuon Ruska')).toBeVisible()
@@ -154,7 +176,7 @@ it('lists the teams with their dogs by code, a cancelled and a reserve dog marke
 })
 
 it("shows each team's points and placing, and the run-off of a tie for first (KOE-1717)", async () => {
-  await page.viewport(900, 1700)
+  await page.viewport(900, 2200)
   const screen = await renderPage(standingsEvent, standingsRegistrations)
 
   await expect.element(screen.getByText('Joukkueen tulos: 1. sija, 90 pistettä (uusintatehtävä)')).toBeVisible()
@@ -173,7 +195,7 @@ const partlySelected: ConfirmedEvent = {
 }
 
 it('tells where a team stands, and moves it whole either way (KOE-1722)', async () => {
-  await page.viewport(900, 900)
+  await page.viewport(900, 1200)
   const screen = await renderPage(partlySelected)
 
   await expect.element(screen.getByRole('button', { name: 'Siirrä osallistujiin' })).toBeVisible()
@@ -181,7 +203,7 @@ it('tells where a team stands, and moves it whole either way (KOE-1722)', async 
 })
 
 it('counts the days chosen, and names them beside each team result (KOE-1726)', async () => {
-  await page.viewport(900, 1900)
+  await page.viewport(900, 2400)
   const screen = await renderPage(countedDaysEvent, countedDaysRegistrations)
 
   await expect.element(screen.getByText('Joukkueen tulos: 1. sija, 90 pistettä, ke 10.2. tuloksista')).toBeVisible()
@@ -189,7 +211,7 @@ it('counts the days chosen, and names them beside each team result (KOE-1726)', 
 })
 
 it('sets the series and ranks each team within its own (KOE-1720)', async () => {
-  await page.viewport(900, 1900)
+  await page.viewport(900, 2400)
   const screen = await renderPage(seriesEvent, standingsRegistrations)
 
   await expect.element(screen.getByRole('heading', { name: 'Sarjat' })).toBeVisible()
@@ -197,7 +219,7 @@ it('sets the series and ranks each team within its own (KOE-1720)', async () => 
 })
 
 it('offers only the picked dogs once the class is picked (KOE-1725)', async () => {
-  await page.viewport(900, 900)
+  await page.viewport(900, 1300)
   const screen = await renderPage(pickedEvent)
 
   await screen.getByRole('combobox', { name: 'Lisää koira' }).click()
@@ -205,9 +227,33 @@ it('offers only the picked dogs once the class is picked (KOE-1725)', async () =
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-candidates')
 })
 
+it('asks for the team at entry and suggests the teams named there (KOE-1721)', async () => {
+  await page.viewport(900, 1800)
+  const screen = await renderPage(suggestionsEvent, suggestionsRegistrations)
+
+  await expect.element(screen.getByRole('heading', { name: 'Ehdotetut joukkueet' })).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-suggestions')
+})
+
+it('says a suggestion holds more dogs than a team (KOE-1721)', async () => {
+  await page.viewport(900, 1000)
+  const screen = await renderPage({ ...eventWithStations, teamCompetition: { askAtEntry: true } }, crowdRegistrations)
+
+  await expect.element(screen.getByText(/^Ehdotuksessa on enemmän koiria/)).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-suggestion-too-many')
+})
+
 describeInLanguage('en', () => {
+  it('asks for the team at entry and suggests the teams named there (KOE-1721)', async () => {
+    await page.viewport(900, 1800)
+    const screen = await renderPage(suggestionsEvent, suggestionsRegistrations)
+
+    await expect.element(screen.getByRole('heading', { name: 'Suggested teams' })).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-suggestions-en')
+  })
+
   it('sets the series and ranks each team within its own (KOE-1720)', async () => {
-    await page.viewport(900, 1900)
+    await page.viewport(900, 2400)
     const screen = await renderPage(seriesEvent, standingsRegistrations)
 
     await expect.element(screen.getByRole('heading', { name: 'Series' })).toBeVisible()
@@ -215,7 +261,7 @@ describeInLanguage('en', () => {
   })
 
   it('tells where a team stands, and moves it whole either way (KOE-1722)', async () => {
-    await page.viewport(900, 900)
+    await page.viewport(900, 1200)
     const screen = await renderPage(partlySelected)
 
     await expect.element(screen.getByRole('button', { name: 'Move to the participants' })).toBeVisible()
@@ -223,7 +269,7 @@ describeInLanguage('en', () => {
   })
 
   it('offers only the picked dogs once the class is picked (KOE-1725)', async () => {
-    await page.viewport(900, 900)
+    await page.viewport(900, 1300)
     const screen = await renderPage(pickedEvent)
 
     await screen.getByRole('combobox', { name: 'Add a dog' }).click()
@@ -232,7 +278,7 @@ describeInLanguage('en', () => {
   })
 
   it('counts the days chosen, and names them beside each team result (KOE-1726)', async () => {
-    await page.viewport(900, 1900)
+    await page.viewport(900, 2400)
     const screen = await renderPage(countedDaysEvent, countedDaysRegistrations)
 
     await expect
@@ -242,7 +288,7 @@ describeInLanguage('en', () => {
   })
 
   it("shows each team's points and placing, and the run-off of a tie for first (KOE-1717)", async () => {
-    await page.viewport(900, 1700)
+    await page.viewport(900, 2200)
     const screen = await renderPage(standingsEvent, standingsRegistrations)
 
     await expect.element(screen.getByText('Team result: place 1, 90 points (run-off)')).toBeVisible()
@@ -250,7 +296,7 @@ describeInLanguage('en', () => {
   })
 
   it('lists the teams with their dogs by code, a cancelled and a reserve dog marked (KOE-1714)', async () => {
-    await page.viewport(900, 1500)
+    await page.viewport(900, 2300)
     const screen = await renderPage()
 
     await expect.element(screen.getByText('1C Rantasuon Ruska')).toBeVisible()

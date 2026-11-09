@@ -8,6 +8,7 @@ import { eventWithStations, registrationsToEventWithStations } from '@/__mockDat
 import { putEvent } from '@/api/event'
 import { putRegistrationGroups } from '@/api/registration'
 import theme from '@/assets/Theme'
+import { MAX_TEAM_MEMBERS } from '@/lib/team'
 import { Path } from '@/routeConfig'
 import { expectConsoleOutput } from '@/test-utils/consoleGuard'
 import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '@/test-utils/utils'
@@ -271,7 +272,7 @@ describe('EventTeamsPage', () => {
       const [first, second] = teamSections()
       expect(within(first).getByText(/^teams\.result/)).toBeInTheDocument()
       expect(within(second).getByText(/^teams\.result/)).toBeInTheDocument()
-      expect(within(first).queryByRole('checkbox')).not.toBeInTheDocument()
+      expect(within(first).queryByRole('checkbox', { name: 'teams.runOffWon' })).not.toBeInTheDocument()
     })
 
     it('records one winner of the run-off for a tie for first, and saves it', async () => {
@@ -665,18 +666,13 @@ describe('EventTeamsPage', () => {
       expect(save()).toBeEnabled()
     })
 
-    it('shows the series while the draft has them, though the teams went to nought, and no panel otherwise', async () => {
-      const { user } = await renderPage(seriesEvent)
-      await flushPromises()
-
-      await setCount(user, '0')
-      expect(screen.getByRole('heading', { name: 'teams.series' })).toBeInTheDocument()
-
-      cleanup()
-      sessionStorage.clear()
+    // The question at entry is set before any team is made (KOE-1721), so the settings show on every event.
+    it('shows the settings on an event with no teams and no series', async () => {
       await renderPage({ ...eventWithStations })
       await flushPromises()
-      expect(screen.queryByRole('heading', { name: 'teams.series' })).not.toBeInTheDocument()
+
+      expect(screen.getByRole('heading', { name: 'teams.settings' })).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'teams.series' })).toBeInTheDocument()
     })
 
     it('removes the settings once the last series is removed', async () => {
@@ -734,7 +730,164 @@ describe('EventTeamsPage', () => {
       )
       await flushPromises()
 
-      for (const team of teamSections()) expect(within(team).queryByRole('checkbox')).not.toBeInTheDocument()
+      for (const team of teamSections()) {
+        expect(within(team).queryByRole('checkbox', { name: 'teams.runOffWon' })).not.toBeInTheDocument()
+      }
+    })
+  })
+
+  // KOE-1721: the question at entry, the teams suggested from the names given, and the first-team mark.
+  describe('teams named at entry', () => {
+    const expectSaved = (fields: object) =>
+      expect(putEvent).toHaveBeenLastCalledWith(expect.objectContaining(fields), TEST_ID_TOKEN, undefined, undefined)
+    const named = (registration: Registration, name: string, primary?: true): Registration => ({
+      ...registration,
+      teamEntry: { name, ...(primary ? { primary } : {}) },
+    })
+    const namedEntries = [
+      named(registrations[0], 'Kultaiset'),
+      named(registrations[1], ' kultaiset ', true),
+      ...registrations.slice(2),
+    ]
+    const primaryBox = (team: HTMLElement) => within(team).getByRole('checkbox', { name: 'teams.primary' })
+
+    it('asks for the team at entry once the secretary says so, before any team is made', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const { user } = await renderPage()
+      await flushPromises()
+
+      await user.click(screen.getByRole('checkbox', { name: 'teams.askAtEntry' }))
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+
+      expectSaved({ teamCompetition: { askAtEntry: true } })
+    })
+
+    it('stores no question once it is taken back', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const { user } = await renderPage({
+        ...eventWithStations,
+        teamCompetition: { askAtEntry: true },
+      })
+      await flushPromises()
+
+      await user.click(screen.getByRole('checkbox', { name: 'teams.askAtEntry' }))
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+
+      expect(putEvent).toHaveBeenLastCalledWith(
+        expect.not.objectContaining({ teamCompetition: expect.anything() }),
+        TEST_ID_TOKEN,
+        undefined,
+        undefined
+      )
+    })
+
+    it('suggests a team from the names given at entry, and makes it the team it suggests', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const { user } = await renderPage({ ...eventWithStations, teamCompetition: { askAtEntry: true } }, namedEntries)
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'teams.takeSuggestion name' }))
+      await flushPromises()
+
+      const [team] = teamSections()
+      expect(within(team).getByRole('textbox', { name: 'teams.name' })).toHaveValue('Kultaiset')
+      expect(members(team)).toEqual(['1A Ensimmainen', '1B Toinen'])
+      expect(primaryBox(team)).toBeChecked()
+      // The dogs are in a team now, so nothing is left to suggest.
+      expect(screen.queryByRole('button', { name: 'teams.takeSuggestion name' })).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+      expectSaved({ teams: [{ name: 'Kultaiset', primary: true, registrationIds: ['run-1', 'run-2'] }] })
+    })
+
+    it('fills the first empty team with a suggestion before adding one', async () => {
+      const { user } = await renderPage(
+        { ...eventWithStations, teams: [{ registrationIds: ['reserve-1'] }, { registrationIds: [] }] },
+        namedEntries
+      )
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'teams.takeSuggestion name' }))
+      await flushPromises()
+
+      expect(teamSections()).toHaveLength(2)
+      expect(members(teamSections()[1])).toEqual(['2A Ensimmainen', '2B Toinen'])
+    })
+
+    it('leaves no first-team mark of its own on the empty team a suggestion without one fills', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const unmarked = [named(registrations[0], 'Kultaiset'), ...registrations.slice(1)]
+      const { user } = await renderPage(
+        {
+          ...eventWithStations,
+          teamCompetition: { series: [{ id: 'open', name: { fi: 'Avoin' } }] },
+          teams: [{ primary: true, registrationIds: [], seriesId: 'open' }],
+        },
+        unmarked
+      )
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'teams.takeSuggestion name' }))
+      await flushPromises()
+      expect(primaryBox(teamSections()[0])).not.toBeChecked()
+
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+      expectSaved({ teams: [{ name: 'Kultaiset', registrationIds: ['run-1'], seriesId: 'open' }] })
+    })
+
+    // A suggestion is kept whole for the secretary to split; the save would refuse a team too large
+    // (`teamErrors`), so the page says why and keeps the save closed until it fits.
+    it('says a team made from a suggestion holds too many dogs, and keeps the save closed until it fits', async () => {
+      const crowd = Array.from({ length: MAX_TEAM_MEMBERS + 1 }, (_, at) =>
+        named({ ...registrations[0], dog: { ...registrations[0].dog, name: `Koira ${at}` }, id: `crowd-${at}` }, 'Iso')
+      )
+      const { user } = await renderPage(eventWithStations, crowd)
+      await flushPromises()
+
+      expect(screen.getByText('teams.suggestionTooMany count')).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: 'teams.takeSuggestion name' }))
+      await flushPromises()
+
+      const [team] = teamSections()
+      expect(within(team).getByText('teams.tooMany count')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'save' })).toBeDisabled()
+
+      await user.click(within(team).getAllByRole('button', { name: 'teams.remove code' })[0])
+      expect(within(team).queryByText('teams.tooMany count')).not.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'save' })).toBeEnabled()
+    })
+
+    it('marks a team the first team of its club', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const { user } = await renderPage({ ...eventWithStations, teams: [{ registrationIds: ['run-1'] }] })
+      await flushPromises()
+
+      await user.click(primaryBox(teamSections()[0]))
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+
+      expectSaved({ teams: [{ primary: true, registrationIds: ['run-1'] }] })
+    })
+
+    it('counts a first-team mark alone as a change to save, and stores none once it is cleared', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const { user } = await renderPage({
+        ...eventWithStations,
+        teams: [{ primary: true, registrationIds: ['run-1'] }],
+      })
+      await flushPromises()
+      expect(screen.getByRole('button', { name: 'save' })).toBeDisabled()
+
+      await user.click(primaryBox(teamSections()[0]))
+      expect(screen.getByRole('button', { name: 'save' })).toBeEnabled()
+
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+      expectSaved({ teams: [{ registrationIds: ['run-1'] }] })
     })
   })
 
