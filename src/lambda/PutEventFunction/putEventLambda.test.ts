@@ -203,6 +203,7 @@ describe('putEventLambda', () => {
     getEventMock.mockReset()
     mockReadOrganizer.mockImplementation(async (id: string) => ({ id, kcId: 1, name: `Club ${id}` }))
     patchEventMock.mockImplementation(async (_id, _existing, next) => ({ event: next }))
+    // A test's queued answer it did not consume must not reach the next test.
     mockReadEventRegistrations.mockReset()
     mockReadEventRegistrations.mockResolvedValue([
       invitedParticipant(),
@@ -1954,6 +1955,13 @@ describe('putEventLambda', () => {
       return putEventLambda(constructAPIGwEvent({ id: 'existing', teams }, { method: 'PATCH' }))
     }
     const members = (count: number) => Array.from({ length: count }, (_, index) => `dog-${index}`)
+    /** Entries that run, under the ids the teams name: before their class is picked every one may join. */
+    const entriesOf = (ids: readonly string[]) =>
+      ids.map((id) => ({ ...invitedParticipant('ALO'), id, state: 'ready' }))
+
+    beforeEach(() => {
+      mockReadEventRegistrations.mockResolvedValue(entriesOf([...'abcdefgh', ...members(26)]))
+    })
 
     it.each([
       [
@@ -1991,14 +1999,70 @@ describe('putEventLambda', () => {
       expect(patchEventMock).toHaveBeenCalledWith('existing', mockEvent, expect.objectContaining({ teams }))
     })
 
-    it('stores named teams, a full one and an empty one among them, without reading the entries', async () => {
+    it('stores named teams, a full one and an empty one among them, reading the entries of the dogs that join', async () => {
       const teams = [{ name: 'Team Finland 1', registrationIds: members(26) }, { registrationIds: [] }]
 
       const res = await putTeams(teams)
 
       expect(res.statusCode).toEqual(200)
       expect(patchEventMock).toHaveBeenCalledWith('existing', mockEvent, expect.objectContaining({ teams }))
-      expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+      expect(mockReadEventRegistrations).toHaveBeenCalledWith('existing')
+    })
+
+    // KOE-1725: once a dog's class is picked, only the dogs picked into it join a team.
+    describe('the candidates (KOE-1725)', () => {
+      const picked: JsonDogEvent = { ...mockEvent, classes: [{ class: 'ALO', date: '2025-06-01', state: 'picked' }] }
+      const putOver = async (stored: JsonDogEvent, teams: unknown) => {
+        signIn(mockSecretary)
+        getEventMock.mockResolvedValueOnce(stored)
+        return putEventLambda(constructAPIGwEvent({ id: 'existing', teams }, { method: 'PATCH' }))
+      }
+      const reserve = { ...invitedParticipant('ALO'), group: { key: 'reserve', number: 1 }, id: 'wait', state: 'ready' }
+
+      beforeEach(() => {
+        mockReadEventRegistrations.mockResolvedValue([...entriesOf(['a']), reserve])
+      })
+
+      it.each([
+        ['a reserve dog once its class is picked', 'wait'],
+        ['a dog the entries do not hold', 'nobody'],
+      ])('refuses %s joining a team', async (_name, id) => {
+        const res = await putOver(picked, [{ registrationIds: ['a', id] }])
+
+        expect(res.statusCode).toEqual(400)
+        expect(JSON.parse(res.body)).toMatchObject({
+          error: 'invalidTeams',
+          errors: [{ kind: 'notCandidate', registrationId: id }],
+        })
+        expect(patchEventMock).not.toHaveBeenCalled()
+      })
+
+      it('refuses an entry that is not finished, though its class is not picked yet', async () => {
+        mockReadEventRegistrations.mockResolvedValue([
+          ...entriesOf(['a']),
+          { ...invitedParticipant('ALO'), id: 'unpaid', state: 'creating' },
+        ])
+
+        const res = await putOver(mockEvent, [{ registrationIds: ['a', 'unpaid'] }])
+
+        expect(res.statusCode).toEqual(400)
+        expect(JSON.parse(res.body)).toMatchObject({ errors: [{ kind: 'notCandidate', registrationId: 'unpaid' }] })
+      })
+
+      it('lets a reserve dog join while its class is not picked yet', async () => {
+        const res = await putOver(mockEvent, [{ registrationIds: ['a', 'wait'] }])
+
+        expect(res.statusCode).toEqual(200)
+      })
+
+      it('keeps a dog that was in a team before, and reads no entries when no dog joins', async () => {
+        const stored: JsonDogEvent = { ...picked, teams: [{ registrationIds: ['wait', 'a'] }] }
+
+        const res = await putOver(stored, [{ registrationIds: ['a'] }, { name: 'Varalla', registrationIds: ['wait'] }])
+
+        expect(res.statusCode).toEqual(200)
+        expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+      })
     })
 
     it('leaves the stored teams unchecked by a save that carries nothing they rest on (KOE-1720)', async () => {

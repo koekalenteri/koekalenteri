@@ -26,6 +26,8 @@ const entry = (id: string, dog: string, handler: string, overrides: Partial<Regi
   group: { date: RESULTS_EVENT_DAY, key: 'ALO-AP', number: 1, time: 'ap' },
   handler: { ...base.handler, name: handler },
   id,
+  // The admin list holds finished entries only.
+  state: 'ready',
   ...overrides,
 })
 
@@ -76,6 +78,13 @@ const standingsEvent: ConfirmedEvent = {
   ],
 }
 
+// The ALO class picked (KOE-1725): a team takes only its picked dogs, so the reserve dog is not offered.
+const pickedEvent: ConfirmedEvent = {
+  ...eventWithStations,
+  classes: eventWithStations.classes.map((eventClass) => ({ ...eventClass, state: 'picked' })),
+  teams: [{ name: 'Loistavat Lintukoirat', registrationIds: ['dog-1'] }],
+}
+
 const renderPage = (shown: ConfirmedEvent = event, entries: Registration[] = registrations) =>
   render(
     <div data-testid="visual-root" style={{ background: '#fff', width: 900 }}>
@@ -116,7 +125,25 @@ it("shows each team's points and placing, and the run-off of a tie for first (KO
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-standings')
 })
 
+it('offers only the picked dogs once the class is picked (KOE-1725)', async () => {
+  await page.viewport(900, 900)
+  const screen = await renderPage(pickedEvent)
+
+  await screen.getByRole('combobox', { name: 'Lisää koira' }).click()
+  await expect.element(screen.getByRole('option', { name: 'Kultakuonon Kide' })).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-candidates')
+})
+
 describeInLanguage('en', () => {
+  it('offers only the picked dogs once the class is picked (KOE-1725)', async () => {
+    await page.viewport(900, 900)
+    const screen = await renderPage(pickedEvent)
+
+    await screen.getByRole('combobox', { name: 'Add a dog' }).click()
+    await expect.element(screen.getByRole('option', { name: 'Kultakuonon Kide' })).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-candidates-en')
+  })
+
   it("shows each team's points and placing, and the run-off of a tie for first (KOE-1717)", async () => {
     await page.viewport(900, 1300)
     const screen = await renderPage(standingsEvent, standingsRegistrations)

@@ -188,7 +188,11 @@ ole joukkuekilpailua.
 Joukkueelle voi antaa numeron lisäksi nimen kenttään **{t:teams.name}**, esimerkiksi Team Finland 1.
 Koirat lisätään joukkueeseen valikosta **{t:teams.addDog}**, joka tarjoaa kokeen ilmoittautuneista
 ne, jotka eivät ole peruneet eivätkä jo ole jossakin joukkueessa. Koira voi siis kuulua vain yhteen
-joukkueeseen, ja myös varasijalla oleva koira kelpaa. Joukkueessa voi olla enintään 26 koiraa.
+joukkueeseen. Ennen kuin koiran luokan osallistujat on valittu, myös varasijalla oleva koira kelpaa;
+kun luokka on valittu, valikko tarjoaa siitä vain osallistujiksi valitut koirat. Joukkueessa jo
+olevaa koiraa tämä ei koske. Joukkueessa voi olla enintään 26 koiraa.
+
+!shot[EventTeamsPage/teams-candidates] Valitun luokan koirista valikko tarjoaa vain osallistujat: varalla oleva ja perunut koira puuttuvat
 
 Koira saa joukkueessa tunnuksen siinä järjestyksessä kuin se on lisätty: joukkueen 1 koirat ovat
 1A, 1B, 1C ja niin edelleen. Tunnusta vaihdetaan siirtämällä koiraa rivin nuolilla ylös tai alas,
