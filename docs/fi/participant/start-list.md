@@ -78,8 +78,7 @@ rivi on joukkueen otsikossa jokaisen päivän alla. Ensimmäisestä sijasta tasa
 ### Sarjat
 
 Joukkuekilpailussa voi olla useita sarjoja, esimerkiksi avoin sarja ja rotusarja. Silloin joukkueet
-ovat joukkueittain sarja kerrallaan sarjan nimen alla, ja sarjaan kuulumattomat joukkueet ovat
-ensimmäisinä. Jokainen sarja sijoitetaan erikseen: kullakin sarjalla on oma ensimmäinen sijansa ja
+on jaettu sarjoihin, kukin sarjan nimen alla, ja sarjaan kuulumattomat joukkueet ovat ensimmäisinä. Jokainen sarja sijoitetaan erikseen: kullakin sarjalla on oma ensimmäinen sijansa ja
 tasapisteissä oma uusintatehtävänsä. Sarjan nimi näkyy sivun kielellä, jos järjestäjä on antanut
 sen sillä kielellä, ja muuten suomeksi.
 

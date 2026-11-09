@@ -5,7 +5,7 @@ order: 30
 covers:
   - src/pages/StartListPage.tsx
   - src/pages/startListPage/**
-sourceHash: d151fe
+sourceHash: 1d179e
 ---
 
 The start list is the trial's public page, where the organizer publishes the participants, the
@@ -75,7 +75,7 @@ place also show *({t:startList.teamRunOff})*. In a trial without points the team
 ### Series
 
 A team competition may have several series, for example an open series and a breed series. Then the
-list by team goes series by series under each series' name, and the teams in no series come first.
+teams are divided into series, each under its series' name, and the teams in no series come first.
 Each series is placed on its own: every series has its own first place and, for a tie, its own
 run-off task. The series' name shows in the page's language where the organizer has given it in that
 language, and otherwise in Finnish.
