@@ -14,7 +14,7 @@ import { isMicrochip } from './dog'
 import { hasRetrieveTypeChoice, isMockTrialClass } from './event'
 import { makeArray } from './judge'
 import { scoresAtPosts } from './liveFormat'
-import { getRegistrationGroupDay, getRegistrationPlacement } from './registration'
+import { getRegistrationGroupDay, getRegistrationPlacement, isRegistrationClass } from './registration'
 import { parseEventResultCode, resultMarks, resultPrefixAsKennelClub, shownEventResult } from './results'
 
 /**
@@ -220,7 +220,7 @@ const additionalInfo = (
     else problems.push({ code: 'additionalInfoNotAllowed', detail: label })
   }
   // A Mock trial is the event's property, but Kennelliitto holds it as an additional info of the result.
-  if (event.mockTrial && registration.class && isMockTrialClass(registration.class)) {
+  if (event.mockTrial && isRegistrationClass(registration.class) && isMockTrialClass(registration.class)) {
     const row = infoRow(koemuoto, 'mocktrial')
     if (row) infos.push(row.tulos)
   }

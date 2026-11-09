@@ -1,6 +1,6 @@
 import type { StartNumbersRequest } from '@/api/event'
 import type { StartNumbersTime } from '@/lib/event'
-import type { ClassOrNone, DogEvent, Patch, RegistrationClass, StationTurnOp } from '@/types'
+import type { ClassKey, ClassOrNone, DogEvent, Patch, StationTurnOp } from '@/types'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { useAtomCallback } from 'jotai/utils'
 import { enqueueSnackbar } from 'notistack'
@@ -65,7 +65,7 @@ const buildEventChanges = (
 
 export const buildStartListClassPublishedPatch = (
   event: DogEvent,
-  eventClass: RegistrationClass,
+  eventClass: ClassKey,
   published: boolean
 ): Patch<DogEvent> & { id: string } => ({
   id: event.id,
@@ -187,7 +187,7 @@ export const useAdminEventActions = () => {
   }
 
   /** The invitation's PDF, for the whole event or one class; the event learns the new key at once. */
-  async function attachInvitation(event: DogEvent, file: File, className?: RegistrationClass) {
+  async function attachInvitation(event: DogEvent, file: File, className?: ClassKey) {
     const { invitationAttachmentHistory, key } = await putInvitationAttachment(event.id, file, className, token)
     const attached: DogEvent = className
       ? {
@@ -278,7 +278,7 @@ export const useAdminEventActions = () => {
 
   async function setStartListClassPublished(
     event: DogEvent,
-    eventClass: RegistrationClass,
+    eventClass: ClassKey,
     published: boolean
   ): Promise<DogEvent | undefined> {
     if (!event?.id) return
@@ -303,7 +303,7 @@ export const useAdminEventActions = () => {
 
   async function setStartNumbersClassPublished(
     event: DogEvent,
-    eventClass: RegistrationClass,
+    eventClass: ClassKey,
     published: boolean,
     date?: string,
     time?: StartNumbersTime
@@ -353,7 +353,7 @@ export const useAdminEventActions = () => {
     return saved
   }
 
-  async function publishStartListClass(event: DogEvent, eventClass: RegistrationClass): Promise<DogEvent | undefined> {
+  async function publishStartListClass(event: DogEvent, eventClass: ClassKey): Promise<DogEvent | undefined> {
     return setStartListClassPublished(event, eventClass, true)
   }
 }

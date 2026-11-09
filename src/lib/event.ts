@@ -1,5 +1,6 @@
 import type { TFunction } from 'i18next'
 import type {
+  ClassKey,
   ClassOrNone,
   ConfirmedEvent,
   ConfirmedEventStates,
@@ -667,7 +668,7 @@ export const hasDayStarted = (day: DayInput, now = new Date()) =>
 
 export const isResultsPublishedClassMap = (
   resultsPublished: JsonDogEvent['resultsPublished']
-): resultsPublished is Partial<Record<RegistrationClass, ResultsDayScope>> =>
+): resultsPublished is Partial<Record<ClassKey, ResultsDayScope>> =>
   typeof resultsPublished === 'object' && resultsPublished !== null && !Array.isArray(resultsPublished)
 
 /**
@@ -681,7 +682,7 @@ export const isResultsPublishedClassMap = (
  */
 const getResultsDayScope = (
   { resultsPublished }: Pick<JsonDogEvent, 'resultsPublished'>,
-  eventClass?: RegistrationClass
+  eventClass?: ClassKey
 ): ResultsDayScope => {
   if (!isResultsPublishedClassMap(resultsPublished)) return resultsPublished ?? false
   return eventClass ? (resultsPublished[eventClass] ?? false) : false
@@ -697,7 +698,7 @@ export const isResultsPublishedForDay = (
 type ResultsDaysEvent = Pick<JsonDogEvent, 'resultsPublished'> & ClassDaysEvent
 
 /** Whether the results of every day the class runs, or the classless event does, are out. */
-export const isResultsPublished = (event: ResultsDaysEvent, eventClass?: RegistrationClass) =>
+export const isResultsPublished = (event: ResultsDaysEvent, eventClass?: ClassKey) =>
   scopeHasEveryDay(getResultsDayScope(event, eventClass), getClassDays(event, eventClass))
 
 /** Every day of every class has its results out: the public list is no longer just participants (KOE-1285). */
@@ -789,7 +790,7 @@ export const withResultsDay = (
   const change = { day, published }
   if (!eventClass) return foldResultsScope(event, undefined, change)
 
-  const result: Partial<Record<RegistrationClass, ResultsDayScope>> = {}
+  const result: Partial<Record<ClassKey, ResultsDayScope>> = {}
   for (const item of uniqueClasses(event)) {
     result[item] = foldResultsScope(event, item, item === eventClass ? change : undefined)
   }
@@ -1093,7 +1094,7 @@ export const isStartListAvailableForClass = (
   if (!canPublishStartList(event.state, event)) return false
 
   return isStartListPublishedClassMap(event.startListPublished)
-    ? event.startListPublished[eventClass.class as RegistrationClass] === true
+    ? event.startListPublished[eventClass.class] === true
     : event.startListPublished === true
 }
 
@@ -1170,7 +1171,7 @@ export const getClassDays = (event: ClassDaysEvent, eventClass?: string): DayKey
 
 const isStartNumbersPublishedClassMap = (
   startNumbersPublished: JsonDogEvent['startNumbersPublished']
-): startNumbersPublished is Partial<Record<RegistrationClass, StartNumbersDayScope>> =>
+): startNumbersPublished is Partial<Record<ClassKey, StartNumbersDayScope>> =>
   typeof startNumbersPublished === 'object' && startNumbersPublished !== null && !Array.isArray(startNumbersPublished)
 
 /**
@@ -1182,10 +1183,10 @@ const isStartNumbersPublishedClassMap = (
 export const getStartNumbersDayScope = (
   { startNumbersPublished }: Pick<JsonDogEvent, 'startNumbersPublished'>,
   eventClass?: string
-): StartNumbersDayScope =>
-  isStartNumbersPublishedClassMap(startNumbersPublished)
-    ? (startNumbersPublished[eventClass as RegistrationClass] ?? false)
-    : (startNumbersPublished ?? true)
+): StartNumbersDayScope => {
+  if (!isStartNumbersPublishedClassMap(startNumbersPublished)) return startNumbersPublished ?? true
+  return eventClass ? (startNumbersPublished[eventClass] ?? false) : false
+}
 
 /** The half of a day that draws on its own (KOE-1430): the morning or the afternoon, never a whole day. */
 export type StartNumbersTime = Extract<RegistrationTime, 'ap' | 'ip'>
@@ -1395,14 +1396,14 @@ export const getStartNumbersPublishedClassMap = ({
   startNumbersPublished,
 }: Pick<JsonDogEvent, 'startNumbersPublished'> & {
   classes: Array<Pick<JsonDogEvent['classes'][number], 'class'>>
-}): Partial<Record<RegistrationClass, StartNumbersDayScope>> => {
+}): Partial<Record<ClassKey, StartNumbersDayScope>> => {
   const existingMap = isStartNumbersPublishedClassMap(startNumbersPublished) ? startNumbersPublished : {}
   // The absent-means-published default (above) carries into the expanded map, but a class missing
   // from an existing map is post-feature and starts unpublished (KOE-1266).
   const defaultPublished = isStartNumbersPublishedClassMap(startNumbersPublished)
     ? false
     : startNumbersPublished !== false
-  const result: Partial<Record<RegistrationClass, StartNumbersDayScope>> = {}
+  const result: Partial<Record<ClassKey, StartNumbersDayScope>> = {}
 
   for (const eventClass of classes) {
     result[eventClass.class] = existingMap[eventClass.class] ?? defaultPublished
@@ -1451,12 +1452,12 @@ export const isResultsAvailableForRegistration = (
 
 export const isStartListPublishedForClass = (event: Pick<JsonDogEvent, 'startListPublished'>, eventClass: string) =>
   isStartListPublishedClassMap(event.startListPublished)
-    ? event.startListPublished[eventClass as RegistrationClass] === true
+    ? event.startListPublished[eventClass] === true
     : event.startListPublished !== false
 
 export const isStartListPublishedClassMap = (
   startListPublished: JsonDogEvent['startListPublished']
-): startListPublished is Partial<Record<RegistrationClass, boolean>> =>
+): startListPublished is Partial<Record<ClassKey, boolean>> =>
   typeof startListPublished === 'object' && startListPublished !== null
 
 /** A class entry whose own state has not reached the invitations. */
@@ -1475,9 +1476,9 @@ export const getStartListPublishedClassMap = (
     EventVitals & {
       classes: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'>>
     }
-): Partial<Record<RegistrationClass, boolean>> => {
+): Partial<Record<ClassKey, boolean>> => {
   const { classes, startListPublished } = event
-  const result: Partial<Record<RegistrationClass, boolean>> = {}
+  const result: Partial<Record<ClassKey, boolean>> = {}
 
   for (const eventClass of classes) {
     if (isStartListPublishedClassMap(startListPublished)) {
@@ -1625,7 +1626,7 @@ const resolveTimes = (newTimes: RegistrationTime[], oldTimes?: RegistrationTime[
 
 export const applyNewGroupsToDogEventClass = (
   { classes }: Pick<DogEvent, 'classes'>,
-  eventClass: RegistrationClass,
+  eventClass: ClassKey,
   defaultGroups: RegistrationTime[],
   newDates: RegistrationDate[]
 ): Pick<DogEvent, 'classes' | 'dates'> => {

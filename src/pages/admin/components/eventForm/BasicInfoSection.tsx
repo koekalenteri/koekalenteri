@@ -44,6 +44,7 @@ import {
   isOfficialEventType,
   OFFICIAL_EVENT_TYPES,
 } from '@/lib/event'
+import { isRegistrationClass } from '@/lib/registration'
 import CollapsibleSection from '@/pages/components/CollapsibleSection'
 import DateRange from '@/pages/components/DateRange'
 import { getRuleDate } from '@/rules'
@@ -175,7 +176,7 @@ function BasicInfoSection({
       // Only a NOWT can be a Mock trial (KOE-308); a trial that changes format drops the mark.
       const mockTrial = hasMockTrialChoice(eventType) ? event.mockTrial : null
       const filterClasses = getTypeClasses(eventType, eventTypeClasses, !!mockTrial)
-      const classes = event.classes.filter((c) => filterClasses.includes(c.class))
+      const classes = event.classes.filter((c) => isRegistrationClass(c.class) && filterClasses.includes(c.class))
       const official = OFFICIAL_EVENT_TYPES.includes(eventType ?? '')
       const judges =
         official && (event.judges.length === 0 || !event.judges[0].official)
@@ -208,7 +209,7 @@ function BasicInfoSection({
         followedFormat,
         event.startDate,
         event.endDate,
-        event.classes.filter((c) => filterClasses.includes(c.class))
+        event.classes.filter((c) => isRegistrationClass(c.class) && filterClasses.includes(c.class))
       )
       // A cleared choice is sent as null, which removes it from the stored event.
       onChange?.({ classes, officialFormat: officialFormat ?? null })
@@ -228,7 +229,9 @@ function BasicInfoSection({
   const handleMockTrialChange = useCallback(
     (_e: ChangeEvent<HTMLInputElement>, checked: boolean) => {
       // A Mock trial runs AVO and VOI only (KOE-308): marking the trial one drops its ALO classes.
-      const classes = checked ? event.classes.filter((c) => isMockTrialClass(c.class)) : event.classes
+      const classes = checked
+        ? event.classes.filter((c) => isRegistrationClass(c.class) && isMockTrialClass(c.class))
+        : event.classes
       onChange?.({ classes, mockTrial: checked })
     },
     [event.classes, onChange]

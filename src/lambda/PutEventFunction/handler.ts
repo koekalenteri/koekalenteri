@@ -1,4 +1,4 @@
-import type { JsonConfirmedEvent, JsonDogEvent, JsonUser, Patch, RegistrationClass } from '../../types'
+import type { ClassKey, JsonConfirmedEvent, JsonDogEvent, JsonUser, Patch } from '../../types'
 import type { EventChange } from '../lib/event'
 import { nanoid } from 'nanoid'
 import {
@@ -102,7 +102,7 @@ const freezeAbsentStartNumbersState = (
   if (!Object.hasOwn(item, 'startListPublished')) return
 
   if (existing.classes?.length) {
-    const frozen: Partial<Record<RegistrationClass, boolean>> = {}
+    const frozen: Partial<Record<ClassKey, boolean>> = {}
     for (const eventClass of existing.classes) {
       // A class can run on several days; its numbers stay out if any of its days had them out.
       frozen[eventClass.class] = frozen[eventClass.class] || isStartNumbersAvailableForClass(existing, eventClass)
@@ -119,10 +119,10 @@ const freezeAbsentStartNumbersState = (
  */
 const newlyPublished = (
   data: JsonConfirmedEvent,
-  published: (event: JsonConfirmedEvent, eventClass: RegistrationClass | undefined) => boolean,
+  published: (event: JsonConfirmedEvent, eventClass: ClassKey | undefined) => boolean,
   existing: JsonConfirmedEvent
-): Array<RegistrationClass | undefined> => {
-  const classes: Array<RegistrationClass | undefined> = data.classes?.length ? uniqueClasses(data) : [undefined]
+): Array<ClassKey | undefined> => {
+  const classes: Array<ClassKey | undefined> = data.classes?.length ? uniqueClasses(data) : [undefined]
   return classes.filter((eventClass) => published(data, eventClass) && !published(existing, eventClass))
 }
 

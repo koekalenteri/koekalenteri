@@ -1,6 +1,8 @@
 import type { TFunction } from 'i18next'
 import type {
+  ClassKey,
   DeepPartial,
+  EventClass,
   JsonConfirmedEvent,
   JsonQualifyingResult,
   JsonRegistration,
@@ -1037,6 +1039,17 @@ describe('lib/registration', () => {
       expect(isRegistrationClass('')).toBe(false)
       expect(isRegistrationClass(null)).toBe(false)
       expect(isRegistrationClass(undefined)).toBe(false)
+    })
+
+    // KOE-674: an event's class is a key, an own code among them; the official paths take only ALO, AVO, VOI.
+    it('narrows a class key to an official class, and an own code to none', () => {
+      const derby: EventClass = { class: 'DERBY', date: '2026-08-01' }
+      const official = (eventClass: RegistrationClass) => eventClass
+      const keys: ClassKey[] = [derby.class, 'AVO']
+
+      // @ts-expect-error an own code is no official class
+      official(derby.class)
+      expect(keys.filter(isRegistrationClass).map(official)).toEqual(['AVO'])
     })
   })
 

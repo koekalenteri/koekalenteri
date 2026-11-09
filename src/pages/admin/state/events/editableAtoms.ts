@@ -1,5 +1,5 @@
 import type { RESET } from 'jotai/utils'
-import type { DogEvent, JsonDogEvent, RegistrationClass } from '@/types'
+import type { ClassKey, DogEvent, JsonDogEvent } from '@/types'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
 import { uniqueClasses } from '@/lib/event'
@@ -8,7 +8,7 @@ import { toDogEvent } from '@/lib/wire'
 import { atomWithSessionStorage } from '@/pages/state'
 import { adminCurrentEventAtom, adminEventAtom } from './derivedAtoms'
 
-const storedEventClassAtom = atomWithSessionStorage<RegistrationClass | undefined>('adminEventClass', undefined)
+const storedEventClassAtom = atomWithSessionStorage<ClassKey | undefined>('adminEventClass', undefined)
 // Only await adminCurrentEventAtom for the initial default. Once storedEventClassAtom holds a
 // value, read synchronously instead of via an `async` getter: an async function always returns
 // a new Promise identity on every call, and since storedEventClassAtom changes whenever the
@@ -19,7 +19,7 @@ export const adminEventClassAtom = atom(
     if (stored !== undefined) return stored
     return mapMaybe(get(adminCurrentEventAtom), (event) => uniqueClasses(event)[0])
   },
-  (_get, set, value: RegistrationClass) => set(storedEventClassAtom, value)
+  (_get, set, value: ClassKey) => set(storedEventClassAtom, value)
 )
 
 /** The views that edit a stored event, each on a draft of its own (KOE-1700). */

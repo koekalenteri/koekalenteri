@@ -1,7 +1,7 @@
 import type { TFunction } from 'i18next'
 import type useAdminEventRegistrationInfo from '@/hooks/useAdminEventRegistrationsInfo'
 import type { PublishedStartNumbersSlot, StartNumbersTime } from '@/lib/event'
-import type { ConfirmedEvent, RegistrationClass } from '@/types'
+import type { ClassKey, ConfirmedEvent } from '@/types'
 import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -28,7 +28,7 @@ import { actionButtonSx } from './styles'
 
 type RegistrationInfo = ReturnType<typeof useAdminEventRegistrationInfo>
 
-const getStartNumbersAuditMessageKey = (eventClass: RegistrationClass | undefined, published: boolean) => {
+const getStartNumbersAuditMessageKey = (eventClass: ClassKey | undefined, published: boolean) => {
   if (eventClass) {
     return published ? 'audit.messages.classStartNumbersPublished' : 'audit.messages.classStartNumbersHidden'
   }
@@ -36,12 +36,7 @@ const getStartNumbersAuditMessageKey = (eventClass: RegistrationClass | undefine
 }
 
 /** The confirmation for a numbers publish or hide; a day's own names the day (KOE-1304), or the half of it. */
-const startNumbersMessage = (
-  t: TFunction,
-  eventClass: RegistrationClass | undefined,
-  published: boolean,
-  day?: string
-) => {
+const startNumbersMessage = (t: TFunction, eventClass: ClassKey | undefined, published: boolean, day?: string) => {
   if (!day) return t(getStartNumbersAuditMessageKey(eventClass, published), { eventClass })
   if (eventClass) {
     return t(published ? 'audit.messages.classStartNumbersPublishedDay' : 'audit.messages.classStartNumbersHiddenDay', {
@@ -99,7 +94,7 @@ interface Props {
   readonly eventWithCurrentAttachments: ConfirmedEvent
   readonly numbersByClass: RegistrationInfo['numbersByClass']
   readonly onSetStartNumbersPublished?: (
-    eventClass: RegistrationClass | undefined,
+    eventClass: ClassKey | undefined,
     published: boolean,
     date?: string,
     time?: StartNumbersTime
@@ -127,7 +122,7 @@ const StartNumbersPublishing = ({
   const { t } = useTranslation()
 
   const handleSetStartNumbersPublished = async (
-    eventClass: RegistrationClass | undefined,
+    eventClass: ClassKey | undefined,
     published: boolean,
     { day, time }: PublishScope,
     withDay: boolean

@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next'
 import type { FormatOwner } from '@/lib/event'
-import type { EventResultVersion, RegistrationClass, ResultConflict } from '@/types'
+import type { ClassKey, EventResultVersion, ResultConflict } from '@/types'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
@@ -31,7 +31,7 @@ interface Props {
    * over the whole result.
    */
   readonly exercisesOf?: (id: string) => readonly number[]
-  readonly registrations: readonly { id: string; class?: RegistrationClass | null; dog?: { name?: string } }[]
+  readonly registrations: readonly { id: string; class?: ClassKey | null; dog?: { name?: string } }[]
   readonly choices: Record<string, ConflictChoice>
   readonly onChoose: (id: string, choice: ConflictChoice) => void
   readonly onResolve: () => Promise<void>

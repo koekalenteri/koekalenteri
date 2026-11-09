@@ -1,4 +1,4 @@
-import type { JsonConfirmedEvent, JsonRegistration, Patch, RegistrationClass } from '../../types'
+import type { ClassKey, JsonConfirmedEvent, JsonRegistration, Patch } from '../../types'
 import type { StartNumberEntry } from '../lib/startNumbers'
 import { startNumbersEnteredAudit, startNumbersPublishedAudit } from '../../lib/audit'
 import { isDayKey } from '../../lib/day'
@@ -49,7 +49,7 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
 
   const eventId = getParam(event, 'eventId')
   const body = parseJSONWithFallback<StartNumbersRequest>(event.body, {})
-  const eventClass: RegistrationClass | undefined = isRegistrationClass(body.eventClass) ? body.eventClass : undefined
+  const eventClass: ClassKey | undefined = isRegistrationClass(body.eventClass) ? body.eventClass : undefined
   const numbers = parseStartNumberEntries(body.numbers)
 
   if (typeof body.published !== 'boolean' && numbers.length === 0) {
