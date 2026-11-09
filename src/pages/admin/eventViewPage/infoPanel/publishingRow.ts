@@ -7,8 +7,8 @@ import {
   isStartListAvailableForClass,
   isStartNumbersPublishedForClass,
 } from '@/lib/event'
+import { isEventClass } from '@/lib/eventClass'
 import { getStartListBlocker, getStartNumbersBlocker, isStartListPublished } from '@/lib/publishing'
-import { isRegistrationClass } from '@/lib/registration'
 
 type RegistrationInfo = ReturnType<typeof useAdminEventRegistrationInfo>
 type EventClass = ConfirmedEvent['classes'][number]
@@ -56,7 +56,7 @@ const getPublishingRow = (
   const eventClass = event.classes.find((item) => item.class === className)
   // A classless trial's row is keyed by its format, as its dogs are (`getRegistrationClass`, KOE-1718).
   const classlessEventRow = event.classes.length === 0 && className === formatTypeOf(event)
-  const startListEventClass = isRegistrationClass(className) ? className : undefined
+  const startListEventClass = isEventClass(event, className) ? className : undefined
   const publishable = classlessEventRow || startListEventClass !== undefined
 
   return {

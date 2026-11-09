@@ -1,6 +1,7 @@
 import type { TFunction } from 'i18next'
 import type React from 'react'
 import type { PublicationNote, StartListTeamDay } from '../../lib/startListView'
+import type { Language } from '../../types'
 import type { DayKey } from '../../types/Day'
 import type { EventClass, PublicConfirmedEvent } from '../../types/Event'
 import type { PublicRegistration } from '../../types/Registration'
@@ -12,6 +13,7 @@ import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
+import { useAtomValue } from 'jotai'
 import { enqueueSnackbar } from 'notistack'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -37,7 +39,9 @@ import {
   startListTeamDays,
   teamDayNoteLines,
   teamRowPrefix,
+  teamSeriesName,
 } from '../../lib/startListView'
+import { languageAtom } from '../state/user/atoms'
 import { CancelledRegistration } from './CancelledRegistration'
 import { ClassHeader } from './ClassHeader'
 import { DateHeader } from './DateHeader'
@@ -69,6 +73,7 @@ export const ParticipantList = ({
   showExportActions = false,
 }: ParticipantListProps) => {
   const { t } = useTranslation()
+  const language = useAtomValue(languageAtom)
   const [copied, setCopied] = useState(false)
   // A team competition opens by team (KOE-1715); the running order is the other view, not remembered.
   const [view, setView] = useState<StartListView>('team')
@@ -82,13 +87,16 @@ export const ParticipantList = ({
   )
   const startListItems = useMemo(() => getStartListItems(visibleParticipants, event), [event, visibleParticipants])
   // The team view reads the running order's rows as they are sorted, so both list a day's dogs alike.
-  const teamDays = useMemo(() => startListTeamDays(startListItems.filter(isRegistrationItem)), [startListItems])
+  const teamDays = useMemo(
+    () => startListTeamDays(startListItems.filter(isRegistrationItem), event),
+    [event, startListItems]
+  )
   // The public event has no teams; a row that carries one is what says the list has them.
   const hasTeams = teamDays.some((day) => day.teams.length > 0)
   const byTeam = hasTeams && view === 'team'
   const copyText = useMemo(
-    () => (byTeam ? formatTeamStartList(teamDays, event, t) : formatStartList(visibleParticipants, event, t)),
-    [byTeam, event, t, teamDays, visibleParticipants]
+    () => (byTeam ? formatTeamStartList(teamDays, event, t, language) : formatStartList(visibleParticipants, event, t)),
+    [byTeam, event, language, t, teamDays, visibleParticipants]
   )
   // Preview only (KOE-1218): where a class+day has drawn numbers, an undrawn dog's working-order
   // number can collide with a drawn one — those rows get a warning marker.
@@ -440,8 +448,13 @@ function formatClassJudges(event: PublicConfirmedEvent, eventClass: string, date
     .join(', ')
 }
 
-/** The copied list by team (KOE-1715), read from the same days as the screen shows. */
-function formatTeamStartList(days: readonly StartListTeamDay[], event: PublicConfirmedEvent, t: TFunction) {
+/** The copied list by team (KOE-1715), read from the same days as the screen shows, series by series (KOE-1720). */
+function formatTeamStartList(
+  days: readonly StartListTeamDay[],
+  event: PublicConfirmedEvent,
+  t: TFunction,
+  language: Language
+) {
   const lines: string[] = []
   const group = (heading: string[], rows: readonly PublicRegistration[], showClass: boolean) => {
     lines.push('', ...heading, ...rows.map((reg) => formatRegistration(reg, t, teamRowPrefix(reg, showClass))))
@@ -454,13 +467,16 @@ function formatTeamStartList(days: readonly StartListTeamDay[], event: PublicCon
       `${t('dateFormat.weekday', { date })} ${t('dateFormat.date', { date })}`,
       ...teamDayNoteLines(event, day, t)
     )
-    for (const team of teams) {
+    teams.forEach((team, index) => {
+      if (team.seriesId && team.seriesId !== teams[index - 1]?.seriesId) {
+        lines.push('', teamSeriesName(event, team.seriesId, language))
+      }
       const standing = formatTeamStanding(team, t)
       const heading = [t('startList.team', { number: team.number }), team.name, standing].filter(
         (line): line is string => !!line
       )
       group(heading, team.rows, showClass)
-    }
+    })
     if (noTeam.length) group([t('startList.noTeam')], noTeam, showClass)
   })
 

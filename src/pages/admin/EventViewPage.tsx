@@ -15,7 +15,8 @@ import useAdminEventRegistrationInfo from '../../hooks/useAdminEventRegistration
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { reportError } from '../../lib/client/error'
 import { formatTypeOf, hasEntryEnded, hasSharedReserveList, isEntryEditingClosed } from '../../lib/event'
-import { getRegistrationClass, isRegistrationClass } from '../../lib/registration'
+import { isEventClass } from '../../lib/eventClass'
+import { getRegistrationClass } from '../../lib/registration'
 import CancelDialog from '../components/CancelDialog'
 import LoadingIndicator from '../components/LoadingIndicator'
 import { useHelpPath } from '../state/docs'
@@ -127,11 +128,11 @@ export default function EventViewPage() {
     (_: React.SyntheticEvent, newValue: number) => {
       const next = tabs[newValue]
       setAllClassesTabSelected(next === ALL_CLASSES_TAB)
-      if (next && isRegistrationClass(next)) {
+      if (isEventClass(event ?? {}, next)) {
         setSelectedEventClass(next)
       }
     },
-    [setSelectedEventClass, tabs]
+    [event, setSelectedEventClass, tabs]
   )
 
   // The secretary picks the recipient groups first, and writes the message to them after (KOE-1073).
@@ -178,16 +179,16 @@ export default function EventViewPage() {
       return
     }
 
-    if (currentEventClass && currentEventClass !== selectedEventClass && isRegistrationClass(currentEventClass)) {
+    if (currentEventClass !== selectedEventClass && isEventClass(event ?? {}, currentEventClass)) {
       setSelectedEventClass(currentEventClass)
       setSelectedRegistrationId(undefined)
     } else if (!selectedEventClass || !allClasses.includes(selectedEventClass)) {
       const fallback = allClasses[0]
-      if (fallback && isRegistrationClass(fallback)) {
+      if (isEventClass(event ?? {}, fallback)) {
         setSelectedEventClass(fallback)
       }
     }
-  }, [allClasses, currentEventClass, selectedEventClass, setSelectedEventClass, setSelectedRegistrationId])
+  }, [allClasses, currentEventClass, event, selectedEventClass, setSelectedEventClass, setSelectedRegistrationId])
 
   if (!event?.id) {
     return <EventNotFound />
@@ -299,7 +300,7 @@ export default function EventViewPage() {
         <RegistrationCreateDialog
           event={event}
           eventClass={
-            isRegistrationClass(selectedEventClass) && eventClasses.includes(selectedEventClass)
+            isEventClass(event, selectedEventClass) && eventClasses.includes(selectedEventClass)
               ? selectedEventClass
               : undefined
           }

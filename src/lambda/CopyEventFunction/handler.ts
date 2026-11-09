@@ -5,6 +5,7 @@ import {
   getEventSeason,
   groupKeyOf,
   shiftPlacesPerDay,
+  shiftTeamDays,
   stripInvitationAttachments,
   stripKennelliittoLink,
 } from '../../lib/event'
@@ -90,6 +91,8 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
   })
   // The places per day move with their days (KOE-1543).
   if (item.placesPerDay) item.placesPerDay = shiftPlacesPerDay(item.placesPerDay, days)
+  // The days a team competition counts move with their days (KOE-1726).
+  if (item.teamCompetition) item.teamCompetition = shiftTeamDays(item.teamCompetition, days)
 
   await publishEventChange(await saveEvent(item))
 
