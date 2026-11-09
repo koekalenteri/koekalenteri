@@ -57,6 +57,10 @@ kun kaikki vaadittu on paikallaan. Käy osiot läpi ja tarkista erityisesti:
 - **{t:event.kcIdSectionTitle}**: koe liitetään Kennelliiton kokeeseen, jotta tulokset voi tallentaa,
 - **yhteystiedot** — mitkä vastaavan koetoimitsijan ja koesihteerin tiedot ilmoittautuja saa nähdä.
 
+Jos lomakkeelta poistuu tallentamatta, se kysyy ensin: **{t:unsavedChanges.stay}** jää lomakkeelle,
+ja **{t:unsavedChanges.leave}** hylkää muutokset. Välilehden sulkemisesta tai uudelleenlataamisesta
+kysyy selain. **{t:cancel}** hylkää muutokset heti kysymättä.
+
 ## 2. Tarkasta kokeen tila
 
 Kokeen tila on lomakkeen yläreunan **{t:event.state}**-valikko. Ilmoittautuminen on mahdollista vain, kun

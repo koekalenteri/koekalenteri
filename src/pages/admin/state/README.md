@@ -129,10 +129,11 @@ never turns up in another (KOE-1700). A view that opens on a draft whose `modifi
 stored event's drops it once (`isStaleEventDraft`), since the draft was begun before the last save; a
 save that comes while the view is open leaves its change alone. An event gone from the list keeps the
 draft, which is then all there is of it. The details dialog mounts its form only while open, and Esc
-and a click outside discard its draft as Cancel does. The stations and teams pages leave none behind:
-leaving unsaved asks, and the answer to leave discards that page's draft (KOE-1699). A new event has
-one draft, `adminNewEventAtom`. `adminSaveEventAtom` is write-only: after the read and the call shown
-here, it writes `adminEventIdAtom`, `adminCurrentEventAtom` and the public `eventsAtom`.
+and a click outside discard its draft as Cancel does. The edit, stations and teams pages leave none
+behind: leaving unsaved asks, and the answer to leave discards that page's draft (KOE-1699, KOE-1700).
+A new event has one draft, `adminNewEventAtom`. `adminSaveEventAtom` is write-only: after the read and
+the call shown here, it writes `adminEventIdAtom`, `adminCurrentEventAtom` and the public
+`eventsAtom`.
 
 ```mermaid
 graph LR
