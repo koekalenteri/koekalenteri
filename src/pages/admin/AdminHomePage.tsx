@@ -31,6 +31,9 @@ function AdminShell() {
       <Header toggleMenu={toggleMenu} />
       <Box sx={{ display: 'flex', height: '100%' }}>
         <SideMenu open={menuOpen} onClose={closeMenu} />
+        {/* Positioned, so an absolutely positioned descendant without a positioned ancestor of its
+            own (text hidden for screen readers) is placed and clipped here rather than against the
+            body, where it would stretch the page past the viewport (KOE-1740). */}
         <Box
           sx={{
             display: 'flex',
@@ -39,6 +42,7 @@ function AdminShell() {
             mt: HEADER_HEIGHT,
             overflow: 'auto',
             p: 1,
+            position: 'relative',
           }}
         >
           <Suspense fallback={<LoadingIndicator />} key={location.key}>
