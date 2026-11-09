@@ -10,6 +10,7 @@ import IconButton from '@mui/material/IconButton'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
+import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
@@ -34,7 +35,12 @@ interface Props {
   readonly standing?: TeamStanding
   /** Records whether the team won the run-off for first place. */
   readonly onRunOffChange: (won: boolean) => void
+  /** The competition's series by id and name as the secretary reads it (KOE-1720); none, no choice. */
+  readonly series?: readonly { id: string; name: string }[]
 }
+
+/** The value of the series choice for a team in no series: a select takes no undefined. */
+const NO_SERIES = ''
 
 interface StandingProps {
   readonly standing?: TeamStanding
@@ -73,10 +79,20 @@ const memberState = (registration: Registration): 'memberCancelled' | 'memberRes
 }
 
 /**
- * One team of a team competition (KOE-1714): its number, its name and its dogs, each by its code
- * (`teamMembers`). A dog's place is its letter, so moving it is the only way to change one.
+ * One team of a team competition (KOE-1714): its number, its name, its series where the competition has
+ * them (KOE-1720), and its dogs, each by its code (`teamMembers`). A dog's place is its letter, so moving
+ * it is the only way to change one.
  */
-export default function TeamCard({ number, team, entries, available, onChange, standing, onRunOffChange }: Props) {
+export default function TeamCard({
+  number,
+  team,
+  entries,
+  available,
+  onChange,
+  standing,
+  onRunOffChange,
+  series = [],
+}: Props) {
   const { t } = useTranslation()
   const ids = team.registrationIds
 
@@ -84,6 +100,14 @@ export default function TeamCard({ number, team, entries, available, onChange, s
     (name: string) => {
       const { name: _name, ...rest } = team
       onChange(name ? { ...rest, name } : rest)
+    },
+    [onChange, team]
+  )
+
+  const handleSeries = useCallback(
+    (seriesId: string) => {
+      const { seriesId: _seriesId, ...rest } = team
+      onChange(seriesId === NO_SERIES ? rest : { ...rest, seriesId })
     },
     [onChange, team]
   )
@@ -119,6 +143,22 @@ export default function TeamCard({ number, team, entries, available, onChange, s
           size="small"
           value={team.name ?? ''}
         />
+        {series.length > 0 && (
+          <TextField
+            select
+            label={t('teams.teamSeries')}
+            onChange={(e) => handleSeries(e.target.value)}
+            size="small"
+            value={team.seriesId ?? NO_SERIES}
+          >
+            <MenuItem value={NO_SERIES}>{t('teams.noSeries')}</MenuItem>
+            {series.map(({ id, name }) => (
+              <MenuItem key={id} value={id}>
+                {name}
+              </MenuItem>
+            ))}
+          </TextField>
+        )}
         <TeamResult standing={standing} runOffWon={!!team.runOffWon} onRunOffChange={onRunOffChange} />
         {ids.length === 0 && (
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>

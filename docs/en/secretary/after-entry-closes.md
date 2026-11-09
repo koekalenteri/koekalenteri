@@ -20,7 +20,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 08b4e9
+sourceHash: 822212
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -213,15 +213,30 @@ If a result is later corrected so that the teams are no longer level, the mark h
 
 !shot[EventTeamsPage/teams-standings] The team results: teams 1 and 2 are level on points, and team 2 is marked as the winner of the run-off
 
+### Series
+
+A team competition may have several series, for example an open series and a breed series. Series
+are added above the teams, under *{t:teams.series}*, with **{t:teams.addSeries}**. Each series is
+given a name in Finnish and, if wanted, in English; the English name shows on the start list in
+English. When there are series, each team has the choice **{t:teams.teamSeries}**, which puts the
+team in a series. A team can also be in no series (*{t:teams.noSeries}*).
+
+Each team is placed within its own series: every series has its own first place and, for a tie, its
+own run-off task, and the teams in no series are placed among themselves. Removing a series with the
+bin leaves its teams in no series. A series' name can be changed at any time; the start list always
+shows its current name.
+
+!shot[EventTeamsPage/teams-series] Two series: teams 1 and 3 are in the open series and team 2 in the breed series, so teams 1 and 2 are each first in their series
+
 **{t:save}** stores the changes. **{t:cancel}** goes back to the event without saving.
 
 The saved teams show on the public start list, which opens by team
 ([Start list and results](/docs/participant/start-list)). The list shows only published dogs: a dog
 on the reserve list or not yet published is not shown, and a team none of whose dogs is published
-is not shown at all. The teams' places and points show on the list once the results of every team's
-dogs are published and every dog is on the list: a dog whose start number has not been entered keeps
-every team's result hidden. A change to the teams, to the run-off winner or to the results reaches open start
-lists by itself.
+is not shown at all. A series' places and points show on the list once the results of every dog of
+its teams are published and they are all on the list: a dog whose start number has not been entered
+keeps the result of every team in its series hidden. A change to the teams, to the series, to the
+run-off winner or to the results reaches open start lists by itself.
 
 ## Cancellations and refunds
 

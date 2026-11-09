@@ -210,15 +210,32 @@ tulos myöhemmin korjataan niin, ettei tasapisteitä enää ole, valinnalla ei o
 
 !shot[EventTeamsPage/teams-standings] Joukkueiden tulokset: joukkueet 1 ja 2 ovat tasapisteissä, ja joukkue 2 on merkitty uusintatehtävän voittajaksi
 
+### Sarjat
+
+Joukkuekilpailussa voi olla useita sarjoja, esimerkiksi avoin sarja ja rotusarja. Sarjat lisätään
+joukkueiden yläpuolelta kohdasta *{t:teams.series}* painikkeella **{t:teams.addSeries}**. Jokaiselle
+sarjalle annetaan nimi suomeksi ja halutessa englanniksi; englanninkielinen nimi näkyy
+englanninkielisellä starttilistalla. Kun sarjoja on, jokaisen joukkueen kohdalla on valinta
+**{t:teams.teamSeries}**, josta joukkue liitetään sarjaan. Joukkue voi myös olla sarjoihin
+kuulumaton (*{t:teams.noSeries}*).
+
+Joukkueet sijoitetaan kukin oman sarjansa sisällä: jokaisella sarjalla on oma ensimmäinen sijansa ja
+tasapisteissä oma uusintatehtävänsä, ja sarjoihin kuulumattomat joukkueet sijoitetaan keskenään. Kun
+sarja poistetaan roskakorista, sen joukkueet jäävät ilman sarjaa. Sarjan nimen voi vaihtaa milloin
+tahansa; starttilistalla näkyy aina sarjan nykyinen nimi.
+
+!shot[EventTeamsPage/teams-series] Kaksi sarjaa: joukkueet 1 ja 3 ovat avoimessa sarjassa ja joukkue 2 rotusarjassa, joten joukkueet 1 ja 2 ovat kumpikin oman sarjansa ensimmäisiä
+
 Muutokset tallennetaan painikkeella **{t:save}**. **{t:cancel}** palaa tapahtumaan tallentamatta.
 
 Tallennetut joukkueet näkyvät julkisella starttilistalla, joka avautuu joukkueittain
 ([Starttilista ja tulokset](/docs/participant/start-list)). Listalla näkyvät vain julkaistut koirat:
 varalla oleva tai vielä julkaisematon koira ei näy, eikä joukkuetta, jonka yhtäkään koiraa ei ole
-julkaistu, näytetä lainkaan. Joukkueiden sijoitukset ja pisteet näkyvät listalla, kun kaikkien
-joukkueiden koirien tulokset on julkaistu ja kaikki koirat ovat listalla: koira, jonka starttinumeroa
-ei ole syötetty, pitää kaikkien joukkueiden tuloksen piilossa. Muutos joukkueisiin, uusintatehtävän voittajaan tai
-tuloksiin päivittyy avoimille starttilistoille itsestään.
+julkaistu, näytetä lainkaan. Sarjan joukkueiden sijoitukset ja pisteet näkyvät listalla, kun kaikkien
+sarjan joukkueiden koirien tulokset on julkaistu ja kaikki ne ovat listalla: koira, jonka
+starttinumeroa ei ole syötetty, pitää sarjansa kaikkien joukkueiden tuloksen piilossa. Muutos
+joukkueisiin, sarjoihin, uusintatehtävän voittajaan tai tuloksiin päivittyy avoimille
+starttilistoille itsestään.
 
 ## Peruutukset ja palautukset
 

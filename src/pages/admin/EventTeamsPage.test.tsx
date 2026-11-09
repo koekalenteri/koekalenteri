@@ -309,7 +309,7 @@ describe('EventTeamsPage', () => {
       await flushPromises()
 
       await user.click(screen.getByRole('button', { name: 'teams.addSeries' }))
-      await user.type(screen.getByRole('textbox', { name: 'teams.seriesName language' }), 'Avoin')
+      await user.type(screen.getAllByRole('textbox', { name: 'teams.seriesName language' })[0], 'Avoin')
       await pickSeries(user, teamSections()[0], 'Avoin')
       await user.click(screen.getByRole('button', { name: 'save' }))
       await flushPromises()
@@ -330,19 +330,25 @@ describe('EventTeamsPage', () => {
       expect(screen.getByRole('button', { name: 'save' })).toBeEnabled()
     })
 
-    it('takes a team out of its series, and a removed series out of its teams', async () => {
+    it('takes a removed series out of its teams', async () => {
       vi.mocked(putEvent).mockResolvedValue(eventWithStations)
       const { user } = await renderPage(seriesEvent)
       await flushPromises()
 
-      await user.click(screen.getByRole('button', { name: 'teams.removeSeries name' }))
+      await user.click(screen.getAllByRole('button', { name: 'teams.removeSeries name' })[1])
       await user.click(screen.getByRole('button', { name: 'save' }))
       await flushPromises()
 
       expectSaved({
-        teamCompetition: { series: [series[1]] },
-        teams: [{ registrationIds: ['run-1'] }, { registrationIds: ['run-2'], seriesId: 'breed' }],
+        teamCompetition: { series: [series[0]] },
+        teams: [{ registrationIds: ['run-1'] }, { registrationIds: ['run-2'] }],
       })
+    })
+
+    it('takes a team out of its series', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const { user } = await renderPage(seriesEvent)
+      await flushPromises()
 
       await pickSeries(user, teamSections()[1], 'teams.noSeries')
       await user.click(screen.getByRole('button', { name: 'save' }))

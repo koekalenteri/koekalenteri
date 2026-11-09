@@ -1596,6 +1596,7 @@
   "teams": {
     "addDog": "Lisää koira",
     "addDogFull": "Joukkueessa on jo {{count}} koiraa, joten siihen ei voi lisätä enempää.",
+    "addSeries": "Lisää sarja",
     "count": "Joukkueiden määrä",
     "handler": "ohj. {{name}}",
     "info": "Joukkueet numeroidaan järjestyksessä, ja koira saa joukkueessa tunnuksen sen mukaan, missä järjestyksessä se on lisätty: 1A, 1B, 1C. Koiran tunnusta voi vaihtaa siirtämällä koiraa joukkueessa ylös tai alas.",
@@ -1605,11 +1606,18 @@
     "moveUp": "Siirrä {{code}} ylemmäs",
     "name": "Joukkueen nimi",
     "noDogs": "Joukkueessa ei ole vielä koiria.",
+    "noSeries": "Ei sarjaa",
     "remove": "Poista {{code}} joukkueesta",
+    "removeSeries": "Poista sarja {{name}}",
     "result": "Joukkueen tulos",
     "runOffWon": "Voitti uusintatehtävän",
     "saved": "Joukkueet tallennettu",
+    "series": "Sarjat",
+    "seriesInfo": "Joukkueet sijoitetaan kukin oman sarjansa sisällä, ja julkisella starttilistalla jokainen sarja on oman nimensä alla. Ilman sarjoja kaikki joukkueet kilpailevat keskenään.",
+    "seriesName": "Nimi ({{language}})",
+    "seriesNameRequired": "Anna sarjalle nimi suomeksi.",
     "team": "Joukkue {{number}}",
+    "teamSeries": "Sarja",
     "title": "Joukkueet"
   },
   "templateEditor": {
