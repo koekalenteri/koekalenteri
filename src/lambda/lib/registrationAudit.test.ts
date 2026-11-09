@@ -36,6 +36,20 @@ describe('getRegistrationChanges', () => {
     debugSpy.mockRestore()
   })
 
+  it('reports the team the participant named at entry (KOE-1721)', () => {
+    expect(changesOf({ teamEntry: { name: 'Savon Nuuskut 1' } })).toEqual({
+      changes: [
+        {
+          field: 'teamEntry',
+          labelKey: 'registration.teamEntry',
+          next: { text: 'Savon Nuuskut 1' },
+          previous: { state: 'empty' },
+        },
+      ],
+      messageKey: 'audit.changed',
+    })
+  })
+
   it('reports nothing when nothing the trail follows changed', () => {
     expect(changesOf({ modifiedAt: '2026-01-01T00:00:00.000Z' })).toBeUndefined()
   })

@@ -249,6 +249,39 @@ describe('putAdminRegistrationLambda', () => {
     })
   })
 
+  // KOE-1721: the secretary's save holds to the same rule as the participant's.
+  describe('the team named at entry (KOE-1721)', () => {
+    const withTeam = (teamEntry: unknown) => ({ ...event, body: JSON.stringify({ ...newRegistrationBody, teamEntry }) })
+
+    it('stores the team of a new entry, its name tidied, where the event asks for one', async () => {
+      mockGetEvent.mockResolvedValue({ cost: 40, organizer: { id: 'org-1' }, teamCompetition: { askAtEntry: true } })
+
+      const result = await putAdminRegistrationLambda(withTeam({ name: ' Savon  Nuuskut 1' }))
+
+      expect(result.statusCode).toBe(200)
+      expect(mockWriteRegistration).toHaveBeenCalledWith(
+        expect.objectContaining({ teamEntry: { name: 'Savon Nuuskut 1' } })
+      )
+    })
+
+    it('refuses a team named on an event that does not ask for one', async () => {
+      const result = await putAdminRegistrationLambda(withTeam({ name: 'Savon Nuuskut 1' }))
+
+      expect(result.statusCode).toBe(400)
+      expect(JSON.parse(result.body)).toMatchObject({ error: 'invalidTeamEntry', reason: 'notAsked' })
+      expect(mockWriteRegistration).not.toHaveBeenCalled()
+    })
+
+    it("refuses a team set by an edit's operation where the event does not ask for one", async () => {
+      const result = await putAdminRegistrationLambda(
+        edit([{ path: ['teamEntry'], type: 'CREATE', value: { name: 'Savon Nuuskut 1' } }])
+      )
+
+      expect(result.statusCode).toBe(400)
+      expect(mockWriteRegistration).not.toHaveBeenCalled()
+    })
+  })
+
   it('returns 401 if not authorized', async () => {
     mockAuthorizeWithMemberOf.mockRejectedValueOnce(httpError(401, 'Unauthorized'))
     const malformedPatchEvent = { ...event, body: '{}', httpMethod: 'PATCH' }
