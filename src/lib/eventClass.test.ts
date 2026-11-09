@@ -1,5 +1,5 @@
 import type { OwnClass } from '../types'
-import { classLabel, classOrder, isEventClass, ownClassErrors } from './eventClass'
+import { classLabel, classOrder, isEventClass, isRunClass, ownClassErrors } from './eventClass'
 
 // KOE-674: an unofficial event may run classes of its own, named and ordered by the secretary.
 const derby: OwnClass = { code: 'DERBY', name: { en: 'Derby', fi: 'Derby' } }
@@ -148,5 +148,20 @@ describe('classLabel', () => {
     expect(classLabel(unofficial, 'ALO', 'fi')).toBe('ALO')
     expect(classLabel({}, 'AVO', 'en')).toBe('AVO')
     expect(classLabel({ ownClasses: [{ code: 'YKS', name: { en: ' ' } }] }, 'YKS', 'en')).toBe('YKS')
+  })
+})
+
+// KOE-674: a writer holds a class to the classes the event runs.
+describe('isRunClass', () => {
+  it('takes a class the event runs, an own class among them, and none it does not run', () => {
+    expect(['DERBY', 'VET10', 'ALO', 'YKS', undefined].map((key) => isRunClass(unofficial, key))).toEqual([
+      true,
+      true,
+      false,
+      false,
+      false,
+    ])
+    const official = { classes: [{ class: 'ALO', date: '2026-08-01' as const }], eventType: 'NOWT' }
+    expect(['ALO', 'AVO', 'DERBY'].map((key) => isRunClass(official, key))).toEqual([true, false, false])
   })
 })

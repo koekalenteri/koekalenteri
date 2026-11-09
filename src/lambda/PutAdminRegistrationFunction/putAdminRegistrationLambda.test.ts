@@ -249,6 +249,40 @@ describe('putAdminRegistrationLambda', () => {
     })
   })
 
+  // KOE-674: the secretary's save holds an entry's class to the classes the event runs, as the participant's does.
+  describe('the class of an entry (KOE-674)', () => {
+    const derby = {
+      classes: [{ class: 'DERBY', date: '2024-01-01' }],
+      cost: 40,
+      eventType: 'Labradorien derby',
+      organizer: { id: 'org-1' },
+      ownClasses: [{ code: 'DERBY', name: { fi: 'Derby' } }],
+    }
+    const withClass = (eventClass: string) => ({
+      ...event,
+      body: JSON.stringify({ ...newRegistrationBody, class: eventClass }),
+    })
+
+    it('stores an entry in an own class of the event', async () => {
+      mockGetEvent.mockResolvedValue(derby)
+
+      const result = await putAdminRegistrationLambda(withClass('DERBY'))
+
+      expect(result.statusCode).toBe(200)
+      expect(mockWriteRegistration).toHaveBeenCalledWith(expect.objectContaining({ class: 'DERBY' }))
+    })
+
+    it('refuses an entry in a class the event does not run', async () => {
+      mockGetEvent.mockResolvedValue(derby)
+
+      const result = await putAdminRegistrationLambda(withClass('ALO'))
+
+      expect(result.statusCode).toBe(400)
+      expect(JSON.parse(result.body)).toMatchObject({ error: 'invalidClass' })
+      expect(mockWriteRegistration).not.toHaveBeenCalled()
+    })
+  })
+
   it('returns 401 if not authorized', async () => {
     mockAuthorizeWithMemberOf.mockRejectedValueOnce(httpError(401, 'Unauthorized'))
     const malformedPatchEvent = { ...event, body: '{}', httpMethod: 'PATCH' }

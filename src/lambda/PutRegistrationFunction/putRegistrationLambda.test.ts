@@ -2150,6 +2150,46 @@ describe('putRegistrationLabmda', () => {
     })
   })
 
+  // KOE-674: an entry's class is a class the event runs, an own class among them.
+  describe('the class of an entry (KOE-674)', () => {
+    const { id: _1, paidAmount: _2, paidAt: _3, paymentStatus: _4, ...entry } = registrationWithStaticDatesAndClass
+    const derbyEvent = () => {
+      const event = JSON.parse(JSON.stringify(eventWithStaticDatesAndClass))
+      return {
+        ...event,
+        classes: [{ class: 'DERBY', date: event.classes[0].date }],
+        eventType: 'Labradorien derby',
+        ownClasses: [{ code: 'DERBY', name: { fi: 'Derby' } }],
+      }
+    }
+
+    beforeEach(() => {
+      vi.setSystemTime(eventWithStaticDatesAndClass.entryStartDate)
+    })
+
+    it('stores an entry in an own class of the event', async () => {
+      mockGetLiveEvent.mockResolvedValueOnce(derbyEvent())
+
+      const res = await putRegistrationLabmda(constructAPIGwEvent({ ...entry, class: 'DERBY', state: 'ready' }))
+
+      expect(res.statusCode).toBe(200)
+      expect(mockWriteRegistration).toHaveBeenCalledWith(expect.objectContaining({ class: 'DERBY' }))
+    })
+
+    it.each([
+      ['an official class beside the own ones', 'ALO'],
+      ['a code the event does not have', 'YKS'],
+    ])('refuses an entry in %s', async (_name, eventClass) => {
+      mockGetLiveEvent.mockResolvedValueOnce(derbyEvent())
+
+      const res = await putRegistrationLabmda(constructAPIGwEvent({ ...entry, class: eventClass, state: 'ready' }))
+
+      expect(res.statusCode).toBe(400)
+      expect(JSON.parse(res.body)).toMatchObject({ error: 'invalidClass' })
+      expect(mockWriteRegistration).not.toHaveBeenCalled()
+    })
+  })
+
   // The chip the registrant types must be one Kennelliitto takes (KOE-1650); the one Kennelliitto
   // itself gave the dog, and the one a stored entry already holds, pass as they are.
   describe('microchip (KOE-1650)', () => {

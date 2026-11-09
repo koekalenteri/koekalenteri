@@ -121,6 +121,38 @@ describe('putStartNumbersLambda', () => {
     ])
   })
 
+  // KOE-674: an own class's numbers are that class's, never the whole event's.
+  describe('an own class', () => {
+    beforeEach(() => {
+      mockGetAuthorizedEvent.mockResolvedValue(
+        asJsonConfirmedEvent({
+          ...confirmedEvent(),
+          classes: [{ class: 'DERBY' }],
+          eventType: 'Labradorien derby',
+          ownClasses: [{ code: 'DERBY', name: { fi: 'Derby' } }],
+          startListPublished: { DERBY: true },
+          startNumbersPublished: { DERBY: false },
+        })
+      )
+      mockReadEventRegistrations.mockResolvedValue([registration('run-1', { class: 'DERBY' })])
+    })
+
+    it('publishes the numbers of that class alone', async () => {
+      await putStartNumbersLambda(apiEvent({ eventClass: 'DERBY', published: true }))
+
+      expect(mockWriteEventFields).toHaveBeenCalledWith('event-1', {
+        set: { startNumbersPublished: { DERBY: true }, updatedAt: expect.any(String) },
+      })
+    })
+
+    it('refuses a class the event does not run, rather than the whole event', async () => {
+      await putStartNumbersLambda(apiEvent({ eventClass: 'ALO', published: true }))
+
+      expect(mockResponse).toHaveBeenCalledWith(422, 'invalid class', expect.anything())
+      expect(mockWriteEventFields).not.toHaveBeenCalled()
+    })
+  })
+
   it('publishing freezes the class and flips the flag in the same locked request', async () => {
     await putStartNumbersLambda(apiEvent({ eventClass: 'ALO', published: true }))
 

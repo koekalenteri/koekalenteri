@@ -208,7 +208,9 @@ describe('lib/publishing', () => {
       [{ ALO: true }, true],
       [{ ALO: ['2026-09-12'] }, true],
       [{ ALO: 'x' }, false],
-      [{ foo: true }, false],
+      // KOE-674: the shape alone; whether the key is a class of the event is the writer's to say.
+      [{ DERBY: ['2026-09-12'] }, true],
+      [{ '': true }, false],
       [[1], false],
       [null, false],
       [undefined, false],

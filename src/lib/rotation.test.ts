@@ -449,6 +449,16 @@ describe('rotationShapeErrors', () => {
     ])
   })
 
+  // KOE-674: a group runs a class the event runs, an own class among them.
+  it('refuses a group of a class the event does not run, and takes one of its own classes', () => {
+    const classes = [{ class: 'DERBY', date: DAY }]
+
+    expect(rotationShapeErrors({ classes, rotations: [{ class: 'ALO', exercises: order(1) }], stations })).toEqual([
+      { group: 0, kind: 'unknownClass' },
+    ])
+    expect(rotationShapeErrors({ classes, rotations: [{ class: 'DERBY', exercises: order(1) }], stations })).toEqual([])
+  })
+
   it('refuses a group whose posts are on different days', () => {
     expect(
       rotationShapeErrors({
