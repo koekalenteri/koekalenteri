@@ -15,7 +15,7 @@ import { StationRow } from './StationRow'
 
 export type StationsEditorEvent = Pick<
   DogEvent,
-  'classes' | 'endDate' | 'eventType' | 'judges' | 'rotations' | 'startDate' | 'stations'
+  'classes' | 'endDate' | 'eventType' | 'judges' | 'ownClasses' | 'rotations' | 'startDate' | 'stations'
 >
 
 export interface Props {

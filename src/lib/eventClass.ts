@@ -1,6 +1,7 @@
 import type { ClassKey, JsonDogEvent, Language } from '../types'
-import { compareRegistrationClasses, isOfficialEventType, OFFICIAL_EVENT_TYPES } from './event'
-import { isRegistrationClass } from './registration'
+import type { SortableRegistration } from './registration'
+import { classOrder, isOfficialEventType, OFFICIAL_EVENT_TYPES, ownClassCodes } from './event'
+import { isRegistrationClass, registrationSort } from './registration'
 
 /**
  * An event's classes as the class rules read them (KOE-674): its type, the own classes an unofficial
@@ -24,8 +25,6 @@ type OwnClassError =
  * the code goes into links and result codes as it is.
  */
 const OWN_CLASS_CODE = /^[A-Z][A-Z0-9]{0,9}$/
-
-const ownCodes = (event: Partial<ClassOwner>): string[] => (event.ownClasses ?? []).map(({ code }) => code)
 
 /** What is wrong with the own classes themselves: their codes, their names and a day for each. */
 const ownClassListErrors = (event: ClassOwner): OwnClassError[] => {
@@ -82,21 +81,7 @@ export const ownClassErrors = (
  * code may not be a type's name.
  */
 export const isEventClass = (event: Partial<ClassOwner>, key: string | null | undefined): key is ClassKey =>
-  !!key && (event.ownClasses?.length ? ownCodes(event).includes(key) : isRegistrationClass(key))
-
-/**
- * The order of an event's classes (KOE-674): its own classes as the secretary listed them, then the
- * rest in the official order, ALO, AVO, VOI, and anything else after them.
- */
-export const classOrder = (event: Partial<ClassOwner>) => {
-  const codes = ownCodes(event)
-  const place = (key: string | undefined) => {
-    const index = key === undefined ? -1 : codes.indexOf(key)
-    return index === -1 ? codes.length : index
-  }
-  return (a: string | undefined, b: string | undefined): number =>
-    place(a) - place(b) || compareRegistrationClasses(a, b)
-}
+  !!key && (event.ownClasses?.length ? ownClassCodes(event).includes(key) : isRegistrationClass(key))
 
 /**
  * A class as a participant reads it (KOE-674): an own class by its name in the reader's language, in
@@ -116,3 +101,28 @@ const written = (name: string | undefined) => (name?.trim() ? name : undefined)
  */
 export const isRunClass = (event: Partial<ClassOwner>, key: string | null | undefined): key is ClassKey =>
   isEventClass(event, key) && !!event.classes?.some((eventClass) => eventClass.class === key)
+
+/**
+ * The order of the event's start list (KOE-674): day, then class in the event's order (`classOrder`),
+ * then time and number. Every view of the entries reads it, the public list, its spreadsheet and the
+ * secretary's lists alike.
+ */
+export const registrationOrder = (event: Parameters<typeof classOrder>[0]) => registrationSort(classOrder(event))
+
+/**
+ * Items that name a registration by its id, in the order the secretary's start list has those
+ * registrations (KOE-1652): day, class, time and number (`registrationOrder`). An item whose
+ * registration is not in the list goes last, and items the list cannot tell apart keep the order they
+ * came in.
+ */
+export const inRegistrationOrder = <T extends { readonly id: string }>(
+  items: readonly T[],
+  registrations: readonly (SortableRegistration & { readonly id: string })[],
+  event: Parameters<typeof classOrder>[0]
+): T[] => {
+  const rank = new Map(
+    [...registrations].sort(registrationOrder(event)).map((registration, index) => [registration.id, index])
+  )
+  const rankOf = (item: T) => rank.get(item.id) ?? rank.size
+  return [...items].sort((a, b) => rankOf(a) - rankOf(b))
+}

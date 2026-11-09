@@ -11,11 +11,8 @@ import { useAtomValue } from 'jotai'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { eventTypeLabel, formatTypeOf, hasSharedReserveList, localizedEventName } from '../../lib/event'
-import {
-  getRegistrationClass,
-  getRegistrationGroupTime,
-  sortRegistrationsByDateClassTimeAndNumber,
-} from '../../lib/registration'
+import { registrationOrder } from '../../lib/eventClass'
+import { getRegistrationClass, getRegistrationGroupTime } from '../../lib/registration'
 import { keysOf } from '../../lib/typeGuards'
 import { AdminAccessGuard } from '../components/AdminAccessGuard'
 import { HiddenPageTitle } from '../components/HiddenPageTitle'
@@ -56,7 +53,7 @@ function StartList() {
   const event = useAtomValue(adminEventAtom(eventId))
   const language = useAtomValue(languageAtom)
   const allRegistrations = useAtomValue(adminEventRegistrationsAtom(eventId))
-  const regsToPrint = allRegistrations.filter((reg) => !reg.cancelled).sort(sortRegistrationsByDateClassTimeAndNumber)
+  const regsToPrint = allRegistrations.filter((reg) => !reg.cancelled).sort(registrationOrder(event))
   const nameLen = regsToPrint.reduce((acc, reg) => Math.min(38, Math.max(acc, reg.dog.name?.length ?? 0)), 0)
   const grouped = regsToPrint.reduce<GroupedRegs>((acc, reg) => {
     const date = reg.group?.date ?? RESERVE_KEY

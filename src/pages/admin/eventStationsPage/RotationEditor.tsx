@@ -6,7 +6,7 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { compareRegistrationClasses } from '@/lib/event'
+import { classOrder } from '@/lib/event'
 import {
   dayStations,
   formatRotationGroup,
@@ -40,9 +40,9 @@ export const RotationEditor = ({ day, event, disabled, heading, onChange }: Prop
   const classes = useMemo(
     () =>
       [...new Set(event.classes.filter((item) => item.date === day).map((item): ClassKey => item.class))].sort(
-        compareRegistrationClasses
+        classOrder(event)
       ),
-    [day, event.classes]
+    [day, event]
   )
   // Each with its place in the event's list, which is what an edit replaces. A group has no id, and a
   // key made of what it holds would change, and remount the row, with every digit typed into its range;

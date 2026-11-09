@@ -3120,6 +3120,21 @@ describe('the order of a trial class list (KOE-1596)', () => {
     expect(getUniqueEventClasses({ classes })).toEqual(expected)
   })
 
+  // KOE-674: the own classes are listed as the secretary ordered them.
+  it("uniqueClasses lists the own classes in the event's order", () => {
+    const classes = [
+      { class: 'DERBY', date: '2026-09-12' as const },
+      { class: 'VET10', date: '2026-09-12' as const },
+      { class: 'DERBY', date: '2026-09-13' as const },
+    ]
+    const ownClasses = [
+      { code: 'VET10', name: { fi: 'Veteraanit' } },
+      { code: 'DERBY', name: { fi: 'Derby' } },
+    ]
+
+    expect(uniqueClasses({ classes, ownClasses })).toEqual(['VET10', 'DERBY'])
+  })
+
   it('leaves the stored classes in the order they were picked', () => {
     const classes = [...pickedVoiFirst]
     uniqueClasses({ classes })

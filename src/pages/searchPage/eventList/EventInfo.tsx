@@ -28,6 +28,7 @@ const judgeClasses = (judge: PublicJudge, event: PublicDogEvent) => {
     classes: event.classes.filter((c) =>
       Array.isArray(c.judge) ? c.judge.find((j) => j.id === judge.id) : c.judge?.id === judge.id
     ),
+    ownClasses: event.ownClasses,
   })
   return classes.length ? ` (${classes.join(', ')})` : ''
 }
@@ -44,7 +45,7 @@ export const EventInfo = ({ event }: Props) => {
   const secretary = useMemo(() => printContactInfo(event.contactInfo?.secretary), [event.contactInfo?.secretary])
   const classes = useMemo(
     // A classless trial's places go by its format, the name its one row has (KOE-1718).
-    () => (event.classes.length ? uniqueClasses({ classes: event.classes }) : [formatTypeOf(event)]),
+    () => (event.classes.length ? uniqueClasses(event) : [formatTypeOf(event)]),
     [event]
   )
   // With several classes and no explicit per-class/per-day split, `places` is a shared pool —

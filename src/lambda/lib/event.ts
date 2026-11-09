@@ -452,6 +452,8 @@ export const linkedEventProjection = (confirmedEvent: JsonConfirmedEvent): JsonL
   names: confirmedEvent.names,
   // The link's screens run by the trial's format (KOE-1718), so they are told the type it follows.
   ...(confirmedEvent.officialFormat ? { officialFormat: confirmedEvent.officialFormat } : {}),
+  // The link's class tabs follow the event's class order, which its own classes set (KOE-674).
+  ...(confirmedEvent.ownClasses?.length ? { ownClasses: confirmedEvent.ownClasses } : {}),
   startDate: confirmedEvent.startDate,
 })
 

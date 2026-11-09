@@ -19,13 +19,13 @@ import type { ExerciseSlot, ScoredTask } from './resultTasks'
 import type { RotationEvent } from './rotation'
 import { objectsDiffer } from './diff'
 import { formatTypeOf } from './event'
+import { registrationOrder } from './eventClass'
 import { scoresAtPosts } from './liveFormat'
 import {
   getRegistrationClass,
   getRegistrationGroupDay,
   getRegistrationPlacement,
   isScorableRegistration,
-  sortRegistrationsByDateClassTimeAndNumber,
 } from './registration'
 import { dogRound, toScoredTasks } from './resultTasks'
 import { rotationDogOf, stationQueue } from './rotation'
@@ -277,7 +277,7 @@ export const stationDogsInOrder = <T extends SortableRegistration>(
   stationId: string,
   registrations: readonly T[]
 ): (T & { visit?: StationVisitLayout })[] => {
-  if (!scoresAtPosts(formatTypeOf(event))) return [...registrations].sort(sortRegistrationsByDateClassTimeAndNumber)
+  if (!scoresAtPosts(formatTypeOf(event))) return [...registrations].sort(registrationOrder(event))
 
   return stationQueue(event, stationId, registrations).map(({ registration, visit }) => ({ ...registration, visit }))
 }

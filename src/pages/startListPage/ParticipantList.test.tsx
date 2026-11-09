@@ -255,6 +255,38 @@ describe('ParticipantList', () => {
     ])
   })
 
+  // KOE-674: the own classes are listed as the secretary ordered them, not alphabetically.
+  it("lists a day's own classes in the event's order", () => {
+    const date = '2023-01-01'
+    const ownClassEvent: PublicConfirmedEvent = {
+      ...mockEvent,
+      classes: [
+        { class: 'VET10', date, state: 'invited' },
+        { class: 'DERBY', date, state: 'invited' },
+      ],
+      ownClasses: [
+        { code: 'VET10', name: { fi: 'Veteraanit' } },
+        { code: 'DERBY', name: { fi: 'Derby' } },
+      ],
+    }
+
+    render(
+      <ParticipantList
+        participants={[
+          createMockRegistration('DERBY', 'Derby Dog', 1, date),
+          createMockRegistration('VET10', 'Veteran Dog', 2, date),
+        ]}
+        event={ownClassEvent}
+      />
+    )
+
+    expect(screen.getAllByTestId('class-header').map((header) => header.textContent)).toEqual(['VET10', 'DERBY'])
+    expect(screen.getAllByTestId('registration-details').map((row) => row.textContent)).toEqual([
+      'Veteran Dog (index: 0)',
+      'Derby Dog (index: 0)',
+    ])
+  })
+
   it('uses one date header for two groups of the same day', () => {
     const first = createMockRegistration('', 'Dog 1', 1, '2026-10-02', 'ap')
     const second = createMockRegistration('', 'Dog 2', 2, '2026-10-02', 'ap')

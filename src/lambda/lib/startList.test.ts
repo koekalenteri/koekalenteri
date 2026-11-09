@@ -59,6 +59,37 @@ describe('readPublishedStartList (KOE-1516)', () => {
     expect(mockReadEventRegistrations).toHaveBeenCalledWith('event-1', true)
   })
 
+  // KOE-674: an unofficial event's own classes are listed in the order the secretary gave them.
+  it("lists the own classes of a day in the event's order, not the alphabet's", async () => {
+    mockGetLiveEvent.mockResolvedValueOnce({
+      ...publishedEvent,
+      classes: [
+        { class: 'VET10', state: 'invited' },
+        { class: 'DERBY', state: 'invited' },
+      ],
+      eventType: 'Labradorien derby',
+      ownClasses: [
+        { code: 'VET10', name: { fi: 'Veteraanit' } },
+        { code: 'DERBY', name: { fi: 'Derby' } },
+      ],
+      startListPublished: { DERBY: true, VET10: true },
+      startNumbersPublished: { DERBY: true, VET10: true },
+    })
+    const inClass = (eventClass: string, name: string) =>
+      asJsonRegistration({
+        ...registration,
+        class: eventClass,
+        dog: { name, regNo: `REG-${name}` },
+        group: { date: '2025-01-01', key: eventClass, number: 1 },
+        startGroup: { date: '2025-01-01', key: eventClass, number: 1 },
+      })
+    mockReadEventRegistrations.mockResolvedValueOnce([inClass('DERBY', 'Derbykoira'), inClass('VET10', 'Veteraani')])
+
+    const { participants } = await readPublishedStartList('event-1')
+
+    expect(participants.map(({ class: eventClass }) => eventClass)).toEqual(['VET10', 'DERBY'])
+  })
+
   it('stamps the version before reading, so a later stamp never describes an earlier read', async () => {
     mockGetLiveEvent.mockImplementationOnce(async () => {
       vi.setSystemTime(STAMP + 5000)

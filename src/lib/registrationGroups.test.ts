@@ -1,4 +1,5 @@
-import type { JsonRegistration } from '../types'
+import type { DogEvent, JsonRegistration, OwnClass } from '../types'
+import type { FormatOwner } from './event'
 import { legacyDayValue } from '../test-utils/finnishDays'
 import { GROUP_KEY_CANCELLED } from './registration'
 import { applyRegistrationGroupMoves, normalizeRegistrationGroups } from './registrationGroups'
@@ -265,6 +266,29 @@ describe("a WT trial's shared reserve list", () => {
       ['alo-1', 1],
       ['avo-1', 1],
     ])
+  })
+
+  // KOE-674: the event's class order is for reading the lists; the reserve numbers do not move with it.
+  it('keeps the reserve numbers when the secretary reorders the own classes', () => {
+    const reserves = () => [wtRegistration('vet-1', 'VET10', 1), wtRegistration('derby-1', 'DERBY', 1)]
+    const numbers = (ownClasses: OwnClass[]) => {
+      const event: FormatOwner & Pick<DogEvent, 'ownClasses'> = {
+        eventType: 'WT-harjoitus',
+        officialFormat: 'NOWT',
+        ownClasses,
+      }
+      return normalizeRegistrationGroups(reserves(), event).map((item) => [item.id, item.group?.number])
+    }
+    const vetFirst: OwnClass[] = [
+      { code: 'VET10', name: { fi: 'Veteraanit' } },
+      { code: 'DERBY', name: { fi: 'Derby' } },
+    ]
+
+    expect(numbers(vetFirst)).toEqual([
+      ['derby-1', 1],
+      ['vet-1', 2],
+    ])
+    expect(numbers([...vetFirst].reverse())).toEqual(numbers(vetFirst))
   })
 
   it('numbers every class into one queue (KOE-912)', () => {

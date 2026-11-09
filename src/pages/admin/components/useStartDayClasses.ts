@@ -1,7 +1,7 @@
-import type { FormatOwner } from '@/lib/event'
+import type { ClassOrderOwner, FormatOwner } from '@/lib/event'
 import type { PlacedRegistration, StartDay } from './StartDaySelector'
 import { useMemo, useState } from 'react'
-import { compareRegistrationClasses } from '@/lib/event'
+import { classOrder } from '@/lib/event'
 import { getRegistrationClass } from '@/lib/registration'
 import { startDayKey, startDaysOf } from './StartDaySelector'
 
@@ -14,7 +14,10 @@ type DayClassRegistration = PlacedRegistration & { class?: string | null }
  * classes are worked through (KOE-1350, KOE-1353). The days are the event's own, not one class's.
  * A classless trial's one tab is its format (`getRegistrationClass`).
  */
-export const useStartDayClasses = <T extends DayClassRegistration>(registrations: T[], event: FormatOwner) => {
+export const useStartDayClasses = <T extends DayClassRegistration>(
+  registrations: T[],
+  event: FormatOwner & ClassOrderOwner
+) => {
   const [selectedClass, setSelectedClass] = useState<string | undefined>()
   const [selectedDay, setSelectedDay] = useState<string | undefined>()
 
@@ -30,7 +33,7 @@ export const useStartDayClasses = <T extends DayClassRegistration>(registrations
   const classes = useMemo(
     () =>
       [...new Set(dayRegistrations.map((registration) => getRegistrationClass(registration, event)))].sort(
-        compareRegistrationClasses
+        classOrder(event)
       ),
     [dayRegistrations, event]
   )

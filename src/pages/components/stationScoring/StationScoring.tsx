@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import type { EventResultSubmission } from '@/api/registration'
-import type { FormatOwner } from '@/lib/event'
+import type { ClassOrderOwner, FormatOwner } from '@/lib/event'
 import type {
   ClassKey,
   EventResultVersion,
@@ -33,7 +33,7 @@ import { APIError } from '@/api/http'
 import { reportError } from '@/lib/client/error'
 import { resultConflictResponse } from '@/lib/client/resultConflict'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
-import { compareRegistrationClasses, formatTypeOf } from '@/lib/event'
+import { classOrder, formatTypeOf } from '@/lib/event'
 import { makeArray } from '@/lib/judge'
 import { scoresAtPosts } from '@/lib/liveFormat'
 import { getRegistrationClass } from '@/lib/registration'
@@ -81,7 +81,8 @@ interface StationScoringDog {
 interface Props {
   readonly station: Pick<EventStation, 'id' | 'number' | 'judges' | 'dogsAtOnce'>
   /** The trial, whose format (`formatTypeOf`) decides what the post enters and how a result is spelled. */
-  readonly event: FormatOwner
+  /** The trial's format, and its own classes, whose order the class tabs follow (KOE-674). */
+  readonly event: FormatOwner & ClassOrderOwner
   /** The head of the sheet: which post of which trial, and a way back where the caller has one. */
   readonly header?: ReactNode
   /** For the class judges where the post names none. */
@@ -214,7 +215,7 @@ export function StationScoring({
   // came; elsewhere in the class order (KOE-1596).
   const eventClasses = useMemo(() => {
     const classes = [...new Set(registrations.map((dog) => getRegistrationClass(dog, event)))]
-    return registrations.some((dog) => dog.visit) ? classes : classes.sort(compareRegistrationClasses)
+    return registrations.some((dog) => dog.visit) ? classes : classes.sort(classOrder(event))
   }, [event, registrations])
   // Read once, on opening: the dog already at the post is where the screen starts, class tab included.
   const [initial] = useState(() => dogAtPost(registrations, turns, station.id))

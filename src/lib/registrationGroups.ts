@@ -25,9 +25,9 @@ const copyGroup = (group: GroupedRegistration['group']) => (group ? { ...group }
 // are one group, however the stored date is spelled (KOE-1541).
 const sortSnapshot = (a: GroupedRegistration, b: GroupedRegistration) =>
   getRegistrationGroupDay(a.group?.date).localeCompare(getRegistrationGroupDay(b.group?.date)) ||
-  // Keep the established ordering semantics from
-  // sortRegistrationsByDateClassTimeAndNumber. The event's format participates in the
-  // numbering-group key, but must not change the sort order within a snapshot.
+  // Numbering reads the classes alphabetically, not in the event's class order (classOrder): the
+  // shared reserve numbers stay as they are when the secretary reorders the own classes (KOE-674).
+  // The event's format participates in the numbering-group key, but not in this order.
   (a.class ?? '').localeCompare(b.class ?? '') ||
   (a.group?.time ?? '').localeCompare(b.group?.time ?? '') ||
   (a.group?.number ?? Number.MAX_SAFE_INTEGER) - (b.group?.number ?? Number.MAX_SAFE_INTEGER)

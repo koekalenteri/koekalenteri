@@ -30,7 +30,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRegistrationEmailTemplateData } from '@/hooks/useRegistrationEmailTemplateData'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
-import { compareRegistrationClasses } from '@/lib/event'
+import { classOrder } from '@/lib/event'
 import { invitationAttachmentFileName } from '@/lib/fileName'
 import { getRegistrationClass, getRegistrationEmails } from '@/lib/registration'
 import { markParticipantLinksFromAdmin, Path } from '@/routeConfig'
@@ -100,7 +100,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
   const recipientClasses = useMemo(
     () =>
       [...new Set(registrations.map((registration) => getRegistrationClass(registration, event)))].sort(
-        compareRegistrationClasses
+        classOrder(event)
       ),
     [event, registrations]
   )

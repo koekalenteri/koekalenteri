@@ -1,7 +1,7 @@
 import type { ConfirmedEvent, EventState, Registration } from '../types'
 import { useMemo } from 'react'
 import {
-  compareRegistrationClasses,
+  classOrder,
   eventDates,
   formatTypeOf,
   getEventStateForClass,
@@ -61,8 +61,8 @@ export default function useAdminEventRegistrationInfo(
 
   // Entries in classes the event no longer runs: their own tabs, after the event's.
   const missingClasses = useMemo(
-    () => registrationClasses.filter((c) => !eventClasses.includes(c)).sort(compareRegistrationClasses),
-    [eventClasses, registrationClasses]
+    () => registrationClasses.filter((c) => !eventClasses.includes(c)).sort(classOrder(event)),
+    [event, eventClasses, registrationClasses]
   )
 
   const numbersByClass = useMemo(() => {

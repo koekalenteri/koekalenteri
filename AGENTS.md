@@ -87,11 +87,17 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - An unofficial event may run classes of its own (`ownClasses`, KOE-674): the list names them and
   orders them, and `classes` holds their days. `src/lib/eventClass.ts` holds the rules:
   `ownClassErrors` (PutEvent refuses with `invalidOwnClasses`), `isEventClass` for whether a key is
-  one of the event's classes (never a classless trial's format), `classOrder` and `classLabel`. A
-  check that a key is a class of the event takes `isEventClass`, not `isRegistrationClass`. A writer
-  holds a class to the classes the event runs (`isRunClass`): an entry's class (`assertEntryClass`
-  in PutRegistration and PutAdminRegistration) and a running order's group (`unknownClass`). A
-  per-class write refuses a key the event does not run, never reading it as the whole event.
+  one of the event's classes (never a classless trial's format), `classLabel` and
+  `registrationOrder` (a day's entries class by class, then time and number). A check that a key is
+  a class of the event takes `isEventClass`, not `isRegistrationClass`. A writer holds a class to the
+  classes the event runs (`isRunClass`): an entry's class (`assertEntryClass` in PutRegistration and
+  PutAdminRegistration) and a running order's group (`unknownClass`). A per-class write refuses a key
+  the event does not run, never reading it as the whole event.
+- `classOrder(event)` (`src/lib/event.ts`) is the one class order of every list and view: the own
+  classes as listed, then ALO, AVO, VOI. `uniqueClasses` and `registrationOrder` sort by it; a sort
+  of classes or entries takes the event, never a fixed order. The reserve numbering
+  (`normalizeRegistrationGroups`) keeps its alphabetical order, so reordering the own classes never
+  renumbers the reserves.
 - These stay on the trial's own `eventType`: who may enter (`qualification.ts`, `rules.ts`), everything
   official (`isOfficialEventType`, Kennelliitto, Omakoira, the kcId), the statistics, the event's
   name and labels, and the B-trial's game-or-dummies and the NOWT's Mock trial choices.

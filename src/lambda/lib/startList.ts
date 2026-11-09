@@ -15,12 +15,12 @@ import {
   isStartListAvailableForRegistration,
   isStartNumbersAvailableForRegistration,
 } from '../../lib/event'
+import { registrationOrder } from '../../lib/eventClass'
 import {
   formatOwnerNames,
   getHandlingPerson,
   getRegistrationOwners,
   resolveOwnerSelection,
-  sortRegistrationsByDateClassTimeAndNumber,
   withDefaultOwnerSelection,
 } from '../../lib/registration'
 import { placementsFor, resultMarks, shownEventResult, withStoredTotals } from '../../lib/results'
@@ -82,10 +82,8 @@ const buildPublicStartList = (
   // Groups keep their day/class/time order either way; within a group a withheld number falls
   // back to the dog's name, so the unconfirmed list reads alphabetically rather than leaking
   // the draft order through its row positions.
-  publicRegs.sort(
-    (a, b) =>
-      sortRegistrationsByDateClassTimeAndNumber(a, b) || (a.dog.name ?? '').localeCompare(b.dog.name ?? '', 'fi')
-  )
+  const byRegistration = registrationOrder(confirmedEvent)
+  publicRegs.sort((a, b) => byRegistration(a, b) || (a.dog.name ?? '').localeCompare(b.dog.name ?? '', 'fi'))
 
   return publicRegs
 }

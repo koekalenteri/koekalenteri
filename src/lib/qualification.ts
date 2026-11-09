@@ -16,7 +16,7 @@ import type {
 } from '../types'
 import { getRequirements } from '../rules'
 import { calendarDayOf, dayParts, TIME_ZONE } from './day'
-import { storedDayKey } from './event'
+import { officialClassPlace, storedDayKey } from './event'
 import { getNextClass, isRegistrationClass } from './registration'
 
 export const objectContains = (obj: object, req: object) =>
@@ -36,7 +36,6 @@ const byDate = (a: TestResult, b: TestResult) => {
   if (!a.date || !b.date) return Number(!a.date) - Number(!b.date)
   return a.date.localeCompare(b.date)
 }
-const CLASS_ORDER: OfficialClass[] = ['ALO', 'AVO', 'VOI']
 
 /** An entry's class as eligibility reads it: an official one, or none. */
 type OfficialClass = RegistrationClass | null | undefined
@@ -46,7 +45,7 @@ const isHigherClass = (resultClass: Partial<TestResult>['class'], regClass?: Off
     resultClass &&
       regClass &&
       isRegistrationClass(resultClass) &&
-      CLASS_ORDER.indexOf(resultClass) > CLASS_ORDER.indexOf(regClass)
+      officialClassPlace(resultClass) > officialClassPlace(regClass)
   )
 
 const hasSameClassResult = (

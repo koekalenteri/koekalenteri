@@ -17,8 +17,9 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { reportError } from '@/lib/client/error'
 import { formatTypeOf, getEventProgress, uniqueClasses } from '@/lib/event'
+import { inRegistrationOrder } from '@/lib/eventClass'
 import { countSentResults, defaultKcRegNoChoice, isResultsLocked } from '@/lib/kennelliittoResults'
-import { getRegistrationClass, inRegistrationOrder, isScorableRegistration } from '@/lib/registration'
+import { getRegistrationClass, isScorableRegistration } from '@/lib/registration'
 import { KcIdLookupButton } from '../../components/KcIdLookupButton'
 import { useSaveKcLink } from '../../hooks/useSaveKcLink'
 import { useKennelliittoResults } from '../../state/registrations/actions'
@@ -89,10 +90,11 @@ const sendingOf = (preview: KcPreviewResponse, force: boolean, rows: KcRegNoRow[
  */
 const handOverInRegistrationOrder = (
   outcome: Exclude<KcHandOverOutcome, { kind: 'done' }>,
-  registrations: Registration[]
+  registrations: Registration[],
+  event: ConfirmedEvent
 ): Exclude<KcHandOverOutcome, { kind: 'done' }> =>
   outcome.kind === 'confirmationNeeded' || outcome.kind === 'unsent'
-    ? { ...outcome, dogs: inRegistrationOrder(outcome.dogs, registrations) }
+    ? { ...outcome, dogs: inRegistrationOrder(outcome.dogs, registrations, event) }
     : outcome
 
 /**
@@ -130,12 +132,15 @@ const KennelliittoSubmission = ({ event, onRefreshState, registrations }: Props)
     try {
       // Every list of dogs the dialogs show is in the order of the secretary's start list (KOE-1652).
       const preview = await kc.preview()
-      setSendPhase({ kind: 'preview', preview: { ...preview, dogs: inRegistrationOrder(preview.dogs, registrations) } })
+      setSendPhase({
+        kind: 'preview',
+        preview: { ...preview, dogs: inRegistrationOrder(preview.dogs, registrations, event) },
+      })
     } catch (error) {
       reportError(error)
       setSendPhase({ kind: 'failed' })
     }
-  }, [kc, registrations])
+  }, [kc, registrations, event])
 
   const handleSend = useCallback(async () => {
     if (sendPhase.kind !== 'preview' && sendPhase.kind !== 'regNos') return
@@ -156,9 +161,9 @@ const KennelliittoSubmission = ({ event, onRefreshState, registrations }: Props)
     setSendPhase({
       blocked,
       kind: 'report',
-      summary: { ...summary, reports: inRegistrationOrder(summary.reports, registrations) },
+      summary: { ...summary, reports: inRegistrationOrder(summary.reports, registrations, event) },
     })
-  }, [forceSend, kc, registrations, regNoDecisions, sendPhase])
+  }, [forceSend, kc, registrations, regNoDecisions, sendPhase, event])
 
   const decideRegNo = useCallback((id: string, decision: KcRegNoDecision) => {
     setRegNoDecisions((decisions) => ({ ...decisions, [id]: decision }))
@@ -181,8 +186,8 @@ const KennelliittoSubmission = ({ event, onRefreshState, registrations }: Props)
       enqueueSnackbar(t('results.kennelliitto.handOver.done'), { variant: 'success' })
       return
     }
-    setHandOverOutcome(handOverInRegistrationOrder(outcome, registrations))
-  }, [handOverAccepted, kc, registrations, t])
+    setHandOverOutcome(handOverInRegistrationOrder(outcome, registrations, event))
+  }, [handOverAccepted, kc, registrations, t, event])
 
   return (
     <>

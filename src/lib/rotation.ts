@@ -7,14 +7,12 @@ import type {
   EventStation,
   StationVisitLayout,
 } from '../types'
+import type { ClassOrderOwner } from './event'
 import type { SortableRegistration } from './registration'
-import { compareRegistrationClasses } from './event'
+import { classOrder } from './event'
+import { registrationOrder } from './eventClass'
 import { stationDogsAtOnce } from './liveFormat'
-import {
-  getRegistrationGroupDay,
-  getRegistrationPlacement,
-  sortRegistrationsByDateClassTimeAndNumber,
-} from './registration'
+import { getRegistrationGroupDay, getRegistrationPlacement } from './registration'
 
 /**
  * The running orders of a trial day (KOE-1665): the posts are fixed and the groups pass them, each a
@@ -85,7 +83,8 @@ export const moveExercise = (
 ): EventExercise => exerciseOf(to, exerciseSettingsOf(from, exercise))
 
 /** What the rotation reads of an event. */
-export interface RotationEvent {
+/** An unofficial event's own classes (`ClassOrderOwner`) are the order the groups and the dogs follow (KOE-674). */
+export interface RotationEvent extends ClassOrderOwner {
   stations?: readonly RotationStation[]
   rotations?: readonly EventRotationGroup[]
   /** The classes of each day. A stored group of a class that is not on its day is not read. */
@@ -180,7 +179,7 @@ const classesOfDay = (event: RotationEvent, day: string): string[] =>
     ...new Set(
       (event.classes ?? []).filter((item) => getRegistrationGroupDay(item.date) === day).map((item) => item.class)
     ),
-  ].sort(compareRegistrationClasses)
+  ].sort(classOrder(event))
 
 /** Whether a stored group is read on a day: its posts are on that day and its class runs then. */
 const readsOn = (event: RotationEvent, group: RotationGroup, day: string): boolean => {
@@ -234,7 +233,7 @@ export const rotationGroupsOfDay = (event: RotationEvent, day: string): Rotation
     if (readsOn(event, group, day)) classes.add(group.class)
   }
 
-  return [...classes].sort(compareRegistrationClasses).flatMap((eventClass) => {
+  return [...classes].sort(classOrder(event)).flatMap((eventClass) => {
     const stored = storedGroupsOf(event, eventClass, day)
     return stored.length ? stored : [defaultGroup(event, eventClass, day)]
   })
@@ -274,11 +273,14 @@ export const dogVisits = (event: RotationEvent, dog: RotationDog): RotationVisit
 const groupStationVisits = (event: RotationEvent, group: RotationGroup, stationId: string): RotationVisit[] =>
   groupVisits(event, group).filter((visit) => visit.station.id === stationId)
 
-/** Arrival order at a post: the exercise number, then class, then start number. */
-const compareArrivals = (a: StationArrival, b: StationArrival) =>
-  a.exercise - b.exercise ||
-  compareRegistrationClasses(a.group.class, b.group.class) ||
-  (a.group.firstNumber ?? 0) - (b.group.firstNumber ?? 0)
+/** Arrival order at a post: the exercise number, then class in the event's order, then start number. */
+const compareArrivals = (event: RotationEvent) => {
+  const byClass = classOrder(event)
+  return (a: StationArrival, b: StationArrival) =>
+    a.exercise - b.exercise ||
+    byClass(a.group.class, b.group.class) ||
+    (a.group.firstNumber ?? 0) - (b.group.firstNumber ?? 0)
+}
 
 /** A group's visits to a post as arrivals: each exercise it does there, with the group. */
 const arrivalsOf = (event: RotationEvent, group: RotationGroup, stationId: string): StationArrival[] =>
@@ -296,7 +298,7 @@ export const stationArrivals = (event: RotationEvent, stationId: string): Statio
 
   return rotationGroupsOfDay(event, stationDay(station))
     .flatMap((group) => arrivalsOf(event, group, stationId))
-    .sort(compareArrivals)
+    .sort(compareArrivals(event))
 }
 
 /** What the link is sent of a visit: the layout, without the post. */
@@ -326,6 +328,8 @@ export const stationQueueEntries = <T extends Registrationish>(
   stationId: string,
   registrations: readonly T[]
 ): { registrations: T[]; visit: StationVisitLayout }[] => {
+  const byArrival = compareArrivals(event)
+  const byRegistration = registrationOrder(event)
   const arrivals = registrations
     .flatMap((registration) =>
       arrivalsOf(event, rotationGroupOf(event, rotationDogOf(registration)), stationId).map((arrival) => ({
@@ -333,11 +337,7 @@ export const stationQueueEntries = <T extends Registrationish>(
         registration,
       }))
     )
-    .sort(
-      (a, b) =>
-        compareArrivals(a.arrival, b.arrival) ||
-        sortRegistrationsByDateClassTimeAndNumber(a.registration, b.registration)
-    )
+    .sort((a, b) => byArrival(a.arrival, b.arrival) || byRegistration(a.registration, b.registration))
 
   const entries: { key: string; registrations: T[]; visit: StationVisitLayout }[] = []
   for (const { arrival, registration } of arrivals) {

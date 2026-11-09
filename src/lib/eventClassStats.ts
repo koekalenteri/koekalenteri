@@ -2,7 +2,7 @@ import type { TFunction } from 'i18next'
 import type { DayKey, DogEventCost, EventState, JsonDogEvent, JsonRegistration } from '../types'
 import type { EventClassStatsRow } from '../types/Stats'
 import { getCostValue } from './cost'
-import { compareRegistrationClasses, eventDates, placesForClass, uniqueClasses } from './event'
+import { classOrder, compareRegistrationClasses, eventDates, placesForClass, uniqueClasses } from './event'
 import { PRIORITY, priorityValuesToPriority } from './priority'
 import { hasPriority, isFinishedEntry, isStarter } from './registration'
 import { unique } from './utils'
@@ -16,6 +16,7 @@ type EventClassStatsEvent = Pick<
   | 'entryStartDate'
   | 'eventType'
   | 'location'
+  | 'ownClasses'
   | 'places'
   | 'placesPerDay'
   | 'priority'
@@ -132,7 +133,7 @@ export const buildEventClassStats = (
   const run = entries.filter(([eventClass]) => runClasses.includes(eventClass))
   const notRun = entries
     .filter(([eventClass]) => !runClasses.includes(eventClass))
-    .sort(([a], [b]) => compareRegistrationClasses(a, b))
+    .sort(([a], [b]) => classOrder(event)(a, b))
 
   return [...run.map((entry) => toRow(entry, true)), ...notRun.map((entry) => toRow(entry, false))]
 }

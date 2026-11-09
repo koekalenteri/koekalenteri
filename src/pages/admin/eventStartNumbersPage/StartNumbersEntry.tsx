@@ -2,7 +2,7 @@ import type { Theme } from '@mui/material'
 import type { ReactNode } from 'react'
 import type { StartNumberEntry } from '@/api/startNumbers'
 import type { FormatOwner } from '@/lib/event'
-import type { ReservedStartNumber } from '@/types'
+import type { DogEvent, ReservedStartNumber } from '@/types'
 import type { PlacedRegistration } from '../components/StartDaySelector'
 import type { StartNumberRow } from './StartNumbersTable'
 import LinkIcon from '@mui/icons-material/Link'
@@ -16,13 +16,13 @@ import Tabs from '@mui/material/Tabs'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
-import { compareRegistrationClasses } from '@/lib/event'
+import { classOrder } from '@/lib/event'
+import { registrationOrder } from '@/lib/eventClass'
 import {
   getRegistrationClass,
   getRegistrationPlacement,
   isRegistrationClass,
   isScorableRegistration,
-  sortRegistrationsByDateClassTimeAndNumber,
 } from '@/lib/registration'
 import { AsyncButton } from '../../components/AsyncButton'
 import { StartDaySelector } from '../components/StartDaySelector'
@@ -40,8 +40,11 @@ export type StartNumberDog = PlacedRegistration & {
 }
 
 interface Props {
-  /** The trial, whose format (`formatTypeOf`) names a classless trial's one sheet. */
-  readonly event: FormatOwner
+  /**
+   * The trial, whose format (`formatTypeOf`) names a classless trial's one sheet, and whose own classes
+   * order its sheets and dogs (`classOrder`, KOE-674).
+   */
+  readonly event: FormatOwner & Pick<DogEvent, 'ownClasses'>
   readonly registrations: StartNumberDog[]
   /**
    * Writes the batch; the class is the one whose tab is open, and a classless event has none.
@@ -96,7 +99,7 @@ export function StartNumbersEntry({ event, registrations, onSave, header, render
     () =>
       [...new Set(scorable.map((registration) => getRegistrationClass(registration, event)))]
         .filter(isRegistrationClass)
-        .sort(compareRegistrationClasses),
+        .sort(classOrder(event)),
     [event, scorable]
   )
   const hasLinksTab = !!renderLinks && linkClasses.length > 0
@@ -107,7 +110,7 @@ export function StartNumbersEntry({ event, registrations, onSave, header, render
     () =>
       dayRegistrations
         .filter((reg) => getRegistrationClass(reg, event) === eventClass)
-        .sort(sortRegistrationsByDateClassTimeAndNumber)
+        .sort(registrationOrder(event))
         .map((reg) => ({
           dog: { name: reg.dog.name, regNo: reg.dog.regNo },
           groupNumber: reg.group?.number,
