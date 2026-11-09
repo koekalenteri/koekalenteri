@@ -17,6 +17,7 @@ import {
   OFFICIAL_EVENT_TYPES,
   uniqueClasses,
 } from '../../lib/event'
+import { isEventClass, ownClassErrors } from '../../lib/eventClass'
 import { scoresAtPosts } from '../../lib/liveFormat'
 import { hasPaymentLockingRegistrations, paymentTermsDiffer } from '../../lib/payment'
 import { getStartListBlocker, isStartListFlagPublished } from '../../lib/publishing'
@@ -242,6 +243,44 @@ const checkTeams = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>) =
   }
 }
 
+/** The fields of a save an event's own classes rest on (KOE-674): the list, the class days and the type. */
+const OWN_CLASS_GROUND = ['ownClasses', 'classes', 'eventType', 'officialFormat'] as const
+
+const invalidOwnClasses = (errors: ReturnType<typeof ownClassErrors>) =>
+  httpError(400, { error: 'invalidOwnClasses', errors, message: 'Bad request: the own classes do not fit the event' })
+
+/**
+ * An event's classes (KOE-674), read on the merged event when the save carries what they rest on: the
+ * own classes' codes and names, a class day for each own class, and every class day of a class of the
+ * event (`ownClassErrors`). Whether an
+ * entry holds a code the save takes away is read from the registrations (`checkOwnClassEntries`).
+ */
+const checkOwnClasses = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>) => {
+  if (!OWN_CLASS_GROUND.some((field) => Object.hasOwn(item, field))) return
+  const errors = ownClassErrors(data)
+  if (errors.length) throw invalidOwnClasses(errors)
+}
+
+/**
+ * An entry's class stays one of the event's classes (KOE-674): a save that takes away a class the event
+ * had, by changing an own code, removing an own class or the own classes altogether, is refused while
+ * a registration holds it. Every registration counts, a cancelled or an unpaid one too, since its row
+ * keeps its class; the event's count of entries holds neither. The registrations are read only for a
+ * save that takes a class away.
+ */
+const checkOwnClassEntries = async (existing: JsonConfirmedEvent | undefined, data: JsonConfirmedEvent) => {
+  if (!existing) return
+  const before = [
+    ...existing.classes.map((eventClass) => eventClass.class),
+    ...(existing.ownClasses ?? []).map(({ code }) => code),
+  ]
+  if (before.every((key) => !key || isEventClass(data, key))) return
+
+  const registered = (await readEventRegistrations(existing.id)).map((reg) => reg.class)
+  const errors = ownClassErrors(data, registered).filter(({ kind }) => kind === 'registered')
+  if (errors.length) throw invalidOwnClasses(errors)
+}
+
 /**
  * Checks on the event as it would be saved; a failed one is thrown before anything is written. Every
  * saved event names its organizer: the club whose members may change it, and the key of its stats and
@@ -279,6 +318,7 @@ const checkMergedEvent = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEve
     }
   }
   checkTeams(data, item)
+  checkOwnClasses(data, item)
 }
 
 const updateEventDerivedFields = async (data: JsonConfirmedEvent) => {
@@ -543,6 +583,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   // admin payload, including when the stored event currently has no lock.
   restoreServerOwnedLocks(data, existing)
   await checkOrganizerExists(existing, data)
+  await checkOwnClassEntries(existing, data)
   await checkPaymentLock(existing, data)
   const { renumber } = await checkOfficialFormatChange(existing, data)
   freezeAbsentStartNumbersState(data, existing, item)

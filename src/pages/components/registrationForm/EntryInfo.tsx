@@ -15,7 +15,8 @@ import { useAdminEventRegistrationDates } from '@/hooks/useAdminEventRegistratio
 import { useLocalState } from '@/hooks/useLocalState'
 import { formatDate } from '@/i18n/dates'
 import { eventDates, registrationDates, uniqueClasses } from '@/lib/event'
-import { getRegistrationClass, isRegistrationClass } from '@/lib/registration'
+import { isEventClass } from '@/lib/eventClass'
+import { getRegistrationClass } from '@/lib/registration'
 import { unique } from '@/lib/utils'
 import AutocompleteMulti from '../AutocompleteMulti'
 import AutocompleteSingle from '../AutocompleteSingle'
@@ -162,7 +163,7 @@ export function EntryInfo({
   const updateClassIfNeeded = useCallback((): ClassKey | undefined | null => {
     // Case 1: Override with provided className
     if (className && reg.class !== className) {
-      return isRegistrationClass(className) ? className : undefined
+      return isEventClass(event, className) ? className : undefined
     }
 
     // Case 2: Current class is invalid, select first available or undefined
@@ -177,7 +178,7 @@ export function EntryInfo({
 
     // No change needed
     return null
-  }, [className, reg.class, classes])
+  }, [className, reg.class, classes, event])
 
   // Helper to get valid dates based on class
   const getValidDates = useCallback(

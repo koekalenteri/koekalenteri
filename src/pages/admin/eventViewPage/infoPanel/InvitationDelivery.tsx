@@ -13,9 +13,10 @@ import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
+import { isEventClass } from '@/lib/eventClass'
 import { invitationAttachmentFileName } from '@/lib/fileName'
 import { getPaymentPicture } from '@/lib/payment'
-import { getInvitationRecipients, isInvitationAwaitingPayment, isRegistrationClass } from '@/lib/registration'
+import { getInvitationRecipients, isInvitationAwaitingPayment } from '@/lib/registration'
 import { Path } from '@/routeConfig'
 import { useOpenEventViewDialog } from '../../state'
 import { sectionSx } from './styles'
@@ -183,7 +184,7 @@ const InvitationDelivery = ({
               const classFinished = eventFinished || ['ended', 'completed'].includes(classState)
               const canSend =
                 entryEnded && !classFinished && ['picked', 'invited'].includes(classState) && recipients.length > 0
-              const eventClass = isRegistrationClass(className) && eventClasses.has(className) ? className : undefined
+              const eventClass = isEventClass(event, className) && eventClasses.has(className) ? className : undefined
               const classAttachmentKey = eventClass ? classAttachmentKeys[eventClass] : undefined
               const classEvent = eventClass ? event.classes.find((item) => item.class === eventClass) : undefined
               const effectiveAttachmentKey = classAttachmentKey ?? attachmentKey
