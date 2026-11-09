@@ -1,6 +1,7 @@
 import { renderHook } from '@testing-library/react'
 import { heldAdminEventIds, releaseAdminEventAtoms, useAdminEventScope } from './eventScope'
 import { adminEventAtom } from './events/derivedAtoms'
+import { adminEditableEventByIdAndFormAtom } from './events/editableAtoms'
 import {
   adminDuplicatePaymentsAtom,
   adminDuplicatePaymentsRefreshAtom,
@@ -25,6 +26,9 @@ describe('releaseAdminEventAtoms', () => {
     adminEventRegistrationAtom({ eventId: 'event-2', id: 'reg-2' })
     adminEventPaymentLockedAtom('event-1')
     adminEventOfficialFormatLockedAtom('event-1')
+    adminEditableEventByIdAndFormAtom({ eventId: 'event-1', form: 'edit' })
+    adminEditableEventByIdAndFormAtom({ eventId: 'event-1', form: 'stations' })
+    adminEditableEventByIdAndFormAtom({ eventId: 'event-2', form: 'edit' })
 
     releaseAdminEventAtoms('event-1')
 
@@ -38,6 +42,8 @@ describe('releaseAdminEventAtoms', () => {
     // The locks read the event's registrations, and go with them (KOE-1718).
     expect(paramsOf(adminEventPaymentLockedAtom)).not.toContain('event-1')
     expect(paramsOf(adminEventOfficialFormatLockedAtom)).not.toContain('event-1')
+    // Every view's draft of the event goes, another event's stays (KOE-1700).
+    expect(paramsOf(adminEditableEventByIdAndFormAtom)).toEqual([{ eventId: 'event-2', form: 'edit' }])
   })
 })
 

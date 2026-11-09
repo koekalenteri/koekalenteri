@@ -6,7 +6,7 @@ import { useSnackbar } from 'notistack'
 import { useNavigate } from 'react-router'
 import { APIError } from '@/api/http'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
-import { adminEditableEventByIdAtom, adminNewEventAtom } from '../state'
+import { adminEditableEventByIdAndFormAtom, adminNewEventAtom } from '../state'
 import useEventForm from './useEventForm'
 
 const { mockSave } = vi.hoisted(() => ({ mockSave: vi.fn() }))
@@ -117,6 +117,7 @@ describe('useEventForm', () => {
       () =>
         useEventForm({
           eventId: 'test-event-id',
+          form: 'edit',
           storedEvent: mockEvent,
         }),
       {
@@ -127,7 +128,43 @@ describe('useEventForm', () => {
     expect(result.current.event).toBe(mockEvent)
     expect(result.current.changes).toEqual({})
     expect(result.current.canSave).toBe(false)
-    expect(useAtom).toHaveBeenCalledWith(adminEditableEventByIdAtom('test-event-id'))
+    expect(useAtom).toHaveBeenCalledWith(adminEditableEventByIdAndFormAtom({ eventId: 'test-event-id', form: 'edit' }))
+  })
+
+  describe('a draft begun before the last save of the event (KOE-1700)', () => {
+    const savedSince: DogEvent = { ...mockEvent, modifiedAt: new Date(mockEvent.modifiedAt.getTime() + 60_000) }
+
+    it('is dropped as the view opens', () => {
+      const { result } = renderHook(
+        () => useEventForm({ eventId: mockEvent.id, form: 'edit', storedEvent: savedSince }),
+        { wrapper: Provider }
+      )
+
+      expect(mockResetEvent).toHaveBeenCalledTimes(1)
+      expect(result.current.canSave).toBe(false)
+    })
+
+    it('is kept when the save comes while the view is open', () => {
+      const { rerender, result } = renderHook(
+        ({ storedEvent }) => useEventForm({ eventId: mockEvent.id, form: 'edit', storedEvent }),
+        { initialProps: { storedEvent: mockEvent }, wrapper: Provider }
+      )
+
+      rerender({ storedEvent: savedSince })
+
+      expect(mockResetEvent).not.toHaveBeenCalled()
+      expect(result.current.event).toBe(mockEvent)
+    })
+
+    it('is kept for an event no longer stored, as all there is of it', () => {
+      const { result } = renderHook(
+        () => useEventForm({ eventId: mockEvent.id, form: 'edit', storedEvent: { ...savedSince, id: '' } }),
+        { wrapper: Provider }
+      )
+
+      expect(mockResetEvent).not.toHaveBeenCalled()
+      expect(result.current.event).toBe(mockEvent)
+    })
   })
 
   it('should use adminNewEventAtom when no eventId is provided', () => {
@@ -258,9 +295,12 @@ describe('useEventForm', () => {
 
   it('should save only locally edited fields with the original modification timestamp in edit mode', async () => {
     mockSave.mockResolvedValue({ ...mockEvent, name: 'Updated Event Name' })
-    const { result } = renderHook(() => useEventForm({ eventId: mockEvent.id, storedEvent: mockStoredEvent }), {
-      wrapper: Provider,
-    })
+    const { result } = renderHook(
+      () => useEventForm({ eventId: mockEvent.id, form: 'edit', storedEvent: mockStoredEvent }),
+      {
+        wrapper: Provider,
+      }
+    )
 
     act(() => {
       result.current.handleChange({ ...mockEvent, name: 'Updated Event Name' })
@@ -280,9 +320,12 @@ describe('useEventForm', () => {
     mockSave
       .mockResolvedValueOnce({ ...mockEvent, modifiedAt: savedModifiedAt, name: 'First change' })
       .mockResolvedValueOnce({ ...mockEvent, modifiedAt: new Date('2025-01-02T13:00:00Z'), name: 'Second change' })
-    const { result } = renderHook(() => useEventForm({ eventId: mockEvent.id, storedEvent: mockStoredEvent }), {
-      wrapper: Provider,
-    })
+    const { result } = renderHook(
+      () => useEventForm({ eventId: mockEvent.id, form: 'edit', storedEvent: mockStoredEvent }),
+      {
+        wrapper: Provider,
+      }
+    )
 
     act(() => {
       result.current.handleChange({ ...mockEvent, name: 'First change' })

@@ -17,6 +17,7 @@ export default function EventEditPage() {
   const storedEvent = useAtomValue(adminEventAtom(eventId))
   const { event, changes, canSave, dropsDialogProps, handleChange, handleSave, handleCancel } = useEventForm({
     eventId,
+    form: 'edit',
     onDoneRedirect: Path.admin.events,
     storedEvent,
   })

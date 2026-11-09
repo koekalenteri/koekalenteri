@@ -36,6 +36,7 @@ export default function EventStationsPage() {
   const storedEvent = useAtomValue(adminEventAtom(eventId))
   const { event, canSave, discardChanges, dropsDialogProps, handleChange, handleSave, handleCancel } = useEventForm({
     eventId,
+    form: 'stations',
     onDoneRedirect: Path.admin.viewEvent(eventId),
     savedMessage: t('event.stationsSaved'),
     storedEvent,
@@ -68,8 +69,9 @@ export default function EventStationsPage() {
       elevation={2}
       sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, maxHeight: '100%', maxWidth: '100%' }}
     >
-      {/* The trial as stored: the draft is shared with the event form and can hold an unsaved name or day.
-          An event no longer in the list reads as a new one with no id, and then the draft is all there is. */}
+      {/* The trial as stored: the page's draft is a copy of the event from when the page opened, and keeps
+          the name and days of then if another save changes them meanwhile. An event no longer in the list
+          reads as a new one with no id, and then the draft is all there is. */}
       <EntryPageHeader event={storedEvent?.id ? storedEvent : event} title={t('event.stationsSectionTitle')}>
         <Typography
           variant="body2"

@@ -1,14 +1,16 @@
+import type { DogEvent } from '@/types'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
-import { useAtom, useAtomValue } from 'jotai'
+import { useAtomValue } from 'jotai'
+import { useResetAtom } from 'jotai/utils'
 import { useCallback } from 'react'
 import { localizedEventName } from '@/lib/event'
 import { languageAtom } from '../../state'
 import DroppedTasksDialog from '../components/DroppedTasksDialog'
 import EventForm from '../components/EventForm'
 import useEventForm from '../hooks/useEventForm'
-import { adminEventAtom } from '../state'
+import { adminEditableEventByIdAndFormAtom, adminEventAtom } from '../state'
 
 interface Props {
   readonly eventId: string
@@ -16,33 +18,55 @@ interface Props {
   readonly open: boolean
 }
 
-export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
-  const [storedEvent] = useAtom(adminEventAtom(eventId))
-  const language = useAtomValue(languageAtom)
+interface FormProps {
+  readonly eventId: string
+  readonly onCancel: () => void
+  readonly onSaved?: () => void
+  readonly storedEvent: DogEvent
+}
 
+/**
+ * The form mounts as the dialog opens, so it edits the event as stored then: the view keeps the dialog
+ * from the start, and a save in between would otherwise send a stale stamp (KOE-1700).
+ */
+function EventDetailsForm({ eventId, onCancel, onSaved, storedEvent }: FormProps) {
   // No redirect: the dialog closes once the save has gone through, and stays open on a refusal or while
   // the secretary is asked about dropped scores (KOE-1666).
-  const {
-    event,
-    changes,
-    canSave,
-    dropsDialogProps,
-    handleChange,
-    handleSave,
-    handleCancel: originalHandleCancel,
-  } = useEventForm({
+  const { event, changes, canSave, dropsDialogProps, handleChange, handleSave } = useEventForm({
     eventId,
-    onSaved: onClose,
+    form: 'details',
+    onSaved,
     storedEvent,
   })
 
-  // Override handleCancel to close dialog but not navigate
-  const handleCancel = useCallback(() => {
-    originalHandleCancel()
-    onClose?.()
-  }, [originalHandleCancel, onClose])
+  return (
+    <>
+      <EventForm
+        event={event}
+        changes={changes}
+        canSave={canSave}
+        onChange={handleChange}
+        onCancel={onCancel}
+        onSave={handleSave}
+      />
+      <DroppedTasksDialog {...dropsDialogProps} />
+    </>
+  )
+}
 
-  if (!event?.id) {
+export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
+  const storedEvent = useAtomValue(adminEventAtom(eventId))
+  const language = useAtomValue(languageAtom)
+
+  const discardDraft = useResetAtom(adminEditableEventByIdAndFormAtom({ eventId, form: 'details' }))
+
+  // Cancel, Esc and a click outside all close the dialog the same way: the change is not kept (KOE-1700).
+  const cancel = useCallback(() => {
+    discardDraft()
+    onClose?.()
+  }, [discardDraft, onClose])
+
+  if (!storedEvent?.id) {
     return null
   }
 
@@ -51,7 +75,7 @@ export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
       fullWidth
       maxWidth="lg"
       open={open}
-      onClose={onClose}
+      onClose={cancel}
       aria-labelledby="reg-dialog-title"
       slotProps={{
         paper: {
@@ -66,17 +90,9 @@ export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
         },
       }}
     >
-      <DialogTitle id="reg-dialog-title">{localizedEventName(event, language)}</DialogTitle>
+      <DialogTitle id="reg-dialog-title">{localizedEventName(storedEvent, language)}</DialogTitle>
       <DialogContent dividers sx={{ height: '100%', p: 0 }}>
-        <EventForm
-          event={event}
-          changes={changes}
-          canSave={canSave}
-          onChange={handleChange}
-          onCancel={handleCancel}
-          onSave={handleSave}
-        />
-        <DroppedTasksDialog {...dropsDialogProps} />
+        {open && <EventDetailsForm eventId={eventId} onCancel={cancel} onSaved={onClose} storedEvent={storedEvent} />}
       </DialogContent>
     </Dialog>
   )
