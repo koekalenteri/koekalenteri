@@ -1,6 +1,6 @@
 import type { RouteObject } from 'react-router'
 import type { Language } from '../../i18n'
-import type { DayKey, Registration, RegistrationClass } from '../../types'
+import type { ConfirmedEvent, DayKey, Registration, RegistrationClass } from '../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
@@ -30,7 +30,11 @@ vi.mock('../../api/organizer')
 vi.mock('../../api/registration')
 vi.mock('../../api/startNumbers')
 
-const renderPage = (language: Language, registrations: Registration[] = registrationsToEventWithStations) => {
+const renderPage = (
+  language: Language,
+  registrations: Registration[] = registrationsToEventWithStations,
+  event: ConfirmedEvent = eventWithStations
+) => {
   const routes: RouteObject[] = [{ element: <EventStartNumbersPage />, path: Path.admin.startNumbers() }]
 
   return renderSuspendedWithUserEvents(
@@ -39,13 +43,13 @@ const renderPage = (language: Language, registrations: Registration[] = registra
         <Provider
           initializeState={({ set }) => {
             set(idTokenAtom, TEST_ID_TOKEN)
-            set(adminEventsAtom, [eventWithStations])
-            set(adminEventRegistrationsAtom(eventWithStations.id), registrations)
+            set(adminEventsAtom, [event])
+            set(adminEventRegistrationsAtom(event.id), registrations)
           }}
         >
           <Suspense fallback={<div>loading...</div>}>
             <AppSnackbarProvider>
-              <DataMemoryRouter initialEntries={[Path.admin.startNumbers(eventWithStations.id)]} routes={routes} />
+              <DataMemoryRouter initialEntries={[Path.admin.startNumbers(event.id)]} routes={routes} />
             </AppSnackbarProvider>
           </Suspense>
         </Provider>
@@ -278,6 +282,39 @@ describe('EventStartNumbersPage', () => {
     // The form catches the same pair of eyes typing twice; the server catches two phones.
     expect(screen.getAllByText('startNumbers.duplicate')).toHaveLength(2)
   })
+  // KOE-674: an own class has a class secretary too, so it gets a link like an official class.
+  it("hands each of an event's own classes a link, in the secretary's order", async () => {
+    const ownClassEvent: ConfirmedEvent = {
+      ...eventWithStations,
+      classes: eventWithStations.classes.map((eventClass) => ({
+        ...eventClass,
+        class: eventClass.class === 'ALO' ? 'DERBY' : 'VET10',
+      })),
+      eventType: 'WT-harjoitus',
+      officialFormat: 'NOWT',
+      ownClasses: [
+        { code: 'VET10', name: { fi: 'Veteraanit' } },
+        { code: 'DERBY', name: { fi: 'Derby' } },
+      ],
+    }
+    const ownClassRegistrations = registrationsToEventWithStations.map((registration) => ({
+      ...registration,
+      class: registration.class === 'ALO' ? 'DERBY' : 'VET10',
+      eventType: 'WT-harjoitus',
+    }))
+    const { i18n } = useTranslation()
+    const { user } = await renderPage(i18n.language as Language, ownClassRegistrations, ownClassEvent)
+    await flushPromises()
+
+    await user.click(screen.getByRole('tab', { name: 'startNumbers.linksTab' }))
+    await flushPromises()
+
+    expect(screen.getAllByRole('cell', { name: /^(VET10|DERBY)$/ }).map((cell) => cell.textContent)).toEqual([
+      'VET10',
+      'DERBY',
+    ])
+  })
+
   it("hands a class's sheet on as a link of its own (KOE-1267)", async () => {
     const { i18n } = useTranslation()
     const { user } = await renderPage(i18n.language as Language)
