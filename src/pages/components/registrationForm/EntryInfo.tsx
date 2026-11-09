@@ -1,9 +1,9 @@
 import type { SyntheticEvent } from 'react'
 import type {
+  ClassKey,
   DayKey,
   PublicConfirmedEvent,
   Registration,
-  RegistrationClass,
   RegistrationDate,
   RegistrationTime,
   ReserveChoise,
@@ -99,7 +99,7 @@ export function EntryInfo({
   }, [classDate, dates, event.id, reg.dates, reg.eventId, regDates])
 
   // Local state for form fields with debounced updates
-  const [selectedClass, setSelectedClass] = useLocalState<RegistrationClass | null | undefined>(reg.class, (value) => {
+  const [selectedClass, setSelectedClass] = useLocalState<ClassKey | null | undefined>(reg.class, (value) => {
     onChange?.({ class: value })
   })
 
@@ -159,7 +159,7 @@ export function EntryInfo({
   }, [dates, filterDates, showDatesFilter])
 
   // Handle class changes
-  const updateClassIfNeeded = useCallback((): RegistrationClass | undefined | null => {
+  const updateClassIfNeeded = useCallback((): ClassKey | undefined | null => {
     // Case 1: Override with provided className
     if (className && reg.class !== className) {
       return isRegistrationClass(className) ? className : undefined
@@ -181,7 +181,7 @@ export function EntryInfo({
 
   // Helper to get valid dates based on class
   const getValidDates = useCallback(
-    (classValue?: RegistrationClass | null) => {
+    (classValue?: ClassKey | null) => {
       // datesAndTimes is derived from reg.class, so it is stale only while a class change is
       // pending (classValue set) — then the new class's dates are computed from the event.
       const availableDates = classValue ? registrationDates(event, groups, classValue) : datesAndTimes
@@ -259,7 +259,7 @@ export function EntryInfo({
   }, [disabled, getValidDates, handleDateFiltering, onChange, reg.dates, showDatesFilter, updateClassIfNeeded])
 
   // Event handlers
-  const handleClassChange = useCallback((value: RegistrationClass) => setSelectedClass(value), [setSelectedClass])
+  const handleClassChange = useCallback((value: ClassKey) => setSelectedClass(value), [setSelectedClass])
 
   const handleDatesAndTimesChange = useCallback(
     (_e: SyntheticEvent<Element, Event>, value: readonly RegistrationDate[]) => setSelectedDates([...value]),

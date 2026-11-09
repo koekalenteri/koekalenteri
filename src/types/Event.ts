@@ -1,4 +1,5 @@
 import type {
+  ClassKey,
   DayKey,
   DbRecord,
   JsonDbRecord,
@@ -10,7 +11,6 @@ import type {
   NotOptional,
   PublicJudge,
   PublicOrganizer,
-  RegistrationClass,
   RegistrationGroup,
   RegistrationTime,
   Replace,
@@ -26,7 +26,7 @@ export type RetrieveType = 'game' | 'dummies'
 /** The official types an unofficial trial may follow (KOE-1718): their format runs the trial. */
 export const OFFICIAL_FORMATS = ['NOU', 'NOME-B', 'NOME-A', 'NOWT'] as const
 export type OfficialFormat = (typeof OFFICIAL_FORMATS)[number]
-export type StartListPublishedState = boolean | Partial<Record<RegistrationClass, boolean>>
+export type StartListPublishedState = boolean | Partial<Record<ClassKey, boolean>>
 
 /**
  * Which days' start numbers are out: every day (`true`), none (`false`), or the listed days as
@@ -41,7 +41,7 @@ export type StartListPublishedState = boolean | Partial<Record<RegistrationClass
  * Day keys on both sides of the wire (KOE-1546); a half-day entry carries its time after the key.
  */
 export type StartNumbersDayScope = boolean | string[]
-export type StartNumbersPublishedState = StartNumbersDayScope | Partial<Record<RegistrationClass, StartNumbersDayScope>>
+export type StartNumbersPublishedState = StartNumbersDayScope | Partial<Record<ClassKey, StartNumbersDayScope>>
 
 /**
  * Which days' results are out: every day (`true`), none (`false`), or the listed days as yyyy-MM-dd
@@ -54,14 +54,14 @@ export type StartNumbersPublishedState = StartNumbersDayScope | Partial<Record<R
 export type ResultsDayScope = boolean | string[]
 
 /** A class, or none for a classless event (NOU, NOME-A), whose one flag covers the whole event. */
-export type ClassOrNone = RegistrationClass | undefined
+export type ClassOrNone = ClassKey | undefined
 
 /**
  * Per class like `StartListPublishedState`, or one scope for a classless event, but not the same
  * default. An absent start list flag means published, for records that predate it; an absent results
  * flag means not published, because a result nobody released must never appear.
  */
-export type ResultsPublishedState = ResultsDayScope | Partial<Record<RegistrationClass, ResultsDayScope>>
+export type ResultsPublishedState = ResultsDayScope | Partial<Record<ClassKey, ResultsDayScope>>
 
 export interface JsonInvitationAttachmentVersion {
   className?: string
@@ -388,7 +388,7 @@ export interface StationVisitLayout {
  */
 export interface JsonStationEntryDog {
   id: string
-  class?: RegistrationClass | null
+  class?: ClassKey | null
   eventType: string
   group?: JsonRegistrationGroup
   dog: { name?: string }
@@ -448,7 +448,7 @@ export type StationEntry = {
  */
 export interface JsonClassStartNumberDog {
   id: string
-  class?: RegistrationClass | null
+  class?: ClassKey | null
   eventType: string
   dog: { name?: string; regNo?: string }
   handler?: { name?: string }
@@ -520,7 +520,7 @@ export interface EventExercise {
  * which are all on one day.
  */
 export interface EventRotationGroup {
-  class: RegistrationClass
+  class: ClassKey
   /** Both or neither. Without a range the group is the whole class. */
   firstNumber?: number
   lastNumber?: number
@@ -681,7 +681,7 @@ export type SanitizedPublicDogEvent = PublicDogEvent & {
 }
 
 export type EventClass = {
-  class: RegistrationClass
+  class: ClassKey
   date: DayKey
   groups?: RegistrationTime[]
   judge?: PublicJudge | PublicJudge[]

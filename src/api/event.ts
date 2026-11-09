@@ -1,6 +1,7 @@
 import type { StartNumbersTime } from '../lib/event'
 import type {
   AuditRecord,
+  ClassKey,
   DayKey,
   DogEvent,
   EventClass,
@@ -13,7 +14,6 @@ import type {
   JsonPublicDogEvent,
   Patch,
   PublicDogEvent,
-  RegistrationClass,
   Replace,
 } from '../types'
 import { isDayKey } from '../lib/day'
@@ -133,7 +133,7 @@ export async function putEvent(
 const toSavedEvent = converter<{ event: JsonDogEvent }, { event: DogEvent }>()({ event: toDogEvent })
 
 export interface StartNumbersRequest {
-  eventClass?: RegistrationClass
+  eventClass?: ClassKey
   /** Publishing is also the freeze: the server snapshots each participant's current group. */
   published?: boolean
   /** One day (yyyy-MM-dd) of a multi-day class, for a publish or hide that leaves the other days alone (KOE-1304). */
@@ -161,7 +161,7 @@ export async function putStartNumbers(
 
 export interface ResultsPublishedRequest {
   /** The class whose day changes; absent for a classless event. */
-  eventClass?: RegistrationClass
+  eventClass?: ClassKey
   /** The one day (yyyy-MM-dd) published or hidden; the others stay as they are (KOE-1510). */
   date: string
   published: boolean

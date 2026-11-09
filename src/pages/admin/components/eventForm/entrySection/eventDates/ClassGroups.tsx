@@ -1,6 +1,6 @@
 import type { AutocompleteChangeReason } from '@mui/material'
 import type { SyntheticEvent } from 'react'
-import type { RegistrationClass, RegistrationDate } from '@/types'
+import type { ClassKey, RegistrationDate } from '@/types'
 import type { EntryEvent, SectionProps } from '../../types'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
@@ -13,7 +13,7 @@ import AutocompleteMulti from '@/pages/components/AutocompleteMulti'
 
 interface Props extends Pick<SectionProps, 'disabled' | 'onChange'> {
   readonly event: EntryEvent
-  eventClass: RegistrationClass
+  eventClass: ClassKey
   readonly error?: boolean
   readonly helperText?: string
 }

@@ -1,6 +1,6 @@
 import type { AuditMessage } from '../../lib/audit'
 import type { StartNumbersTime } from '../../lib/event'
-import type { JsonConfirmedEvent, JsonRegistration, Patch, RegistrationClass, StartNumbersDayScope } from '../../types'
+import type { ClassKey, JsonConfirmedEvent, JsonRegistration, Patch, StartNumbersDayScope } from '../../types'
 import { startNumberPublishedAudit, startNumberReleasedAudit, startNumberSavedAudit } from '../../lib/audit'
 import {
   eventDayKey,
@@ -56,17 +56,12 @@ export const parseStartNumberEntries = (numbers: unknown): StartNumberEntry[] =>
 }
 
 /** ` (ALO)` after a message about one class, nothing after one about the whole event. */
-const classSuffix = (eventClass?: RegistrationClass) => (eventClass ? ` (${eventClass})` : '')
+const classSuffix = (eventClass?: ClassKey) => (eventClass ? ` (${eventClass})` : '')
 
 /** The day a placement falls on, in the event's time zone: the key the published-days list holds. */
 const placementDay = eventDayKey
 
-const inScope = (
-  registration: JsonRegistration,
-  eventClass?: RegistrationClass,
-  date?: string,
-  time?: StartNumbersTime
-) =>
+const inScope = (registration: JsonRegistration, eventClass?: ClassKey, date?: string, time?: StartNumbersTime) =>
   (!eventClass || registration.class === eventClass) &&
   (!date || (!!registration.group?.date && placementDay(registration.group.date) === date)) &&
   (!time || registration.group?.time === time)
@@ -96,7 +91,7 @@ const auditStartNumber = (registration: JsonRegistration, message: AuditMessage,
 export const freezeStartNumbers = async (
   eventId: string,
   registrations: JsonRegistration[],
-  eventClass: RegistrationClass | undefined,
+  eventClass: ClassKey | undefined,
   user: string,
   date?: string,
   time?: StartNumbersTime
@@ -334,7 +329,7 @@ const withSlot = (
 
 interface StartNumbersPublishScope {
   /** The class whose numbers change state; absent for a classless event. */
-  eventClass?: RegistrationClass
+  eventClass?: ClassKey
   published: boolean
   /** One day (yyyy-MM-dd) of the class; absent for the whole class (KOE-1304). */
   date?: string

@@ -1,4 +1,4 @@
-import type { DayKey, EventRotationGroup, RegistrationClass } from '@/types'
+import type { ClassKey, DayKey, EventRotationGroup } from '@/types'
 import type { StationsEditorEvent } from './StationsEditor'
 import AddOutlined from '@mui/icons-material/AddOutlined'
 import Button from '@mui/material/Button'
@@ -39,7 +39,7 @@ export const RotationEditor = ({ day, event, disabled, heading, onChange }: Prop
   const stations = useMemo(() => dayStations(event, day), [day, event])
   const classes = useMemo(
     () =>
-      [...new Set(event.classes.filter((item) => item.date === day).map((item): RegistrationClass => item.class))].sort(
+      [...new Set(event.classes.filter((item) => item.date === day).map((item): ClassKey => item.class))].sort(
         compareRegistrationClasses
       ),
     [day, event.classes]

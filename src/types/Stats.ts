@@ -1,6 +1,6 @@
 import type { DayKey } from './Day'
 import type { EventState } from './Event'
-import type { JsonRegistration } from './Registration'
+import type { ClassKey, JsonRegistration } from './Registration'
 
 interface OrganizerEventStats {
   organizerId: string
@@ -95,7 +95,8 @@ export const ALL_EVENT_TYPES_FOR_CAPACITY = 'ALL'
 export interface CapacityStatsEntry {
   month: string // yyyy-mm
   eventType: string
-  class: string // RegistrationClass, or eventType for classless event types
+  /** The class key: an official class, an own class, or the format of a classless trial. */
+  class: ClassKey
   organizerId: string
   places: number
   starters: number

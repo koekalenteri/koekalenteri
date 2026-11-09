@@ -1,6 +1,6 @@
 import type useAdminEventRegistrationInfo from '@/hooks/useAdminEventRegistrationsInfo'
 import type { PublishBlocker } from '@/lib/publishing'
-import type { ConfirmedEvent, RegistrationClass } from '@/types'
+import type { ClassKey, ConfirmedEvent } from '@/types'
 import {
   formatTypeOf,
   isStartListAvailable,
@@ -44,7 +44,7 @@ interface PublishingRow {
   /** The row names a class or the classless event itself, rather than a name nothing can be published for. */
   readonly publishable: boolean
   /** The class the publish request is for; undefined for the classless event. */
-  readonly startListEventClass: RegistrationClass | undefined
+  readonly startListEventClass: ClassKey | undefined
   readonly startListPublished: boolean
 }
 

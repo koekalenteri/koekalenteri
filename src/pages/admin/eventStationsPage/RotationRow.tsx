@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import type { ExerciseSettings } from '@/lib/rotation'
-import type { EventExercise, EventRotationGroup, EventStation, RegistrationClass } from '@/types'
+import type { ClassKey, EventExercise, EventRotationGroup, EventStation } from '@/types'
 import AddOutlined from '@mui/icons-material/AddOutlined'
 import DeleteOutline from '@mui/icons-material/DeleteOutlined'
 import IconButton from '@mui/material/IconButton'
@@ -14,7 +14,7 @@ import { exerciseOf, exerciseSettingsOf, groupExercises, moveExercise, POST_PART
 interface Props {
   readonly group: EventRotationGroup
   /** The classes of the day, which a group may be. */
-  readonly classes: RegistrationClass[]
+  readonly classes: ClassKey[]
   /** The posts of the day, in number order. */
   readonly stations: EventStation[]
   readonly disabled?: boolean

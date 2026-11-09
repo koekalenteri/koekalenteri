@@ -1,5 +1,5 @@
 import type { DayRekeying } from '../../lib/storedDays'
-import type { JsonDog, JsonDogEvent, JsonRegistration, JsonUser, RegistrationClass } from '../../types'
+import type { ClassKey, JsonDog, JsonDogEvent, JsonRegistration, JsonUser } from '../../types'
 import type { OrganizerRepoints } from './organizerRepoints'
 import { createHash } from 'node:crypto'
 import { getEventSeason } from '../../lib/event'
@@ -121,9 +121,9 @@ const eventMigrations: Migration<JsonDogEvent>[] = [
         event.startNumbersPublished = false
       } else if (list && typeof list === 'object') {
         // A per-class map: hold back only the classes whose list is not out.
-        const perClass: Partial<Record<RegistrationClass, boolean>> = {}
+        const perClass: Partial<Record<ClassKey, boolean>> = {}
         let allPublished = true
-        for (const [eventClass, published] of Object.entries(list) as [RegistrationClass, boolean | undefined][]) {
+        for (const [eventClass, published] of Object.entries(list)) {
           perClass[eventClass] = Boolean(published)
           if (!published) allPublished = false
         }
