@@ -530,7 +530,7 @@ describe('putEventResultsLambda', () => {
 
       await expect(request).rejects.toMatchObject({ statusCode: 422 })
       await expect(request).rejects.toThrow('Task exercise 2#0 is sent twice')
-      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockWriteEventResult).not.toHaveBeenCalled()
       expect(mockAudit).not.toHaveBeenCalled()
     })
 
@@ -540,13 +540,13 @@ describe('putEventResultsLambda', () => {
       await expect(putEventResultsLambda(apiEvent([{ eventResult: { tasks }, id: 'reg-1' }]))).rejects.toMatchObject({
         statusCode: 422,
       })
-      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockWriteEventResult).not.toHaveBeenCalled()
       expect(mockAudit).not.toHaveBeenCalled()
     })
 
     it('refuses a task for a type judged as a whole, which has none', async () => {
       mockGetAuthorizedEvent.mockResolvedValue({ ...nowtEvent, eventType: 'NOME-B', stations: undefined })
-      mockReadEventRegistrations.mockResolvedValue([registration('reg-1', 'ALO')])
+      storeRows([registration('reg-1', 'ALO')])
 
       const request = putEventResultsLambda(
         apiEvent([{ eventResult: { resultCode: '1', tasks: [{ exercise: 1, points: 10 }] }, id: 'reg-1' }])
@@ -554,7 +554,7 @@ describe('putEventResultsLambda', () => {
 
       await expect(request).rejects.toMatchObject({ statusCode: 422 })
       await expect(request).rejects.toThrow('Tasks are not taken for NOME-B')
-      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockWriteEventResult).not.toHaveBeenCalled()
       expect(mockAudit).not.toHaveBeenCalled()
     })
 
@@ -568,7 +568,7 @@ describe('putEventResultsLambda', () => {
 
       await expect(request).rejects.toMatchObject({ statusCode: 422 })
       await expect(request).rejects.toThrow("Registration 'reg-1' is sent twice")
-      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockWriteEventResult).not.toHaveBeenCalled()
       expect(mockAudit).not.toHaveBeenCalled()
     })
   })
