@@ -7,6 +7,7 @@ import type {
   EventStation,
   StationVisitLayout,
 } from '../types'
+import type { ClassOrderOwner } from './event'
 import type { SortableRegistration } from './registration'
 import { classOrder } from './event'
 import { registrationOrder } from './eventClass'
@@ -82,13 +83,12 @@ export const moveExercise = (
 ): EventExercise => exerciseOf(to, exerciseSettingsOf(from, exercise))
 
 /** What the rotation reads of an event. */
-export interface RotationEvent {
+/** An unofficial event's own classes (`ClassOrderOwner`) are the order the groups and the dogs follow (KOE-674). */
+export interface RotationEvent extends ClassOrderOwner {
   stations?: readonly RotationStation[]
   rotations?: readonly EventRotationGroup[]
   /** The classes of each day. A stored group of a class that is not on its day is not read. */
   classes?: readonly Pick<EventClass, 'class' | 'date'>[]
-  /** An unofficial event's own classes, whose order the groups and the dogs follow (KOE-674). */
-  ownClasses?: readonly { code: string }[] | null
 }
 
 /**

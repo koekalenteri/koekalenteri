@@ -121,6 +121,23 @@ describe('stationEntry', () => {
       expect(linkedEventProjection(confirmedEvent)).not.toHaveProperty('officialFormat')
     })
 
+    // KOE-674: the post lists its class tabs in the event's order, so the link is told the own classes.
+    it("tells the post the event's own classes, in the secretary's order", () => {
+      const ownClasses = [
+        { code: 'VET10', name: { fi: 'Veteraanit' } },
+        { code: 'DERBY', name: { fi: 'Derby' } },
+      ]
+      const own = asJsonConfirmedEvent({
+        ...confirmedEvent,
+        eventType: 'WT-harjoitus',
+        officialFormat: 'NOWT',
+        ownClasses,
+      })
+
+      expect(stationEntryResponse(own, station, [registration('run-1')]).event.ownClasses).toEqual(ownClasses)
+      expect(linkedEventProjection(confirmedEvent)).not.toHaveProperty('ownClasses')
+    })
+
     it('tells the post when the trial is out of its hands, and says nothing of the state itself', () => {
       const locked = { ...confirmedEvent, kcState: { code: 1253, name: 'Ylituomarin hyväksyttäväksi', readAt: 'x' } }
 

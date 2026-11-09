@@ -292,11 +292,11 @@ export const eventDates = (event?: Pick<PublicDogEvent, 'classes' | 'startDate' 
 }
 
 /** The official classes in their order, lowest first: the one copy of it (KOE-674). */
-const OFFICIAL_CLASS_ORDER: readonly RegistrationClass[] = ['ALO', 'AVO', 'VOI']
+const OFFICIAL_CLASS_ORDER: readonly string[] = ['ALO', 'AVO', 'VOI'] satisfies readonly RegistrationClass[]
 
 /** An official class's place in the official order, lowest first; -1 for any other key. */
 export const officialClassPlace = (key: string | null | undefined): number =>
-  OFFICIAL_CLASS_ORDER.findIndex((officialClass) => officialClass === key)
+  key ? OFFICIAL_CLASS_ORDER.indexOf(key) : -1
 
 /** Standard class order: ALO, AVO, VOI first, anything else (e.g. a classless event type) after them. */
 export const compareRegistrationClasses = (a: string | undefined, b: string | undefined): number => {
@@ -316,6 +316,10 @@ export const compareRegistrationClasses = (a: string | undefined, b: string | un
 /** What the class order reads of an event: the own classes an unofficial event lists, in their order. */
 export type ClassOrderOwner = { ownClasses?: readonly Partial<Pick<OwnClass, 'code'>>[] | null }
 
+/** The codes of the own classes an event lists, in their order; none for an event without them. */
+export const ownClassCodes = (event: ClassOrderOwner | null | undefined) =>
+  (event?.ownClasses ?? []).map(({ code }) => code)
+
 /**
  * The order of an event's classes (KOE-674): its own classes as the secretary listed them, then the
  * rest in the official order, ALO, AVO, VOI, and anything else after them. The one class order of
@@ -323,7 +327,7 @@ export type ClassOrderOwner = { ownClasses?: readonly Partial<Pick<OwnClass, 'co
  * never renumbers (`normalizeRegistrationGroups`).
  */
 export const classOrder = (event: ClassOrderOwner | null | undefined) => {
-  const codes = (event?.ownClasses ?? []).map(({ code }) => code)
+  const codes = ownClassCodes(event)
   const place = (key: string | undefined) => {
     const index = key === undefined ? -1 : codes.indexOf(key)
     return index === -1 ? codes.length : index

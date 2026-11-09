@@ -1,6 +1,6 @@
 import type { ClassKey, JsonDogEvent, Language } from '../types'
 import type { SortableRegistration } from './registration'
-import { classOrder, isOfficialEventType, OFFICIAL_EVENT_TYPES } from './event'
+import { classOrder, isOfficialEventType, OFFICIAL_EVENT_TYPES, ownClassCodes } from './event'
 import { isRegistrationClass, registrationSort } from './registration'
 
 /**
@@ -25,8 +25,6 @@ type OwnClassError =
  * the code goes into links and result codes as it is.
  */
 const OWN_CLASS_CODE = /^[A-Z][A-Z0-9]{0,9}$/
-
-const ownCodes = (event: Partial<ClassOwner>): string[] => (event.ownClasses ?? []).map(({ code }) => code)
 
 /** What is wrong with the own classes themselves: their codes, their names and a day for each. */
 const ownClassListErrors = (event: ClassOwner): OwnClassError[] => {
@@ -83,7 +81,7 @@ export const ownClassErrors = (
  * code may not be a type's name.
  */
 export const isEventClass = (event: Partial<ClassOwner>, key: string | null | undefined): key is ClassKey =>
-  !!key && (event.ownClasses?.length ? ownCodes(event).includes(key) : isRegistrationClass(key))
+  !!key && (event.ownClasses?.length ? ownClassCodes(event).includes(key) : isRegistrationClass(key))
 
 /**
  * A class as a participant reads it (KOE-674): an own class by its name in the reader's language, in

@@ -420,11 +420,29 @@ export type StationEntryDog = Omit<JsonStationEntryDog, 'group' | 'eventResult'>
  */
 export type JsonLinkedEvent = Pick<
   JsonPublicDogEvent,
-  'id' | 'eventType' | 'name' | 'names' | 'location' | 'startDate' | 'endDate' | 'classes' | 'officialFormat'
+  | 'id'
+  | 'eventType'
+  | 'name'
+  | 'names'
+  | 'location'
+  | 'startDate'
+  | 'endDate'
+  | 'classes'
+  | 'officialFormat'
+  | 'ownClasses'
 >
 export type LinkedEvent = Pick<
   PublicDogEvent,
-  'id' | 'eventType' | 'name' | 'names' | 'location' | 'startDate' | 'endDate' | 'classes' | 'officialFormat'
+  | 'id'
+  | 'eventType'
+  | 'name'
+  | 'names'
+  | 'location'
+  | 'startDate'
+  | 'endDate'
+  | 'classes'
+  | 'officialFormat'
+  | 'ownClasses'
 >
 
 /** The results are handed to the chief judge: the post's link can read them but no longer write them. */

@@ -81,6 +81,38 @@ describe('LiveEntryPage', () => {
     expect(screen.queryByRole('link')).not.toBeInTheDocument()
   })
 
+  // KOE-674: the class tabs of the link follow the event's own class order, not the alphabet.
+  it("lists an own-classes event's class tabs in the secretary's order", async () => {
+    const dog = (id: string, eventClass: string, number: number) => ({
+      class: eventClass,
+      dog: { name: `Koira ${id}` },
+      eventType: 'WT-harjoitus',
+      group: { date: '2026-09-12' as const, key: `${eventClass}-AP`, number, time: 'ap' as const },
+      id,
+    })
+    vi.mocked(getStationEntry).mockResolvedValue({
+      ...entry(),
+      event: {
+        ...entry().event,
+        classes: [
+          { class: 'DERBY', date: '2026-09-12' },
+          { class: 'VET10', date: '2026-09-12' },
+        ],
+        eventType: 'WT-harjoitus',
+        officialFormat: 'NOWT',
+        ownClasses: [
+          { code: 'VET10', name: { fi: 'Veteraanit' } },
+          { code: 'DERBY', name: { fi: 'Derby' } },
+        ],
+      },
+      registrations: [dog('derby-1', 'DERBY', 1), dog('vet-1', 'VET10', 2)],
+    })
+    renderPage()
+    await flushPromises()
+
+    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['VET10', 'DERBY'])
+  })
+
   it('saves through the link, scoped to this post', async () => {
     vi.mocked(getStationEntry).mockResolvedValue(entry())
     const { user } = renderPage()
