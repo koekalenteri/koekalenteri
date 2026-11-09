@@ -1,6 +1,6 @@
 import type { ChangeEvent } from 'react'
 import type { StartNumbersTime } from '@/lib/event'
-import type { AuditRecord, ClassOrNone, ConfirmedEvent, Registration, RegistrationClass } from '@/types'
+import type { AuditRecord, ClassKey, ClassOrNone, ConfirmedEvent, Registration } from '@/types'
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
 import MenuOpen from '@mui/icons-material/MenuOpen'
 import Box from '@mui/material/Box'
@@ -42,9 +42,9 @@ interface Props {
   /** Reads Kennelliitto's state of the trial again, for the Omakoira section's refresh. */
   readonly onRefreshResultsState: () => Promise<unknown>
   readonly onSetResultsPublished?: (eventClass: ClassOrNone, date: string, published: boolean) => Promise<unknown>
-  readonly onSetStartListPublished?: (eventClass: RegistrationClass | undefined, published: boolean) => Promise<unknown>
+  readonly onSetStartListPublished?: (eventClass: ClassKey | undefined, published: boolean) => Promise<unknown>
   readonly onSetStartNumbersPublished?: (
-    eventClass: RegistrationClass | undefined,
+    eventClass: ClassKey | undefined,
     published: boolean,
     date?: string,
     time?: StartNumbersTime
@@ -91,7 +91,7 @@ const InfoPanel = ({
   const toggle = useCallback(() => setExpanded((old) => !old), [])
 
   const handleInvitationUpload = useCallback(
-    (className?: RegistrationClass) => async (changeEvent: ChangeEvent<HTMLInputElement>) => {
+    (className?: ClassKey) => async (changeEvent: ChangeEvent<HTMLInputElement>) => {
       const input = changeEvent.target
       if (eventFinished) return
 

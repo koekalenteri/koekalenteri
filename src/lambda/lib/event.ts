@@ -2,6 +2,7 @@ import type { AuditActor, GroupChangeReason } from '../../lib/audit'
 import type { FormatOwner } from '../../lib/event'
 import type { ResultsParticipant } from '../../lib/publishing'
 import type {
+  ClassKey,
   ConfirmedEventStates,
   DayKey,
   EventClassState,
@@ -14,7 +15,6 @@ import type {
   JsonRegistrationGroupInfo,
   Patch,
   Registration,
-  RegistrationClass,
 } from '../../types'
 import type { EventWorkflowLock } from './repositories/eventRepository'
 import { randomUUID } from 'node:crypto'
@@ -457,7 +457,7 @@ export const linkedEventProjection = (confirmedEvent: JsonConfirmedEvent): JsonL
 
 interface ResultsDayPublish {
   /** The class whose day changes; absent for a classless event. */
-  eventClass?: RegistrationClass
+  eventClass?: ClassKey
   /** The day, yyyy-MM-dd. Only this day changes (KOE-1510). */
   date: string
   published: boolean

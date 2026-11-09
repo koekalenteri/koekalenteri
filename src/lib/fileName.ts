@@ -1,8 +1,8 @@
-import type { ConfirmedEvent, DayKey, Registration, RegistrationClass } from '../types'
+import type { ClassKey, ConfirmedEvent, DayKey, Registration } from '../types'
 import { formatDate } from '../i18n/dates'
 
 export type InvitationAttachmentItem = Pick<ConfirmedEvent | Registration, 'eventType' | 'invitationAttachment'> & {
-  class?: RegistrationClass | null
+  class?: ClassKey | null
   dates?: Array<{ date: DayKey }>
   startDate?: DayKey
 }

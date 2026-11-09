@@ -7,6 +7,7 @@ import type {
   Registration,
 } from './types'
 import { calendarDayOf, TIME_ZONE } from './lib/day'
+import { isRegistrationClass } from './lib/registration'
 import { keysOf } from './lib/typeGuards'
 import { isModernFinnishRegNo } from './lib/validation'
 import { NOME_A_CH_requirements, NOME_B_CH_requirements, NOWT_CH_requirements } from './rules_ch'
@@ -43,9 +44,15 @@ export function getRuleDate(date: string, available: Readonly<RuleDate[]> = RULE
 const validateDogForSM = (dog: Partial<Dog>) =>
   dog.regNo && dog.kcId && isModernFinnishRegNo(dog.regNo) ? false : 'dogSM'
 
+/**
+ * The eligibility of the entry's class on the trial's day. Only ALO, AVO and VOI have rules of their
+ * own; any other class key, an event's own class among them, reads the type's rules (KOE-674).
+ */
 export function getRequirements(eventType: string, regClass: Registration['class'], date: DayKey) {
   const eventRequirements = REQUIREMENTS[eventType] || {}
-  const classRequirements = regClass && (eventRequirements as EventClassRequirement)[regClass]
+  const classRequirements = isRegistrationClass(regClass)
+    ? (eventRequirements as EventClassRequirement)[regClass]
+    : undefined
   const requirements = classRequirements ?? (eventRequirements as EventRequirement)
   let results: EventResultRequirementsByDate | undefined
   if (requirements.results) {

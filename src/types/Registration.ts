@@ -17,7 +17,23 @@ import type {
 } from '.'
 import type { DogEventCostSegment, PaymentPicture } from './Cost'
 
+/**
+ * The official classes (KOE-674): what Kennelliitto knows and eligibility is ruled by. A reader on
+ * those paths takes this type, and an event's class key reaches it through `isRegistrationClass`.
+ */
 export type RegistrationClass = 'ALO' | 'AVO' | 'VOI'
+declare const ownClassBrand: unique symbol
+/**
+ * An unofficial event's own class (KOE-674), such as DERBY: the code the secretary gives it. Any text
+ * is one, so the type keeps an own code from passing for an official class, not from being written.
+ */
+export type OwnClassCode = string & { readonly [ownClassBrand]?: never }
+/**
+ * The key of an event's class and of everything kept per class: an official class, an event's own
+ * class, or the format of a classless trial (`getRegistrationClass`, KOE-1718). An event's classes,
+ * its per-class publishing state and an entry's class are keys; the official paths narrow one first.
+ */
+export type ClassKey = RegistrationClass | OwnClassCode
 export type RegistrationTemplateContext = '' | 'cancel' | 'confirm' | 'receipt' | 'update' | 'invitation' | 'refund'
 
 /**
@@ -367,7 +383,7 @@ export interface JsonRegistration extends JsonDbRecord {
   cancelReason?: string
   /** Secret client-generated key allowing only the original create retry to resume. */
   creationIdempotencyKey?: string
-  class?: RegistrationClass | null
+  class?: ClassKey | null
   /** registrant has comfirmed participation */
   confirmed?: boolean
   dates: JsonRegistrationDate[]

@@ -2,11 +2,11 @@ import type { ReactNode } from 'react'
 import type { EventResultSubmission } from '@/api/registration'
 import type { FormatOwner } from '@/lib/event'
 import type {
+  ClassKey,
   EventResultVersion,
   EventStation,
   PublicDogEvent,
   PublicJudge,
-  RegistrationClass,
   RegistrationGroup,
   RegistrationTime,
   ResultConflict,
@@ -65,7 +65,7 @@ import { emptyEdit, seededResultEdit } from './types'
  */
 interface StationScoringDog {
   id: string
-  class?: RegistrationClass | null
+  class?: ClassKey | null
   group?: RegistrationGroup & { time?: RegistrationTime }
   dog: { name?: string }
   handler?: { name?: string }

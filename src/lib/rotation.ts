@@ -1,10 +1,10 @@
 import type { TFunction } from 'i18next'
 import type {
+  ClassKey,
   EventClass,
   EventExercise,
   EventRotationGroup,
   EventStation,
-  RegistrationClass,
   StationVisitLayout,
 } from '../types'
 import type { SortableRegistration } from './registration'
@@ -386,7 +386,7 @@ const runsOf = (exercises: readonly EventExercise[]): { stationId: string; lengt
  */
 export const nextRotationGroup = (
   stations: readonly RotationStation[],
-  classes: readonly RegistrationClass[],
+  classes: readonly ClassKey[],
   dayGroups: readonly EventRotationGroup[]
 ): EventRotationGroup & { exercises: EventExercise[] } => {
   const withoutGroup = classes.find((item) => !dayGroups.some((group) => group.class === item))

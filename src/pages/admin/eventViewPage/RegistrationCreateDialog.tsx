@@ -1,4 +1,4 @@
-import type { DogEvent, RegistrationClass } from '@/types'
+import type { ClassKey, DogEvent } from '@/types'
 import { useAtom } from 'jotai'
 import { useCallback, useEffect } from 'react'
 import { adminNewRegistrationAtom, createAdminNewRegistration } from '../state'
@@ -6,7 +6,7 @@ import RegistrationDialogBase from './RegistrationDialogBase'
 
 interface Props {
   readonly event: DogEvent
-  readonly eventClass?: RegistrationClass
+  readonly eventClass?: ClassKey
   readonly onClose?: () => void
   readonly open: boolean
 }

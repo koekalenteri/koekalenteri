@@ -1,5 +1,5 @@
 import type useAdminEventRegistrationInfo from '@/hooks/useAdminEventRegistrationsInfo'
-import type { ConfirmedEvent, RegistrationClass } from '@/types'
+import type { ClassKey, ConfirmedEvent } from '@/types'
 import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -19,7 +19,7 @@ import { actionButtonSx } from './styles'
 
 type RegistrationInfo = ReturnType<typeof useAdminEventRegistrationInfo>
 
-const getStartListAuditMessageKey = (eventClass: RegistrationClass | undefined, published: boolean) => {
+const getStartListAuditMessageKey = (eventClass: ClassKey | undefined, published: boolean) => {
   if (eventClass) return published ? 'audit.messages.classStartListPublished' : 'audit.messages.classStartListHidden'
   return published ? 'audit.messages.startListPublished' : 'audit.messages.startListHidden'
 }
@@ -28,7 +28,7 @@ interface Props {
   readonly event: ConfirmedEvent
   readonly eventWithCurrentAttachments: ConfirmedEvent
   readonly numbersByClass: RegistrationInfo['numbersByClass']
-  readonly onSetStartListPublished?: (eventClass: RegistrationClass | undefined, published: boolean) => Promise<unknown>
+  readonly onSetStartListPublished?: (eventClass: ClassKey | undefined, published: boolean) => Promise<unknown>
   readonly selectedByClass: RegistrationInfo['selectedByClass']
   readonly stateByClass: RegistrationInfo['stateByClass']
 }
@@ -46,7 +46,7 @@ const StartListPublishing = ({
   // With numbers still withheld the secretary sees more than the public does, so the link is a preview.
   const startNumbersFullyPublished = isPublishedForEveryClass(event, isStartNumbersPublished)
 
-  const handleSetStartListPublished = async (eventClass: RegistrationClass | undefined, published: boolean) => {
+  const handleSetStartListPublished = async (eventClass: ClassKey | undefined, published: boolean) => {
     const state = eventClass ? (stateByClass[eventClass] ?? event.state) : event.state
     if (!canPublishStartList(state, event) || !onSetStartListPublished) return
 
