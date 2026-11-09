@@ -115,6 +115,17 @@ export const withRunOffWinner = (teams: readonly EventTeam[], index: number, won
 }
 
 /**
+ * The team moved to the series `seriesId`, or to none (KOE-1720). A run-off won was won among the teams
+ * of the series it left, so the mark does not go with it: in the new series no run-off has been decided.
+ * A team staying where it is keeps its mark.
+ */
+export const withTeamSeries = (team: EventTeam, seriesId: string | undefined): EventTeam => {
+  if (team.seriesId === seriesId) return team
+  const { runOffWon: _runOffWon, seriesId: _seriesId, ...rest } = team
+  return seriesId ? { ...rest, seriesId } : rest
+}
+
+/**
  * The dogs each team counts, by the team's place in the list: every member that runs, on whichever day
  * and in whichever class (KOE-1717). A cancelled dog and a reserve run none. What `teamStandings` sums,
  * and what the start list checks is published before it shows the standings.

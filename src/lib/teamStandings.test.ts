@@ -1,5 +1,5 @@
 import type { EventTeam, JsonEventResult } from '../types'
-import { teamStandings, withRunOffWinner } from './teamStandings'
+import { teamStandings, withRunOffWinner, withTeamSeries } from './teamStandings'
 
 describe('teamStandings', () => {
   const NOWT = { eventType: 'NOWT' }
@@ -248,5 +248,27 @@ describe('withRunOffWinner', () => {
       { registrationIds: ['c'], runOffWon: true, seriesId: 'breed' },
       { registrationIds: ['d'], runOffWon: true },
     ])
+  })
+})
+
+describe('withTeamSeries (KOE-1720)', () => {
+  it('moves a team to another series without the run-off it won in the one it left', () => {
+    expect(withTeamSeries({ registrationIds: ['a'], runOffWon: true, seriesId: 'open' }, 'breed')).toEqual({
+      registrationIds: ['a'],
+      seriesId: 'breed',
+    })
+    expect(withTeamSeries({ registrationIds: ['a'], runOffWon: true, seriesId: 'open' }, undefined)).toEqual({
+      registrationIds: ['a'],
+    })
+    expect(withTeamSeries({ registrationIds: ['a'], runOffWon: true }, 'open')).toEqual({
+      registrationIds: ['a'],
+      seriesId: 'open',
+    })
+  })
+
+  it('keeps the team, its mark with it, where it stays in its series', () => {
+    const team = { registrationIds: ['a'], runOffWon: true, seriesId: 'open' }
+
+    expect(withTeamSeries(team, 'open')).toBe(team)
   })
 })

@@ -357,6 +357,71 @@ describe('EventTeamsPage', () => {
       expectSaved({ teams: [{ registrationIds: ['run-1'] }, { registrationIds: ['run-2'] }] })
     })
 
+    it('keeps the save closed while a series has no Finnish name, as the save would refuse it', async () => {
+      const { user } = await renderPage({ ...eventWithStations, teams: [{ registrationIds: ['run-1'] }] })
+      await flushPromises()
+      const save = () => screen.getByRole('button', { name: 'save' })
+
+      await user.click(screen.getByRole('button', { name: 'teams.addSeries' }))
+      expect(save()).toBeDisabled()
+
+      const [finnish] = screen.getAllByRole('textbox', { name: 'teams.seriesName language' })
+      await user.type(finnish, '  ')
+      expect(save()).toBeDisabled()
+
+      await user.type(finnish, 'Avoin')
+      expect(save()).toBeEnabled()
+    })
+
+    it('shows the series while the draft has them, though the teams went to nought, and no panel otherwise', async () => {
+      const { user } = await renderPage(seriesEvent)
+      await flushPromises()
+
+      await setCount(user, '0')
+      expect(screen.getByRole('heading', { name: 'teams.series' })).toBeInTheDocument()
+
+      cleanup()
+      sessionStorage.clear()
+      await renderPage({ ...eventWithStations })
+      await flushPromises()
+      expect(screen.queryByRole('heading', { name: 'teams.series' })).not.toBeInTheDocument()
+    })
+
+    it('removes the settings once the last series is removed', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const oneSeries = { ...seriesEvent, teamCompetition: { series: [series[1]] } }
+      const { user } = await renderPage(oneSeries)
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'teams.removeSeries name' }))
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+
+      expect(putEvent).toHaveBeenLastCalledWith(
+        expect.not.objectContaining({ teamCompetition: expect.anything() }),
+        TEST_ID_TOKEN,
+        undefined,
+        undefined
+      )
+      expectSaved({ teams: [{ registrationIds: ['run-1'] }, { registrationIds: ['run-2'] }] })
+    })
+
+    it('drops the run-off a team won when it moves to another series', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const won = {
+        ...seriesEvent,
+        teams: [{ registrationIds: ['run-1'] }, { ...seriesEvent.teams[1], runOffWon: true }],
+      }
+      const { user } = await renderPage(won)
+      await flushPromises()
+
+      await pickSeries(user, teamSections()[1], 'Avoin')
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+
+      expectSaved({ teams: [{ registrationIds: ['run-1'] }, { registrationIds: ['run-2'], seriesId: 'open' }] })
+    })
+
     it('asks for the Finnish name of a series', async () => {
       const { user } = await renderPage(seriesEvent)
       await flushPromises()

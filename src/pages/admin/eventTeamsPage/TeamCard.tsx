@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next'
 import { getHandlingPerson, isStarter } from '@/lib/registration'
 import { formatTeamStanding } from '@/lib/startListView'
 import { MAX_TEAM_MEMBERS, teamMembers } from '@/lib/team'
+import { withTeamSeries } from '@/lib/teamStandings'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 
 interface Props {
@@ -106,8 +107,7 @@ export default function TeamCard({
 
   const handleSeries = useCallback(
     (seriesId: string) => {
-      const { seriesId: _seriesId, ...rest } = team
-      onChange(seriesId === NO_SERIES ? rest : { ...rest, seriesId })
+      onChange(withTeamSeries(team, seriesId === NO_SERIES ? undefined : seriesId))
     },
     [onChange, team]
   )

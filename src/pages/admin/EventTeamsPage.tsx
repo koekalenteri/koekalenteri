@@ -15,6 +15,7 @@ import { useParams } from 'react-router'
 import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
 import { withStoredTotals } from '@/lib/results'
 import { teamSeriesName } from '@/lib/startListView'
+import { teamCompetitionErrors } from '@/lib/team'
 import { teamStandings, withRunOffWinner } from '@/lib/teamStandings'
 import { Path } from '@/routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
@@ -120,6 +121,10 @@ export default function EventTeamsPage() {
     [event, language]
   )
 
+  // A series the save would refuse, unnamed in Finnish or given an id twice, keeps the save closed: the
+  // rule the server holds the settings to (`teamCompetitionErrors`, KOE-1720).
+  const seriesUnsettled = teamCompetitionErrors(event?.teamCompetition).length > 0
+
   const handleTeamCompetition = useCallback(
     (teamCompetition: TeamCompetition, removedSeriesId?: string) => {
       if (event) handleChange(withTeamCompetition(event, teamCompetition, removedSeriesId))
@@ -171,7 +176,7 @@ export default function EventTeamsPage() {
             type="number"
             value={countText ?? teams.length}
           />
-          {teams.length > 0 && (
+          {(teams.length > 0 || !!event.teamCompetition?.series?.length) && (
             <TeamCompetitionSettings teamCompetition={event.teamCompetition} onChange={handleTeamCompetition} />
           )}
           {numbered.map(({ number, team }) => (
@@ -194,7 +199,13 @@ export default function EventTeamsPage() {
         direction="row"
         sx={{ borderColor: '#bdbdbd', borderTop: '1px solid', justifyContent: 'flex-end', p: 1 }}
       >
-        <AsyncButton color="primary" disabled={!canSave} startIcon={<Save />} variant="contained" onClick={handleSave}>
+        <AsyncButton
+          color="primary"
+          disabled={!canSave || seriesUnsettled}
+          startIcon={<Save />}
+          variant="contained"
+          onClick={handleSave}
+        >
           {t('save')}
         </AsyncButton>
         <Button startIcon={<Cancel />} variant="outlined" onClick={handleCancel}>
