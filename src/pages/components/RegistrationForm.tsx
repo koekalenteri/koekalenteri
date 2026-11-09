@@ -8,6 +8,7 @@ import type {
   PublicConfirmedEvent,
   Registration,
   RegistrationPerson,
+  TeamEntry,
   TestResult,
 } from '../../types'
 import Cancel from '@mui/icons-material/Cancel'
@@ -77,6 +78,7 @@ import { OwnerInfo } from './registrationForm/OwnerInfo'
 import { PayerInfo } from './registrationForm/PayerInfo'
 import PaymentInfo from './registrationForm/PaymentInfo'
 import QualifyingResultsInfo from './registrationForm/QualifyingResultsInfo'
+import { TeamEntryInfo } from './registrationForm/TeamEntryInfo'
 import { formSections, typedDogChange } from './registrationForm/typedDogOnly'
 import { validateRegistration, validateTypedDog } from './registrationForm/validation'
 
@@ -85,7 +87,7 @@ import { validateRegistration, validateTypedDog } from './registrationForm/valid
  * own state, which starts open and does not follow the toggles the form records.
  */
 type SectionOpenState = Record<
-  'breeder' | 'dog' | 'entry' | 'handler' | 'info' | 'internalNotes' | 'owner' | 'payer' | 'qr',
+  'breeder' | 'dog' | 'entry' | 'handler' | 'info' | 'internalNotes' | 'owner' | 'payer' | 'qr' | 'team',
   boolean
 >
 
@@ -104,6 +106,7 @@ function defaultSectionOpenState(large: boolean): SectionOpenState {
     owner: large,
     payer: true,
     qr: large,
+    team: true,
   }
 }
 
@@ -259,6 +262,20 @@ export default function RegistrationForm({
     [disabled, registration, event, onChange, typedDogOnly]
   )
 
+  // The team named at entry (KOE-1721): asked where the event asks for one, and shown where the entry
+  // already names one, so a stored team stays in view. A cleared name leaves the entry without a team,
+  // which the save sends as the team's removal.
+  const asksTeam = !!event.teamCompetition?.askAtEntry || !!registration.teamEntry
+  const handleTeamEntry = useCallback(
+    (teamEntry: TeamEntry | undefined) => {
+      if (disabled) return
+      if (teamEntry) return handleChange({ teamEntry })
+      const { teamEntry: _cleared, ...rest } = registration
+      onChange?.(rest)
+    },
+    [disabled, handleChange, onChange, registration]
+  )
+
   const handleOpenChange = useCallback(
     (id: keyof SectionOpenState, value: boolean) => {
       const newState = large
@@ -277,6 +294,7 @@ export default function RegistrationForm({
             owner: false,
             payer: !selectsSomeoneElse(registration.ownerPays),
             qr: false,
+            team: false,
             [id]: value,
           }
       setOpen(newState)
@@ -444,6 +462,17 @@ export default function RegistrationForm({
           onOpenChange={(value) => handleOpenChange('entry', value)}
           open={open.entry}
         />
+        {asksTeam ? (
+          <TeamEntryInfo
+            disabled={disabled || sectionLocks.entry}
+            error={errorStates.teamEntry}
+            helperText={helperTexts.teamEntry}
+            onChange={handleTeamEntry}
+            onOpenChange={(value) => handleOpenChange('team', value)}
+            open={open.team}
+            teamEntry={registration.teamEntry}
+          />
+        ) : null}
         <DogInfo
           reg={registration}
           eventDate={event.startDate}

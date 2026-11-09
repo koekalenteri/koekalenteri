@@ -19,11 +19,11 @@ describe('TeamEntryInfo', () => {
 
     await user.type(screen.getByRole('textbox', { name: 'registration.teamEntryName' }), 'Golden Ring')
     await flushPromises()
-    expect(onChange).toHaveBeenLastCalledWith({ teamEntry: { name: 'Golden Ring' } })
+    expect(onChange).toHaveBeenLastCalledWith({ name: 'Golden Ring' })
 
     await user.clear(screen.getByRole('textbox', { name: 'registration.teamEntryName' }))
     await flushPromises()
-    expect(onChange).toHaveBeenLastCalledWith({ teamEntry: undefined })
+    expect(onChange).toHaveBeenLastCalledWith(undefined)
   })
 
   it('marks the first team only once there is a name, and keeps the name with the mark', async () => {
@@ -34,11 +34,14 @@ describe('TeamEntryInfo', () => {
 
     rerender(<TeamEntryInfo open onChange={onChange} teamEntry={{ name: 'Golden Ring' }} />)
     await user.click(screen.getByRole('checkbox', { name: 'registration.teamEntryPrimary' }))
-    expect(onChange).toHaveBeenLastCalledWith({ teamEntry: { name: 'Golden Ring', primary: true } })
+    await flushPromises()
+    expect(onChange).toHaveBeenLastCalledWith({ name: 'Golden Ring', primary: true })
 
     rerender(<TeamEntryInfo open onChange={onChange} teamEntry={{ name: 'Golden Ring', primary: true }} />)
     await user.click(screen.getByRole('checkbox', { name: 'registration.teamEntryPrimary' }))
-    expect(onChange).toHaveBeenLastCalledWith({ teamEntry: { name: 'Golden Ring' } })
+    await flushPromises()
+    expect(onChange).toHaveBeenLastCalledWith({ name: 'Golden Ring' })
+    await flushPromises()
   })
 
   it('shows the error the form found, and nothing can be changed while the section is locked', () => {

@@ -307,6 +307,36 @@ describe('RegistrationForm', () => {
     })
   })
 
+  describe('the team named at entry (KOE-1721)', () => {
+    // Before the trial, so the entry is still the registrant's to change.
+    beforeEach(() => vi.setSystemTime(frozenInstant('2021-01-01')))
+    afterEach(() => vi.setSystemTime(vi.getRealSystemTime()))
+
+    it('names the team as typed, and leaves the entry without a team once the name is cleared', async () => {
+      let changed: object = {}
+      const onChange = vi.fn((registration: object) => {
+        changed = registration
+      })
+      const { user } = renderWithUserEvents(
+        <RegistrationForm
+          event={{ ...eventWithStaticDates, teamCompetition: { askAtEntry: true } }}
+          registration={{ ...registrationWithStaticDates, teamEntry: { name: 'Golden Ring' } }}
+          onChange={onChange}
+        />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      await flushPromises()
+
+      await user.clear(screen.getByRole('textbox', { name: 'registration.teamEntryName' }))
+      await flushPromises()
+
+      // The key goes, not only its value, so the save sends the team's removal.
+      expect(onChange).toHaveBeenCalled()
+      expect(Object.hasOwn(changed, 'teamEntry')).toBe(false)
+    })
+  })
+
   it('should call onChange', async () => {
     const registration = { ...registrationWithStaticDates }
 
