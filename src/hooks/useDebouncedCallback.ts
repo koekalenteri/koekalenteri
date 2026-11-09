@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useLayoutEffect, useRef } from 'react'
 
 interface DebounceOptions {
   /**
@@ -9,7 +9,7 @@ interface DebounceOptions {
   readonly flushOnBlur?: boolean
 }
 
-export default function useDebouncedCallback<T extends (...args: any[]) => ReturnType<T>>(
+export default function useDebouncedCallback<T extends (...args: never[]) => unknown>(
   callback?: T,
   wait = 100,
   { flushOnBlur = false }: DebounceOptions = {}
@@ -30,16 +30,18 @@ export default function useDebouncedCallback<T extends (...args: any[]) => Retur
     run?.()
   }, [])
 
+  // A call still pending when the component goes is dropped, never delivered. A layout cleanup, because
+  // React runs it before it removes the component's elements: Chrome takes the focus off a field as it is
+  // removed, and the focusout that would deliver the call then finds no listener. A dialog closed with Esc
+  // right after typing has already dropped its draft, and the value must not land in it (KOE-1700).
   // biome-ignore lint/correctness/useExhaustiveDependencies: we need to clear the timeout when wait changes
-  useEffect(
+  useLayoutEffect(
     () => () => {
-      globalThis.clearTimeout(timeout.current)
-      timeout.current = undefined
+      // With nothing pending, a flush only clears the timer and the listener.
       pending.current = undefined
-      blurTarget.current?.removeEventListener('focusout', flush)
-      blurTarget.current = undefined
+      flush()
     },
-    [wait]
+    [flush, wait]
   )
 
   return useCallback(
