@@ -490,6 +490,78 @@ describe('putStationEntryLambda', () => {
     })
   })
 
+  describe('a task list larger than the post (KOE-1616)', () => {
+    it('refuses the same exercise and part twice, and writes and audits nothing', async () => {
+      const request = putStationEntryLambda(
+        apiEvent([
+          {
+            eventResult: {
+              tasks: [
+                { exercise: 1, points: 17 },
+                { exercise: 1, part: 0, points: 12 },
+              ],
+            },
+            id: 'reg-1',
+          },
+        ])
+      )
+
+      await expect(request).rejects.toMatchObject({ statusCode: 422 })
+      await expect(request).rejects.toThrow('Task exercise 1#0 is sent twice')
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockAudit).not.toHaveBeenCalled()
+    })
+
+    it("refuses the post's one exercise sent many times over", async () => {
+      const tasks = Array.from({ length: 100 }, () => ({ exercise: 1, points: 17 }))
+
+      await expect(putStationEntryLambda(apiEvent([{ eventResult: { tasks }, id: 'reg-1' }]))).rejects.toMatchObject({
+        statusCode: 422,
+      })
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockAudit).not.toHaveBeenCalled()
+    })
+
+    it('refuses a task for a type judged as a whole, which has none', async () => {
+      const nomeB = asJsonConfirmedEvent({
+        classes: [],
+        eventType: 'NOME-B',
+        id: 'event-1',
+        organizer: { id: 'org-1', name: 'Org' },
+        startDate: '2026-09-12',
+      })
+      mockGetLiveEvent.mockResolvedValue(nomeB)
+      mockGetEvent.mockResolvedValue(nomeB)
+      mockGetParam.mockImplementation((_event, name: string) => (name === 'eventId' ? 'event-1' : '1'))
+
+      const request = putStationEntryLambda(
+        apiEvent(
+          [{ eventResult: { resultCode: '1', tasks: [{ exercise: 1, points: 10 }] }, id: 'reg-1' }],
+          getStationEntryToken('event-1', { id: '1' })
+        )
+      )
+
+      await expect(request).rejects.toMatchObject({ statusCode: 422 })
+      await expect(request).rejects.toThrow('Tasks are not taken for NOME-B')
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockAudit).not.toHaveBeenCalled()
+    })
+
+    it('refuses the same dog twice in one request', async () => {
+      const request = putStationEntryLambda(
+        apiEvent([
+          { eventResult: { tasks: [{ exercise: 1, points: 17 }] }, id: 'reg-1' },
+          { eventResult: { tasks: [{ exercise: 1, points: 12 }] }, id: 'reg-1' },
+        ])
+      )
+
+      await expect(request).rejects.toMatchObject({ statusCode: 422 })
+      await expect(request).rejects.toThrow("Registration 'reg-1' is sent twice")
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockAudit).not.toHaveBeenCalled()
+    })
+  })
+
   it('refuses a body with no results before reading the registrations', async () => {
     await expect(putStationEntryLambda(apiEvent([]))).rejects.toMatchObject({ body: 'no results', status: 422 })
 

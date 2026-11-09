@@ -13,7 +13,7 @@ import {
   withDayKey,
 } from '../../lib/event'
 import { isScorableRegistration, REGISTRATION_WRITE_CONCURRENCY } from '../../lib/registration'
-import { mapWithConcurrency } from '../../lib/utils'
+import { isObject, mapWithConcurrency } from '../../lib/utils'
 import { audit, registrationAuditKey } from './audit'
 import { httpError, LambdaError } from './lambda'
 import { writeEventFields } from './repositories/eventRepository'
@@ -26,19 +26,39 @@ export interface StartNumberEntry {
 }
 
 const isStartNumberEntry = (value: unknown): value is StartNumberEntry =>
-  typeof value === 'object' &&
-  value !== null &&
-  typeof (value as StartNumberEntry).id === 'string' &&
-  typeof (value as StartNumberEntry).startNumber === 'number'
+  isObject(value) && typeof value.id === 'string' && typeof value.startNumber === 'number'
 
-/** The entries of a request body, whatever the body turned out to be. */
-export const parseStartNumberEntries = (numbers: unknown): StartNumberEntry[] =>
-  Array.isArray(numbers) ? numbers.filter(isStartNumberEntry) : []
+/**
+ * The entries of a request body, whatever the body turned out to be, refused here when one cannot be
+ * written: a number that is not an integer from 1 up, and a dog given more than one (KOE-1616). Both
+ * endpoints read the body before they take the lock, and the event secretary's freezes a publish asked
+ * in the same request before it writes the numbers, so a refusal any later would come after a write.
+ * Every dog must be on the event (404) and, on a class link, in the class, so entries that pass are
+ * never more than the dogs there are.
+ */
+export const parseStartNumberEntries = (numbers: unknown): StartNumberEntry[] => {
+  const entries = Array.isArray(numbers) ? numbers.filter(isStartNumberEntry) : []
+  const ids = new Set<string>()
+  for (const entry of entries) {
+    if (!Number.isInteger(entry.startNumber) || entry.startNumber < 1) {
+      throw new LambdaError(422, `Invalid start number '${entry.startNumber}'`)
+    }
+    if (ids.has(entry.id)) {
+      throw httpError(422, {
+        error: 'startNumberEntryRepeated',
+        id: entry.id,
+        message: `Registration '${entry.id}' is numbered twice`,
+      })
+    }
+    ids.add(entry.id)
+  }
+  return entries
+}
 
-/** The day a placement falls on, in the event's time zone — the key the published-days list holds. */
 /** ` (ALO)` after a message about one class, nothing after one about the whole event. */
 const classSuffix = (eventClass?: RegistrationClass) => (eventClass ? ` (${eventClass})` : '')
 
+/** The day a placement falls on, in the event's time zone: the key the published-days list holds. */
 const placementDay = eventDayKey
 
 const inScope = (
@@ -158,11 +178,6 @@ export const releaseStartNumber = async (
 }
 
 /**
- * Write the numbers the venue drew. Validated here rather than only on the form: an integer from 1
- * up, and unique in the whole trial — every class, every day (KOE-1303). The duplicate the server
- * refuses is the one two phones would otherwise both claim.
- */
-/**
  * A refused number, in a shape the entry form can say something useful about. The screen that hits
  * this is often a class secretary's link, which shows one class of one day: the dog holding the
  * number can be in another class entirely, and then "check the numbers and try again" points at a
@@ -177,6 +192,11 @@ const refusedNumber = (error: string, number: number, reason: string, eventClass
     number,
   })
 
+/**
+ * Write the numbers the venue drew, as `parseStartNumberEntries` read them: an integer from 1 up for
+ * each dog once. Validated here rather than only on the form: unique in the whole trial, every class,
+ * every day (KOE-1303). The duplicate the server refuses is the one two phones would otherwise both claim.
+ */
 export const assignStartNumbers = async (
   eventId: string,
   registrations: JsonRegistration[],
@@ -186,9 +206,6 @@ export const assignStartNumbers = async (
   const byId = new Map(registrations.map((registration) => [registration.id, registration]))
 
   for (const entry of entries) {
-    if (!Number.isInteger(entry.startNumber) || entry.startNumber < 1) {
-      throw new LambdaError(422, `Invalid start number '${entry.startNumber}'`)
-    }
     if (!byId.has(entry.id)) throw new LambdaError(404, `Registration '${entry.id}' not found`)
   }
 

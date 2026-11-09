@@ -17,6 +17,7 @@ import {
   partMaxPoints,
   rebaseTasks,
   reconcileRoundTasks,
+  repeatedAddress,
   roundColumns,
   roundsDiffer,
   sameStationTasks,
@@ -74,6 +75,30 @@ describe('roundColumns', () => {
     ]
 
     expect(roundColumns([second, first]).map((item) => item.exercise)).toEqual([1, 2, 3])
+  })
+})
+
+describe('repeatedAddress (KOE-1616)', () => {
+  it('finds none where every address is named once, the parts of one exercise apart', () => {
+    expect(
+      repeatedAddress([
+        { exercise: 1, part: 0 },
+        { exercise: 1, part: 1 },
+        { exercise: 2, part: 0 },
+      ])
+    ).toBeUndefined()
+    expect(repeatedAddress([])).toBeUndefined()
+  })
+
+  it('names the first address given again', () => {
+    expect(
+      repeatedAddress([
+        { exercise: 1, part: 0, points: 10 },
+        { exercise: 2, part: 0, points: 12 },
+        { exercise: 2, part: 0, points: 5 },
+        { exercise: 1, part: 0, points: 3 },
+      ])
+    ).toEqual({ exercise: 2, part: 0, points: 5 })
   })
 })
 

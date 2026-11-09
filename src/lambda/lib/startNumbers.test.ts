@@ -20,7 +20,9 @@ vi.doMock('./repositories/eventRepository', () => ({
   writeEventFields: mockWriteEventFields,
 }))
 
-const { assignStartNumbers, freezeStartNumbers, setStartNumbersPublishedState } = await import('./startNumbers')
+const { assignStartNumbers, freezeStartNumbers, parseStartNumberEntries, setStartNumbersPublishedState } = await import(
+  './startNumbers'
+)
 
 const USER = 'Sihteeri'
 
@@ -199,6 +201,36 @@ describe('startNumbers', () => {
     })
   })
 
+  describe('parseStartNumberEntries', () => {
+    it('reads the well-formed entries and leaves the rest out', () => {
+      expect(parseStartNumberEntries([{ id: 'run-1', startNumber: 3 }, { id: 'run-2' }, 'x', null])).toEqual([
+        { id: 'run-1', startNumber: 3 },
+      ])
+      expect(parseStartNumberEntries({ id: 'run-1', startNumber: 3 })).toEqual([])
+    })
+
+    it.each([0, -1, 1.5])('refuses the number %s, which is no start number', (startNumber) => {
+      expect(() => parseStartNumberEntries([{ id: 'run-1', startNumber }])).toThrow(
+        `Invalid start number '${startNumber}'`
+      )
+    })
+
+    it('refuses a dog given two entries, whatever the numbers (KOE-1616)', () => {
+      expect(() =>
+        parseStartNumberEntries([
+          { id: 'run-1', startNumber: 3 },
+          { id: 'run-2', startNumber: 4 },
+          { id: 'run-1', startNumber: 5 },
+        ])
+      ).toThrow(
+        expect.objectContaining({
+          body: expect.objectContaining({ error: 'startNumberEntryRepeated', id: 'run-1' }),
+          status: 422,
+        })
+      )
+    })
+  })
+
   describe('assignStartNumbers', () => {
     it('writes the drawn number over the frozen placement', async () => {
       const frozen = registration('run-1', {
@@ -212,15 +244,12 @@ describe('startNumbers', () => {
       ])
     })
 
-    it('refuses a non-positive number, an unknown dog and a duplicate', async () => {
+    it('refuses an unknown dog and a duplicate', async () => {
       const regs = [
         registration('run-1'),
         registration('run-2', { startGroup: { date: '2026-09-12', key: 'ALO-AP', number: 7, time: 'ap' } }),
       ]
 
-      await expect(assignStartNumbers('event-1', regs, [{ id: 'run-1', startNumber: 0 }], USER)).rejects.toThrow(
-        "Invalid start number '0'"
-      )
       await expect(assignStartNumbers('event-1', regs, [{ id: 'nobody', startNumber: 1 }], USER)).rejects.toThrow(
         "Registration 'nobody' not found"
       )
