@@ -169,8 +169,9 @@ email in the user list say, is replaced with `<secret>E2E_DEV_SIHTEERI_EMAIL</se
 The browser may request only the origins listed under `network.allowedOrigins`; every other
 request, a page load included, is aborted with `net::ERR_BLOCKED_BY_CLIENT`. The list holds what
 loading dev, signing in and opening the admin page request (the front end, the dev API, Cognito,
-STS and CloudWatch RUM) and Paytrail's payment page. When a run needs another origin (a bank's
-test page behind Paytrail, say), the blocked request shows in `browser_network_requests` as
+STS and CloudWatch RUM), Paytrail's payment page with its payment method logos, and the Nordea test
+bank that `/verify-dev` pays with. When a run needs another origin (another bank's test page
+behind Paytrail, say), the blocked request shows in `browser_network_requests` as
 `ERR_BLOCKED_BY_CLIENT`: add that origin, a scheme and a host with no path, port or wildcard, to
 the list in the same change that needs it.
 
