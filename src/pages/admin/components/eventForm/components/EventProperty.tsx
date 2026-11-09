@@ -105,7 +105,7 @@ const EventProperty = <P extends Property, freeSolo extends boolean>(props: Even
     [id, mapValue, onChange, options.length]
   )
 
-  const debouncedonChange = useDebouncedCallback((value) => {
+  const debouncedOnChange = useDebouncedCallback((value: string) => {
     if (!props.freeSolo) {
       return
     }
@@ -118,10 +118,10 @@ const EventProperty = <P extends Property, freeSolo extends boolean>(props: Even
       const validated = validateInput?.(value) ?? value
       if (inputValue !== validated) {
         setInputValue(validated)
-        debouncedonChange(validated)
+        debouncedOnChange(validated)
       }
     },
-    [debouncedonChange, inputValue, validateInput]
+    [debouncedOnChange, inputValue, validateInput]
   )
 
   const renderInput = useCallback(

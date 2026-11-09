@@ -5,6 +5,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import { useAtomValue } from 'jotai'
 import { useResetAtom } from 'jotai/utils'
 import { useCallback } from 'react'
+import { releaseFocus } from '@/lib/client/focus'
 import { localizedEventName } from '@/lib/event'
 import { languageAtom } from '../../state'
 import DroppedTasksDialog from '../components/DroppedTasksDialog'
@@ -61,7 +62,9 @@ export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
   const discardDraft = useResetAtom(adminEditableEventByIdAndFormAtom({ eventId, form: 'details' }))
 
   // Cancel, Esc and a click outside all close the dialog the same way: the change is not kept (KOE-1700).
+  // A value the focused field still holds back goes into the draft first, and is dropped with it.
   const cancel = useCallback(() => {
+    releaseFocus()
     discardDraft()
     onClose?.()
   }, [discardDraft, onClose])

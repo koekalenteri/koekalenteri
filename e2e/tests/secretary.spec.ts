@@ -1,9 +1,11 @@
 import type { BrowserContext, Page } from '@playwright/test'
 import { expect, test } from '@playwright/test'
+import { registerThroughApi } from '../fixtures/api'
 import { signInAs } from '../fixtures/auth'
-import { readEventsOf, seedOrganizer, seedStaffUser } from '../fixtures/db'
+import { readEventsOf, readRegistration, seedDog, seedEvent, seedOrganizer, seedStaffUser } from '../fixtures/db'
 import { issue } from '../fixtures/issue'
 import { EventFormPage } from '../pages/EventFormPage'
+import { EventViewPage } from '../pages/EventViewPage'
 import { SearchPage } from '../pages/SearchPage'
 
 /**
@@ -116,5 +118,65 @@ test.describe('a secretary', { annotation: issue('KOE-1478'), tag: '@secretary' 
     // The change went with the answer: the page opens on the event as saved.
     await page.goto(`/admin/event/edit/${draft.id}`)
     await expect(nameField).toHaveValue(name)
+  })
+
+  // Esc closes the event view's details dialog the way Cancel does, also before the 300 ms in which the
+  // field passes a typed value on: Chrome takes the focus off the field as the dialog removes it, and that
+  // late value must not land in the draft the close has just dropped. jsdom moves no focus on removal.
+  test('closing the details dialog with Esc right after typing drops the change', {
+    annotation: issue('KOE-1700'),
+  }, async ({ context, page }) => {
+    const organizer = await seedOrganizer()
+    const secretary = await seedStaffUser({ roles: { [organizer.id]: 'secretary' } })
+    const event = await seedEvent({ organizer: { id: organizer.id, name: organizer.name } })
+    await signInAs(context, secretary)
+    const view = new EventViewPage(page)
+    await view.goto(event)
+    const details = page.getByRole('dialog', { name: event.name })
+    const description = details.getByRole('textbox', { name: 'Lisätiedot (Suomeksi)' })
+    const openDetails = () => page.getByRole('button', { name: 'Näytä tapahtuman tiedot' }).click()
+    // The actions are in a drawer, which stays open under the dialog.
+    await page.getByRole('button', { name: 'Avaa tapahtuman hallinta' }).click()
+
+    await openDetails()
+    await description.fill(`${event.description} muutettu`)
+    await page.keyboard.press('Escape')
+    await expect(details).toBeHidden()
+
+    await openDetails()
+    await expect(description).toHaveValue(event.description ?? '')
+    await expect(details.getByRole('button', { name: 'Tallenna' })).toBeDisabled()
+  })
+
+  // The internal note saves as it is typed, with no Save to press: closing the entry with Esc right after
+  // typing still saves it, while the dialog's own changes are left for the next opening to drop (KOE-1700).
+  test('closing an entry with Esc right after typing an internal note still saves the note', {
+    annotation: issue('KOE-1700'),
+  }, async ({ context, page }) => {
+    const organizer = await seedOrganizer()
+    const secretary = await seedStaffUser({ roles: { [organizer.id]: 'secretary' } })
+    const event = await seedEvent({
+      classes: [],
+      eventType: 'NOU',
+      organizer: { id: organizer.id, name: organizer.name },
+      paymentTime: 'confirmation',
+    })
+    const dog = await seedDog()
+    const registration = await registerThroughApi(event, dog, secretary)
+    await signInAs(context, secretary)
+    const view = new EventViewPage(page)
+    await view.goto(event)
+
+    await view.row(dog).dblclick()
+    const entry = page.getByRole('dialog')
+    const note = entry.getByRole('textbox', { name: 'Sisäinen kommentti (ei näy ilmoittautujalle)' })
+    if (!(await note.isVisible())) await entry.getByText('Koesihteerin merkinnät').click()
+    await note.fill('Soitettu omistajalle')
+    await page.keyboard.press('Escape')
+    await expect(entry).toBeHidden()
+
+    await expect
+      .poll(async () => (await readRegistration(registration.eventId, registration.id))?.internalNotes)
+      .toBe('Soitettu omistajalle')
   })
 })

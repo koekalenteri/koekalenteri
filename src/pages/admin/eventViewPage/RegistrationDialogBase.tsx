@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography'
 import { useSnackbar } from 'notistack'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { releaseFocus } from '@/lib/client/focus'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { getHandlingPerson } from '@/lib/registration'
 import { hasChanges } from '@/lib/utils'
@@ -94,6 +95,13 @@ export default function RegistrationDialogBase({
     onClose?.()
   }, [onClose, resetRegistration])
 
+  // Esc and a click outside: a value the focused field still holds back is delivered before the dialog
+  // goes, so an internal note typed just before is saved (KOE-1700).
+  const handleClose = useCallback(() => {
+    releaseFocus()
+    onClose?.()
+  }, [onClose])
+
   const prefix = registration?.cancelled ? 'PERUTTU: ' : ''
   const handlerName = registration ? (getHandlingPerson(registration)?.name ?? '') : ''
   const handlerSuffix = handlerName ? ` / ${handlerName}` : ''
@@ -108,7 +116,7 @@ export default function RegistrationDialogBase({
       fullWidth
       maxWidth="lg"
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       aria-labelledby="reg-dialog-title"
       slotProps={{
         paper: {

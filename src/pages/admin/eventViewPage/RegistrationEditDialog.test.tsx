@@ -164,4 +164,35 @@ describe('RegistrationEditDialog', () => {
     expect(save).toBeDisabled()
     expect(screen.getByText('registration.internalNotesStatus.saved')).toBeInTheDocument()
   })
+
+  // Esc leaves no time for the note's own save to wait out its debounce: the note goes first, then the
+  // dialog closes (KOE-1700).
+  it('saves an internal note typed just before Esc closes the dialog', async () => {
+    vi.mocked(putAdminRegistrationNotes).mockClear()
+    const onClose = vi.fn()
+    const { user } = await renderSuspendedWithUserEvents(
+      <RegistrationEditDialog
+        event={eventWithStaticDates}
+        onClose={onClose}
+        open={true}
+        registrationId={registrationWithStaticDates.id}
+      />,
+      { wrapper: Wrapper },
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+    await flushPromises()
+    const note = screen.getByLabelText('registration.internalNotes')
+
+    await user.type(note, 'soitettu')
+    expect(putAdminRegistrationNotes).not.toHaveBeenCalled()
+    await user.keyboard('{Escape}')
+
+    expect(onClose).toHaveBeenCalledTimes(1)
+    expect(note).not.toHaveFocus()
+    expect(putAdminRegistrationNotes).toHaveBeenCalledWith(
+      expect.objectContaining({ internalNotes: 'soitettu' }),
+      TEST_ID_TOKEN
+    )
+    await flushPromises()
+  })
 })
