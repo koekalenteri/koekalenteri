@@ -38,6 +38,7 @@ import {
   outcomeExercises,
   outcomeHeldElsewhere,
   reconcileRoundTasks,
+  repeatedAddress,
   roundsDiffer,
   sameStationTasks,
   stampTasks,
@@ -272,6 +273,30 @@ const pickRetirement = (value: unknown, eventType: string): EventResultRetiremen
   }
 }
 
+/** A task's address as an error names it. */
+const taskName = (task: SubmittedTask): string => `exercise ${task.exercise}#${task.part}`
+
+/**
+ * Refuse a task list no round can hold (KOE-1616): a type judged as a whole has no tasks, and a round
+ * holds one score at each address. Each task must also be one of the round's (`validateSubmittedTasks`),
+ * so a list that passes is never longer than the round; a list of any length used to be stored whole.
+ */
+const refuseUnheldTasks = (tasks: readonly SubmittedTask[], eventType: string): void => {
+  if (tasks.length > 0 && !scoresAtPosts(eventType)) {
+    throw new LambdaError(422, `Tasks are not taken for ${eventType}: it is judged as a whole`)
+  }
+  const repeated = repeatedAddress(tasks)
+  if (repeated) throw new LambdaError(422, `Task ${taskName(repeated)} is sent twice`)
+}
+
+/** A submission's tasks, each picked field by field, and the list refused where no round can hold it. */
+const pickTasks = (value: unknown, eventType: string, judges: PublicJudge[]): SubmittedTask[] | undefined => {
+  if (!Array.isArray(value)) return undefined
+  const tasks = value.map((task) => pickTask(task, judges))
+  refuseUnheldTasks(tasks, eventType)
+  return tasks
+}
+
 /**
  * The fields a client may write, picked one by one. Everything else in the payload is dropped here
  * and never stored: this path is shared with the widely shared tokenized station link (KOE-1258), so
@@ -302,7 +327,7 @@ const pickSubmittedResult = (
     )
   }
 
-  const tasks = Array.isArray(value.tasks) ? value.tasks.map((task) => pickTask(task, judges)) : undefined
+  const tasks = pickTasks(value.tasks, eventType, judges)
   const judge = resolveJudge(value.judge, judges)
 
   return {
@@ -326,9 +351,13 @@ export const parseSubmissions = (body: string | null, confirmedEvent: JsonConfir
 
   const judges = knownJudges(confirmedEvent)
   const submissions: ResultSubmission[] = []
+  const ids = new Set<string>()
 
   for (const value of parsed) {
     if (!isRecord(value) || typeof value.id !== 'string') continue
+    // Each would be classified against the same stored row and written and audited on its own (KOE-1616).
+    if (ids.has(value.id)) throw new LambdaError(422, `Registration '${value.id}' is sent twice`)
+    ids.add(value.id)
 
     submissions.push({
       eventResult: pickSubmittedResult(value.eventResult, confirmedEvent, judges),
@@ -491,9 +520,6 @@ const classifySubmission = (
 
 /** What a post's save or the event save is told when the layout it was made against has changed. */
 const LAYOUT_CHANGED_MESSAGE = 'The results changed while the stations were saved; save again'
-
-/** A task's address as an error names it. */
-const taskName = (task: SubmittedTask): string => `exercise ${task.exercise}#${task.part}`
 
 /**
  * Refuse a score the round cannot hold. The totals are recomputed rather than trusted, but a

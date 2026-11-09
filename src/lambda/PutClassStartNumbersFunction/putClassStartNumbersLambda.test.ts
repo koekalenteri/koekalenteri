@@ -215,6 +215,37 @@ describe('putClassStartNumbersLambda', () => {
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
   })
 
+  describe('a dog numbered twice in one draw (KOE-1616)', () => {
+    it.each([
+      ['the same number', 2],
+      ['another number', 1],
+    ])('refuses it with %s before taking the lock, and writes and audits nothing', async (_name, again) => {
+      await expect(
+        putClassStartNumbersLambda(
+          apiEvent({
+            numbers: [
+              { id: 'alo-1', startNumber: 2 },
+              { id: 'alo-1', startNumber: again },
+            ],
+          })
+        )
+      ).rejects.toMatchObject({ body: { error: 'startNumberEntryRepeated', id: 'alo-1' }, status: 422 })
+
+      expect(mockLockRegistrationGroups).not.toHaveBeenCalled()
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockAudit).not.toHaveBeenCalled()
+    })
+
+    it('refuses more entries than the class has dogs, which only repeats can make', async () => {
+      const numbers = Array.from({ length: 100 }, () => ({ id: 'alo-1', startNumber: 2 }))
+
+      await expect(putClassStartNumbersLambda(apiEvent({ numbers }))).rejects.toMatchObject({ status: 422 })
+
+      expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+      expect(mockAudit).not.toHaveBeenCalled()
+    })
+  })
+
   it('has nothing to do without numbers', async () => {
     await expect(putClassStartNumbersLambda(apiEvent({ numbers: [] }))).rejects.toMatchObject({
       body: 'nothing to do',
