@@ -15,7 +15,7 @@ import { useParams } from 'react-router'
 import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
 import { withStoredTotals } from '@/lib/results'
 import { teamSeriesName } from '@/lib/startListView'
-import { isTeamCandidate, teamCompetitionErrors } from '@/lib/team'
+import { isTeamCandidate, teamCompetitionErrors, teamCountedDays, teamTrialDays } from '@/lib/team'
 import { teamStandings, withRunOffWinner } from '@/lib/teamStandings'
 import { Path } from '@/routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
@@ -125,6 +125,11 @@ export default function EventTeamsPage() {
     [event, language]
   )
 
+  // The trial's days for the choice of those the teams count, and the days a team's points come from
+  // where the choice leaves some out (KOE-1726).
+  const trialDays = useMemo(() => (event ? teamTrialDays(event) : []), [event])
+  const countedDays = useMemo(() => (event ? teamCountedDays(event) : []), [event])
+
   // A series the save would refuse, unnamed in Finnish or given an id twice, keeps the save closed: the
   // rule the server holds the settings to (`teamCompetitionErrors`, KOE-1720).
   const seriesUnsettled = teamCompetitionErrors(event?.teamCompetition).length > 0
@@ -181,7 +186,11 @@ export default function EventTeamsPage() {
             value={countText ?? teams.length}
           />
           {(teams.length > 0 || !!event.teamCompetition?.series?.length) && (
-            <TeamCompetitionSettings teamCompetition={event.teamCompetition} onChange={handleTeamCompetition} />
+            <TeamCompetitionSettings
+              teamCompetition={event.teamCompetition}
+              trialDays={trialDays}
+              onChange={handleTeamCompetition}
+            />
           )}
           {numbered.map(({ number, team }) => (
             <TeamCard
@@ -192,6 +201,7 @@ export default function EventTeamsPage() {
               onChange={(changed) => setTeams(teams.map((item, at) => (at === number - 1 ? changed : item)))}
               onRunOffChange={(won) => setTeams(withRunOffWinner(teams, number - 1, won))}
               series={series}
+              countedDays={countedDays}
               standing={standings.get(number - 1)}
               team={team}
             />

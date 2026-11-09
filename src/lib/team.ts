@@ -260,6 +260,13 @@ export type TeamDaysOwner = Pick<PublicDogEvent, 'classes' | 'endDate' | 'startD
   teamCompetition?: TeamCompetition | null
 }
 
+/**
+ * The trial's days in date order, as the choice of counted days lists them (KOE-1726). The class days
+ * keep the order the classes were stored in, which a copy or an older event need not have kept by date.
+ */
+export const teamTrialDays = (event: Pick<TeamDaysOwner, 'classes' | 'endDate' | 'startDate'>): DayKey[] =>
+  [...eventDates(event)].sort((a, b) => a.localeCompare(b))
+
 /** The chosen days the trial still has, in the order chosen. */
 const chosenTeamDays = (event: TeamDaysOwner): DayKey[] => {
   const trialDays = eventDates(event)
@@ -274,6 +281,17 @@ const chosenTeamDays = (event: TeamDaysOwner): DayKey[] => {
 export const isTeamCountedDay = (event: TeamDaysOwner): ((day: DayKey | undefined) => boolean) => {
   const chosen = chosenTeamDays(event)
   return chosen.length ? (day) => day !== undefined && chosen.includes(day) : () => true
+}
+
+/**
+ * The days a team's points come from, for the mark beside them (KOE-1726): the chosen days the trial
+ * still has, in date order, where the choice leaves a day out. None where every day counts: no
+ * choice, a choice of every day, or none of the chosen left.
+ */
+export const teamCountedDays = (event: TeamDaysOwner): DayKey[] => {
+  const trialDays = teamTrialDays(event)
+  const chosen = new Set(chosenTeamDays(event))
+  return chosen.size && chosen.size < trialDays.length ? trialDays.filter((day) => chosen.has(day)) : []
 }
 
 /**
