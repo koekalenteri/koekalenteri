@@ -67,7 +67,7 @@ export const countSentResults = (registrations: ReadonlyArray<{ kcResult?: Pick<
 const RESULT_TYPE = 247
 const INFO_TYPE = 250
 
-export interface KcKoemuotoResult {
+interface KcKoemuotoResult {
   hylätty: boolean
   keskeytys: boolean
   tulos: string
@@ -109,7 +109,7 @@ export interface KcResultBody {
   tarkenne?: string
 }
 
-export type KcProblemCode =
+type KcProblemCode =
   | 'noKcGuid'
   | 'noResult'
   | 'noDay'
@@ -644,7 +644,7 @@ export interface KcDogReport {
   tulosId?: number
 }
 
-export type KcBlockerCode =
+type KcBlockerCode =
   | 'notOfficial'
   | 'noKcGuid'
   | 'kcGuidChoose'
@@ -661,7 +661,7 @@ export interface KcBlocker {
   virheet?: string[]
 }
 
-export type KcSendOutcome = 'sent' | 'failed' | 'skipped' | 'unchanged'
+type KcSendOutcome = 'sent' | 'failed' | 'skipped' | 'unchanged'
 
 export interface KcSendReport {
   /**

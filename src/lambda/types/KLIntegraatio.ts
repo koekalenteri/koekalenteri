@@ -38,7 +38,7 @@ export type KLIntegraatioResult<T> = {
   virheet?: string[]
 }
 
-export type KLIntKoemuodonTulos = {
+type KLIntKoemuodonTulos = {
   hylätty: boolean
   järjestys: number
   /**
@@ -62,7 +62,7 @@ export type KLIntKoemuodonTulos = {
   tulostyyppi: number
 }
 
-export type KLIntKoemuodonTapahtuma = {
+type KLIntKoemuodonTapahtuma = {
   tapahtumanNimi: string
   tapahtumantyyppi: number
   tapahtumantyyppiNimi: string
@@ -120,7 +120,7 @@ export type KLIntKokeetParametrit = {
   yhdistys?: number
 }
 
-export type KLIntRajoitus = {
+type KLIntRajoitus = {
   lisätieto: string
   rajoitus: number
   rajoitusNimi: string

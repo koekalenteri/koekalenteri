@@ -682,7 +682,7 @@ interface RulesChapter {
   readonly title: string
 }
 
-export interface RulesPart {
+interface RulesPart {
   readonly chapters: readonly RulesChapter[]
   readonly intro?: string
   /** "OSA 1" */
