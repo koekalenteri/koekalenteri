@@ -1,7 +1,7 @@
-import type { APIGatewayEvent } from 'aws-lambda'
 import type { JsonUser } from '../../../types'
 import type { UserLink } from '../repositories/userLinkRepository'
 import { vi } from 'vitest'
+import { constructAPIGwEvent } from '../../test-utils/helpers'
 import { canReceiveAdminEvent, canReceiveAnyAdminEvent } from './connectionPolicy'
 
 const mockVerify = vi.fn<(token: string) => Promise<Record<string, unknown>>>()
@@ -28,51 +28,8 @@ vi.doMock('../repositories/userRepository', () => ({
 
 const { authenticateWebSocketToken } = await import('./authentication')
 
-/** The handler passes the WebSocket event on as it came; authentication reads only its requestContext. */
-const event: APIGatewayEvent = {
-  body: null,
-  headers: {},
-  httpMethod: 'POST',
-  isBase64Encoded: false,
-  multiValueHeaders: {},
-  multiValueQueryStringParameters: null,
-  path: '',
-  pathParameters: null,
-  queryStringParameters: null,
-  requestContext: {
-    accountId: '',
-    apiId: '',
-    authorizer: null,
-    connectionId: 'conn-1',
-    httpMethod: 'POST',
-    identity: {
-      accessKey: null,
-      accountId: null,
-      apiKey: null,
-      apiKeyId: null,
-      caller: null,
-      clientCert: null,
-      cognitoAuthenticationProvider: null,
-      cognitoAuthenticationType: null,
-      cognitoIdentityId: null,
-      cognitoIdentityPoolId: null,
-      principalOrgId: null,
-      sourceIp: '',
-      user: null,
-      userAgent: null,
-      userArn: null,
-    },
-    path: '',
-    protocol: '',
-    requestId: '',
-    requestTimeEpoch: 0,
-    resourceId: '',
-    resourcePath: '',
-    stage: '',
-  },
-  resource: '',
-  stageVariables: null,
-}
+/** Authentication reads only the requestContext, whose claims it replaces with the verified token's. */
+const event = constructAPIGwEvent({})
 
 const claims = { email: 'viewer@example.com', exp: 2000000000, name: 'Viewer Name', sub: 'cognito-viewer' }
 
