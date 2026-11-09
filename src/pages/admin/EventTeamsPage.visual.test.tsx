@@ -82,6 +82,21 @@ const standingsEvent: ConfirmedEvent = {
   ],
 }
 
+// A two-day trial counting only its first day (KOE-1726), as a derby counts its qualifying day: the
+// second day's dog adds nothing, and each team's result says which day its points come from.
+const SECOND_DAY = '2021-02-11' as const
+const countedDaysEvent: ConfirmedEvent = {
+  ...standingsEvent,
+  classes: [...eventWithStations.classes, ...eventWithStations.classes.map((c) => ({ ...c, date: SECOND_DAY }))],
+  endDate: SECOND_DAY,
+  teamCompetition: { days: [RESULTS_EVENT_DAY] },
+}
+const countedDaysRegistrations = standingsRegistrations.map((registration) =>
+  registration.id === 'dog-6'
+    ? { ...registration, group: { date: SECOND_DAY, key: 'ALO-AP', number: 1, time: 'ap' as const } }
+    : registration
+)
+
 // A competition in two series (KOE-1720): teams 1 and 3 in the open one, team 2 in the breed one, each
 // series ranked on its own, so teams 1 and 2, level on points, are both first.
 const seriesEvent: ConfirmedEvent = {
@@ -146,6 +161,14 @@ it("shows each team's points and placing, and the run-off of a tie for first (KO
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-standings')
 })
 
+it('counts the days chosen, and names them beside each team result (KOE-1726)', async () => {
+  await page.viewport(900, 1500)
+  const screen = await renderPage(countedDaysEvent, countedDaysRegistrations)
+
+  await expect.element(screen.getByText('Joukkueen tulos: 1. sija, 90 pistettä, ke 10.2. tuloksista')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-counted-days')
+})
+
 it('sets the series and ranks each team within its own (KOE-1720)', async () => {
   await page.viewport(900, 1700)
   const screen = await renderPage(seriesEvent, standingsRegistrations)
@@ -179,6 +202,16 @@ describeInLanguage('en', () => {
     await screen.getByRole('combobox', { name: 'Add a dog' }).click()
     await expect.element(screen.getByRole('option', { name: 'Kultakuonon Kide' })).toBeVisible()
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-candidates-en')
+  })
+
+  it('counts the days chosen, and names them beside each team result (KOE-1726)', async () => {
+    await page.viewport(900, 1500)
+    const screen = await renderPage(countedDaysEvent, countedDaysRegistrations)
+
+    await expect
+      .element(screen.getByText('Team result: place 1, 90 points, from the results of Wed 10.2.'))
+      .toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-counted-days-en')
   })
 
   it("shows each team's points and placing, and the run-off of a tie for first (KOE-1717)", async () => {

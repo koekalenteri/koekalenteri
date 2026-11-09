@@ -59,7 +59,8 @@ paikallaan merkinnällä *{t:startList.absent}*.
 ### Joukkueiden tulokset
 
 Kokeessa, jossa koirat saavat pisteitä (NOWT), joukkueen pisteet ovat sen koirien pisteet yhteensä
-koko kokeesta, mistä luokasta ja miltä päivältä tahansa. Koira, jolla ei ole tulosta, tuo joukkueelle
+koko kokeesta, mistä luokasta tahansa. Järjestäjä voi rajata pisteet tiettyihin päiviin, esimerkiksi
+karsintapäivään ilman finaalia; silloin muiden päivien tulokset eivät kuulu joukkueelle. Koira, jolla ei ole tulosta, tuo joukkueelle
 nolla pistettä. Joukkueet sijoitetaan yhteispisteiden mukaan, ja tasapisteissä olevat joukkueet jakavat
 sijan, esimerkiksi 1., 2., 2., 4. Ensimmäisestä sijasta tasapisteissä olevien joukkueiden järjestys
 ratkaistaan uusintatehtävällä: sen voittaja on ensimmäinen ja muut jakavat seuraavan sijan. Siihen
@@ -71,7 +72,9 @@ näytetä yhdellekään sarjan joukkueelle. Tulosta ei näytetä myöskään sil
 joukkueiden koirista ei vielä ole listalla, esimerkiksi koska sen starttinumeroa ei ole syötetty.
 Kokeessa, jossa ei ole sarjoja, kaikki joukkueet ovat yhtä sarjaa. Monipäiväisessä kokeessa sama
 rivi on joukkueen otsikossa jokaisen päivän alla. Ensimmäisestä sijasta tasapisteissä olleiden joukkueiden rivillä lukee lisäksi
-*({t:startList.teamRunOff})*. Kokeessa, jossa ei jaeta pisteitä, joukkueilla ei ole tulosta.
+*({t:startList.teamRunOff})*. Jos pisteet on rajattu tiettyihin päiviin, rivin lopussa kerrotaan,
+minkä päivien tuloksista ne on laskettu, esimerkiksi *1. sija, 90 pistettä, pe 2.10. tuloksista*.
+Kokeessa, jossa ei jaeta pisteitä, joukkueilla ei ole tulosta.
 
 !shot[ParticipantList/start-list-team-standings] Joukkueiden tulokset: joukkueet 1 ja 2 olivat tasapisteissä, ja joukkue 2 voitti uusintatehtävän
 

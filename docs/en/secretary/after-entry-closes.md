@@ -20,7 +20,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 81fe1b
+sourceHash: cd0b76
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -231,6 +231,21 @@ bin leaves its teams in no series. A series' name can be changed at any time; th
 shows its current name.
 
 !shot[EventTeamsPage/teams-series] Two series: teams 1 and 3 are in the open series and team 2 in the breed series, so teams 1 and 2 are each first in their series
+
+### Days counted
+
+In a trial of several days you can choose which days' results count for the teams' points, for
+example a derby's qualifying day but not its final. The choice is where the series are, under
+*{t:teams.countedDays}*, and it shows once the trial has at least one team or series. By default
+every day counts. Clearing a day leaves its results out of the teams' points; the last day counted
+cannot be cleared. Once every day is chosen again, every day counts, also a day added to the trial
+later. If the trial's days change, the days it no longer has drop out of the choice, and a copy
+moves the choice with the trial.
+
+When only some days count, a team's result ends with the days its points come from, on the teams
+page and on the public start list alike.
+
+!shot[EventTeamsPage/teams-counted-days] A two-day trial counting only its first day: the second day's dog adds nothing to team 2, and every team's result reads *from the results of Wed 10.2.*
 
 **{t:save}** stores the changes. **{t:cancel}** goes back to the event without saving.
 

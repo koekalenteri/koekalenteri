@@ -271,6 +271,17 @@ export const isTeamCountedDay = (event: TeamDaysOwner): ((day: DayKey | undefine
 }
 
 /**
+ * The days a team's points come from, for the mark beside them (KOE-1726): the chosen days the trial
+ * still has, in the trial's order, where the choice leaves a day out. None where every day counts: no
+ * choice, a choice of every day, or none of the chosen left.
+ */
+export const teamCountedDays = (event: TeamDaysOwner): DayKey[] => {
+  const trialDays = eventDates(event)
+  const chosen = new Set(chosenTeamDays(event))
+  return chosen.size && chosen.size < trialDays.length ? trialDays.filter((day) => chosen.has(day)) : []
+}
+
+/**
  * The competition's settings without the counted days the trial no longer has (KOE-1726), for a change
  * of the trial's days that is saved, not refused. Once none is left the choice goes, and every day
  * counts. Settings with nothing to leave out are given back as they are.

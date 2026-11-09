@@ -42,6 +42,7 @@ import {
   teamRowPrefix,
   teamSeriesName,
 } from '../../lib/startListView'
+import { teamCountedDays } from '../../lib/team'
 import { languageAtom } from '../state/user/atoms'
 import { CancelledRegistration } from './CancelledRegistration'
 import { ClassHeader } from './ClassHeader'
@@ -459,6 +460,7 @@ function formatTeamStartList(
   language: Language
 ) {
   const lines: string[] = []
+  const countedDays = teamCountedDays(event)
   const group = (heading: string[], rows: readonly PublicRegistration[], showClass: boolean) => {
     lines.push('', ...heading, ...rows.map((reg) => formatRegistration(reg, t, teamRowPrefix(reg, showClass))))
   }
@@ -474,7 +476,7 @@ function formatTeamStartList(
       if (team.seriesId && team.seriesId !== teams[index - 1]?.seriesId) {
         lines.push('', teamSeriesName(event, team.seriesId, language))
       }
-      const standing = formatTeamStanding(team, t)
+      const standing = formatTeamStanding(team, t, countedDays)
       const heading = [t('startList.team', { number: team.number }), team.name, standing].filter(
         (line): line is string => !!line
       )

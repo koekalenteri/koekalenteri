@@ -8,6 +8,7 @@ import TableCell from '@mui/material/TableCell'
 import { useAtomValue } from 'jotai'
 import { useTranslation } from 'react-i18next'
 import { formatTeamStanding, teamDayNoteLines, teamRowPrefix, teamSeriesName } from '../../lib/startListView'
+import { teamCountedDays } from '../../lib/team'
 import { languageAtom } from '../state/user/atoms'
 import { DateHeader } from './DateHeader'
 import { RegistrationDetails } from './RegistrationDetails'
@@ -87,7 +88,13 @@ export const TeamStartList = ({ days, event, warnNumberPending }: TeamStartListP
         </TableCell>
       </StyledTableRow>
     )),
-    ...teamDayRows(day, t, warnNumberPending, (seriesId) => teamSeriesName(event, seriesId, language)),
+    ...teamDayRows(
+      day,
+      t,
+      warnNumberPending,
+      (seriesId) => teamSeriesName(event, seriesId, language),
+      teamCountedDays(event)
+    ),
   ])
 }
 
@@ -96,7 +103,8 @@ const teamDayRows = (
   { date, noTeam, showClass, teams }: StartListTeamDay,
   t: TFunction,
   warnNumberPending: TeamStartListProps['warnNumberPending'],
-  seriesName: (seriesId: string) => string
+  seriesName: (seriesId: string) => string,
+  countedDays: readonly DayKey[]
 ) => [
   ...teams.flatMap((team, index) => [
     ...(team.seriesId && team.seriesId !== teams[index - 1]?.seriesId
@@ -105,7 +113,7 @@ const teamDayRows = (
     <TeamHeader
       key={`team-${date}-${team.number}`}
       name={team.name}
-      standing={formatTeamStanding(team, t)}
+      standing={formatTeamStanding(team, t, countedDays)}
       title={t('startList.team', { number: team.number })}
     />,
     <TeamRows
