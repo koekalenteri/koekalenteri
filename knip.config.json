@@ -8,19 +8,14 @@
         "scripts/precommit.js"
       ],
       "ignoreBinaries": [
-        "sam",
-        "scripts/prebuild-backend.sh"
+        "sam"
       ],
       "ignoreDependencies": [
-        "@aws-amplify/core",
         "@codemirror/lang-html",
         "@emnapi/core",
         "@emnapi/runtime"
       ],
       "entry": [
-        "e2e/fakes/server.mjs",
-        "e2e/server/api.mjs",
-        "e2e/server/frontend.mjs",
         "scripts/build-template.mjs",
         "src/index.tsx",
         "src/lambda/*Function/handler.ts",

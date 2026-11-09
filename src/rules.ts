@@ -12,7 +12,7 @@ import { keysOf } from './lib/typeGuards'
 import { isModernFinnishRegNo } from './lib/validation'
 import { NOME_A_CH_requirements, NOME_B_CH_requirements, NOWT_CH_requirements } from './rules_ch'
 
-export const RULE_DATES = [
+const RULE_DATES = [
   '1977-01-01',
   '1986-01-01',
   '1991-01-01',

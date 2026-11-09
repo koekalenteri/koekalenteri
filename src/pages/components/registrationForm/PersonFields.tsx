@@ -7,7 +7,7 @@ import { useLocalStateGroup } from './hooks/useLocalStateGroup'
 import { hasEmailError, hasPhoneError } from './personValidation'
 
 /** Contact details asked for beside the name, which is always asked for. */
-export type PersonContactField = 'location' | 'email' | 'phone'
+type PersonContactField = 'location' | 'email' | 'phone'
 
 /**
  * Which contact details a person is asked for and which of them they must give. A field left out is
