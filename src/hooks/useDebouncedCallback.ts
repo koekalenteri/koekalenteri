@@ -9,7 +9,7 @@ interface DebounceOptions {
   readonly flushOnBlur?: boolean
 }
 
-export default function useDebouncedCallback<T extends (...args: any[]) => ReturnType<T>>(
+export default function useDebouncedCallback<T extends (...args: never[]) => unknown>(
   callback?: T,
   wait = 100,
   { flushOnBlur = false }: DebounceOptions = {}
@@ -33,13 +33,11 @@ export default function useDebouncedCallback<T extends (...args: any[]) => Retur
   // biome-ignore lint/correctness/useExhaustiveDependencies: we need to clear the timeout when wait changes
   useEffect(
     () => () => {
-      globalThis.clearTimeout(timeout.current)
-      timeout.current = undefined
+      // With nothing pending, a flush only clears the timer and the listener.
       pending.current = undefined
-      blurTarget.current?.removeEventListener('focusout', flush)
-      blurTarget.current = undefined
+      flush()
     },
-    [wait]
+    [flush, wait]
   )
 
   return useCallback(

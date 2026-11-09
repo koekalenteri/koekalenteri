@@ -2,19 +2,21 @@ import type { PublicDogEvent } from '@/types'
 import Grid from '@mui/material/Grid'
 import { useTranslation } from 'react-i18next'
 import InfoTableHeaderText from '@/pages/components/InfoTableHeaderText'
+import { classPlacesColumns } from './EventClassPlaces'
 
 export const EventClassPlacesHeader = ({ event }: { event: PublicDogEvent }) => {
   const { t } = useTranslation()
 
-  const showDates = event.classes.length > 0
+  const columns = classPlacesColumns(event)
+  const showDates = columns.dates > 0
 
   return (
     <Grid container>
-      <Grid size={{ xs: showDates ? 2 : 6 }}>
+      <Grid size={{ xs: columns.name }}>
         <InfoTableHeaderText>{t('event.classPlacesHeader.name')}</InfoTableHeaderText>
       </Grid>
       {showDates ? (
-        <Grid size={{ xs: 4 }}>
+        <Grid size={{ xs: columns.dates }}>
           <InfoTableHeaderText>{t('event.classPlacesHeader.dates')}</InfoTableHeaderText>
         </Grid>
       ) : null}

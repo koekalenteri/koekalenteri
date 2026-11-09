@@ -1,18 +1,32 @@
 import type { PublicDogEvent } from '@/types'
+import { useAtomValue } from 'jotai'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { hasExplicitPlacesForClass, placesForClass, uniqueClasses } from '@/lib/event'
+import { classLabel, hasExplicitPlacesForClass, placesForClass, uniqueClasses } from '@/lib/event'
 import InfoTableContainerGrid from '@/pages/components/InfoTableContainerGrid'
 import InfoTableNumberGrid from '@/pages/components/InfoTableNumberGrid'
 import InfoTableTextGrid from '@/pages/components/InfoTableTextGrid'
+import { languageAtom } from '@/pages/state/user/atoms'
 
 export type MinimalEvent = Pick<
   PublicDogEvent,
-  'classes' | 'startDate' | 'entries' | 'places' | 'placesPerDay' | 'members'
+  'classes' | 'startDate' | 'entries' | 'places' | 'placesPerDay' | 'members' | 'ownClasses'
 >
+
+/**
+ * The widths of the class and date columns, shared by the header and the rows. An own class's name is
+ * longer than a code (KOE-674), so an event with own classes gives the class column a share of the
+ * dates'. Without classes the one row is the format's and has no dates.
+ */
+export const classPlacesColumns = (event: Pick<PublicDogEvent, 'classes' | 'ownClasses'>) => {
+  if (!event.classes.length) return { dates: 0, name: 6 }
+  return event.ownClasses?.length ? { dates: 3, name: 3 } : { dates: 4, name: 2 }
+}
 
 export const EventClassPlaces = ({ event, eventClass }: { event: MinimalEvent; eventClass: string }) => {
   const { t } = useTranslation()
+  const language = useAtomValue(languageAtom)
+  const columns = classPlacesColumns(event)
 
   const { dates, entryStatus, showPlaces } = useMemo(() => {
     const classes = event.classes.filter((c) => c.class === eventClass)
@@ -43,9 +57,11 @@ export const EventClassPlaces = ({ event, eventClass }: { event: MinimalEvent; e
 
   return (
     <InfoTableContainerGrid>
-      <InfoTableTextGrid size={{ xs: dates.length ? 2 : 6 }}>{eventClass}</InfoTableTextGrid>
+      <InfoTableTextGrid size={{ xs: dates.length ? columns.name : 6 }}>
+        {classLabel(event, eventClass, language)}
+      </InfoTableTextGrid>
       {dates.length ? (
-        <InfoTableTextGrid size={{ xs: 4 }}>
+        <InfoTableTextGrid size={{ xs: columns.dates }}>
           {dates.map((date) => t('dateFormat.wdshort', { date })).join(', ')}
         </InfoTableTextGrid>
       ) : null}

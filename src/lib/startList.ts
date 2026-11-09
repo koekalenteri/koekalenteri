@@ -1,9 +1,11 @@
 import type { TFunction } from 'i18next'
+import type { Language } from '../types'
 import type { DayKey } from '../types/Day'
 import type { PublicConfirmedEvent } from '../types/Event'
 import type { PublicRegistration } from '../types/Registration'
 import { dayParts } from './day'
 import { formatDogName } from './dog'
+import { classLabel } from './event'
 import { formatResultMarks, shownTotals } from './results'
 
 /**
@@ -73,8 +75,12 @@ export const startListColumnWidths: number[] = START_LIST_COLUMNS.map(([, width]
 export function startListSpreadsheetRows(
   participants: PublicRegistration[],
   event: PublicConfirmedEvent,
-  t: TFunction
+  t: TFunction,
+  language: Language
 ) {
+  // The class as the page shows it: an own class by its name (KOE-674).
+  const classOf = (registration: PublicRegistration) =>
+    registration.class ? classLabel(event, registration.class, language) : ''
   return [
     START_LIST_COLUMNS.map(([key]) => t(key)),
     ...participants.map((registration) =>
@@ -83,7 +89,7 @@ export function startListSpreadsheetRows(
         ? [
             spreadsheetDay(registration.group.date ?? event.startDate),
             registration.group.time ? t(`registration.timeLong.${registration.group.time}`) : '',
-            registration.class ?? '',
+            classOf(registration),
             registration.group.number ?? '',
             t('startList.absent'),
             ...Array.from({ length: START_LIST_COLUMNS.length - 5 }, () => ''),
@@ -91,7 +97,7 @@ export function startListSpreadsheetRows(
         : [
             spreadsheetDay(registration.group.date ?? event.startDate),
             registration.group.time ? t(`registration.timeLong.${registration.group.time}`) : '',
-            registration.class ?? '',
+            classOf(registration),
             registration.group.number ?? '',
             [registration.dog.titles, registration.dog.name].filter(Boolean).join(' '),
             registration.dog.regNo,

@@ -131,6 +131,41 @@ it("tells each group's running order as posts (KOE-1665)", async () => {
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-rotation')
 })
 
+// KOE-674: an unofficial trial following NOWT with classes of its own: the headings and the running
+// order under them name each class by its name, in the reader's language.
+const ownClassTrial: PublicConfirmedEvent = {
+  ...nowt,
+  classes: [
+    { class: 'DERBY', date: EVENT_DAY },
+    { class: 'VET10', date: EVENT_DAY },
+  ],
+  eventType: 'WT-harjoitus',
+  id: 'event-own-classes',
+  name: 'WT-harjoitus Akaa',
+  officialFormat: 'NOWT',
+  ownClasses: [
+    { code: 'DERBY', name: { en: 'Derby class', fi: 'Derby-luokka' } },
+    { code: 'VET10', name: { en: 'Veterans', fi: 'Veteraanit' } },
+  ],
+  rotations: (nowt.rotations ?? []).map((group) => ({ ...group, class: group.class === 'ALO' ? 'DERBY' : 'VET10' })),
+}
+const ownClassRunners = runners.map((runner) => ({
+  ...runner,
+  class: runner.class === 'ALO' ? 'DERBY' : 'VET10',
+  eventType: 'WT-harjoitus',
+}))
+
+it('names the own classes by their names, the running order under them too (KOE-674)', async () => {
+  const screen = await render(
+    <Frame>
+      <ParticipantList event={ownClassTrial} participants={ownClassRunners} />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText(/^Derby-luokka: suorituspaikat 1/)).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-own-classes')
+})
+
 // A two-day team competition (KOE-1715): on the first day team 1 holds dogs of two classes, so the
 // rows name their class in front of the code; team 2 runs on both days, and one dog is in no team.
 const SECOND_DAY: DayKey = '2026-10-03'
@@ -360,6 +395,19 @@ describeInLanguage('en', () => {
 
     await expect.element(screen.getByText('No team')).toBeVisible()
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-teams-en')
+  })
+
+  it('names the own classes by their names, the running order under them too (KOE-674)', async () => {
+    const screen = await render(
+      <TestProvider initializeState={({ set }) => set(languageAtom, 'en')}>
+        <Frame>
+          <ParticipantList event={ownClassTrial} participants={ownClassRunners} />
+        </Frame>
+      </TestProvider>
+    )
+
+    await expect.element(screen.getByText(/^Derby class: /)).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-own-classes-en')
   })
 
   it("tells each group's running order as posts (KOE-1665)", async () => {

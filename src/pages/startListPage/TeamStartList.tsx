@@ -46,17 +46,18 @@ const SeriesHeader = ({ name }: { readonly name: string }) => (
 interface TeamRowsProps {
   readonly date: DayKey
   readonly rows: readonly PublicRegistration[]
-  readonly showClass: boolean
+  /** What the row names in front of its number (`teamRowPrefix`). */
+  readonly prefix: (registration: PublicRegistration) => string
   readonly warnNumberPending: (registration: PublicRegistration, date: DayKey) => boolean
 }
 
-const TeamRows = ({ date, rows, showClass, warnNumberPending }: TeamRowsProps) =>
+const TeamRows = ({ date, rows, prefix, warnNumberPending }: TeamRowsProps) =>
   rows.map((reg, index) => (
     <RegistrationDetails
       key={`reg-${reg.dog.regNo}-${reg.group.number}`}
       index={index}
       registration={reg}
-      teamPrefix={teamRowPrefix(reg, showClass)}
+      teamPrefix={prefix(reg)}
       warnNumberPending={warnNumberPending(reg, date)}
     />
   ))
@@ -93,6 +94,7 @@ export const TeamStartList = ({ days, event, warnNumberPending }: TeamStartListP
       t,
       warnNumberPending,
       (seriesId) => teamSeriesName(event, seriesId, language),
+      (registration) => teamRowPrefix(registration, day.showClass, event, language),
       teamCountedDays(event)
     ),
   ])
@@ -100,10 +102,11 @@ export const TeamStartList = ({ days, event, warnNumberPending }: TeamStartListP
 
 /** A day's teams and its dogs in no team, each under its heading, and a series' heading above its first team. */
 const teamDayRows = (
-  { date, noTeam, showClass, teams }: StartListTeamDay,
+  { date, noTeam, teams }: StartListTeamDay,
   t: TFunction,
   warnNumberPending: TeamStartListProps['warnNumberPending'],
   seriesName: (seriesId: string) => string,
+  prefix: TeamRowsProps['prefix'],
   countedDays: readonly DayKey[]
 ) => [
   ...teams.flatMap((team, index) => [
@@ -120,7 +123,7 @@ const teamDayRows = (
       key={`team-rows-${date}-${team.number}`}
       date={date}
       rows={team.rows}
-      showClass={showClass}
+      prefix={prefix}
       warnNumberPending={warnNumberPending}
     />,
   ]),
@@ -131,7 +134,7 @@ const teamDayRows = (
           key={`no-team-rows-${date}`}
           date={date}
           rows={noTeam}
-          showClass={showClass}
+          prefix={prefix}
           warnNumberPending={warnNumberPending}
         />,
       ]

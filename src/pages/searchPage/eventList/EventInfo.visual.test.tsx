@@ -6,6 +6,7 @@ import theme from '@/assets/Theme'
 import { sanitizeDogEvent } from '@/lib/event'
 import { TestProvider } from '@/test-utils/AtomProvider'
 import { freezeClockAt } from '@/test-utils/freezeClock'
+import { describeInLanguage } from '@/test-utils/language'
 import { languageAtom } from '../../state'
 import { EventInfo } from './EventInfo'
 
@@ -109,4 +110,45 @@ it('lists the classes as ALO, AVO, VOI whatever order they were picked in (KOE-1
 
   await expect.element(screen.getByText('Tuomari Toinen (ALO, VOI)')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-info-class-order')
+})
+
+// KOE-674: the calendar names an unofficial trial's own classes by their names, beside the judges too.
+const ownClassEvent: PublicDogEvent = {
+  ...event,
+  classes: [
+    { class: 'VET10', date: '2026-06-06', judge: { id: 1, name: 'Tuomari Yksi' }, places: 12 },
+    { class: 'DERBY', date: '2026-06-06', judge: { id: 1, name: 'Tuomari Yksi' }, places: 12 },
+  ],
+  eventType: 'WT-harjoitus',
+  judges: [{ id: 1, name: 'Tuomari Yksi' }],
+  ownClasses: [
+    { code: 'VET10', name: { en: 'Veterans', fi: 'Veteraanit' } },
+    { code: 'DERBY', name: { en: 'Derby class', fi: 'Derby-luokka' } },
+  ],
+  retrieveType: undefined,
+}
+
+const renderOwnClasses = (language: 'fi' | 'en') =>
+  render(
+    <TestProvider initializeState={({ set }) => set(languageAtom, language)}>
+      <Frame>
+        <EventInfo event={ownClassEvent} />
+      </Frame>
+    </TestProvider>
+  )
+
+it('names the own classes by their names', async () => {
+  const screen = await renderOwnClasses('fi')
+
+  await expect.element(screen.getByText('Veteraanit', { exact: true })).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-info-own-classes')
+})
+
+describeInLanguage('en', () => {
+  it('names the own classes by their names', async () => {
+    const screen = await renderOwnClasses('en')
+
+    await expect.element(screen.getByText('Veterans', { exact: true })).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-info-own-classes-en')
+  })
 })

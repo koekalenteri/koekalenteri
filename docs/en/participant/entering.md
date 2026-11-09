@@ -9,7 +9,7 @@ covers:
   - src/pages/RegistrationCreatePage.tsx
   - src/pages/components/RegistrationForm.tsx
   - src/pages/components/registrationForm/**
-sourceHash: e6aa70
+sourceHash: 6ed661
 ---
 
 Entering a trial needs no account and no sign-in. All you need is access to the email address you
@@ -57,6 +57,8 @@ section which one is not.
 
 **Class and days.** Choose the class, and in a multi-day trial the days that suit you. If you enter
 for a reserve place, say how short a notice you can still make it to the trial on.
+In an unofficial trial the organizer can give the classes names of their own, and the classes then
+show by their names.
 
 !shot[EntryInfo/entry-info-with-classes] Class, days and the notice you can accept a reserve place on
 

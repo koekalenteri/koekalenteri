@@ -608,19 +608,35 @@ describe('rotationStartLines', () => {
   ]
 
   it('tells the running order as posts', () => {
-    expect(rotationStartLines(event, 'ALO', DAY, false, t)).toEqual(['ALO: suorituspaikat 1, 2, 3, 3'])
+    expect(rotationStartLines(event, 'ALO', DAY, false, t, 'fi')).toEqual(['ALO: suorituspaikat 1, 2, 3, 3'])
   })
 
   it('names the groups of a range in start number order, once the numbers are out', () => {
-    expect(rotationStartLines({ rotations: ranged, stations }, 'AVO', DAY, true, t)).toEqual([
+    expect(rotationStartLines({ rotations: ranged, stations }, 'AVO', DAY, true, t, 'fi')).toEqual([
       'AVO 1–8: suorituspaikat 1, 2',
       'AVO 9–16: suorituspaikat 2, 1',
     ])
-    expect(rotationStartLines({ rotations: ranged, stations }, 'AVO', DAY, false, t)).toEqual([])
+    expect(rotationStartLines({ rotations: ranged, stations }, 'AVO', DAY, false, t, 'fi')).toEqual([])
   })
 
   it('has nothing to say of a day that runs in number order', () => {
-    expect(rotationStartLines({ stations }, 'ALO', DAY, true, t)).toEqual([])
+    expect(rotationStartLines({ stations }, 'ALO', DAY, true, t, 'fi')).toEqual([])
+  })
+
+  // KOE-674: the public list names an own class by its name; the posts' and the admin's sheets keep
+  // the code (formatStationArrivals).
+  it('names an own class by its name on the public list, and leaves the posts the code', () => {
+    const own = {
+      ownClasses: [{ code: 'DERBY', name: { fi: 'Derby-luokka' } }],
+      rotations: ranged.map((group) => ({ ...group, class: 'DERBY' })),
+      stations,
+    }
+
+    expect(rotationStartLines(own, 'DERBY', DAY, true, t, 'fi')).toEqual([
+      'Derby-luokka 1–8: suorituspaikat 1, 2',
+      'Derby-luokka 9–16: suorituspaikat 2, 1',
+    ])
+    expect(formatStationArrivals(own, stations[0], t)).toContain('DERBY 1–8')
   })
 })
 

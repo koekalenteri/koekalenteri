@@ -25,6 +25,7 @@ import {
   awardsCertificates,
   canPublishResults,
   canPublishStartList,
+  classLabel,
   compareRegistrationClasses,
   copyDogEvent,
   defaultEntryEndDate,
@@ -3239,5 +3240,22 @@ describe('moveClasslessKey (KOE-1718)', () => {
     expect(moveClasslessKey(classful, 'NOU-harjoitus', 'NOU')).toBe(classful)
     expect(moveClasslessKey(event, 'NOU', 'NOU')).toBe(event)
     expect(moveClasslessKey({ classes: [] }, 'NOU-harjoitus', 'NOU')).toEqual({ classes: [] })
+  })
+})
+
+// KOE-674: a participant reads an own class by its name; an official class is its code.
+describe('classLabel', () => {
+  const ownClasses = [
+    { code: 'DERBY', name: { en: 'Derby', fi: 'Derby' } },
+    { code: 'VET10', name: { fi: 'Veteraanit' } },
+  ]
+
+  it("names an own class in the reader's language, in Finnish without one, and an official class by its code", () => {
+    expect(classLabel({ ownClasses }, 'DERBY', 'en')).toBe('Derby')
+    expect(classLabel({ ownClasses }, 'VET10', 'en')).toBe('Veteraanit')
+    expect(classLabel({ ownClasses }, 'ALO', 'fi')).toBe('ALO')
+    expect(classLabel({}, 'AVO', 'en')).toBe('AVO')
+    expect(classLabel(undefined, 'AVO', 'en')).toBe('AVO')
+    expect(classLabel({ ownClasses: [{ code: 'YKS', name: { en: ' ' } }] }, 'YKS', 'en')).toBe('YKS')
   })
 })

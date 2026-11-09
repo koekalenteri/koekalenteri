@@ -8,7 +8,8 @@ import type { Language } from '../types'
 import type { DayKey } from '../types/Day'
 import type { PublicConfirmedEvent, TeamCompetition } from '../types/Event'
 import type { PublicRegistration, PublicTeamPlace } from '../types/Registration'
-import { isStartListAvailableForRegistration, isStartNumbersAvailableForRegistration } from './event'
+import type { ClassLabelOwner } from './event'
+import { classLabel, isStartListAvailableForRegistration, isStartNumbersAvailableForRegistration } from './event'
 
 /** What a class's heading, or a classless day's, says about its publication: a translation key. */
 export type PublicationNote = 'startListNotPublished' | 'startNumbersNotPublished'
@@ -134,10 +135,21 @@ export const formatTeamStanding = (
 
 /**
  * What a row of the team view names in front of its number: its class where the day shows more than
- * one, then its team code, as in "AVO 1A". Empty for a dog in no team on a day of one class.
+ * one, an own class by its name (KOE-674), then its team code, as in "AVO 1A". Empty for a dog in no
+ * team on a day of one class.
  */
-export const teamRowPrefix = (registration: PublicRegistration, showClass: boolean): string =>
-  [showClass ? registration.class : undefined, registration.team?.code].filter(Boolean).join(' ')
+export const teamRowPrefix = (
+  registration: PublicRegistration,
+  showClass: boolean,
+  event: ClassLabelOwner,
+  language: Language
+): string =>
+  [
+    showClass && registration.class ? classLabel(event, registration.class, language) : undefined,
+    registration.team?.code,
+  ]
+    .filter(Boolean)
+    .join(' ')
 
 /**
  * The start list by team, from the rows in the running order the list already has: day by day, so a

@@ -11,6 +11,7 @@ import {
   teamCountedDays,
   teamErrors,
   teamMembers,
+  teamNameKey,
   teamsDiffer,
 } from './team'
 
@@ -358,5 +359,13 @@ describe('the counted days (KOE-1726)', () => {
       expect(pruneTeamDays({ ...trial, teamCompetition })).toBe(teamCompetition)
       expect(pruneTeamDays({ ...trial, teamCompetition: undefined })).toBeUndefined()
     })
+  })
+})
+
+// KOE-1721: names that differ only in case and spacing are one team.
+describe('teamNameKey', () => {
+  it('takes names that differ in case and spacing as one', () => {
+    expect(teamNameKey(' Golden  RING')).toBe(teamNameKey('golden ring'))
+    expect(teamNameKey('Golden Ring')).not.toBe(teamNameKey('Golden Ring 2'))
   })
 })

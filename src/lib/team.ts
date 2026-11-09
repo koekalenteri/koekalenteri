@@ -40,7 +40,7 @@ type TeamCompetitionError = { kind: 'seriesTwice'; seriesId: string } | { kind: 
 type TeamOwner = Pick<JsonDogEvent | DogEvent, 'teamCompetition' | 'teams'> & CandidateEvent
 
 /** What the candidate rule reads of an event: each class's state, and the event's for a classless trial. */
-interface CandidateEvent {
+export interface CandidateEvent {
   classes?: readonly Pick<EventClass, 'class' | 'state'>[]
   state?: EventState
 }
@@ -208,6 +208,12 @@ export const teamCompetitionDiffers = (
 
 /** A team's name as it is stored: trimmed, with one space between its words (KOE-1721). */
 export const normalizeTeamName = (name: string): string => name.replaceAll(/\s+/gu, ' ').trim()
+
+/**
+ * What tells two team names apart (KOE-1721): the tidied name in lower case, so names that differ only
+ * in case and spacing are one team. A key to compare by, never stored.
+ */
+export const teamNameKey = (name: string): string => normalizeTeamName(name).toLocaleLowerCase('fi')
 
 /** The longest name a team named at entry may have, once tidied (KOE-1721). */
 const MAX_TEAM_NAME_LENGTH = 60

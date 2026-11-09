@@ -41,6 +41,29 @@ describe('EventInfo', () => {
   afterEach(() => vi.runOnlyPendingTimers())
   afterAll(() => vi.useRealTimers())
 
+  // KOE-674: the calendar names an own class by its name, under the places and beside its judge.
+  it("names an event's own classes, not their codes", async () => {
+    const event: DogEvent = {
+      ...testEvent,
+      classes: [{ ...testEvent.classes[0], class: 'DERBY' }],
+      eventType: 'WT-harjoitus',
+      judges: [{ id: 1, name: 'Test Judge' }],
+      ownClasses: [{ code: 'DERBY', name: { fi: 'Derby-luokka' } }],
+    }
+    render(
+      <Provider>
+        <Suspense fallback={<div>loading...</div>}>
+          <EventInfo event={event} />
+        </Suspense>
+      </Provider>
+    )
+    await flushPromises()
+
+    expect(screen.getByText('Derby-luokka')).toBeInTheDocument()
+    expect(screen.getByText(/Test Judge.*Derby-luokka/)).toBeInTheDocument()
+    expect(screen.queryByText(/DERBY/)).not.toBeInTheDocument()
+  })
+
   it('should render event information', async () => {
     const event: DogEvent = { ...testEvent }
     render(

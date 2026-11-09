@@ -9,15 +9,17 @@ import type {
   ReserveChoise,
 } from '@/types'
 import Grid from '@mui/material/Grid'
+import { useAtomValue } from 'jotai'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAdminEventRegistrationDates } from '@/hooks/useAdminEventRegistrationDates'
 import { useLocalState } from '@/hooks/useLocalState'
 import { formatDate } from '@/i18n/dates'
-import { eventDates, registrationDates, uniqueClasses } from '@/lib/event'
+import { classLabel, eventDates, registrationDates, uniqueClasses } from '@/lib/event'
 import { isEventClass } from '@/lib/eventClass'
 import { getRegistrationClass } from '@/lib/registration'
 import { unique } from '@/lib/utils'
+import { languageAtom } from '@/pages/state/user/atoms'
 import AutocompleteMulti from '../AutocompleteMulti'
 import AutocompleteSingle from '../AutocompleteSingle'
 import CollapsibleSection from '../CollapsibleSection'
@@ -59,8 +61,11 @@ export function EntryInfo({
   reg,
 }: Props) {
   const { t } = useTranslation()
+  const language = useAtomValue(languageAtom)
 
   // Extract label formatters
+  // The registrant picks a class by its name (an own class's, KOE-674); the registration keeps the code.
+  const getClassLabel = useCallback((key: ClassKey) => classLabel(event, key, language), [event, language])
   const getRegDateLabel = useCallback((o: DayKey) => t('dateFormat.wdshort', { date: o }), [t])
   const getTimeSuffix = useCallback(
     (time?: RegistrationTime) => {
@@ -146,7 +151,7 @@ export function EntryInfo({
   const error = errorStates.class ?? errorStates.dates ?? errorStates.reserve
   const datesText = eventIsMultiDay ? reg.dates?.map(getRegDateSummaryLabel).join(' / ') : ''
   const reserveText = reg.reserve ? t(`registration.reserveChoises.${reg.reserve}`) : ''
-  const infoText = [getRegistrationClass(reg, event), datesText, reserveText].filter(Boolean).join(', ')
+  const infoText = [getClassLabel(getRegistrationClass(reg, event)), datesText, reserveText].filter(Boolean).join(', ')
   const helperText = error ? t('validation.registration.required', { field: 'classesDetails' }) : infoText
 
   // Update filter dates when dates change
@@ -293,6 +298,7 @@ export function EntryInfo({
             error={errorStates.class}
             helperText={helperTexts.class}
             label={t('registration.class')}
+            getOptionLabel={getClassLabel}
             onChange={handleClassChange}
             options={classes}
             value={selectedClass ?? undefined}

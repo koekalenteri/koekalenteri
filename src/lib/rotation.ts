@@ -5,11 +5,12 @@ import type {
   EventExercise,
   EventRotationGroup,
   EventStation,
+  Language,
   StationVisitLayout,
 } from '../types'
-import type { ClassOrderOwner } from './event'
+import type { ClassLabelOwner, ClassOrderOwner } from './event'
 import type { SortableRegistration } from './registration'
-import { classOrder } from './event'
+import { classLabel, classOrder } from './event'
 import { registrationOrder } from './eventClass'
 import { stationDogsAtOnce } from './liveFormat'
 import { getRegistrationGroupDay, getRegistrationPlacement } from './registration'
@@ -533,11 +534,19 @@ export const rotationCoverageErrors = (
     return covered ? [] : [{ class: eventClass ?? '', day, number, registrationId: registration.id }]
   })
 
-/** A group as the secretary and the handlers read it: its class, and its start numbers where it has a range. */
-export const formatRotationGroup = (group: RotationGroup, t: TFunction<'translation'>): string =>
+/**
+ * A group as the secretary and the handlers read it: its class, and its start numbers where it has a
+ * range. `label` names the class; the admin's and the posts' sheets keep the code, and the public start
+ * list passes an own class's name (KOE-674).
+ */
+export const formatRotationGroup = (
+  group: RotationGroup,
+  t: TFunction<'translation'>,
+  label: (eventClass: string) => string = (eventClass) => eventClass
+): string =>
   group.firstNumber === undefined || group.lastNumber === undefined
-    ? group.class
-    : t('event.rotation.group', { eventClass: group.class, first: group.firstNumber, last: group.lastNumber })
+    ? label(group.class)
+    : t('event.rotation.group', { eventClass: label(group.class), first: group.firstNumber, last: group.lastNumber })
 
 /** The exercises of a group's visits in a row as a post's sheet names them: "rasti 1", "rastit 3 ja 4". */
 const formatExercises = (numbers: readonly number[], split: boolean, t: TFunction<'translation'>) => {
@@ -579,9 +588,14 @@ export const formatStationArrivals = (
   })
 
 /** A group's running order as the start list reads it, as posts: "ALO: suorituspaikat 1, 2, 3, 3". */
-const formatRotationRound = (event: RotationEvent, group: RotationGroup, t: TFunction<'translation'>): string =>
+const formatRotationRound = (
+  event: RotationEvent,
+  group: RotationGroup,
+  t: TFunction<'translation'>,
+  label: (eventClass: string) => string
+): string =>
   t('event.rotation.startLine', {
-    group: formatRotationGroup(group, t),
+    group: formatRotationGroup(group, t, label),
     order: groupVisits(event, group)
       .map((visit) => visit.station.number)
       .join(', '),
@@ -590,15 +604,17 @@ const formatRotationRound = (event: RotationEvent, group: RotationGroup, t: TFun
 /**
  * The rotation lines a start list shows under a class on a day: one per group the secretary laid out,
  * none where the day runs in number order as it always has. A range names start numbers, so a group
- * of one is shown only once the class's numbers are out.
+ * of one is shown only once the class's numbers are out. The list is public, so an own class is named
+ * in the reader's language (KOE-674).
  */
 export const rotationStartLines = (
-  event: RotationEvent,
+  event: RotationEvent & ClassLabelOwner,
   eventClass: string,
   day: string,
   numbersPublished: boolean,
-  t: TFunction<'translation'>
+  t: TFunction<'translation'>,
+  language: Language
 ): string[] =>
   storedGroupsOf(event, eventClass, day)
     .filter((group) => numbersPublished || group.firstNumber === undefined)
-    .map((group) => formatRotationRound(event, group, t))
+    .map((group) => formatRotationRound(event, group, t, (key) => classLabel(event, key, language)))

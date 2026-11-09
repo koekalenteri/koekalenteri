@@ -1,4 +1,4 @@
-import type { ClassKey, JsonDogEvent, Language } from '../types'
+import type { ClassKey, JsonDogEvent } from '../types'
 import type { SortableRegistration } from './registration'
 import { classOrder, isOfficialEventType, OFFICIAL_EVENT_TYPES, ownClassCodes } from './event'
 import { isRegistrationClass, registrationSort } from './registration'
@@ -82,18 +82,6 @@ export const ownClassErrors = (
  */
 export const isEventClass = (event: Partial<ClassOwner>, key: string | null | undefined): key is ClassKey =>
   !!key && (event.ownClasses?.length ? ownClassCodes(event).includes(key) : isRegistrationClass(key))
-
-/**
- * A class as a participant reads it (KOE-674): an own class by its name in the reader's language, in
- * Finnish when it has none there, and by its code without either. An official class is its code.
- */
-export const classLabel = (event: Partial<ClassOwner>, key: ClassKey, language: Language): string => {
-  const ownClass = event.ownClasses?.find(({ code }) => code === key)
-  return written(ownClass?.name[language]) ?? written(ownClass?.name.fi) ?? key
-}
-
-/** A name that says something: not missing, and not blank. */
-const written = (name: string | undefined) => (name?.trim() ? name : undefined)
 
 /**
  * Whether a key is a class the event runs (KOE-674): a key of its kind (`isEventClass`) that is among
