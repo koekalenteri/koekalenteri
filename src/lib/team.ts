@@ -1,4 +1,14 @@
-import type { DogEvent, EventTeam, JsonDogEvent, TeamCompetition } from '../types'
+import type {
+  DogEvent,
+  EventClass,
+  EventState,
+  EventTeam,
+  JsonDogEvent,
+  JsonRegistration,
+  TeamCompetition,
+} from '../types'
+import { getEventStateForClass } from './event'
+import { isStarter } from './registration'
 
 /** The letters a team's dogs are told apart by: so many dogs a team can hold (KOE-1714). */
 const MEMBER_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -7,10 +17,11 @@ export const MAX_TEAM_MEMBERS = MEMBER_LETTERS.length
 
 /**
  * Why a set of teams cannot be stored: a dog in two teams or twice in one, a team with more dogs than
- * there are letters, or a team in a series the competition does not have (KOE-1720). `team` is the
- * team's place in the list, from 0.
+ * there are letters, a team in a series the competition does not have (KOE-1720), or a dog joining a
+ * team that may not (KOE-1725). `team` is the team's place in the list, from 0.
  */
 type TeamError =
+  | { kind: 'notCandidate'; registrationId: string }
   | { kind: 'twice'; registrationId: string }
   | { kind: 'tooMany'; team: number }
   | { kind: 'unknownSeries'; seriesId: string; team: number }
@@ -21,8 +32,40 @@ type TeamError =
  */
 type TeamCompetitionError = { kind: 'seriesTwice'; seriesId: string } | { kind: 'seriesUnnamed'; seriesId: string }
 
-/** What the team rules read of an event, stored or in the browser. */
-type TeamOwner = Pick<JsonDogEvent | DogEvent, 'teamCompetition' | 'teams'>
+/** What the team rules read of an event, stored or in the browser: its classes' states for the candidates. */
+type TeamOwner = Pick<JsonDogEvent | DogEvent, 'teamCompetition' | 'teams'> & CandidateEvent
+
+/** What the candidate rule reads of an event: each class's state, and the event's for a classless trial. */
+interface CandidateEvent {
+  classes?: readonly Pick<EventClass, 'class' | 'state'>[]
+  state?: EventState
+}
+
+/** What the candidate rule reads of an entry: its class, where it is, and whether it was cancelled. */
+type CandidateEntry = Pick<JsonRegistration, 'id' | 'cancelled' | 'group'> & { class?: string | null }
+
+/** The states of a class whose dogs are picked: from then on its reserve list is the reserve list. */
+const PICKED_STATES: ReadonlySet<EventState> = new Set<EventState>([
+  'picked',
+  'invited',
+  'started',
+  'ended',
+  'completed',
+])
+
+/**
+ * Whether a dog may join a team (KOE-1725): it has not cancelled, and once its class is picked it is one
+ * of the dogs picked into it, not a reserve. Before the picking every entry may, as the secretary may
+ * assemble the teams early. A classless trial is read by its own state.
+ */
+export const isTeamCandidate = (event: CandidateEvent, entry: CandidateEntry): boolean => {
+  if (entry.cancelled) return false
+  const state = getEventStateForClass(
+    { classes: [...(event.classes ?? [])], state: event.state ?? 'draft' },
+    entry.class ?? undefined
+  )
+  return !PICKED_STATES.has(state) || isStarter(entry)
+}
 
 /** A dog's identifier within its team (KOE-1714): the team's number and the dog's letter, "1B". */
 const teamMemberCode = (teamNumber: number, place: number): string => `${teamNumber}${MEMBER_LETTERS.charAt(place)}`
@@ -75,7 +118,12 @@ export const teamsDiffer = (
  * of the series is checked against the teams in them. Only the shape is checked: which dogs can be
  * picked is the teams page's business, and the readers skip an id the event's registrations do not hold.
  */
-export const teamErrors = ({ teamCompetition, teams }: TeamOwner): TeamError[] => {
+export const teamErrors = (
+  event: TeamOwner,
+  entries?: readonly CandidateEntry[],
+  before?: readonly EventTeam[] | null
+): TeamError[] => {
+  const { teamCompetition, teams } = event
   const tooMany: TeamError[] = []
   const unknownSeries: TeamError[] = []
   const series = new Set(teamCompetition?.series?.map(({ id }) => id))
@@ -94,7 +142,29 @@ export const teamErrors = ({ teamCompetition, teams }: TeamOwner): TeamError[] =
     ...tooMany,
     ...[...twice].map((registrationId): TeamError => ({ kind: 'twice', registrationId })),
     ...unknownSeries,
+    ...(entries ? notCandidates(event, teams ?? [], entries, before ?? []) : []),
   ]
+}
+
+/**
+ * The dogs joining a team that may not (`isTeamCandidate`, KOE-1725), and those the entries do not hold.
+ * A dog in a team before stays where the secretary put it, whatever became of its entry since.
+ */
+const notCandidates = (
+  event: TeamOwner,
+  teams: readonly EventTeam[],
+  entries: readonly CandidateEntry[],
+  before: readonly EventTeam[]
+): TeamError[] => {
+  const kept = new Set(before.flatMap((team) => team.registrationIds))
+  const byId = new Map(entries.map((entry) => [entry.id, entry]))
+  return teams
+    .flatMap((team) => team.registrationIds)
+    .filter((id) => {
+      const entry = byId.get(id)
+      return !kept.has(id) && (!entry || !isTeamCandidate(event, entry))
+    })
+    .map((registrationId) => ({ kind: 'notCandidate', registrationId }))
 }
 
 /**

@@ -20,7 +20,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 08b4e9
+sourceHash: 5c3e00
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -191,8 +191,12 @@ for the other teams. A number of zero means the trial has no team competition.
 
 A team can have a name besides its number, such as Team Finland 1, in **{t:teams.name}**. Dogs are
 added to a team from **{t:teams.addDog}**, which offers the trial's entries that have not cancelled
-and are not in a team already. A dog can therefore be in one team only, and a dog on the reserve
-list can be picked too. A team can hold at most 26 dogs.
+and are not in a team already. A dog can therefore be in one team only. Until the participants of a
+dog's class have been picked, a dog on the reserve list can be added too; once the class is picked,
+the list offers only its dogs picked as participants. A dog already in a team is not affected. A team
+can hold at most 26 dogs.
+
+!shot[EventTeamsPage/teams-candidates] In a picked class the list offers only the participants: the reserve dog and the cancelled one are missing
 
 A dog's identifier in its team follows the order the dogs were added: the dogs of team 1 are 1A, 1B,
 1C and so on. To change an identifier, move the dog up or down with the arrows on its row; the bin

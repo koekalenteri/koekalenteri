@@ -1839,7 +1839,7 @@ describe('putEventLambda', () => {
 
     // KOE-1725: once a dog's class is picked, only the dogs picked into it join a team.
     describe('the candidates (KOE-1725)', () => {
-      const picked = { ...mockEvent, classes: [{ class: 'ALO', date: '2025-06-01', state: 'picked' as const }] }
+      const picked: JsonDogEvent = { ...mockEvent, classes: [{ class: 'ALO', date: '2025-06-01', state: 'picked' }] }
       const putOver = async (stored: JsonDogEvent, teams: unknown) => {
         signIn(mockSecretary)
         getEventMock.mockResolvedValueOnce(stored)
@@ -1872,7 +1872,7 @@ describe('putEventLambda', () => {
       })
 
       it('keeps a dog that was in a team before, and reads no entries when no dog joins', async () => {
-        const stored = { ...picked, teams: [{ registrationIds: ['wait', 'a'] }] }
+        const stored: JsonDogEvent = { ...picked, teams: [{ registrationIds: ['wait', 'a'] }] }
 
         const res = await putOver(stored, [{ registrationIds: ['a'] }, { name: 'Varalla', registrationIds: ['wait'] }])
 

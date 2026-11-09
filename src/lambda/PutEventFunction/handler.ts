@@ -231,6 +231,26 @@ const checkTeams = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>) =
 }
 
 /**
+ * A dog joining a team is one that may (KOE-1725): once its class is picked, one of the dogs picked into
+ * it (`isTeamCandidate`, the rule the teams page offers its dogs by). A dog in a team before stays. The
+ * registrations are read only when a save brings a dog into a team.
+ */
+const checkTeamCandidates = async (
+  existing: JsonConfirmedEvent | undefined,
+  data: JsonConfirmedEvent,
+  item: Patch<JsonConfirmedEvent>
+) => {
+  if (!item.teams) return
+  const before = new Set(existing?.teams?.flatMap((team) => team.registrationIds))
+  if (data.teams?.every((team) => team.registrationIds.every((id) => before.has(id)))) return
+
+  const errors = teamErrors(data, await readEventRegistrations(data.id), existing?.teams)
+  if (errors.length) {
+    throw httpError(400, { error: 'invalidTeams', errors, message: 'Bad request: the teams do not fit together' })
+  }
+}
+
+/**
  * Checks on the event as it would be saved; a failed one is thrown before anything is written. Every
  * saved event names its organizer: the club whose members may change it, and the key of its stats and
  * its change messages (KOE-1607).
@@ -530,6 +550,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   // admin payload, including when the stored event currently has no lock.
   restoreServerOwnedLocks(data, existing)
   await checkOrganizerExists(existing, data)
+  await checkTeamCandidates(existing, data, item)
   await checkPaymentLock(existing, data)
   const { renumber } = await checkOfficialFormatChange(existing, data)
   freezeAbsentStartNumbersState(data, existing, item)
