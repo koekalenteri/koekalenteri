@@ -33,6 +33,47 @@ kun luokan starttinumerot on julkaistu.
 Sivu päivittyy itsestään, kun järjestäjä julkaisee lisää tai kirjaa peruutuksen; sitä ei tarvitse
 ladata uudelleen.
 
+## Joukkuekilpailu
+
+Jos kokeessa on joukkuekilpailu, lista avautuu joukkueittain, ja listan yläpuolella voi valita
+**{t:startList.byTeam}** tai **{t:startList.byOrder}**. Suoritusjärjestys on sama lista päivä ja
+luokka kerrallaan kuin ilman joukkueita.
+
+Joukkueittain jokaisen päivän alla ovat ne joukkueet, joiden koiria on sen päivän listalla,
+numerojärjestyksessä: ensin *Joukkue 1* ja joukkueen nimi, sitten sen koirat. Koiran rivi on sama
+kuin muuten, ja sen alussa on koiran tunnus joukkueessa, esimerkiksi *1A*. Jos päivän listalla
+on koiria useasta luokasta, luokka on tunnuksen edessä, esimerkiksi *AVO 1A*. Monipäiväisessä
+kokeessa joukkue näkyy jokaisen päivän alla niillä koirillaan, jotka ovat sinä päivänä listalla.
+Joukkueisiin kuulumattomat koirat ovat joukkueiden jälkeen otsikon *{t:startList.noTeam}* alla.
+Luokkaotsikoita joukkueittain ei ole, joten jos luokan järjestys ei ole vielä lopullinen, päivän
+alla lukee luokan kohdalla sama huomautus kuin suoritusjärjestyksessä luokan otsikossa, esimerkiksi
+*AVO ({t:startNumbersNotPublished})*.
+
+Kirjain kertoo koiran paikan joukkueessa. Jos joukkueen koira on varalla, sitä ei vielä näytetä
+tai se on perunut, sen kirjain jää käyttämättä, joten joukkueessa voi olla esimerkiksi 1A ja 1C
+ilman 1B:tä. Perunut koira ei näy joukkueittain lainkaan; suoritusjärjestyksessä se on
+paikallaan merkinnällä *{t:startList.absent}*.
+
+!shot[ParticipantList/start-list-teams] Kaksipäiväinen joukkuekilpailu joukkueittain: ensimmäisen päivän joukkueissa on koiria kahdesta luokasta
+
+### Joukkueiden tulokset
+
+Kokeessa, jossa koirat saavat pisteitä (NOWT), joukkueen pisteet ovat sen koirien pisteet yhteensä
+koko kokeesta, mistä luokasta ja miltä päivältä tahansa. Koira, jolla ei ole tulosta, tuo joukkueelle
+nolla pistettä. Joukkueet sijoitetaan yhteispisteiden mukaan, ja tasapisteissä olevat joukkueet jakavat
+sijan, esimerkiksi 1., 2., 2., 4. Ensimmäisestä sijasta tasapisteissä olevien joukkueiden järjestys
+ratkaistaan uusintatehtävällä: sen voittaja on ensimmäinen ja muut jakavat seuraavan sijan. Siihen
+asti ne jakavat ensimmäisen sijan.
+
+Joukkueen sijoitus ja pisteet näkyvät joukkueen otsikossa, kun koesihteeri on julkaissut kaikkien
+joukkueiden koirien tulokset, esimerkiksi *2. sija, 170 pistettä*. Ennen sitä tulosta ei näytetä
+yhdellekään joukkueelle. Tulosta ei näytetä myöskään silloin, kun joku joukkueiden koirista ei vielä
+ole listalla, esimerkiksi koska sen starttinumeroa ei ole syötetty. Monipäiväisessä kokeessa sama rivi on joukkueen otsikossa jokaisen päivän
+alla. Ensimmäisestä sijasta tasapisteissä olleiden joukkueiden rivillä lukee lisäksi
+*({t:startList.teamRunOff})*. Kokeessa, jossa ei jaeta pisteitä, joukkueilla ei ole tulosta.
+
+!shot[ParticipantList/start-list-team-standings] Joukkueiden tulokset: joukkueet 1 ja 2 olivat tasapisteissä, ja joukkue 2 voitti uusintatehtävän
+
 ## Milloin järjestys on lopullinen
 
 Järjestäjä julkaisee listan ja starttinumerot erikseen, ja luokan otsikko kertoo, missä vaiheessa

@@ -96,6 +96,31 @@ describe('stationEntry', () => {
         ...overrides,
       })
 
+    // KOE-1718: the link's screens run by the trial's format, so they are told the type it follows, and
+    // the dogs' results come with them as that format's post would see them.
+    it('tells the post the official type an unofficial trial follows, and scopes the results by it', () => {
+      const result: JsonEventResult = {
+        judge: { id: 1, name: 'Tuomari' },
+        result: 'NOU1',
+        updatedAt: 'x',
+        updatedBy: 'y',
+      }
+      const followed = asJsonConfirmedEvent({
+        ...confirmedEvent,
+        classes: [],
+        eventType: 'NOU-harjoitus',
+        officialFormat: 'NOU',
+        stations: undefined,
+      })
+      const dog = { ...registration('run-1'), class: undefined, eventResult: result, eventType: 'NOU-harjoitus' }
+
+      const response = stationEntryResponse(followed, { date: '2026-09-12', id: '1', number: 1 }, [dog])
+
+      expect(response.event.officialFormat).toEqual('NOU')
+      expect(response.registrations[0].eventResult).toMatchObject({ judge: { id: 1 }, result: 'NOU1' })
+      expect(linkedEventProjection(confirmedEvent)).not.toHaveProperty('officialFormat')
+    })
+
     it('tells the post when the trial is out of its hands, and says nothing of the state itself', () => {
       const locked = { ...confirmedEvent, kcState: { code: 1253, name: 'Ylituomarin hyväksyttäväksi', readAt: 'x' } }
 

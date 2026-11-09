@@ -364,4 +364,279 @@ describe('readPublishedStartList (KOE-1516)', () => {
       for (const key of ['points', 'maxPoints', 'percentage']) expect(participants[0]).not.toHaveProperty(key)
     })
   })
+
+  // KOE-1715: the public sees the dogs by team. The teams name their dogs by registration id, so the
+  // event's teams never leave the server; each published row carries its own team instead.
+  describe('teams', () => {
+    const member = (id: string, name: string, number: number) =>
+      asJsonRegistration({
+        ...registration,
+        dog: { name, regNo: `REG-${id}` },
+        group: { date: '2025-01-01', key: 'ALO', number },
+        id,
+        startGroup: { date: '2025-01-01', key: 'ALO', number },
+      })
+    // A reserve: entered, but on no list.
+    const reserve = asJsonRegistration({ ...registration, group: undefined, id: 'reserve', startGroup: undefined })
+    const cancelled = asJsonRegistration({ ...member('gone', 'Poissa', 3), cancelled: true })
+
+    const teamEvent = {
+      ...publishedEvent,
+      teams: [{ name: 'Team Finland 1', registrationIds: ['a', 'reserve', 'b'] }, { registrationIds: ['gone', 'c'] }],
+    }
+
+    const sent = async () => {
+      const { participants } = await readPublishedStartList('event-1')
+      return JSON.parse(JSON.stringify(participants))
+    }
+
+    beforeEach(() => {
+      mockGetLiveEvent.mockResolvedValue(teamEvent)
+      mockReadEventRegistrations.mockResolvedValue([
+        member('a', 'Aapo', 1),
+        member('b', 'Bella', 2),
+        cancelled,
+        member('c', 'Cesar', 4),
+        member('d', 'Dora', 5),
+        reserve,
+      ])
+    })
+
+    it('gives each published member its team number, name and code', async () => {
+      const rows = await sent()
+
+      expect(rows.map((row: { dog: { name: string }; team?: unknown }) => [row.dog.name, row.team])).toEqual([
+        ['Aapo', { code: '1A', name: 'Team Finland 1', number: 1 }],
+        // The reserve keeps its letter, as on the teams page: Bella is 1C, not 1B.
+        ['Bella', { code: '1C', name: 'Team Finland 1', number: 1 }],
+        ['', undefined],
+        ['Cesar', { code: '2B', number: 2 }],
+        ['Dora', undefined],
+      ])
+    })
+
+    it("carries the teams in the organizer's preview of a list not yet published", async () => {
+      mockGetLiveEvent.mockResolvedValue({ ...teamEvent, startListPublished: { ALO: false } })
+
+      const { participants } = await readPublishedStartList('event-1', { preview: true })
+
+      expect(participants).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            dog: { name: 'Aapo', regNo: 'REG-a' },
+            team: expect.objectContaining({ code: '1A' }),
+          }),
+          expect.objectContaining({
+            dog: { name: 'Cesar', regNo: 'REG-c' },
+            team: expect.objectContaining({ code: '2B' }),
+          }),
+        ])
+      )
+    })
+
+    it('gives a cancelled dog no team, so its narrow row says no more than its number', async () => {
+      const rows = await sent()
+
+      expect(rows.find((row: { cancelled?: boolean }) => row.cancelled)).not.toHaveProperty('team')
+    })
+
+    it('sends neither the teams nor a registration id', async () => {
+      const text = JSON.stringify(await sent())
+
+      for (const id of ['"a"', 'reserve', 'gone', 'registrationIds']) expect(text).not.toContain(id)
+    })
+
+    it('gives the rows of an event without teams none', async () => {
+      mockGetLiveEvent.mockResolvedValue(publishedEvent)
+
+      const rows = await sent()
+
+      for (const row of rows) expect(row).not.toHaveProperty('team')
+    })
+  })
+
+  // KOE-1717: each team's points and placing over the trial, once every result they are worked out from is out.
+  describe('team standings', () => {
+    const at = { updatedAt: '2025-01-01T09:00:00.000Z', updatedBy: 'Sihteeri' }
+    const standingsEvent = {
+      ...publishedEvent,
+      classes: [
+        { class: 'ALO', state: 'ended' as const },
+        { class: 'AVO', state: 'ended' as const },
+      ],
+      endDate: '2025-01-02',
+      eventType: 'NOWT',
+      resultsPublished: { ALO: true, AVO: true },
+      startListPublished: { ALO: true, AVO: true },
+      startNumbersPublished: { ALO: true, AVO: true },
+      state: 'ended' as const,
+      teams: [{ registrationIds: ['a', 'b'] }, { name: 'Team Finland 2', registrationIds: ['c', 'd'] }],
+    }
+    // The ALO dogs run on the first day and the AVO dogs on the second: a team is ranked over both.
+    const dog = (id: string, eventClass: 'ALO' | 'AVO', number: number, points: number) =>
+      asJsonRegistration({
+        ...registration,
+        class: eventClass,
+        dog: { name: `Dog ${id}`, regNo: `REG-${id}` },
+        eventResult: { ...at, maxPoints: 100, percentage: points, points, result: `${eventClass}1` },
+        eventType: 'NOWT',
+        group: { date: dayOf(eventClass), key: 'participants', number },
+        id,
+        startGroup: { date: dayOf(eventClass), key: 'participants', number },
+      })
+
+    const dayOf = (eventClass: string) => (eventClass === 'ALO' ? '2025-01-01' : '2025-01-02')
+
+    const teamsOf = async (options?: { preview: boolean }) => {
+      const { participants } = await readPublishedStartList('event-1', options)
+      return Object.fromEntries(participants.map((row) => [row.dog.name, row.team]))
+    }
+
+    beforeEach(() => {
+      mockGetLiveEvent.mockResolvedValue(standingsEvent)
+      mockReadEventRegistrations.mockResolvedValue([
+        dog('a', 'ALO', 1, 90),
+        dog('b', 'AVO', 2, 80),
+        dog('c', 'ALO', 3, 85),
+        dog('d', 'AVO', 4, 70),
+      ])
+    })
+
+    it("gives every member of a team, on every day, the team's points and placing over the trial", async () => {
+      const teams = await teamsOf()
+
+      expect(teams).toEqual({
+        'Dog a': { code: '1A', number: 1, placement: 1, points: 170 },
+        'Dog b': { code: '1B', number: 1, placement: 1, points: 170 },
+        'Dog c': { code: '2A', name: 'Team Finland 2', number: 2, placement: 2, points: 155 },
+        'Dog d': { code: '2B', name: 'Team Finland 2', number: 2, placement: 2, points: 155 },
+      })
+    })
+
+    it("withholds every team's standing while one class's results are not published", async () => {
+      mockGetLiveEvent.mockResolvedValue({ ...standingsEvent, resultsPublished: { ALO: true, AVO: false } })
+
+      const teams = await teamsOf()
+
+      for (const team of Object.values(teams)) {
+        for (const key of ['points', 'placement', 'runOff']) expect(team).not.toHaveProperty(key)
+      }
+    })
+
+    it("shows the standings in the organizer's preview before the results are out", async () => {
+      mockGetLiveEvent.mockResolvedValue({ ...standingsEvent, resultsPublished: { ALO: false, AVO: false } })
+
+      const teams = await teamsOf({ preview: true })
+
+      expect(teams['Dog a']).toEqual(expect.objectContaining({ placement: 1, points: 170 }))
+    })
+
+    it('marks the teams tied for first, and puts the winner of the run-off first', async () => {
+      mockReadEventRegistrations.mockResolvedValue([
+        dog('a', 'ALO', 1, 90),
+        dog('b', 'AVO', 2, 80),
+        dog('c', 'ALO', 3, 85),
+        dog('d', 'AVO', 4, 85),
+      ])
+
+      expect(await teamsOf()).toEqual(
+        expect.objectContaining({
+          'Dog a': expect.objectContaining({ placement: 1, points: 170, runOff: true }),
+          'Dog c': expect.objectContaining({ placement: 1, points: 170, runOff: true }),
+        })
+      )
+
+      const [first, second] = standingsEvent.teams
+      mockGetLiveEvent.mockResolvedValue({ ...standingsEvent, teams: [first, { ...second, runOffWon: true }] })
+
+      expect(await teamsOf()).toEqual(
+        expect.objectContaining({
+          'Dog a': expect.objectContaining({ placement: 2, runOff: true }),
+          'Dog c': expect.objectContaining({ placement: 1, runOff: true }),
+        })
+      )
+    })
+
+    it('gives no standing in a format without points', async () => {
+      mockGetLiveEvent.mockResolvedValue({ ...standingsEvent, eventType: 'NOME-B' })
+
+      const teams = await teamsOf()
+
+      expect(teams['Dog a']).toEqual({ code: '1A', number: 1 })
+    })
+
+    /** Whether any row carries a team's standing. */
+    const anyStanding = (teams: Record<string, unknown>) =>
+      Object.values(teams).some((team) => typeof team === 'object' && team !== null && 'points' in team)
+
+    // KOE-1272: a dog added after the numbers went out stays off the list until its number is entered.
+    // Its result is released with its class, but the team total would show what its hidden row withholds.
+    it('withholds every standing while a counted dog is off the list for a number not yet entered', async () => {
+      const late = { ...dog('e', 'AVO', 5, 60), startGroup: undefined }
+      mockGetLiveEvent.mockResolvedValue({
+        ...standingsEvent,
+        teams: [{ registrationIds: ['a', 'b', 'e'] }, standingsEvent.teams[1]],
+      })
+      mockReadEventRegistrations.mockResolvedValue([
+        dog('a', 'ALO', 1, 90),
+        dog('b', 'AVO', 2, 80),
+        dog('c', 'ALO', 3, 85),
+        dog('d', 'AVO', 4, 70),
+        late,
+      ])
+
+      const teams = await teamsOf()
+
+      expect(teams['Dog a']).toEqual({ code: '1A', number: 1 })
+      expect(anyStanding(teams)).toBe(false)
+    })
+
+    it('withholds every standing while a counted dog has no day to be listed on', async () => {
+      const undated = asJsonRegistration({
+        ...dog('e', 'AVO', 5, 60),
+        group: { key: 'participants', number: 5 },
+        startGroup: undefined,
+      })
+      mockGetLiveEvent.mockResolvedValue({
+        ...standingsEvent,
+        teams: [{ registrationIds: ['a', 'b', 'e'] }, standingsEvent.teams[1]],
+      })
+      mockReadEventRegistrations.mockResolvedValue([
+        dog('a', 'ALO', 1, 90),
+        dog('b', 'AVO', 2, 80),
+        dog('c', 'ALO', 3, 85),
+        dog('d', 'AVO', 4, 70),
+        undated,
+      ])
+
+      expect(anyStanding(await teamsOf())).toBe(false)
+    })
+
+    it('publishes the standings beside a cancelled and a reserve member of a class whose results are not out', async () => {
+      const voi = { class: 'VOI', state: 'ended' as const }
+      mockGetLiveEvent.mockResolvedValue({
+        ...standingsEvent,
+        classes: [...standingsEvent.classes, voi],
+        resultsPublished: { ...standingsEvent.resultsPublished, VOI: false },
+        teams: [{ registrationIds: ['a', 'b', 'x', 'r'] }, standingsEvent.teams[1]],
+      })
+      mockReadEventRegistrations.mockResolvedValue([
+        dog('a', 'ALO', 1, 90),
+        dog('b', 'AVO', 2, 80),
+        dog('c', 'ALO', 3, 85),
+        dog('d', 'AVO', 4, 70),
+        asJsonRegistration({ ...dog('x', 'AVO', 6, 99), cancelled: true, class: 'VOI' }),
+        asJsonRegistration({
+          ...dog('r', 'AVO', 7, 99),
+          class: 'VOI',
+          group: { key: 'reserve', number: 1 },
+          startGroup: undefined,
+        }),
+      ])
+
+      const teams = await teamsOf()
+
+      expect(teams['Dog a']).toEqual(expect.objectContaining({ placement: 1, points: 170 }))
+    })
+  })
 })

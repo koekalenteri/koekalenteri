@@ -364,7 +364,7 @@ export const placesForClass = (
 }
 
 export const uniqueClassDates = (event: PublicDogEvent, eventClass: string) => {
-  if (eventClass === event.eventType) return eventDates(event)
+  if (eventClass === formatTypeOf(event)) return eventDates(event)
   const classes = Array.isArray(event.classes) ? event.classes : []
   return unique(classes.filter((item) => item.class === eventClass).map((item) => item.date ?? event.startDate))
 }
@@ -449,6 +449,110 @@ export const awardsCertificates = (eventType?: string | null) => !!eventType && 
  */
 export const isOfficialEventType = (eventType?: string | null, official?: boolean) =>
   !!eventType && (official === true || OFFICIAL_EVENT_TYPES.includes(eventType))
+
+/** What `formatTypeOf` reads of an event: its own type and the official type it may follow. */
+export type FormatOwner = Pick<JsonDogEvent, 'eventType' | 'officialFormat'>
+
+/**
+ * The event type whose format the trial runs by (KOE-1718): the official type an unofficial trial
+ * follows, otherwise its own. An official type is always its own format, whatever a stored field says.
+ *
+ * Every reader of the format reads this: the classes and their judges, the entry times and places, the
+ * reserve list, the posts and the live view, the results and how they are spelled, and the classless
+ * trial's class key (`getRegistrationClass`). Eligibility, Kennelliitto and the statistics read the
+ * trial's own `eventType`.
+ */
+export function formatTypeOf(event: FormatOwner): string
+/** An event form still being filled in may have no type yet, and so no format. */
+export function formatTypeOf(event: Partial<FormatOwner>): string | undefined
+export function formatTypeOf({ eventType, officialFormat }: Partial<FormatOwner>): string | undefined {
+  if (!eventType || OFFICIAL_EVENT_TYPES.includes(eventType)) return eventType
+  return officialFormat ?? eventType
+}
+
+/** What a page reads before its event has loaded: no type, and so no format and no registrations to key. */
+export const UNLOADED_EVENT: FormatOwner = { eventType: '' }
+
+/** The classes each official type runs; an unofficial type is offered the `unofficialEvents` list. */
+export const EVENT_TYPE_CLASSES: Readonly<Record<string, readonly RegistrationClass[]>> = {
+  'NOME-A': [],
+  'NOME-A SM': [],
+  'NOME-B': ['ALO', 'AVO', 'VOI'],
+  'NOME-B SM': ['VOI'],
+  NOU: [],
+  NOWT: ['ALO', 'AVO', 'VOI'],
+  'NOWT SM': ['VOI'],
+  unofficialEvents: ['ALO', 'AVO', 'VOI'],
+}
+
+/** The classes the trial may run, by its format (`formatTypeOf`). */
+export const formatClasses = (event: Partial<FormatOwner>): readonly RegistrationClass[] => {
+  const formatType = formatTypeOf(event) ?? ''
+  return OFFICIAL_EVENT_TYPES.includes(formatType)
+    ? (EVENT_TYPE_CLASSES[formatType] ?? [])
+    : EVENT_TYPE_CLASSES.unofficialEvents
+}
+
+type ClassShapeEvent = Partial<FormatOwner> & { classes?: ReadonlyArray<unknown> | null }
+
+/**
+ * Whether the trial runs classes: by its official format where it follows one (NOME-B and NOWT do,
+ * NOU and NOME-A do not), and by the classes it has where its own type leaves that open.
+ */
+const runsClasses = (event: ClassShapeEvent): boolean =>
+  formatTypeOf(event) === event.eventType ? !!event.classes?.length : formatClasses(event).length > 0
+
+/**
+ * Whether a change of the followed type turns a trial with classes into one without, or the other way
+ * (KOE-1718). The entries keep the class they were made in, so such a change is refused once the
+ * event has entries, by the form and by PutEvent alike.
+ */
+export const isClassShapeChange = (before: ClassShapeEvent, after: ClassShapeEvent): boolean =>
+  runsClasses(before) !== runsClasses(after)
+
+/** Whether the event has entries, which keep the class shape it has (`isClassShapeChange`). */
+export const hasEntries = (event: Pick<JsonDogEvent, 'entries'>): boolean => (event.entries ?? 0) > 0
+
+type ClassKeyedFields = Pick<
+  JsonDogEvent,
+  'classes' | 'invitationAttachmentHistory' | 'invitationAttachments' | 'startNumberLinkVersions'
+>
+
+const withMovedKey = <V>(record: Record<string, V> | undefined, from: string, to: string) => {
+  if (!record || !(from in record)) return record
+  const { [from]: value, ...rest } = record
+  return { ...rest, [to]: value }
+}
+
+/**
+ * Moves what a classless trial keeps under its class key (`getRegistrationClass`) to the key a change
+ * of the followed type gives it (KOE-1718): the start number links' version, a class attachment and
+ * the attachment history's class. A trial with classes keys by its classes, which do not move. The
+ * links already sent carry the old key in their token and must be sent again.
+ */
+export const moveClasslessKey = <E extends ClassKeyedFields>(event: E, from: string, to: string): E => {
+  if (from === to || event.classes?.length) return event
+  const history = event.invitationAttachmentHistory
+  return {
+    ...event,
+    ...(event.invitationAttachments
+      ? { invitationAttachments: withMovedKey(event.invitationAttachments, from, to) }
+      : {}),
+    ...(event.startNumberLinkVersions
+      ? { startNumberLinkVersions: withMovedKey(event.startNumberLinkVersions, from, to) }
+      : {}),
+    ...(history
+      ? {
+          invitationAttachmentHistory: Object.fromEntries(
+            Object.entries(history).map(([key, version]) => [
+              key,
+              version.className === from ? { ...version, className: to } : version,
+            ])
+          ),
+        }
+      : {}),
+  }
+}
 
 const EntryStartWeeks = 6
 const EntryEndWeeks = 3
@@ -826,7 +930,7 @@ export const getEventProgress = (event: ConfirmedEvent, now = new Date(), kennel
   const statePhaseIndex = classPhases.length
     ? Math.min(...classPhases.map(({ phaseIndex }) => phaseIndex))
     : getStateProgressPhaseIndex(event.state, entryStarted)
-  const startListClasses = eventClasses.length ? eventClasses : [event.eventType]
+  const startListClasses = eventClasses.length ? eventClasses : [formatTypeOf(event)]
   const temporalPhaseIndex = getTemporalPhaseIndex(event, now)
   const publishableStartListClasses = startListClasses.filter((eventClass) => {
     const state = event.classes.find((item) => item.class === eventClass)?.state ?? event.state
@@ -1480,6 +1584,7 @@ export function sanitizeDogEvent(
     registrationPaymentsLock: _registrationPaymentsLock,
     secretary: _secretary,
     official: _official,
+    teams: _teams,
     turns,
     ...publicFields
   } = event
@@ -1645,6 +1750,8 @@ export const copyDogEvent = (event: DogEvent, now = new Date()): DogEvent => {
   delete copy.entryOrigEndDate
   // A copy made here is this environment's own event, not a copy from another one (KOE-1639)
   delete copy.copiedFrom
+  // The copy starts without entries, so the source's teams would name dogs it does not hold (KOE-1714).
+  delete copy.teams
 
   return copy
 }

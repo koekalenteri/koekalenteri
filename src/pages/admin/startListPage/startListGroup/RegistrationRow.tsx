@@ -5,12 +5,7 @@ import TableRow from '@mui/material/TableRow'
 import Tooltip from '@mui/material/Tooltip'
 import { useTranslation } from 'react-i18next'
 import { breedAbbreviation } from '@/lib/dog'
-import {
-  formatOwnerNames,
-  getRegistrationClass,
-  getRegistrationOwners,
-  handlingPersonIsMember,
-} from '@/lib/registration'
+import { formatOwnerNames, getRegistrationOwners, handlingPersonIsMember } from '@/lib/registration'
 
 interface RegistrationRowProps {
   reg: Registration
@@ -38,7 +33,7 @@ const RegistrationRow = ({ reg, reserve, nameLen, numberPending, showClass }: Re
         )}
         {number?.toString().padStart(5)}
       </TableCell>
-      {showClass ? <TableCell>{getRegistrationClass(reg)}</TableCell> : null}
+      {showClass ? <TableCell>{reg.class}</TableCell> : null}
       <TableCell>{reg.dog.regNo}</TableCell>
       <TableCell>{reg.dog.dob ? t('dateFormat.isodate', { date: reg.dog.dob }) : '?'}</TableCell>
       <TableCell>{reg.dog.rfid}</TableCell>

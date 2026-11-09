@@ -1,7 +1,7 @@
 import type { PublicDogEvent } from '../types'
 import { useAtomValue } from 'jotai'
 import { useMemo } from 'react'
-import { eventRegistrationDateKey, getEventDays } from '../lib/event'
+import { eventRegistrationDateKey, formatTypeOf, getEventDays } from '../lib/event'
 import { adminEventTypeGroupsAtom } from '../pages/admin/state'
 
 export const useAdminEventRegistrationDates = (
@@ -9,7 +9,7 @@ export const useAdminEventRegistrationDates = (
     Partial<Pick<PublicDogEvent, 'eventType'>>,
   eventClass?: string
 ) => {
-  const eventTypeGroups = useAtomValue(adminEventTypeGroupsAtom(event.eventType))
+  const eventTypeGroups = useAtomValue(adminEventTypeGroupsAtom(formatTypeOf(event)))
   const defaultGroups = useMemo(
     () => (eventTypeGroups.length > 1 ? eventTypeGroups.filter((g) => g !== 'kp') : eventTypeGroups),
     [eventTypeGroups]

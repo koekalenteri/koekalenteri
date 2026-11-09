@@ -23,6 +23,9 @@ import type { DogEventCost, MinimalEventForCost } from './Cost'
 export type PaymentTime = 'registration' | 'confirmation'
 /** What a B-trial's dogs retrieve (KOE-439): shot game, or dummies standing in for it. */
 export type RetrieveType = 'game' | 'dummies'
+/** The official types an unofficial trial may follow (KOE-1718): their format runs the trial. */
+export const OFFICIAL_FORMATS = ['NOU', 'NOME-B', 'NOME-A', 'NOWT'] as const
+export type OfficialFormat = (typeof OFFICIAL_FORMATS)[number]
 export type StartListPublishedState = boolean | Partial<Record<RegistrationClass, boolean>>
 
 /**
@@ -137,6 +140,14 @@ export interface JsonDogEvent extends JsonDbRecord {
   names?: Partial<Record<Language, string>>
   /** The user picked for the role, as the users list holds it: with the row's own stamps. */
   official: Partial<JsonUser>
+  /**
+   * The official type an unofficial trial follows (KOE-1718), chosen by its secretary: the classes,
+   * the judges, the entry times, the posts, the live view and the results then run by that type's
+   * format (`formatTypeOf`). Eligibility, Kennelliitto and the statistics stay the trial's own. Absent
+   * where the trial follows none, and ignored on an official type. Locked once a result or a turn is
+   * saved (`isOfficialFormatLocked`).
+   */
+  officialFormat?: OfficialFormat
   organizer: PublicOrganizer
   places: number
   /**
@@ -171,8 +182,9 @@ export interface JsonDogEvent extends JsonDbRecord {
    */
   startNumbersPublished?: StartNumbersPublishedState
   /**
-   * Versions the class secretaries' start number links (KOE-1267), keyed by the class the link opens
-   * — or by the event type where the trial has no classes, which is the key its dogs carry too.
+   * Versions the class secretaries' start number links (KOE-1267), keyed by the class the link opens,
+   * or where the trial has no classes by its format (`getRegistrationClass`, KOE-1718), the key its dogs
+   * are read under too.
    * Bumping a class's number revokes every link issued for it; absent reads as version 1, the way a
    * post's `tokenVersion` does.
    */
@@ -187,6 +199,12 @@ export interface JsonDogEvent extends JsonDbRecord {
    * handlers their group's running order.
    */
   rotations?: EventRotationGroup[]
+  /**
+   * The teams of a team competition (KOE-1714), one set for the whole event, whatever its type. No
+   * teams, or none stored, means the event has no team competition. Kept off the public event: the
+   * teams name their dogs by registration id.
+   */
+  teams?: EventTeam[]
   /**
    * The live timeline of the trial day (KOE-1259): every span a post has run, turns and breaks alike,
    * appended as the day goes. Server-owned — written only through the turn endpoint, never by an
@@ -389,11 +407,11 @@ export type StationEntryDog = Omit<JsonStationEntryDog, 'group' | 'eventResult'>
  */
 export type JsonLinkedEvent = Pick<
   JsonPublicDogEvent,
-  'id' | 'eventType' | 'name' | 'names' | 'location' | 'startDate' | 'endDate' | 'classes'
+  'id' | 'eventType' | 'name' | 'names' | 'location' | 'startDate' | 'endDate' | 'classes' | 'officialFormat'
 >
 export type LinkedEvent = Pick<
   PublicDogEvent,
-  'id' | 'eventType' | 'name' | 'names' | 'location' | 'startDate' | 'endDate' | 'classes'
+  'id' | 'eventType' | 'name' | 'names' | 'location' | 'startDate' | 'endDate' | 'classes' | 'officialFormat'
 >
 
 /** The results are handed to the chief judge: the post's link can read them but no longer write them. */
@@ -507,6 +525,28 @@ export interface EventRotationGroup {
   exercises?: EventExercise[]
 }
 
+/**
+ * A team ("joukkue") of a team competition (KOE-1714). Its number is its place in the event's `teams`,
+ * from 1, and a member's letter is its place in `registrationIds`: the first is A, so the second dog
+ * of team 1 is 1B. Neither is stored, so removing 1B makes the old 1C into 1B. Every view reads them
+ * through `teamMembers` (src/lib/team.ts), which also skips an id that is not among the event's
+ * registrations.
+ *
+ * A dog is in one team at most, which the event save holds to (`teamErrors`). A member who cancels
+ * stays where the secretary put it until the secretary removes it, and its letter with it.
+ */
+export interface EventTeam {
+  /** The team's own name beside its number, such as "Team Finland 1". */
+  name?: string
+  /** The team's dogs by registration id, in the order of their letters. */
+  registrationIds: string[]
+  /**
+   * The team won the run-off task that decides a tie for first (KOE-1717). Read only while the team is
+   * tied for first (`teamStandings`), so a corrected score leaves it inert.
+   */
+  runOffWon?: boolean
+}
+
 export type KcEventInfo = {
   classes: string[]
   eventType: string
@@ -585,6 +625,7 @@ type NonPublicDogEventProperties =
   | 'registrationGroupsLock'
   | 'registrationPaymentsLock'
   | 'organizerId'
+  | 'teams'
   | 'turns'
 
 export type JsonPublicDogEvent = Omit<JsonDogEvent, NonPublicDogEventProperties> & {

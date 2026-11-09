@@ -7,7 +7,7 @@ import { useLocation, useNavigate } from 'react-router'
 import { putUserName } from '@/api/user'
 import { reportError } from '@/lib/client/error'
 import { Path } from '@/routeConfig'
-import { idTokenAtom, loginPathAtom, userRefreshAtom } from './atoms'
+import { idTokenAtom, loginPathAtom, signingOutAtom, userRefreshAtom } from './atoms'
 import { userAtom, validIdTokenAtom } from './derivedAtoms'
 
 export const useUserActions = () => {
@@ -25,6 +25,7 @@ export const useUserActions = () => {
   const signIn = useAtomCallback(
     useCallback(
       async (get, set, idToken: string) => {
+        set(signingOutAtom, false)
         set(idTokenAtom, idToken)
         const loginPath = get(loginPathAtom)
         try {
@@ -46,12 +47,12 @@ export const useUserActions = () => {
   const signOut = useAtomCallback(
     useCallback(
       async (_get, set, notice: boolean = true) => {
+        set(signingOutAtom, true)
         set(idTokenAtom, undefined)
         sessionStorage.clear()
         void navigate(Path.home, { replace: true })
         try {
           await awsSignOut()
-          // reset(adminEventsAtom)
           if (notice) {
             enqueueSnackbar('Heippa!', { variant: 'info' })
           }

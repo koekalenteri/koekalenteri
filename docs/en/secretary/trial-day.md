@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 5f8d9e
+sourceHash: d1b429
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -52,6 +52,7 @@ exercise by exercise. An exercise is one performance worth 20 points, and a tria
 five. The posts are defined on their own page, opened with the panel's
 **{t:eventManagement.stations}** button; the button shows only for the event types scored by
 exercise. A course is usually laid out at the venue, so the page is separate from the event's details.
+An unofficial trial that follows NOWT gets the same posts and exercises.
 
 Each trial day gets its own posts with **{t:event.stationAdd}**, numbered from one within the day.
 For a post you record *{t:event.stationParts}*, *{t:event.stationDogsAtOnce}* and
@@ -147,7 +148,8 @@ The panel's **{t:eventManagement.enterResults}** button becomes active once the 
 started, and opens the **{t:results.title}** page. Under the title are the trial's day, type, place and name, as on
 the posts and start numbers pages. In a multi-day trial the day is picked first,
 and the classes are on their own tabs. The page lists only the dogs picked as participants, in
-running order.
+running order. The results of an unofficial trial that follows an official one are entered as in
+that trial.
 
 **A trial scored by exercise (NOWT).** Every exercise has its own column by its number, "Exercise
 1", "Exercise 2" and so on, whatever post the group did it at. The parts of an exercise split in two

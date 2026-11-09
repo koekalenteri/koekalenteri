@@ -1,5 +1,7 @@
 import type { TFunction } from 'i18next'
 import type { EventStation, LiveMark } from '../types'
+import type { FormatOwner } from './event'
+import { formatTypeOf } from './event'
 
 /**
  * How an event type runs its day at a post (KOE-1259, phase 4).
@@ -13,6 +15,9 @@ import type { EventStation, LiveMark } from '../types'
  * nothing of its own to configure here, and the tolling trials (NOTO, NOTO-M, in force 1.1.2027), which
  * are not in the app. Both fall to the default, one post and a queue, which is what they would be given
  * anyway.
+ *
+ * The functions here take the format type, `formatTypeOf(event)`, never `event.eventType`: an unofficial
+ * trial that follows an official type runs its day by that type's format (KOE-1718).
  */
 
 /**
@@ -134,8 +139,7 @@ export const IMPLICIT_STATION_ID = '1'
 /** A post as either side holds it: the lambdas with the date as a string, the browser as a `Date`. */
 type StationOf<D> = Omit<EventStation, 'date'> & { date: D }
 
-interface StationHost<D> {
-  eventType: string
+interface StationHost<D> extends FormatOwner {
   startDate: D
   stations?: StationOf<D>[]
 }
@@ -151,7 +155,7 @@ interface StationHost<D> {
  */
 export const resolveStation = <D>(event: StationHost<D>, stationId: string): StationOf<D> | undefined => {
   if (event.stations?.length) return event.stations.find((station) => station.id === stationId)
-  if (stationId !== IMPLICIT_STATION_ID || liveFormat(event.eventType).posts !== 'one') return undefined
+  if (stationId !== IMPLICIT_STATION_ID || liveFormat(formatTypeOf(event)).posts !== 'one') return undefined
   return { date: event.startDate, id: IMPLICIT_STATION_ID, number: 1 }
 }
 

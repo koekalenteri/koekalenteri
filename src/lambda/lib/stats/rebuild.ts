@@ -12,7 +12,7 @@ import type {
 import type { EventStatsEvent } from '../repositories/eventRepository'
 import type { EventStatKey } from '../repositories/eventStatsRepository'
 import { isEventOver, OFFICIAL_EVENT_TYPES, storedMonthKey, uniqueClasses } from '../../../lib/event'
-import { getRegistrationClass, isFinishedEntry, isMember, isStarter } from '../../../lib/registration'
+import { isFinishedEntry, isMember, isStarter } from '../../../lib/registration'
 import { mapWithConcurrency, splitEvenly } from '../../../lib/utils'
 import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS, YEARLY_BREAKDOWN_TYPES } from '../../../types/Stats'
 import { logger } from '../log'
@@ -435,7 +435,8 @@ const addCapacityRegistration = (
   const classMonths = eventClassMonths.get(event.id)
   if (!classMonths?.size) return false
 
-  const registrationClass = getRegistrationClass(registration) ?? event.eventType
+  // The statistics stay the trial's own type (KOE-1718): a classless trial counts under its own name.
+  const registrationClass = registration.class ?? event.eventType
   // A class the event does not offer (removed after entry, or a classless entry on a classed
   // event) is only resolvable when the event has a single class to attribute it to.
   let classKey: string | undefined

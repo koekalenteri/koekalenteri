@@ -178,6 +178,83 @@ describe('serviceWorkerRegistration', () => {
     expect(listener).not.toHaveBeenCalled()
   })
 
+  describe('when the tab comes back into view', () => {
+    const hour = 60 * 60 * 1000
+
+    const setVisibility = (visibilityState: DocumentVisibilityState) => {
+      Object.defineProperty(document, 'visibilityState', { configurable: true, value: visibilityState })
+      document.dispatchEvent(new Event('visibilitychange'))
+    }
+
+    const registerWithUpdate = async (update = vi.fn().mockResolvedValue(undefined)) => {
+      vi.stubEnv('NODE_ENV', 'production')
+      const registration = mockRegistration()
+      Object.defineProperty(registration, 'update', { configurable: true, value: update })
+      mockServiceWorkerContainer(registration)
+      const { registerServiceWorker } = await import('./serviceWorkerRegistration')
+
+      registerServiceWorker()
+      window.dispatchEvent(new Event('load'))
+      await Promise.resolve()
+      return update
+    }
+
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date('2026-11-08T12:00:00Z'))
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+      Reflect.deleteProperty(document, 'visibilityState')
+    })
+
+    it('asks for a newer service worker after the tab was away for an hour', async () => {
+      const update = await registerWithUpdate()
+
+      setVisibility('hidden')
+      vi.setSystemTime(new Date('2026-11-08T13:00:00Z'))
+      setVisibility('visible')
+
+      expect(update).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not ask again within the hour', async () => {
+      const update = await registerWithUpdate()
+
+      vi.setSystemTime(Date.now() + hour - 1)
+      setVisibility('visible')
+      expect(update).not.toHaveBeenCalled()
+
+      vi.setSystemTime(Date.now() + 1)
+      setVisibility('visible')
+      vi.setSystemTime(Date.now() + hour - 1)
+      setVisibility('visible')
+      expect(update).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not ask while the tab is hidden', async () => {
+      const update = await registerWithUpdate()
+
+      vi.setSystemTime(Date.now() + hour)
+      setVisibility('hidden')
+
+      expect(update).not.toHaveBeenCalled()
+    })
+
+    it('leaves an offline check unreported', async () => {
+      const update = await registerWithUpdate(vi.fn().mockRejectedValue(new TypeError('Failed to fetch')))
+
+      vi.setSystemTime(Date.now() + hour)
+      setVisibility('visible')
+      await Promise.resolve()
+      await Promise.resolve()
+
+      expect(update).toHaveBeenCalledTimes(1)
+      expect(mockReportError).not.toHaveBeenCalled()
+    })
+  })
+
   it('unregisters the service worker for rollback builds', async () => {
     const registration = mockRegistration()
     const unregister = vi.fn().mockResolvedValue(true)

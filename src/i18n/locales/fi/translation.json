@@ -276,10 +276,13 @@
     "entryNotOpen": "Ilmoittautuminen ei ole avoinna",
     "eventMayHaveBeenDeleted": "Tapahtuma on saatettu poistaa tai sinulla ei ole oikeuksia.",
     "eventNotFound": "Tapahtumaa ei löydy.",
+    "noAdminAccess": "Ei käyttöoikeutta",
+    "noAdminAccessInfo": "Tunnuksellasi ei ole oikeutta tälle sivulle. Ylläpidon oikeudet antaa yhdistyksesi pääkäyttäjä.",
     "registrationNotFound": "Ilmoittautumista ei löydy.",
     "somethingWentWrong": "Jotakin meni pieleen.",
     "startListNotAvailable": "Starttilistaa ei ole saatavilla tälle tapahtumalle.",
-    "tryAgain": "Yritä uudelleen"
+    "tryAgain": "Yritä uudelleen",
+    "userUnavailable": "Käyttäjätietojasi ei saatu ladattua."
   },
   "event": {
     "attachments": "Liitteet",
@@ -376,6 +379,9 @@
     "name": "Nimi",
     "names": "Nimen käännökset",
     "official": "Vastaava koetoimitsija",
+    "officialFormat": "Noudattelee virallista koetta",
+    "officialFormatClassShape": "Kokeeseen on jo ilmoittautumisia, joten noudateltavaksi voi valita vain kokeen, jossa luokat pysyvät: luokallisen tilalle luokallisen ja luokattoman tilalle luokattoman.",
+    "officialFormatLocked": "Kokeeseen on jo tallennettu tuloksia tai suorituspaikan vuoroja, joten noudateltavaa virallista koetta ei voi enää muuttaa.",
     "organizer": "Järjestäjä",
     "paymentLocked": "Kokeeseen on jo ilmoittautumisia, joten maksutietoja ei voi enää muuttaa. Lataa sivu uudelleen.",
     "paymentLockedReason": "Kokeeseen on jo ilmoittautumisia, joten hintoja ja maksuajankohtaa ei voi enää muuttaa.",
@@ -663,6 +669,7 @@
       "auditTrail": "Muutoshistoria",
       "management": "Tapahtuman hallinta"
     },
+    "teams": "Joukkueet",
     "upload": {
       "attached": "Koekutsu liitetty: {{fileName}}",
       "attachmentFailed": "Koekutsun liittäminen epäonnistui. Yritä uudelleen.",
@@ -1421,11 +1428,14 @@
     "absent": "POISSA",
     "born": "s.",
     "breeder": "kasv.",
+    "byOrder": "Suoritusjärjestyksessä",
+    "byTeam": "Joukkueittain",
     "dam": "e.",
     "handler": "ohj.",
     "handlerIsMember": "Ohjaaja on jäsen",
     "handlerPhone": "Ohjaajan puhelin",
     "noPhone": "-ei puhelinta-",
+    "noTeam": "Ei joukkuetta",
     "numberPending": "Starttinumeroa ei ole vielä arvottu",
     "owner": "om.",
     "ownerAndHandler": "om. & ohj.",
@@ -1433,7 +1443,11 @@
     "reserve": "Varalla",
     "reserveNotice": "Varoitusaika",
     "sire": "i.",
-    "title": "Starttilista"
+    "team": "Joukkue {{number}}",
+    "teamRunOff": "uusintatehtävä",
+    "teamStanding": "{{placement}}. sija, {{points}} pistettä",
+    "title": "Starttilista",
+    "view": "Starttilistan järjestys"
   },
   "startListCopied": "Lista kopioitu",
   "startListCopyFailed": "Listan kopiointi leikepöydälle epäonnistui",
@@ -1578,6 +1592,25 @@
   },
   "support": "Tuki",
   "supportContact": "Lähetä palautetta",
+  "teams": {
+    "addDog": "Lisää koira",
+    "addDogFull": "Joukkueessa on jo {{count}} koiraa, joten siihen ei voi lisätä enempää.",
+    "count": "Joukkueiden määrä",
+    "handler": "ohj. {{name}}",
+    "info": "Joukkueet numeroidaan järjestyksessä, ja koira saa joukkueessa tunnuksen sen mukaan, missä järjestyksessä se on lisätty: 1A, 1B, 1C. Koiran tunnusta voi vaihtaa siirtämällä koiraa joukkueessa ylös tai alas.",
+    "memberCancelled": "Peruttu",
+    "memberReserve": "Varalla",
+    "moveDown": "Siirrä {{code}} alemmas",
+    "moveUp": "Siirrä {{code}} ylemmäs",
+    "name": "Joukkueen nimi",
+    "noDogs": "Joukkueessa ei ole vielä koiria.",
+    "remove": "Poista {{code}} joukkueesta",
+    "result": "Joukkueen tulos",
+    "runOffWon": "Voitti uusintatehtävän",
+    "saved": "Joukkueet tallennettu",
+    "team": "Joukkue {{number}}",
+    "title": "Joukkueet"
+  },
   "templateEditor": {
     "editor": {
       "en": "Viestipohja englanniksi",

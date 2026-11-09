@@ -2,22 +2,30 @@ import type { JsonConfirmedEvent, JsonDogEvent, JsonUser, Patch, RegistrationCla
 import type { EventChange } from '../lib/event'
 import { nanoid } from 'nanoid'
 import {
+  formatTypeOf,
   getEventSeason,
+  hasEntries,
+  hasSharedReserveList,
+  isClassShapeChange,
   isEntryOpen,
   isEventDateString,
   isEventDeletable,
   isSameResultsPublished,
   isStartNumbersAvailable,
   isStartNumbersAvailableForClass,
+  moveClasslessKey,
+  OFFICIAL_EVENT_TYPES,
   uniqueClasses,
 } from '../../lib/event'
 import { scoresAtPosts } from '../../lib/liveFormat'
 import { hasPaymentLockingRegistrations, paymentTermsDiffer } from '../../lib/payment'
 import { getStartListBlocker, isStartListFlagPublished } from '../../lib/publishing'
 import { groupParticipantsByClass } from '../../lib/registration'
+import { isOfficialFormatLocked } from '../../lib/results'
 import { rotationShapeErrors } from '../../lib/rotation'
 import { eventBodySchema } from '../../lib/schema/event'
 import { legacyEventDay, rekeyEventDays, requestDay } from '../../lib/storedDays'
+import { teamErrors, teamsDiffer } from '../../lib/team'
 import { patchMerge } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { audit, eventAuditKey, getEventAuditMessages } from '../lib/audit'
@@ -28,6 +36,7 @@ import {
   findQualificationStartDate,
   getEvent,
   patchEvent,
+  repairReadyRegistrationGroups,
   saveEvent,
   updateRegistrations,
 } from '../lib/event'
@@ -133,9 +142,9 @@ const checkPublishing = async (
     ? newlyPublished(data, isStartListFlagPublished, existing)
     : []
   if (startLists.length) {
-    const participants = groupParticipantsByClass(await readEventRegistrations(data.id))
+    const participants = groupParticipantsByClass(await readEventRegistrations(data.id), data)
     for (const eventClass of startLists) {
-      const reason = getStartListBlocker(data, eventClass, participants[eventClass ?? data.eventType] ?? [])
+      const reason = getStartListBlocker(data, eventClass, participants[eventClass ?? formatTypeOf(data)] ?? [])
       if (reason) throw httpError(422, { error: 'publishBlocked', eventClass, publish: 'startList', reason })
     }
   }
@@ -192,6 +201,17 @@ const invalidEventDateField = (data: JsonConfirmedEvent, item: Patch<JsonConfirm
   )
 
 /**
+ * Any event type may run a team competition (KOE-1714). Only the teams' shape is checked: the page
+ * offers the event's own entries, and the readers skip an id the registrations do not hold.
+ */
+const checkTeams = (data: JsonConfirmedEvent) => {
+  const errors = teamErrors(data.teams)
+  if (errors.length) {
+    throw httpError(400, { error: 'invalidTeams', errors, message: 'Bad request: the teams do not fit together' })
+  }
+}
+
+/**
  * Checks on the event as it would be saved; a failed one is thrown before anything is written. Every
  * saved event names its organizer: the club whose members may change it, and the key of its stats and
  * its change messages (KOE-1607).
@@ -204,9 +224,20 @@ const checkMergedEvent = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEve
   if (invalidDateField) {
     throw httpError(400, { message: `Bad request: ${invalidDateField} must be a valid date` })
   }
+  // An official type runs by its own format; the type an unofficial trial follows is no field of its.
+  if (data.officialFormat !== undefined && OFFICIAL_EVENT_TYPES.includes(data.eventType)) {
+    throw httpError(400, {
+      error: 'officialFormatOnOfficialType',
+      message: 'Bad request: an official event type follows no other type',
+    })
+  }
   // Read on the merged event, so a patch of either half still has to fit the other (KOE-1665). A rotation
-  // matters only where the results are scored at posts; no reader of another type reads one.
-  if (scoresAtPosts(data.eventType) && (item.rotations !== undefined || item.stations !== undefined)) {
+  // matters only where the results are scored at posts; no reader of another type reads one. Following
+  // NOWT makes the stored posts and groups a rotation, so they are read then too (KOE-1718).
+  if (
+    scoresAtPosts(formatTypeOf(data)) &&
+    (item.rotations !== undefined || item.stations !== undefined || Object.hasOwn(item, 'officialFormat'))
+  ) {
     const rotationErrors = rotationShapeErrors(data)
     if (rotationErrors.length) {
       throw httpError(400, {
@@ -216,6 +247,7 @@ const checkMergedEvent = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEve
       })
     }
   }
+  if (item.teams !== undefined) checkTeams(data)
 }
 
 const updateEventDerivedFields = async (data: JsonConfirmedEvent) => {
@@ -360,6 +392,49 @@ const checkPaymentLock = async (existing: JsonConfirmedEvent | undefined, data: 
 }
 
 /**
+ * A change of the official type an unofficial trial follows (KOE-1718), checked before anything is
+ * written. Once a post has run a turn or a dog has a result, the trial has run by its format, and the
+ * type stays (`isOfficialFormatLocked`, the rule the event form disables the choice by). The entries
+ * keep the class they were made in, so a change that gives the trial classes or takes them away is
+ * refused once it has entries (`isClassShapeChange`). Answers whether the reserve lists' numbering
+ * changes, which is renumbered once the event is saved.
+ */
+const checkOfficialFormatChange = async (
+  existing: JsonConfirmedEvent | undefined,
+  data: JsonConfirmedEvent
+): Promise<{ renumber: boolean }> => {
+  if (!existing || existing.officialFormat === data.officialFormat) return { renumber: false }
+
+  // The turns are on the event: a trial that has run one needs no registration read to be locked.
+  const registrations = existing.turns?.length ? [] : await readEventRegistrations(existing.id)
+  if (isOfficialFormatLocked(existing, registrations)) {
+    throw httpError(409, {
+      error: 'officialFormatLocked',
+      message: 'Results or turns are saved; the official type the event follows is locked',
+    })
+  }
+  if (hasEntries(existing) && isClassShapeChange(existing, data)) {
+    throw httpError(409, {
+      error: 'officialFormatClassShape',
+      message: 'The event has entries; the type it follows must keep its classes as they are',
+    })
+  }
+
+  return {
+    renumber: hasSharedReserveList(formatTypeOf(existing)) !== hasSharedReserveList(formatTypeOf(data)),
+  }
+}
+
+/**
+ * A WT trial numbers its reserves across the classes (KOE-912): a change of the followed type to or from
+ * NOWT numbers them anew. Written after the event, so the numbering reads the saved type.
+ */
+const renumberReserves = async (data: JsonConfirmedEvent, user: JsonUser) => {
+  const groupPatches = await repairReadyRegistrationGroups(data.id, data, user)
+  if (groupPatches.length) await publishRegistrationPatches(data.id, groupPatches, data.organizer.id)
+}
+
+/**
  * An event names an organizer this environment's table holds. Organizer ids are minted per
  * environment, so an id from another one (a copied row) makes the club show twice in the admin list
  * and leaves the event without the club's members and merchant (KOE-1580). Read only when the id is
@@ -421,7 +496,13 @@ const putEventLambda = lambda('putEvent', async (event) => {
     item.entryOrigEndDate = existing.entryEndDate
   }
 
-  const data = existing && patchRequest ? patchMerge(existing, item) : ({ ...existing, ...item } as JsonConfirmedEvent)
+  const merged =
+    existing && patchRequest ? patchMerge(existing, item) : ({ ...existing, ...item } as JsonConfirmedEvent)
+  // A whole-event save clears the followed type with a null as a patch does: absent, never stored null.
+  if (merged.officialFormat === null) delete merged.officialFormat
+  // A classless trial keys its links and attachment by its format, which a change of the followed
+  // type moves (KOE-1718).
+  const data = existing ? moveClasslessKey(merged, formatTypeOf(existing), formatTypeOf(merged)) : merged
   // The index key for the club's own list; a copy, because an index cannot key on a map's field (KOE-1341).
   data.organizerId = data.organizer?.id
   checkMergedEvent(data, item, !!existing)
@@ -431,6 +512,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   restoreServerOwnedLocks(data, existing)
   await checkOrganizerExists(existing, data)
   await checkPaymentLock(existing, data)
+  const { renumber } = await checkOfficialFormatChange(existing, data)
   freezeAbsentStartNumbersState(data, existing, item)
   await checkPublishing(existing, item, data)
   await updateEventDerivedFields(data)
@@ -453,10 +535,11 @@ const putEventLambda = lambda('putEvent', async (event) => {
 
   // Update registrations in case the secretary version was out of date.
   const result = await persistEventWithRegistrations(stored, data)
-  if (resultPatches.length) {
-    await publishRegistrationPatches(data.id, resultPatches, data.organizer.id)
-    await publishPublicStartList(data.id)
-  }
+  if (resultPatches.length) await publishRegistrationPatches(data.id, resultPatches, data.organizer.id)
+  // The public rows carry each dog's team and its standing (KOE-1715, KOE-1717), so a teams change, a
+  // run-off won among them, reaches open pages as new results do.
+  if (resultPatches.length || teamsDiffer(existing?.teams, data.teams)) await publishPublicStartList(data.id)
+  if (renumber) await renumberReserves(data, user)
 
   await auditEventChanges(existing, item, result, user.name)
 

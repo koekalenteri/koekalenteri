@@ -14,11 +14,13 @@ covers:
   - src/pages/admin/eventViewPage/MessageRecipientsDialog.tsx
   - src/pages/admin/EventStartNumbersPage.tsx
   - src/pages/admin/eventStartNumbersPage/**
+  - src/pages/admin/EventTeamsPage.tsx
+  - src/pages/admin/eventTeamsPage/**
   - src/pages/admin/StartListPage.tsx
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 3a3ff4
+sourceHash: 08b4e9
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -178,6 +180,48 @@ afternoon's draw is still to come. On the public start list the afternoon's dogs
 without a number. Once both halves are published, the day is published as a whole.
 
 !shot[StartNumbersPublishing/start-numbers-publishing-half-day] The morning's numbers go out before the afternoon's draw
+
+## Teams
+
+A trial can run a team competition, whatever its type. The teams are set up with the
+**{t:eventManagement.teams}** button in the panel's *{t:eventManagement.actions}* section. Type how
+many teams the competition has in **{t:teams.count}**, and the page shows that many teams, numbered:
+Team 1, Team 2 and so on. Lowering the number removes teams from the end, and their dogs become free
+for the other teams. A number of zero means the trial has no team competition.
+
+A team can have a name besides its number, such as Team Finland 1, in **{t:teams.name}**. Dogs are
+added to a team from **{t:teams.addDog}**, which offers the trial's entries that have not cancelled
+and are not in a team already. A dog can therefore be in one team only, and a dog on the reserve
+list can be picked too. A team can hold at most 26 dogs.
+
+A dog's identifier in its team follows the order the dogs were added: the dogs of team 1 are 1A, 1B,
+1C and so on. To change an identifier, move the dog up or down with the arrows on its row; the bin
+removes it from the team. When a dog is removed, the dogs after it move up, so removing 1B makes the
+old 1C into 1B. If a team's dog cancels, it stays where it is, marked *{t:teams.memberCancelled}*,
+and the others keep their identifiers until you remove it yourself. A dog on the reserve list is
+marked *{t:teams.memberReserve}*.
+
+!shot[EventTeamsPage/teams] The teams with their dogs and identifiers
+
+In a trial where dogs score points (NOWT), each team has a line *{t:teams.result}* once the first
+result is recorded: the team's place and points over the whole trial. The points are the team's
+dogs' points added up, whatever their class and day, and a dog with no result yet brings no points.
+Teams level on points share a place. When teams are level for first place, each of them has the
+choice **{t:teams.runOffWon}**. Mark the winner of the run-off task there and save: the winner moves
+to first place and the others share the next one. Marking one team clears the mark from the others.
+If a result is later corrected so that the teams are no longer level, the mark has no effect.
+
+!shot[EventTeamsPage/teams-standings] The team results: teams 1 and 2 are level on points, and team 2 is marked as the winner of the run-off
+
+**{t:save}** stores the changes. **{t:cancel}** goes back to the event without saving.
+
+The saved teams show on the public start list, which opens by team
+([Start list and results](/docs/participant/start-list)). The list shows only published dogs: a dog
+on the reserve list or not yet published is not shown, and a team none of whose dogs is published
+is not shown at all. The teams' places and points show on the list once the results of every team's
+dogs are published and every dog is on the list: a dog whose start number has not been entered keeps
+every team's result hidden. A change to the teams, to the run-off winner or to the results reaches open start
+lists by itself.
 
 ## Cancellations and refunds
 

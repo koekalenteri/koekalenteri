@@ -102,10 +102,17 @@ takes away. Findings:
   domain would do;
 - a stored field, flag or config that can be derived from what is already stored;
 - a fix that grew past the cause: more files, readers or concepts than the issue needs;
-- code the diff writes that a helper in `src/lib` or `src/lambda/lib` already does: for each new
-  function and each inline block of more than a few lines, `git grep` those folders for one that
-  computes the same thing, and name it (a second deep merge beside `patchMerge`, a hand-written
-  task filter beside `stationTasks`);
+- code the diff writes that existing code already does. When
+  [semindex](https://github.com/kurkle/semindex) is on PATH, run
+  `semindex diff origin/main` in your worktree first: it lists each new or changed function with
+  the existing functions it resembles, in any folder. A score is a lead: read the match and show
+  it computes the same thing before you name it. Then, with or without semindex, for each new
+  function and each inline block of more than a few lines, `git grep` `src/lib` and
+  `src/lambda/lib` for one that computes the same thing, since a function semindex does not list
+  can still be a copy. Name what you find (a second deep merge beside `patchMerge`, a
+  hand-written task filter beside `stationTasks`), and say for each such finding who found it:
+  `semindex`, `git grep` or `both`. Under what you looked at, say whether `semindex diff` ran
+  and how many functions it listed;
 - an export the diff leaves without a production caller: for each call the diff removes or
   moves, `git grep` the callee; when only its own file and tests still use it, it goes, with
   those tests. knip does not catch this, since a test import counts as a use for it.

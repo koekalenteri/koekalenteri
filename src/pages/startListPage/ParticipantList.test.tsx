@@ -31,6 +31,10 @@ vi.mock('react-i18next', async () => {
         switch (key) {
           case 'results.placement':
           case 'results.totals':
+          case 'startList.byOrder':
+          case 'startList.byTeam':
+          case 'startList.noTeam':
+          case 'startList.team':
             return fi(key, options)
           default:
             return base.t(key, options)
@@ -92,9 +96,18 @@ vi.mock('./CancelledRegistration', () => ({
 }))
 
 vi.mock('./RegistrationDetails', () => ({
-  RegistrationDetails: ({ registration, index }: { registration: PublicRegistration; index: number }) => (
+  RegistrationDetails: ({
+    registration,
+    index,
+    teamPrefix,
+  }: {
+    registration: PublicRegistration
+    index: number
+    teamPrefix?: string
+  }) => (
     <tr data-testid="registration-details">
       <td>
+        {teamPrefix ? `${teamPrefix} ` : ''}
         {registration.dog.name} (index: {index})
       </td>
     </tr>
@@ -724,5 +737,172 @@ describe('ParticipantList', () => {
 
     expect(screen.queryByRole('button', { name: /copy|kopioi/i })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'downloadStartList' })).not.toBeInTheDocument()
+  })
+
+  // KOE-1715: the public sees a team competition by team. The rows carry their teams; the event does not.
+  describe('by team', () => {
+    const inTeam = (reg: PublicRegistration, code: string, name?: string): PublicRegistration => ({
+      ...reg,
+      team: { code, ...(name ? { name } : {}), number: Number.parseInt(code, 10) },
+    })
+    const rows = (texts = screen.getAllByTestId('registration-details')) => texts.map((row) => row.textContent)
+    const teamParticipants = () => [
+      inTeam(createMockRegistration('AVO', 'Bella', 1, '2023-01-01'), '1B', 'Team Finland 1'),
+      createMockRegistration('AVO', 'Dora', 2, '2023-01-01'),
+      inTeam(createMockRegistration('AVO', 'Aapo', 3, '2023-01-01'), '1A', 'Team Finland 1'),
+      inTeam(createMockRegistration('AVO', 'Cesar', 4, '2023-01-01'), '2A'),
+      createMockRegistration('AVO', 'Eetu', 5, '2023-01-01', undefined, true),
+      inTeam(createMockRegistration('AVO', 'Fanni', 6, '2023-01-02'), '2B'),
+    ]
+
+    it('offers no choice on a list without teams', () => {
+      render(
+        <ParticipantList participants={[createMockRegistration('AVO', 'Dog 1', 1, '2023-01-01')]} event={mockEvent} />
+      )
+
+      expect(screen.queryByRole('button', { name: 'Joukkueittain' })).not.toBeInTheDocument()
+      expect(screen.getAllByTestId('class-header')).not.toHaveLength(0)
+    })
+
+    it('opens by team: each day its teams in number order, the dogs by letter, then the dogs in no team', () => {
+      render(<ParticipantList participants={teamParticipants()} event={mockEvent} />)
+
+      expect(screen.getByRole('button', { name: 'Joukkueittain' })).toHaveAttribute('aria-pressed', 'true')
+      expect(screen.getAllByTestId('date-header').map((header) => header.textContent)).toEqual([
+        '2023-01-01',
+        '2023-01-02',
+      ])
+      expect(screen.getByText('Joukkue 1')).toBeInTheDocument()
+      expect(screen.getByText('Team Finland 1')).toBeInTheDocument()
+      // Team 2 is shown under both days, with that day's dog; the cancelled dog is not shown.
+      expect(screen.getAllByText('Joukkue 2')).toHaveLength(2)
+      expect(screen.getAllByText('Ei joukkuetta')).toHaveLength(1)
+      expect(rows()).toEqual([
+        '1A Aapo (index: 0)',
+        '1B Bella (index: 1)',
+        '2A Cesar (index: 0)',
+        'Dora (index: 0)',
+        '2B Fanni (index: 0)',
+      ])
+      expect(screen.queryByTestId('class-header')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('cancelled-registration')).not.toBeInTheDocument()
+    })
+
+    it('names the class in front of the code where the day teams mix classes', () => {
+      render(
+        <ParticipantList
+          participants={[
+            inTeam(createMockRegistration('AVO', 'Aapo', 1, '2023-01-01'), '1A'),
+            inTeam(createMockRegistration('VOI', 'Bella', 2, '2023-01-01'), '1B'),
+            createMockRegistration('VOI', 'Dora', 3, '2023-01-01'),
+          ]}
+          event={mockEvent}
+        />
+      )
+
+      expect(rows()).toEqual(['AVO 1A Aapo (index: 0)', 'VOI 1B Bella (index: 1)', 'VOI Dora (index: 0)'])
+    })
+
+    it('shows the running order as today when that view is chosen', async () => {
+      const user = userEvent.setup()
+      render(<ParticipantList participants={teamParticipants()} event={mockEvent} />)
+
+      await user.click(screen.getByRole('button', { name: 'Suoritusjärjestyksessä' }))
+
+      expect(screen.queryByText('Joukkue 1')).not.toBeInTheDocument()
+      expect(screen.getAllByTestId('class-header')).not.toHaveLength(0)
+      expect(screen.getByTestId('cancelled-registration')).toBeInTheDocument()
+      expect(rows()).toEqual([
+        'Bella (index: 0)',
+        'Dora (index: 1)',
+        'Aapo (index: 2)',
+        'Cesar (index: 3)',
+        'Fanni (index: 0)',
+      ])
+    })
+
+    // KOE-1006: before the venue draw the order is not final, and the team view has no class heading
+    // to say so; the day carries the note instead.
+    describe('before the numbers are published', () => {
+      const undrawn: PublicConfirmedEvent = {
+        ...mockEvent,
+        startListPublished: true,
+        startNumbersPublished: false,
+        state: 'invited',
+      }
+
+      it('notes it under the day', () => {
+        render(<ParticipantList participants={teamParticipants()} event={undrawn} />)
+
+        expect(screen.getAllByText('AVO (startNumbersNotPublished)')).toHaveLength(2)
+      })
+
+      it('notes it under the date of a classless event', () => {
+        const classless = teamParticipants().map((reg) => ({ ...reg, class: undefined }))
+
+        render(<ParticipantList participants={classless} event={{ ...undrawn, classes: [] }} />)
+
+        expect(screen.getAllByText('(startNumbersNotPublished)')).toHaveLength(2)
+      })
+
+      it('copies the note', async () => {
+        const user = userEvent.setup()
+        mockClipboard()
+        render(<ParticipantList participants={teamParticipants()} event={undrawn} showExportActions />)
+
+        await user.click(screen.getByRole('button', { name: /copyStartList/ }))
+
+        expect(writeText).toHaveBeenCalledWith(expect.stringMatching(/^[^\n]+\nAVO \(startNumbersNotPublished\)\n/))
+      })
+    })
+
+    it('copies the class in front of the code where the day mixes classes', async () => {
+      const user = userEvent.setup()
+      mockClipboard()
+      render(
+        <ParticipantList
+          participants={[
+            inTeam(createMockRegistration('AVO', 'Aapo', 1, '2023-01-01'), '1A'),
+            createMockRegistration('VOI', 'Dora', 2, '2023-01-01'),
+          ]}
+          event={mockEvent}
+          showExportActions
+        />
+      )
+
+      await user.click(screen.getByRole('button', { name: /copyStartList/ }))
+
+      expect(writeText).toHaveBeenCalledWith(expect.stringMatching(/\nAVO 1A 1\. [^\n]*Aapo/))
+      expect(writeText).toHaveBeenCalledWith(expect.stringMatching(/\nVOI 2\. [^\n]*Dora/))
+    })
+
+    it('keeps the view when the chosen one is clicked again', async () => {
+      const user = userEvent.setup()
+      render(<ParticipantList participants={teamParticipants()} event={mockEvent} />)
+
+      await user.click(screen.getByRole('button', { name: 'Joukkueittain' }))
+
+      expect(screen.getByRole('button', { name: 'Joukkueittain' })).toHaveAttribute('aria-pressed', 'true')
+      expect(screen.getByText('Joukkue 1')).toBeInTheDocument()
+    })
+
+    it('copies the view on screen', async () => {
+      const user = userEvent.setup()
+      mockClipboard()
+      render(<ParticipantList participants={teamParticipants()} event={mockEvent} showExportActions />)
+
+      await user.click(screen.getByRole('button', { name: /copyStartList/ }))
+      await user.click(screen.getByRole('button', { name: 'Suoritusjärjestyksessä' }))
+      await user.click(screen.getByRole('button', { name: /startListCopied/ }))
+
+      expect(writeText).toHaveBeenNthCalledWith(
+        1,
+        expect.stringMatching(/Joukkue 1\nTeam Finland 1\n1A 3\. [^\n]*Aapo[\s\S]*Joukkue 2\n2A 4\. [^\n]*Cesar/)
+      )
+      expect(writeText).toHaveBeenNthCalledWith(1, expect.stringMatching(/Ei joukkuetta\n2\. [^\n]*Dora/))
+      expect(writeText).toHaveBeenNthCalledWith(1, expect.not.stringContaining('startList.absent'))
+      expect(writeText).toHaveBeenNthCalledWith(2, expect.not.stringContaining('Joukkue'))
+      expect(writeText).toHaveBeenNthCalledWith(2, expect.stringContaining('5. startList.absent'))
+    })
   })
 })

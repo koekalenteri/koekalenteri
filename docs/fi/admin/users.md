@@ -11,6 +11,10 @@ Koekalenteriin ei luoda tunnuksia: käyttöoikeus annetaan sähköpostiosoitteel
 kirjautuu joko sillä osoitteella tai Google-tilillä, jonka osoite on sama. Oikeus on aina
 yhdistyskohtainen, ja samalla henkilöllä voi olla rooli useassa yhdistyksessä.
 
+Tunnus, jolla ei ole yhtään roolia eikä koekalenterin pääkäyttäjän oikeutta, näkee ylläpidon
+sivuilla ja tilastoissa ilmoituksen *{t:error.noAdminAccess}* ja linkin etusivulle. Roolin antaa
+yhdistyksen pääkäyttäjä tai koekalenterin pääkäyttäjä, kuten alla kerrotaan.
+
 ## Roolit
 
 | Rooli | Mitä sillä voi tehdä |
@@ -42,7 +46,7 @@ Koekalenteriin. Jos osoitteella on jo käyttäjä, uusi rooli lisätään sille.
 
 ## Roolien muokkaaminen
 
-Valitse käyttäjä listasta ja paina **{t:editRoles}** — tai tuplaklikkaa riviä. Ikkuna luettelee
+Valitse käyttäjä listasta ja paina **{t:editRoles}**, tai tuplaklikkaa riviä. Ikkuna luettelee
 käyttäjän yhdistykset rooleineen. Rooli poistetaan rivin painikkeella **{t:delete}**, ja uusi
 lisätään alimmalla rivillä valitsemalla yhdistys ja rooli ja painamalla **{t:add}**. Tarjolla
 ovat vain ne yhdistykset, joihin sinulla on pääkäyttäjän oikeus ja joihin käyttäjällä ei vielä ole

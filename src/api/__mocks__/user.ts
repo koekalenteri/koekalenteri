@@ -7,6 +7,14 @@ const MOCK_ADMIN: User = {
   name: 'Test User',
 }
 
+/** A signed-in user with no admin flag and no organizer role: no access to the admin pages. */
+export const MOCK_NO_ROLE_USER: User = {
+  email: 'norole@user.vi',
+  id: 'norole1234',
+  name: 'No Role',
+  roles: {},
+}
+
 export const getUser = vi.fn(async (_token: string, _signal?: AbortSignal): Promise<User> => MOCK_ADMIN)
 
 const MOCK_RETURNING_USER: User = {

@@ -1,10 +1,12 @@
-import type { Registration } from '@/types'
+import type { DogEvent, Registration } from '@/types'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
-import { mapMaybe } from '@/lib/maybePromise'
+import { allMaybe, mapMaybe } from '@/lib/maybePromise'
 import { hasPaymentLockingRegistrations } from '@/lib/payment'
 import { deriveParticipantGroupKey } from '@/lib/registration'
 import { applyRegistrationGroupMoves } from '@/lib/registrationGroups'
+import { isOfficialFormatLocked } from '@/lib/results'
+import { adminEventAtom } from '../events/derivedAtoms'
 import { adminEventRegistrationsAtom, adminPendingRegistrationGroupMovesAtom } from './atoms'
 
 /**
@@ -42,23 +44,39 @@ export const adminEventPaymentLockedAtom = atomFamily((eventId: string) =>
   })
 )
 
+/**
+ * Whether the official type an unofficial trial follows is locked (KOE-1718): a post has run a turn or a
+ * dog has a result, by the rule PutEvent refuses a change with (`isOfficialFormatLocked`). An event not
+ * yet saved has neither, and nothing is fetched for it.
+ */
+export const adminEventOfficialFormatLockedAtom = atomFamily((eventId: string) =>
+  atom((get) => {
+    if (!eventId) return false
+    return mapMaybe(
+      allMaybe([get(adminEventAtom(eventId)), get(adminEventRegistrationsAtom(eventId))]),
+      ([event, registrations]) => isOfficialFormatLocked(event, registrations)
+    )
+  })
+)
+
 export const adminProjectedEventRegistrationsAtom = atomFamily((eventId: string) =>
   atom(
     (get) => {
       const moves = get(adminPendingRegistrationGroupMovesAtom(eventId))
+      // The reserve numbering is the event's format's: a WT trial numbers its reserves across the classes.
       return mapMaybe(
-        get(adminEventRegistrationsAtom(eventId)),
-        (registrations) => applyRegistrationGroupMoves(registrations, moves).items
+        allMaybe([get(adminEventAtom(eventId)), get(adminEventRegistrationsAtom(eventId))]),
+        ([event, registrations]) => applyRegistrationGroupMoves(registrations, moves, event).items
       )
     },
     (get, set, newValue: Registration[]) => {
-      const updateBase = (base: Registration[]) => {
+      const updateBase = ([event, base]: [DogEvent, Registration[]]) => {
         const pendingMoves = get(adminPendingRegistrationGroupMovesAtom(eventId))
         if (pendingMoves.length === 0) {
           set(adminEventRegistrationsAtom(eventId), newValue)
           return
         }
-        const projected = applyRegistrationGroupMoves(base, pendingMoves).items
+        const projected = applyRegistrationGroupMoves(base, pendingMoves, event).items
         const baseById = new Map(base.map((registration) => [registration.id, registration]))
         const projectedById = new Map(projected.map((registration) => [registration.id, registration]))
         const serverSnapshot = newValue.map((registration) => {
@@ -81,7 +99,7 @@ export const adminProjectedEventRegistrationsAtom = atomFamily((eventId: string)
         })
         set(adminEventRegistrationsAtom(eventId), serverSnapshot)
       }
-      return mapMaybe(get(adminEventRegistrationsAtom(eventId)), updateBase)
+      return mapMaybe(allMaybe([get(adminEventAtom(eventId)), get(adminEventRegistrationsAtom(eventId))]), updateBase)
     }
   )
 )

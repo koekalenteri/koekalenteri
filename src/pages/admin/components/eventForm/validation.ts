@@ -5,7 +5,7 @@ import type { EventFlag, EventFlags, FieldRequirements, PartialEvent } from './t
 import { getCostValue } from '@/lib/cost'
 import { dayOf, TIME_ZONE } from '@/lib/day'
 import { isDevEnv } from '@/lib/env'
-import { hasRetrieveTypeChoice, OFFICIAL_EVENT_TYPES, uniqueClasses } from '@/lib/event'
+import { formatTypeOf, hasRetrieveTypeChoice, OFFICIAL_EVENT_TYPES, uniqueClasses } from '@/lib/event'
 import { judgesMockTrialIndependently, MIN_INDEPENDENT_MOCK_TRIAL_JUDGES } from '@/lib/judge'
 import { keysOf } from '@/lib/typeGuards'
 import { unique } from '@/lib/utils'
@@ -40,11 +40,15 @@ const STATE_INCLUSION: Record<EventState, EventState[]> = {
   tentative: ['tentative', 'draft'],
 }
 
+/** The formats a confirmed trial must name its classes for. */
+const CLASSES_REQUIRED = new Set(['NOME-B', 'NOWT'])
+
 const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
   cancelled: {},
   completed: {},
   confirmed: {
-    classes: (event: PartialEvent) => event.eventType === 'NOME-B' || event.eventType === 'NOWT',
+    // The classes, the judges, the entry times and the places go by the trial's format (KOE-1718).
+    classes: (event: PartialEvent) => CLASSES_REQUIRED.has(formatTypeOf(event) ?? ''),
     // costMember: (event: PartialEvent) => !!event.costMember,
     contactInfo: true,
     cost: true,
@@ -78,7 +82,8 @@ const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
 const contactInfoShown = (contact?: Partial<PublicContactInfo>) => !!contact?.email || !!contact?.phone
 
 const getMinJudgeCount = (event: PartialEvent) => {
-  if (event.eventType === 'NOWT' || event.eventType === 'NOME-A') {
+  const formatType = formatTypeOf(event)
+  if (formatType === 'NOWT' || formatType === 'NOME-A') {
     return 2
   }
   return 1
@@ -160,7 +165,7 @@ export const VALIDATORS: EventValidators = {
     if (!event.classes?.length) {
       return 'classes'
     }
-    if (event.eventType === 'NOWT') {
+    if (formatTypeOf(event) === 'NOWT') {
       const list = uniqueClasses(event).filter(
         (eventClass) =>
           !event.classes.some((candidate) => candidate.class === eventClass && candidate.groups?.includes('kp'))
@@ -220,7 +225,7 @@ export const VALIDATORS: EventValidators = {
       return mockTrialResult
     }
 
-    if (event.eventType === 'NOWT') {
+    if (formatTypeOf(event) === 'NOWT') {
       // KOE-317 classes are required, but judges don't have to be assigned to classes
       return false
     }

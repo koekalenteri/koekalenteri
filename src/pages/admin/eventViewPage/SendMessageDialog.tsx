@@ -55,7 +55,7 @@ const getInvitationAttachments = (event: ConfirmedEvent, registrations: Registra
   const attachments = new Map<string, { fileName: string; href: string }>()
 
   for (const registration of registrations) {
-    const eventClass = getRegistrationClass(registration)
+    const eventClass = getRegistrationClass(registration, event)
     const classAttachment = event.invitationAttachments?.[eventClass]
     const invitationAttachment = classAttachment ?? event.invitationAttachment
     if (!invitationAttachment) continue
@@ -99,10 +99,10 @@ export default function SendMessageDialog({ event, registrations, templateId, op
   const invitationAttachments = useMemo(() => getInvitationAttachments(event, registrations), [event, registrations])
   const recipientClasses = useMemo(
     () =>
-      [...new Set(registrations.map((registration) => getRegistrationClass(registration)))].sort(
+      [...new Set(registrations.map((registration) => getRegistrationClass(registration, event)))].sort(
         compareRegistrationClasses
       ),
-    [registrations]
+    [event, registrations]
   )
 
   useEffect(() => {

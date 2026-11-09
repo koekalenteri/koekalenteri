@@ -123,6 +123,13 @@ describe('liveFormat', () => {
       expect(resolveStation({ ...event, stations: undefined }, IMPLICIT_STATION_ID)).toBeUndefined()
     })
 
+    it('reads the posts of the official type an unofficial trial follows (KOE-1718)', () => {
+      const event = { eventType: 'WT-harjoitus', officialFormat: 'NOWT' as const, startDate: '2026-09-12' }
+
+      expect(resolveStation(event, IMPLICIT_STATION_ID)).toBeUndefined()
+      expect(resolveStation({ ...event, stations: [stored] }, 'post-1')).toBe(stored)
+    })
+
     it('never invents a post beside the ones an event has', () => {
       const event = { eventType: 'NOME-B', startDate: '2026-09-12', stations: [stored] }
 

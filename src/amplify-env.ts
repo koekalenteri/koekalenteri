@@ -41,7 +41,7 @@ export const AWSConfig: ResourcesConfig = {
 }
 
 if (!AWSConfig.Auth?.Cognito.identityPoolId && isDevEnv()) {
-  throw new Error('Please configure environment variables in .env (use .env_sample as reference')
+  throw new Error('Please configure environment variables in .env (use .env.sample as reference)')
 }
 
 export const RUM_CONFIG: AwsRumConfig = {

@@ -1,4 +1,5 @@
 import type { JsonRegistration, Registration, RegistrationGroupMove } from '../types'
+import type { FormatOwner } from './event'
 import {
   deriveParticipantGroupKey,
   GROUP_KEY_CANCELLED,
@@ -10,7 +11,7 @@ import {
 
 type GroupedRegistration = Pick<
   JsonRegistration | Registration,
-  'cancelled' | 'cancelReason' | 'class' | 'eventType' | 'group' | 'id' | 'startGroup'
+  'cancelled' | 'cancelReason' | 'class' | 'group' | 'id' | 'startGroup'
 >
 
 type RegistrationGroupMoveResult<T extends GroupedRegistration> = {
@@ -25,33 +26,41 @@ const copyGroup = (group: GroupedRegistration['group']) => (group ? { ...group }
 const sortSnapshot = (a: GroupedRegistration, b: GroupedRegistration) =>
   getRegistrationGroupDay(a.group?.date).localeCompare(getRegistrationGroupDay(b.group?.date)) ||
   // Keep the established ordering semantics from
-  // sortRegistrationsByDateClassTimeAndNumber. eventType participates in the
+  // sortRegistrationsByDateClassTimeAndNumber. The event's format participates in the
   // numbering-group key, but must not change the sort order within a snapshot.
   (a.class ?? '').localeCompare(b.class ?? '') ||
   (a.group?.time ?? '').localeCompare(b.group?.time ?? '') ||
   (a.group?.number ?? Number.MAX_SAFE_INTEGER) - (b.group?.number ?? Number.MAX_SAFE_INTEGER)
 
+interface MoveTarget {
+  numberingGroupKey: string
+  groupKey: string
+}
+
 const isInvalidMoveAnchor = <T extends GroupedRegistration>(
   move: RegistrationGroupMove,
   item: T,
   before: T | undefined,
-  targetNumberingGroupKey: string,
-  targetGroupKey: string
+  target: MoveTarget,
+  event: FormatOwner
 ) =>
   !!move.beforeId &&
   (!before ||
     before.id === item.id ||
-    getRegistrationNumberingGroupKey(before) !== targetNumberingGroupKey ||
+    getRegistrationNumberingGroupKey(before, event) !== target.numberingGroupKey ||
     // The key names the day and the time of a participant group, so it is the whole comparison.
-    getRegistrationGroupKey(before) !== targetGroupKey ||
+    getRegistrationGroupKey(before) !== target.groupKey ||
     before.group?.time !== move.group.time)
 
-/** Sorts and renumbers a complete registration snapshot in place. */
-export const normalizeRegistrationGroups = <T extends GroupedRegistration>(items: T[]): T[] => {
+/**
+ * Sorts and renumbers a complete registration snapshot in place. The numbering groups go by the
+ * event's format: a WT trial's reserve list is numbered across its classes (`hasSharedReserveList`).
+ */
+export const normalizeRegistrationGroups = <T extends GroupedRegistration>(items: T[], event: FormatOwner): T[] => {
   items.sort(sortSnapshot)
   const numberingGroups: Record<string, T[]> = {}
   for (const item of items) {
-    const key = getRegistrationNumberingGroupKey(item)
+    const key = getRegistrationNumberingGroupKey(item, event)
     const registrations = numberingGroups[key] ?? []
     registrations.push(item)
     numberingGroups[key] = registrations
@@ -72,7 +81,8 @@ export const normalizeRegistrationGroups = <T extends GroupedRegistration>(items
 const applyRegistrationGroupMove = <T extends GroupedRegistration>(
   items: T[],
   move: RegistrationGroupMove,
-  insertionsBeforeAnchor: Map<string, number>
+  insertionsBeforeAnchor: Map<string, number>,
+  event: FormatOwner
 ): boolean => {
   const item = items.find((registration) => registration.id === move.id)
   if (!item) return false
@@ -80,12 +90,11 @@ const applyRegistrationGroupMove = <T extends GroupedRegistration>(
   // A payload from a cached client may still name the UTC day; the group is the day it is on.
   const group = { ...move.group, key: deriveParticipantGroupKey(move.group) }
   const before = move.beforeId ? items.find((registration) => registration.id === move.beforeId) : undefined
-  const targetNumberingGroupKey = getRegistrationNumberingGroupKey({
-    ...item,
-    cancelled: group.key === GROUP_KEY_CANCELLED,
-    group,
-  })
-  if (isInvalidMoveAnchor(move, item, before, targetNumberingGroupKey, group.key)) return false
+  const numberingGroupKey = getRegistrationNumberingGroupKey(
+    { ...item, cancelled: group.key === GROUP_KEY_CANCELLED, group },
+    event
+  )
+  if (isInvalidMoveAnchor(move, item, before, { groupKey: group.key, numberingGroupKey }, event)) return false
 
   const siblings = items.filter(
     (registration) => registration.id !== item.id && getRegistrationGroupKey(registration) === group.key
@@ -117,7 +126,8 @@ const applyRegistrationGroupMove = <T extends GroupedRegistration>(
  */
 export const applyRegistrationGroupMoves = <T extends GroupedRegistration>(
   source: readonly T[],
-  moves: readonly RegistrationGroupMove[]
+  moves: readonly RegistrationGroupMove[],
+  event: FormatOwner
 ): RegistrationGroupMoveResult<T> => {
   if (moves.length === 0) return { invalid: [], items: [...source] }
 
@@ -126,12 +136,12 @@ export const applyRegistrationGroupMoves = <T extends GroupedRegistration>(
   const insertionsBeforeAnchor = new Map<string, number>()
 
   for (const move of moves) {
-    if (!applyRegistrationGroupMove(items, move, insertionsBeforeAnchor)) {
+    if (!applyRegistrationGroupMove(items, move, insertionsBeforeAnchor, event)) {
       invalid.push(move)
     }
   }
 
-  normalizeRegistrationGroups(items)
+  normalizeRegistrationGroups(items, event)
 
   return {
     invalid,

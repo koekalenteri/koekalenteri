@@ -98,7 +98,7 @@ const nowtTable = (compact = false) => (
     defaultJudges={{}}
     edits={nowtEdits}
     eventClass="ALO"
-    eventType="NOWT"
+    event={{ eventType: 'NOWT' }}
     fullRoundFor={wholeCourseOf}
     judgesFor={() => [judge]}
     onChange={noop}
@@ -117,7 +117,7 @@ const nomeBTable = () => (
     defaultJudges={{}}
     edits={nomeBEdits}
     eventClass="ALO"
-    eventType="NOME-B"
+    event={{ eventType: 'NOME-B' }}
     judges={nouJudges}
     judgesFor={() => []}
     onChange={noop}
@@ -136,7 +136,7 @@ const nouTable = (compact = false) => (
     compact={compact}
     defaultJudges={{}}
     edits={nouEdits}
-    eventType="NOU"
+    event={{ eventType: 'NOU' }}
     judges={nouJudges}
     judgesFor={() => []}
     onChange={noop}
@@ -228,7 +228,7 @@ const kcTable = (compact = false) => (
     compact={compact}
     defaultJudges={{}}
     edits={{}}
-    eventType="NOU"
+    event={{ eventType: 'NOU' }}
     judges={nouJudges}
     judgesFor={() => []}
     kennelliitto={kcBadges}
@@ -283,12 +283,12 @@ it('shows the rank of each awarded dog beside its prize', async () => {
         defaultJudges={{}}
         edits={{}}
         eventClass="ALO"
-        eventType="NOWT"
+        event={{ eventType: 'NOWT' }}
         fullRoundFor={roundOf}
         judgesFor={() => [judge]}
         onChange={noop}
         onJudgeChange={noop}
-        placements={placementsFor(placed)}
+        placements={placementsFor(placed, { eventType: 'NOWT' })}
         registrations={placed}
         round={round}
         roundFor={roundOf}
@@ -353,7 +353,7 @@ it('names the columns by exercise number whatever post each group did them at', 
         defaultJudges={{}}
         edits={splitEdits}
         eventClass="ALO"
-        eventType="NOWT"
+        event={{ eventType: 'NOWT' }}
         fullRoundFor={splitRound}
         judgesFor={() => [judge]}
         onChange={noop}
@@ -414,7 +414,7 @@ it('shows a NOME-A result as Kennelliitto lists it (KOE-1592)', async () => {
         defaultJudges={{}}
         edits={{}}
         eventClass="NOME-A"
-        eventType="NOME-A"
+        event={{ eventType: 'NOME-A' }}
         judges={nouJudges}
         judgesFor={() => []}
         onChange={noop}

@@ -13,6 +13,7 @@ import type { InvitationAttachmentRegistration } from './registration'
 import {
   canPublishResults,
   canPublishStartList,
+  formatTypeOf,
   getEventStateForClass,
   hasDayStarted,
   haveInvitationsLapsed,
@@ -62,7 +63,7 @@ export const isStartListPublished = (event: StartListEvent, eventClass?: Pick<Cl
 export const isStartListFlagPublished = (event: StartListEvent, eventClass: RegistrationClass | undefined) =>
   event.startListPublished === undefined
     ? isStartListPublished(event, classEntry(event, eventClass))
-    : isStartListPublishedForClass(event, eventClass ?? event.eventType)
+    : isStartListPublishedForClass(event, eventClass ?? formatTypeOf(event))
 
 /**
  * What still stands before the start list of the class, or of a classless event without one: the

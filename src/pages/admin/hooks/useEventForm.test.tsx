@@ -393,24 +393,27 @@ describe('useEventForm', () => {
 
   // KOE-1534: the trial is already linked, said without mentioning a koetunnus. KOE-1568: the event's
   // registrations lock its payment terms.
-  it.each(['kcGuidConflict', 'paymentLocked'])('should name the refusal for a %s conflict', async (refusal) => {
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    mockSave.mockRejectedValue(new APIError({ status: 409, statusText: '' } as Response, { error: refusal }))
+  it.each(['kcGuidConflict', 'officialFormatClassShape', 'officialFormatLocked', 'paymentLocked'])(
+    'should name the refusal for a %s conflict',
+    async (refusal) => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      mockSave.mockRejectedValue(new APIError({ status: 409, statusText: '' } as Response, { error: refusal }))
 
-    const { result } = renderHook(() => useEventForm(), {
-      wrapper: Provider,
-    })
+      const { result } = renderHook(() => useEventForm(), {
+        wrapper: Provider,
+      })
 
-    await act(async () => {
-      await result.current.handleSave()
-    })
+      await act(async () => {
+        await result.current.handleSave()
+      })
 
-    expect(mockEnqueueSnackbar).toHaveBeenCalledWith(`event.${refusal}`, errorSnackbarOptions)
-    expect(consoleErrorSpy).not.toHaveBeenCalled()
-    expect(mockNavigate).not.toHaveBeenCalled()
+      expect(mockEnqueueSnackbar).toHaveBeenCalledWith(`event.${refusal}`, errorSnackbarOptions)
+      expect(consoleErrorSpy).not.toHaveBeenCalled()
+      expect(mockNavigate).not.toHaveBeenCalled()
 
-    consoleErrorSpy.mockRestore()
-  })
+      consoleErrorSpy.mockRestore()
+    }
+  )
 
   it('should not attempt to save if event is null', async () => {
     ;(useAtom as import('vitest').Mock).mockReturnValue([null, mockSetEvent])

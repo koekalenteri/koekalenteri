@@ -1,4 +1,5 @@
 import type { AuditActor, GroupChangeReason } from '../../lib/audit'
+import type { FormatOwner } from '../../lib/event'
 import type { ResultsParticipant } from '../../lib/publishing'
 import type {
   ConfirmedEventStates,
@@ -395,11 +396,12 @@ export const saveGroup = async (
 
 export const fixRegistrationGroups = async <T extends JsonRegistration>(
   items: T[],
+  event: FormatOwner,
   user: AuditActor,
   save: boolean = true
 ): Promise<T[]> => {
   const previousGroups = new Map(items.map((item) => [item, item.group ? { ...item.group } : undefined]))
-  normalizeRegistrationGroups(items)
+  normalizeRegistrationGroups(items, event)
 
   if (!save) return items
 
@@ -418,6 +420,7 @@ export const fixRegistrationGroups = async <T extends JsonRegistration>(
 /** Repairs and persists the ready-registration ordering under the event lock. */
 export const repairReadyRegistrationGroups = async (
   eventId: string,
+  event: FormatOwner,
   user: AuditActor
 ): Promise<Patch<JsonRegistration>[]> => {
   const releaseGroupsLock = await lockRegistrationGroups(eventId, 8)
@@ -427,7 +430,7 @@ export const repairReadyRegistrationGroups = async (
       ...registration,
       ...(registration.group ? { group: { ...registration.group } } : {}),
     }))
-    const repairedRegistrations = await fixRegistrationGroups(readyRegistrations, user)
+    const repairedRegistrations = await fixRegistrationGroups(readyRegistrations, event, user)
     return createRegistrationPatches(repairedRegistrations, beforeReconciliation)
   } finally {
     await releaseGroupsLock()
@@ -447,6 +450,8 @@ export const linkedEventProjection = (confirmedEvent: JsonConfirmedEvent): JsonL
   location: confirmedEvent.location,
   name: confirmedEvent.name,
   names: confirmedEvent.names,
+  // The link's screens run by the trial's format (KOE-1718), so they are told the type it follows.
+  ...(confirmedEvent.officialFormat ? { officialFormat: confirmedEvent.officialFormat } : {}),
   startDate: confirmedEvent.startDate,
 })
 

@@ -6,6 +6,7 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { formatTypeOf } from '@/lib/event'
 import { DOG_COUNTS, liveFormat, stationDogsAtOnce } from '@/lib/liveFormat'
 import { POST_PARTS, stationParts } from '@/lib/rotation'
 import AutocompleteMulti from '../../components/AutocompleteMulti'
@@ -39,7 +40,7 @@ export const StationRow = ({ event, station, disabled, onChange, onRemove }: Pro
 
   // Asked only where the format leaves it to the post. NOME-A runs four whatever anyone types here,
   // and NOU one, so offering the field there would be offering a lie.
-  const asksDogsAtOnce = liveFormat(event.eventType).dogsAtOnce === undefined
+  const asksDogsAtOnce = liveFormat(formatTypeOf(event)).dogsAtOnce === undefined
 
   return (
     <Grid
@@ -76,7 +77,7 @@ export const StationRow = ({ event, station, disabled, onChange, onRemove }: Pro
             label={t('event.stationDogsAtOnce')}
             onChange={handleDogsChange}
             options={DOG_COUNTS}
-            value={stationDogsAtOnce(event.eventType, station)}
+            value={stationDogsAtOnce(formatTypeOf(event), station)}
           />
         </Grid>
       )}

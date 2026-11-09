@@ -45,6 +45,14 @@ kun kaikki vaadittu on paikallaan. Käy osiot läpi ja tarkista erityisesti:
 
 - **päivämäärät** — kokeen alkamis- ja päättymispäivä sekä ilmoittautumisajan alku ja loppu,
 - **luokat, ryhmät ja koepaikkojen määrä** — paikat voi antaa yhteensä, päivittäin tai luokittain,
+- **{t:event.officialFormat}**: epävirallinen koe voi noudatella virallista koetta (NOU, NOME-B,
+  NOME-A tai NOWT). Silloin luokat, tuomarit, ilmoittautumisen ajat, koepaikat, varasijalista,
+  suorituspaikat ja tulosten syöttö toimivat kuten siinä kokeessa, ja tulos kirjataan sen nimellä,
+  esimerkiksi NOU1. Kuka saa ilmoittautua, Kennelliitto ja tilastot pysyvät epävirallisen kokeen
+  omina. Valintaa voi muuttaa, kunnes kokeeseen on tallennettu ensimmäinen tulos tai suorituspaikan
+  vuoro. Kun kokeessa on jo ilmoittautumisia, valinta ei voi tuoda luokkia kokeeseen eikä poistaa
+  niitä. Jos valintaa muuttaa ilmoittautumisten jälkeen, suorituspaikkojen ja starttinumeroiden
+  linkit on lähetettävä uudelleen, ja ilmoittautujien valitsemat ajat jäävät ennalleen,
 - **tuomarit ja luokat, joita kukin arvostelee**,
 - **{t:event.kcIdSectionTitle}**: koe liitetään Kennelliiton kokeeseen, jotta tulokset voi tallentaa,
 - **yhteystiedot** — mitkä vastaavan koetoimitsijan ja koesihteerin tiedot ilmoittautuja saa nähdä.

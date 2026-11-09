@@ -15,7 +15,7 @@ describeWithTranslations('fi', () => {
       <ConflictDialog
         choices={{}}
         conflicts={nomeAConflicts}
-        eventType="NOME-A"
+        event={{ eventType: 'NOME-A' }}
         onChoose={() => {}}
         onClose={() => {}}
         onResolve={async () => {}}
@@ -36,7 +36,7 @@ describeWithTranslations('fi', () => {
       <ConflictDialog
         choices={choices}
         conflicts={nomeAConflicts}
-        eventType="NOME-A"
+        event={{ eventType: 'NOME-A' }}
         onChoose={onChoose}
         onClose={() => {}}
         onResolve={async () => {}}
@@ -65,7 +65,7 @@ describeWithTranslations('fi', () => {
         <ConflictDialog
           choices={{}}
           conflicts={[{ id: 'dog', stored, submitted }]}
-          eventType="NOWT"
+          event={{ eventType: 'NOWT' }}
           exercisesOf={() => exercises}
           onChoose={() => {}}
           onClose={() => {}}

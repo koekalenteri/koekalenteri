@@ -24,7 +24,7 @@ import { useAdminEventRegistrationDates } from '@/hooks/useAdminEventRegistratio
 import { useAdminEventRegistrationGroups } from '@/hooks/useAdminEventRegistrationGroups'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { rowSelectionModel } from '@/lib/datagrid'
-import { eventRegistrationDateKey, isEntryEditingClosed, isPaymentWindowOpen } from '@/lib/event'
+import { eventRegistrationDateKey, formatTypeOf, isEntryEditingClosed, isPaymentWindowOpen } from '@/lib/event'
 import {
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
@@ -361,7 +361,7 @@ const ClassEntrySelection = ({
           throw new Error('Moving the registration to the day failed')
         }
         // On the whole-trial tab the numbers belong to the dog's own class (KOE-912).
-        const numberClass = eventClass ?? getRegistrationClass(registration)
+        const numberClass = eventClass ?? getRegistrationClass(registration, event)
         await eventActions.enterStartNumbers(event.id, {
           ...(isRegistrationClass(numberClass) ? { eventClass: numberClass } : {}),
           numbers: [{ id: registration.id, startNumber: position }],
@@ -370,7 +370,7 @@ const ClassEntrySelection = ({
         setPendingMoveId(undefined)
       }
     },
-    [actions, confirmPlaceMessage, event.id, eventClass, groups, moveToPositionDay, eventActions.enterStartNumbers]
+    [actions, confirmPlaceMessage, event, eventClass, groups, moveToPositionDay, eventActions.enterStartNumbers]
   )
 
   const handleMoveToPosition = useCallback(
@@ -439,7 +439,7 @@ const ClassEntrySelection = ({
         }}
       >
         {groups.map((group) => {
-          const issues = getNouGroupRuleIssues(event.eventType, registrationsByGroup[group.key] ?? [])
+          const issues = getNouGroupRuleIssues(formatTypeOf(event), registrationsByGroup[group.key] ?? [])
 
           return (
             <Fragment key={group.key}>

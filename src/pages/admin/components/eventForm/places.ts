@@ -1,14 +1,17 @@
 import type { DeepPartial, EventClass } from '@/types'
 import type { PartialEvent } from './types'
-import { getEventDays } from '@/lib/event'
+import { formatTypeOf, getEventDays } from '@/lib/event'
 import { splitEvenly } from '@/lib/utils'
 
 type ClassesEvent = Pick<PartialEvent, 'classes'>
 type DaysEvent = Pick<PartialEvent, 'endDate' | 'places' | 'startDate'>
 
-/** NOME-B trials track capacity per class rather than as a single event-wide or per-day total. */
-export function requiresClassPlaces(event: Pick<PartialEvent, 'eventType'>): boolean {
-  return event.eventType === 'NOME-B'
+/**
+ * NOME-B trials track capacity per class rather than as a single event-wide or per-day total, and so
+ * does an unofficial trial that follows NOME-B (KOE-1718).
+ */
+export function requiresClassPlaces(event: Pick<PartialEvent, 'eventType' | 'officialFormat'>): boolean {
+  return formatTypeOf(event) === 'NOME-B'
 }
 
 /**

@@ -18,7 +18,12 @@ import {
   adminEventRegistrationsReloadAtom,
   adminPendingRegistrationGroupMovesAtom,
 } from './registrations/atoms'
-import { adminEventRegistrationAtom, adminProjectedEventRegistrationsAtom } from './registrations/derivedAtoms'
+import {
+  adminEventOfficialFormatLockedAtom,
+  adminEventPaymentLockedAtom,
+  adminEventRegistrationAtom,
+  adminProjectedEventRegistrationsAtom,
+} from './registrations/derivedAtoms'
 import { adminEditableEventRegistrationByEventIdAndIdAtom } from './registrations/editableAtoms'
 
 /** The families that hold one instance per event the administrator has opened. */
@@ -28,6 +33,8 @@ const EVENT_FAMILIES = [
   adminDuplicatePaymentsRefreshAtom,
   adminEditableEventByIdAtom,
   adminEventAtom,
+  adminEventOfficialFormatLockedAtom,
+  adminEventPaymentLockedAtom,
   adminEventRegistrationsAtom,
   adminEventRegistrationsCursorAtom,
   adminEventRegistrationsFetchedAtAtom,

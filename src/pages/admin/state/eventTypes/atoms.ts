@@ -1,18 +1,12 @@
 import type { RegistrationClass, RegistrationTime } from '@/types'
 import { atom } from 'jotai'
+import { EVENT_TYPE_CLASSES } from '@/lib/event'
 
 export { adminEventTypesRemoteAtom as adminEventTypesAtom } from './remoteAtoms'
 export const adminEventTypeFilterAtom = atom('')
-export const adminEventTypeClassesAtom = atom<Record<string, RegistrationClass[]>>({
-  'NOME-A': [],
-  'NOME-A SM': [],
-  'NOME-B': ['ALO', 'AVO', 'VOI'],
-  'NOME-B SM': ['VOI'],
-  NOU: [],
-  NOWT: ['ALO', 'AVO', 'VOI'],
-  'NOWT SM': ['VOI'],
-  unofficialEvents: ['ALO', 'AVO', 'VOI'],
-})
+/** The classes each type runs, the list the rule of a followed type's classes reads too (KOE-1718). */
+export const adminEventTypeClassesAtom =
+  atom<Readonly<Record<string, readonly RegistrationClass[]>>>(EVENT_TYPE_CLASSES)
 export const adminEventTypeGroupsByTypeAtom = atom<Record<string, RegistrationTime[]>>({
   NKM: ['kp'],
   'NOME-A': ['kp'],
