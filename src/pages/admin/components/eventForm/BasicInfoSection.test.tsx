@@ -342,7 +342,8 @@ describe('BasicInfoSection', () => {
           expect(changed).toHaveBeenLastCalledWith(expect.objectContaining({ classes: longer.classes }))
         })
 
-        it('gives the days to the row left with the code when one of two is removed', async () => {
+        // A row's days are its own: removing it takes them, even while another row shows its code.
+        it('removes a row with its own days while another row shows its code', async () => {
           const longer: PartialEvent = {
             ...open,
             classes: [{ ...judged, class: 'OPE' }],
@@ -354,17 +355,15 @@ describe('BasicInfoSection', () => {
           }
           const { changed, user } = renderEditing(longer)
 
-          // The second row passes through the first row's code: the days stay with the first row.
           await user.type(codeField(1), '{Backspace}')
           await user.click(screen.getAllByRole('button', { name: 'event.ownClasses.remove code' })[0])
-          await user.type(codeField(0), 'N')
 
           expect(changed).toHaveBeenLastCalledWith(
-            expect.objectContaining({ classes: [judged], ownClasses: [{ code: 'OPEN', name: {} }] })
+            expect.objectContaining({ classes: [], ownClasses: [{ code: 'OPE', name: {} }] })
           )
         })
 
-        it('gives each row the days of the code it shows once two rows trade codes', async () => {
+        it('keeps each row with its own days when two rows trade codes', async () => {
           const longer: PartialEvent = {
             ...open,
             classes: [
@@ -379,18 +378,25 @@ describe('BasicInfoSection', () => {
           }
           const { changed, user } = renderEditing(longer)
 
-          // Each code replaced at once, as a paste does: the rows trade codes, and with them the days a
-          // class day's code names.
+          // Each code replaced at once, as a paste does: the rows trade codes, each with its days.
           fireEvent.change(codeField(0), { target: { value: 'BB' } })
           fireEvent.change(codeField(1), { target: { value: 'AA' } })
-          await user.type(codeField(0), 'X')
-          await user.type(codeField(1), 'Y')
-
           expect(changed).toHaveBeenLastCalledWith(
             expect.objectContaining({
               classes: [
-                { class: 'AAY', date: newEventStartDate },
-                { class: 'BBX', date: addDays(newEventStartDate, 1) },
+                { class: 'BB', date: newEventStartDate },
+                { class: 'AA', date: addDays(newEventStartDate, 1) },
+              ],
+            })
+          )
+
+          await user.type(codeField(0), 'X')
+          await user.type(codeField(1), 'Y')
+          expect(changed).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+              classes: [
+                { class: 'BBX', date: newEventStartDate },
+                { class: 'AAY', date: addDays(newEventStartDate, 1) },
               ],
             })
           )
