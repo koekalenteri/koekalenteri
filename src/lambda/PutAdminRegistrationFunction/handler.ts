@@ -21,6 +21,7 @@ import { httpError, isPatchRequest, lambda, response } from '../lib/lambda'
 import {
   adminRegistrationResponse,
   applyOwnerOverrides,
+  assertEntryTeam,
   getRegistration,
   getRegistrationEditToken,
   registrationConflictBody,
@@ -80,6 +81,7 @@ const saveAdminRegistration = async (
 ) => {
   await assertTypedRegNo(data, existing)
   await assertTypedMicrochip(data, existing)
+  assertEntryTeam(data, existing, confirmedEvent)
   // Days are stored as keys (KOE-1547); a browser loaded before that sends instants.
   rekeyRegistrationDays(data, legacyRegistrationDays)
   data.modifiedAt = timestamp

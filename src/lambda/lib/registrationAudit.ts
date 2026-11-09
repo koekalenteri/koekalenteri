@@ -34,6 +34,7 @@ type AuditedField =
   | 'class'
   | 'dates'
   | 'reserve'
+  | 'teamEntry'
   | 'dog'
   | 'breeder'
   | 'owners'
@@ -152,6 +153,7 @@ const AUDITED_FIELDS: readonly AuditedFieldText[] = [
     labelKey: 'registration.reserve',
     lines: (r, _e, t) => single(r.reserve ? t(`registration.reserveChoises.${r.reserve}`) : ''),
   },
+  { field: 'teamEntry', labelKey: 'registration.teamEntry', lines: (r) => single(r.teamEntry?.name) },
   { field: 'dog', labelKey: 'registration.dog', lines: (r, _e, t) => (r.dog ? dogLines(r.dog, t) : []) },
   { field: 'breeder', labelKey: 'registration.breeder', lines: (r, _e, t) => breederLines(r.breeder, t) },
   { field: 'owners', labelKey: 'registration.owners', lines: (r, _e, t) => ownerLines(r, t) },

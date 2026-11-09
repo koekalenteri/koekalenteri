@@ -360,6 +360,13 @@ export interface LastEmail extends Omit<JsonLastEmail, 'sentAt'> {
   sentAt: Date
 }
 
+/** The team a participant names at entry (KOE-1721). */
+export interface TeamEntry {
+  name: string
+  /** The dog's first team, where it enters more than one. */
+  primary?: true
+}
+
 export interface JsonRegistration extends JsonDbRecord {
   agreeToTerms: boolean
   breeder: RegistrationBreeder
@@ -446,6 +453,12 @@ export interface JsonRegistration extends JsonDbRecord {
   refundStatus?: PaymentStatus
   reserve: ReserveChoise | ''
   reserveNotified?: number | true // true is only found in old records
+  /**
+   * The team the participant names at entry (KOE-1721), where the event asks for one
+   * (`teamCompetition.askAtEntry`): the team's name as they wrote it, tidied, and whether it is the
+   * dog's first team. A wish for the secretary, who assembles the teams; the start list shows the teams.
+   */
+  teamEntry?: TeamEntry
   results?: JsonManualTestResult[]
   /** The result recorded for THIS event by the secretary. See `JsonEventResult`. */
   eventResult?: JsonEventResult

@@ -1,4 +1,5 @@
-import type { DogEvent, EventTeam, JsonDogEvent, TeamCompetition } from '../types'
+import type { DogEvent, EventTeam, JsonDogEvent, TeamCompetition, TeamEntry } from '../types'
+import { isObject } from './utils'
 
 /** The letters a team's dogs are told apart by: so many dogs a team can hold (KOE-1714). */
 const MEMBER_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -128,3 +129,31 @@ export const teamCompetitionDiffers = (
   before: TeamCompetition | null | undefined,
   after: TeamCompetition | null | undefined
 ): boolean => !sameDays(before?.days, after?.days)
+
+/** A team's name as it is stored: trimmed, with one space between its words (KOE-1721). */
+export const normalizeTeamName = (name: string): string => name.replaceAll(/\s+/gu, ' ').trim()
+
+/** Why an entry's team cannot be stored: no question asked, no name, or not a team's shape (KOE-1721). */
+type EntryTeamError = 'invalid' | 'noName' | 'notAsked'
+
+const isTeamEntry = (value: unknown): value is TeamEntry =>
+  isObject(value) && typeof value.name === 'string' && (value.primary === undefined || value.primary === true)
+
+/**
+ * Why the save refuses the team an entry names (KOE-1721), or nothing. A team is a name, and maybe the
+ * first-team mark; one is written only where the event asks for it (`teamCompetition.askAtEntry`), and
+ * then with a name. The team stored before is kept as it is, so an event that stops asking leaves the
+ * entries that named one their own to save.
+ */
+export const entryTeamError = (
+  event: Pick<JsonDogEvent | DogEvent, 'teamCompetition'>,
+  teamEntry: unknown,
+  stored?: TeamEntry | null
+): EntryTeamError | undefined => {
+  if (teamEntry === undefined || teamEntry === null) return undefined
+  if (!isTeamEntry(teamEntry)) return 'invalid'
+  const name = normalizeTeamName(teamEntry.name)
+  if (stored && name === normalizeTeamName(stored.name) && teamEntry.primary === stored.primary) return undefined
+  if (event.teamCompetition?.askAtEntry !== true) return 'notAsked'
+  return name ? undefined : 'noName'
+}
