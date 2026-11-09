@@ -268,6 +268,34 @@ it("shows each team's points and placing once the results are out (KOE-1717)", a
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-team-standings')
 })
 
+// The same trial counting only its first day (KOE-1726): the server ranks the teams by that day, and
+// each standing says which day its points come from.
+const countedDaysTrial: PublicConfirmedEvent = {
+  ...standingsTrial,
+  id: 'event-team-counted-days',
+  teamCompetition: { days: [EVENT_DAY] },
+}
+const firstDayWinners = { number: 1, placement: 1, points: 90 }
+const firstDaySecond = { name: 'Team Finland 1', number: 2, placement: 2, points: 85 }
+const countedDaysDogs = [
+  scoredDog(EVENT_DAY, 'WATERFOWLER OAKLEAF', 'FI10724/23', 1, 90, { ...firstDayWinners, code: '1A' }),
+  scoredDog(EVENT_DAY, 'WATERFOWLER ODIN', 'FI10716/23', 2, 85, { ...firstDaySecond, code: '2A' }),
+  scoredDog(SECOND_DAY, 'WATERFOWLER OTSO', 'FI10720/23', 1, 80, { ...firstDayWinners, code: '1B' }),
+  scoredDog(SECOND_DAY, 'WATERFOWLER OLIVIA', 'FI10722/23', 2, 85, { ...firstDaySecond, code: '2B' }),
+]
+
+it('names the days a standing comes from where the competition counts only some (KOE-1726)', async () => {
+  await page.viewport(1000, 1200)
+  const screen = await render(
+    <Frame>
+      <ParticipantList event={countedDaysTrial} participants={countedDaysDogs} />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('1. sija, 90 pistettä, pe 2.10. tuloksista').first()).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-team-counted-days')
+})
+
 // A team competition in two series (KOE-1720): each series has its own first place, and the team in no
 // series is listed first. The rows name the series by id; the page names it from the public event.
 const seriesTrial: PublicConfirmedEvent = {
@@ -317,6 +345,20 @@ it('lists a team competition series by series (KOE-1720)', async () => {
 })
 
 describeInLanguage('en', () => {
+  it('names the days a standing comes from where the competition counts only some (KOE-1726)', async () => {
+    await page.viewport(1000, 1200)
+    const screen = await render(
+      <TestProvider initializeState={({ set }) => set(languageAtom, 'en')}>
+        <Frame>
+          <ParticipantList event={countedDaysTrial} participants={countedDaysDogs} />
+        </Frame>
+      </TestProvider>
+    )
+
+    await expect.element(screen.getByText('place 1, 90 points, from the results of Fri 2.10.').first()).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-team-counted-days-en')
+  })
+
   it('lists a team competition series by series (KOE-1720)', async () => {
     // A store of its own: the series name follows the language atom, which a shared store keeps Finnish.
     const screen = await render(

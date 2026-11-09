@@ -1,5 +1,5 @@
 import type { TeamStanding } from '@/lib/teamStandings'
-import type { EventTeam, Registration } from '@/types'
+import type { DayKey, EventTeam, Registration } from '@/types'
 import ArrowDownward from '@mui/icons-material/ArrowDownward'
 import ArrowUpward from '@mui/icons-material/ArrowUpward'
 import DeleteOutline from '@mui/icons-material/DeleteOutlined'
@@ -38,6 +38,8 @@ interface Props {
   readonly onRunOffChange: (won: boolean) => void
   /** The competition's series by id and name as the secretary reads it (KOE-1720); none, no choice. */
   readonly series?: readonly { id: string; name: string }[]
+  /** The days the points come from where the competition counts only some (`teamCountedDays`, KOE-1726). */
+  readonly countedDays?: readonly DayKey[]
 }
 
 /** The value of the series choice for a team in no series: a select takes no undefined. */
@@ -45,6 +47,7 @@ const NO_SERIES = ''
 
 interface StandingProps {
   readonly standing?: TeamStanding
+  readonly countedDays: Props['countedDays']
   readonly runOffWon: boolean
   readonly onRunOffChange: Props['onRunOffChange']
 }
@@ -53,13 +56,13 @@ interface StandingProps {
  * The team's result over the trial (KOE-1717): its placing and points, and where it is tied for first,
  * whether it won the run-off task that decides first place.
  */
-const TeamResult = ({ standing, runOffWon, onRunOffChange }: StandingProps) => {
+const TeamResult = ({ standing, countedDays, runOffWon, onRunOffChange }: StandingProps) => {
   const { t } = useTranslation()
   if (!standing) return null
 
   return (
     <Stack direction="row" spacing={2} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
-      <Typography variant="body2">{`${t('teams.result')}: ${formatTeamStanding(standing, t)}`}</Typography>
+      <Typography variant="body2">{`${t('teams.result')}: ${formatTeamStanding(standing, t, countedDays)}`}</Typography>
       {standing.runOff && (
         <FormControlLabel
           control={<Checkbox checked={runOffWon} onChange={(e) => onRunOffChange(e.target.checked)} size="small" />}
@@ -93,6 +96,7 @@ export default function TeamCard({
   standing,
   onRunOffChange,
   series = [],
+  countedDays,
 }: Props) {
   const { t } = useTranslation()
   const ids = team.registrationIds
@@ -159,7 +163,12 @@ export default function TeamCard({
             ))}
           </TextField>
         )}
-        <TeamResult standing={standing} runOffWon={!!team.runOffWon} onRunOffChange={onRunOffChange} />
+        <TeamResult
+          standing={standing}
+          countedDays={countedDays}
+          runOffWon={!!team.runOffWon}
+          onRunOffChange={onRunOffChange}
+        />
         {ids.length === 0 && (
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             {t('teams.noDogs')}

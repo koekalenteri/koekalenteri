@@ -8,10 +8,12 @@ import {
   pruneTeamDays,
   teamCompetitionDiffers,
   teamCompetitionErrors,
+  teamCountedDays,
   teamErrors,
   teamMembers,
   teamNameKey,
   teamsDiffer,
+  teamTrialDays,
 } from './team'
 
 const ids = (count: number, prefix = 'dog') => Array.from({ length: count }, (_, index) => `${prefix}-${index}`)
@@ -323,6 +325,37 @@ describe('the counted days (KOE-1726)', () => {
       })
 
       expect([counts('2026-08-02'), counts('2026-08-03')]).toEqual([false, true])
+    })
+  })
+
+  // The days a team's points come from, for the mark beside them: only where the choice leaves a day out.
+  describe('teamCountedDays', () => {
+    it.each<[string, TeamCompetition | undefined, string[]]>([
+      ['none without a choice', undefined, []],
+      ['the chosen days the trial still has, in its order', { days: ['2026-07-31', '2026-08-01'] }, ['2026-08-01']],
+      ['none when the choice is every day', { days: ['2026-08-02', '2026-08-01'] }, []],
+      ['none when the trial has none of the chosen', { days: ['2026-07-31'] }, []],
+    ])('names %s', (_name, teamCompetition, expected) => {
+      expect(teamCountedDays({ ...trial, teamCompetition })).toEqual(expected)
+    })
+
+    // The classes keep the order they were stored in, which a copy or an older event need not keep by date.
+    it('names the days in date order, whatever the order of the classes', () => {
+      const threeDays = {
+        classes: [
+          { class: 'VOI' as const, date: '2026-08-03' as const },
+          { class: 'ALO' as const, date: '2026-08-01' as const },
+          { class: 'AVO' as const, date: '2026-08-02' as const },
+        ],
+        endDate: '2026-08-03' as const,
+        startDate: '2026-08-01' as const,
+      }
+
+      expect(teamTrialDays(threeDays)).toEqual(['2026-08-01', '2026-08-02', '2026-08-03'])
+      expect(teamCountedDays({ ...threeDays, teamCompetition: { days: ['2026-08-03', '2026-08-01'] } })).toEqual([
+        '2026-08-01',
+        '2026-08-03',
+      ])
     })
   })
 

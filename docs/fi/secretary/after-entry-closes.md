@@ -217,7 +217,7 @@ tulos myöhemmin korjataan niin, ettei tasapisteitä enää ole, valinnalla ei o
 ### Sarjat
 
 Joukkuekilpailussa voi olla useita sarjoja, esimerkiksi avoin sarja ja rotusarja. Sarjat lisätään
-joukkueiden yläpuolelta kohdasta *{t:teams.series}* painikkeella **{t:teams.addSeries}**. Jokaiselle
+joukkueiden yläpuolelta paneelista *{t:teams.settings}* kohdasta *{t:teams.series}* painikkeella **{t:teams.addSeries}**. Jokaiselle
 sarjalle annetaan nimi suomeksi ja halutessa englanniksi; englanninkielinen nimi näkyy
 englanninkielisellä starttilistalla. Kun sarjoja on, jokaisen joukkueen kohdalla on valinta
 **{t:teams.teamSeries}**, josta joukkue liitetään sarjaan. Joukkue voi myös olla sarjoihin
@@ -229,6 +229,24 @@ sarja poistetaan roskakorista, sen joukkueet jäävät ilman sarjaa. Sarjan nime
 tahansa; starttilistalla näkyy aina sarjan nykyinen nimi.
 
 !shot[EventTeamsPage/teams-series] Kaksi sarjaa: joukkueet 1 ja 3 ovat avoimessa sarjassa ja joukkue 2 rotusarjassa, joten joukkueet 1 ja 2 ovat kumpikin oman sarjansa ensimmäisiä
+
+### Lasketut päivät
+
+Monipäiväisessä kokeessa voi valita, minkä päivien tulokset lasketaan joukkueiden pisteisiin,
+esimerkiksi derbyn karsintapäivän mutta ei finaalia. Valinta on samassa paneelissa kuin sarjat,
+*{t:teams.settings}*, otsikon *{t:teams.countedDays}* alla, ja paneeli tulee näkyviin, kun kokeella
+on vähintään yksi joukkue tai sarja. Oletuksena kaikki päivät lasketaan. Kun päivän valinnan
+poistaa, sen päivän tulokset eivät kuulu joukkueille. Vähintään yhden päivän on oltava valittuna,
+joten viimeistä laskettavaa päivää ei voi poistaa: jos haluat vaihtaa päivän, valitse ensin uusi
+päivä ja poista sitten vanha. Kun kaikki päivät on taas
+valittu, lasketaan kaikki päivät, myös päivä, joka kokeeseen myöhemmin lisätään. Jos kokeen päiviä
+muutetaan, päivät, joita kokeessa ei enää ole, poistuvat valinnasta, ja kopio siirtää valinnan
+kokeen mukana.
+
+Kun vain osa päivistä lasketaan, joukkueen tuloksen perässä kerrotaan, minkä päivien tuloksista
+pisteet on laskettu, sekä joukkuesivulla että julkisella starttilistalla.
+
+!shot[EventTeamsPage/teams-counted-days] Kaksipäiväinen koe, jossa lasketaan vain ensimmäinen päivä: toisen päivän koiran tulos ei kuulu joukkueelle 2, ja joka joukkueen tuloksessa lukee *ke 10.2. tuloksista*
 
 Muutokset tallennetaan painikkeella **{t:save}**. **{t:cancel}** palaa tapahtumaan tallentamatta.
 
