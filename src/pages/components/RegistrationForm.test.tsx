@@ -102,6 +102,20 @@ describe('RegistrationForm', () => {
     ])
   })
 
+  // KOE-1721: the team section follows the class, only where the event asks for a team at entry.
+  it('asks for the team after the class where the event asks for one', async () => {
+    render(
+      <RegistrationForm
+        event={{ ...eventWithStaticDates, teamCompetition: { askAtEntry: true } }}
+        registration={registrationWithStaticDates}
+      />,
+      { wrapper: Wrapper }
+    )
+    await flushPromises()
+
+    expect(sectionTitles().slice(0, 3)).toEqual(['registration.class', 'registration.teamEntry', 'registration.dog'])
+  })
+
   it('renders with invalid dog information', async () => {
     render(
       <RegistrationForm
