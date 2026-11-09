@@ -5,7 +5,7 @@ order: 30
 covers:
   - src/pages/StartListPage.tsx
   - src/pages/startListPage/**
-sourceHash: abf5b3
+sourceHash: a41d2b
 ---
 
 The start list is the trial's public page, where the organizer publishes the participants, the
@@ -60,7 +60,8 @@ shown by team at all; in the running order it stays in its place marked *{t:star
 ### Team results
 
 In a trial where dogs score points (NOWT), a team's points are its dogs' points added up over the
-whole trial, whatever their class and day. A dog with no result brings the team no points. The teams
+whole trial, whatever their class. The organizer can limit the points to some days, for example the
+qualifying day without the final; the other days' results then do not count for the team. A dog with no result brings the team no points. The teams
 are placed by their total, and teams level on points share a place, for example 1, 2, 2, 4. A tie
 for first place is decided by a run-off task: its winner is first and the others share the next
 place. Until then they share first place.
@@ -70,7 +71,9 @@ dog of the teams in its series, for example *place 2, 170 points*. Before that n
 shows a result, nor while one of the series' teams' dogs is not on the list yet, for example because
 its start number has not been entered. In a trial without series, all teams are one series. In a
 trial of several days, the same line heads the team under every day. The teams that were level for first
-place also show *({t:startList.teamRunOff})*. In a trial without points the teams have no result.
+place also show *({t:startList.teamRunOff})*. Where the points are limited to some days, the line
+ends with the days they come from, for example *place 1, 90 points, from the results of Fri 2.10.*
+In a trial without points the teams have no result.
 
 !shot[ParticipantList/start-list-team-standings] The team results: teams 1 and 2 were level on points, and team 2 won the run-off
 

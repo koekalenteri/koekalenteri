@@ -116,15 +116,21 @@ function teamDay(date: DayKey, draft: TeamDayDraft, event: SeriesOwner): StartLi
 
 /**
  * A team's standing over the trial as the start list and the teams page write it: "1. sija, 170 pistettä",
- * with the run-off named on a team tied for first (KOE-1717). Nothing while the standing is not public.
+ * with the run-off named on a team tied for first (KOE-1717), and the days its points come from where the
+ * competition counts only some (`teamCountedDays`, KOE-1726): "…, la 1.8. tuloksista". Nothing while the
+ * standing is not public.
  */
 export const formatTeamStanding = (
   { placement, points, runOff }: Pick<PublicTeamPlace, 'placement' | 'points' | 'runOff'>,
-  t: TFunction
+  t: TFunction,
+  countedDays: readonly DayKey[] = []
 ): string | undefined => {
   if (placement === undefined || points === undefined) return undefined
   const standing = t('startList.teamStanding', { placement, points })
-  return runOff ? `${standing} (${t('startList.teamRunOff')})` : standing
+  const ranked = runOff ? `${standing} (${t('startList.teamRunOff')})` : standing
+  if (!countedDays.length) return ranked
+  const days = countedDays.map((date) => t('dateFormat.wdshort', { date })).join(', ')
+  return `${ranked}, ${t('startList.teamCountedDays', { days })}`
 }
 
 /**

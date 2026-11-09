@@ -15,7 +15,7 @@ import { useParams } from 'react-router'
 import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
 import { withStoredTotals } from '@/lib/results'
 import { teamSeriesName } from '@/lib/startListView'
-import { isTeamCandidate, teamCompetitionErrors } from '@/lib/team'
+import { isTeamCandidate, teamCompetitionErrors, teamCountedDays, teamTrialDays } from '@/lib/team'
 import { teamSelection } from '@/lib/teamSelection'
 import { teamStandings, withRunOffWinner } from '@/lib/teamStandings'
 import { Path } from '@/routeConfig'
@@ -133,6 +133,11 @@ export default function EventTeamsPage() {
     [event, language]
   )
 
+  // The trial's days for the choice of those the teams count, and the days a team's points come from
+  // where the choice leaves some out (KOE-1726).
+  const trialDays = useMemo(() => (event ? teamTrialDays(event) : []), [event])
+  const countedDays = useMemo(() => (event ? teamCountedDays(event) : []), [event])
+
   // A series the save would refuse, unnamed in Finnish or given an id twice, keeps the save closed: the
   // rule the server holds the settings to (`teamCompetitionErrors`, KOE-1720).
   const seriesUnsettled = teamCompetitionErrors(event?.teamCompetition).length > 0
@@ -189,7 +194,11 @@ export default function EventTeamsPage() {
             value={countText ?? teams.length}
           />
           {(teams.length > 0 || !!event.teamCompetition?.series?.length) && (
-            <TeamCompetitionSettings teamCompetition={event.teamCompetition} onChange={handleTeamCompetition} />
+            <TeamCompetitionSettings
+              teamCompetition={event.teamCompetition}
+              trialDays={trialDays}
+              onChange={handleTeamCompetition}
+            />
           )}
           {numbered.map(({ number, team }) => (
             <TeamCard
@@ -203,6 +212,7 @@ export default function EventTeamsPage() {
               selection={selections[number - 1]}
               onMove={(to) => void moveTeam(number, team, to)}
               moveBlocked={moveBlocked}
+              countedDays={countedDays}
               standing={standings.get(number - 1)}
               team={team}
             />

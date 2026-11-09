@@ -888,6 +888,31 @@ describe('ParticipantList', () => {
       })
     })
 
+    // KOE-1726: where the competition counts only some days, the copied standing says which.
+    it('copies the days a standing comes from where the competition counts only some', async () => {
+      const user = userEvent.setup()
+      mockClipboard()
+      const twoDays: PublicConfirmedEvent = {
+        ...mockEvent,
+        classes: [
+          { class: 'AVO', date: '2023-01-01', state: 'invited' },
+          { class: 'AVO', date: '2023-01-02', state: 'invited' },
+        ],
+        teamCompetition: { days: ['2023-01-01'] },
+      }
+      const ranked = {
+        ...createMockRegistration('AVO', 'Aapo', 1, '2023-01-01'),
+        team: { code: '1A', number: 1, placement: 1, points: 90 },
+      }
+      render(<ParticipantList participants={[ranked]} event={twoDays} showExportActions />)
+
+      await user.click(screen.getByRole('button', { name: /copyStartList/ }))
+
+      expect(writeText).toHaveBeenCalledWith(
+        expect.stringContaining('Joukkue 1\nstartList.teamStanding placement, points, startList.teamCountedDays days\n')
+      )
+    })
+
     it('names the class in front of the code where the day teams mix classes', () => {
       render(
         <ParticipantList

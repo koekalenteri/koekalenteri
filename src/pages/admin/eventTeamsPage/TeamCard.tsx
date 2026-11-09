@@ -1,6 +1,6 @@
 import type { TeamSelectionState } from '@/lib/teamSelection'
 import type { TeamStanding } from '@/lib/teamStandings'
-import type { EventTeam, Registration } from '@/types'
+import type { DayKey, EventTeam, Registration } from '@/types'
 import type { TeamMoveTarget } from './useMoveTeam'
 import ArrowDownward from '@mui/icons-material/ArrowDownward'
 import ArrowUpward from '@mui/icons-material/ArrowUpward'
@@ -47,6 +47,8 @@ interface Props {
   readonly onMove?: (to: TeamMoveTarget) => void
   /** Why the team cannot be moved now, if it cannot: the page holds changes not saved. */
   readonly moveBlocked?: string
+  /** The days the points come from where the competition counts only some (`teamCountedDays`, KOE-1726). */
+  readonly countedDays?: readonly DayKey[]
 }
 
 interface TeamMoveProps {
@@ -91,6 +93,7 @@ const NO_SERIES = ''
 
 interface StandingProps {
   readonly standing?: TeamStanding
+  readonly countedDays: Props['countedDays']
   readonly runOffWon: boolean
   readonly onRunOffChange: Props['onRunOffChange']
 }
@@ -99,13 +102,13 @@ interface StandingProps {
  * The team's result over the trial (KOE-1717): its placing and points, and where it is tied for first,
  * whether it won the run-off task that decides first place.
  */
-const TeamResult = ({ standing, runOffWon, onRunOffChange }: StandingProps) => {
+const TeamResult = ({ standing, countedDays, runOffWon, onRunOffChange }: StandingProps) => {
   const { t } = useTranslation()
   if (!standing) return null
 
   return (
     <Stack direction="row" spacing={2} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
-      <Typography variant="body2">{`${t('teams.result')}: ${formatTeamStanding(standing, t)}`}</Typography>
+      <Typography variant="body2">{`${t('teams.result')}: ${formatTeamStanding(standing, t, countedDays)}`}</Typography>
       {standing.runOff && (
         <FormControlLabel
           control={<Checkbox checked={runOffWon} onChange={(e) => onRunOffChange(e.target.checked)} size="small" />}
@@ -142,6 +145,7 @@ export default function TeamCard({
   selection,
   onMove,
   moveBlocked,
+  countedDays,
 }: Props) {
   const { t } = useTranslation()
   const ids = team.registrationIds
@@ -208,7 +212,12 @@ export default function TeamCard({
             ))}
           </TextField>
         )}
-        <TeamResult standing={standing} runOffWon={!!team.runOffWon} onRunOffChange={onRunOffChange} />
+        <TeamResult
+          standing={standing}
+          countedDays={countedDays}
+          runOffWon={!!team.runOffWon}
+          onRunOffChange={onRunOffChange}
+        />
         {selection && onMove && selection !== 'empty' && (
           <TeamMove selection={selection} onMove={onMove} moveBlocked={moveBlocked} />
         )}
