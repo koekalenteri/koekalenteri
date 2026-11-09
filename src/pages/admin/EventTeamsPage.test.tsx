@@ -119,6 +119,26 @@ describe('EventTeamsPage', () => {
     expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Toinen'])
   })
 
+  // KOE-1725: once a class is picked, a team takes only the dogs picked into it, as the save holds to.
+  it('offers only the picked dogs of a picked class, and keeps a reserve dog already in a team', async () => {
+    const [, , waiting] = registrationsToEventWithStations
+    const secondReserve = { ...waiting, dog: { ...waiting.dog, name: 'Toinen varalla' }, id: 'reserve-2' }
+    const { user } = await renderPage(
+      {
+        ...eventWithStations,
+        classes: eventWithStations.classes.map((eventClass) => ({ ...eventClass, state: 'picked' as const })),
+        teams: [{ registrationIds: ['reserve-1'] }, { registrationIds: [] }],
+      },
+      [...registrations, secondReserve]
+    )
+    await flushPromises()
+    const [first, second] = teamSections()
+
+    expect(members(first)).toEqual(['1A Varalla' + 'teams.memberReserve'])
+    await user.click(within(second).getByRole('combobox', { name: 'teams.addDog' }))
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Ensimmainen', 'Toinen'])
+  })
+
   it('moves the letters with the dogs, and closes the gap a removed dog leaves', async () => {
     const { user } = await renderPage({
       ...eventWithStations,
