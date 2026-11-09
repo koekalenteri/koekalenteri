@@ -420,7 +420,8 @@
       "error": {
         "noExercises": "Ryhmällä {{group}} ei ole rasteja. Poista ryhmä ja lisää se uudelleen.",
         "overlap": "Ryhmien {{group}} ja {{other}} numerovälit menevät päällekkäin.",
-        "range": "Ryhmän {{group}} numerovälistä puuttuu alku tai loppu, tai alku on lopun jälkeen."
+        "range": "Ryhmän {{group}} numerovälistä puuttuu alku tai loppu, tai alku on lopun jälkeen.",
+        "unknownClass": "Ryhmän {{group}} luokkaa ei ole enää kokeessa. Poista ryhmä."
       },
       "errorsTitle": "Suoritusjärjestystä ei voi tallentaa:",
       "exerciseMany": "rastit {{list}} ja {{last}}",
