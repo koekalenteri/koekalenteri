@@ -9,7 +9,7 @@ covers:
   - src/pages/RegistrationCreatePage.tsx
   - src/pages/components/RegistrationForm.tsx
   - src/pages/components/registrationForm/**
-sourceHash: 6ed661
+sourceHash: edd580
 ---
 
 Entering a trial needs no account and no sign-in. All you need is access to the email address you
@@ -61,6 +61,15 @@ In an unofficial trial the organizer can give the classes names of their own, an
 show by their names.
 
 !shot[EntryInfo/entry-info-with-classes] Class, days and the notice you can accept a reserve place on
+
+**Team.** Where the trial has a team competition and the organizer asks for the team at entry, the
+form has a section *{t:registration.teamEntry}*. Write the team's name there if your dog runs in a
+team, for example a club's or a kennel's, and tick *{t:registration.teamEntryPrimary}* if it is the
+club's or the kennel's first team. Naming a team is optional. The secretary puts the teams together
+by the names given, so enter the dogs of one team under the same name; capitals and spaces do not
+tell names apart. A name can be at most 60 characters long.
+
+!shot[TeamEntryInfo/team-entry-info] The team's name and the first-team mark
 
 **{t:registration.agreeToTerms}** have to be accepted before the entry can be confirmed.
 

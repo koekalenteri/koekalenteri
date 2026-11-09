@@ -216,7 +216,7 @@ export const normalizeTeamName = (name: string): string => name.replaceAll(/\s+/
 export const teamNameKey = (name: string): string => normalizeTeamName(name).toLocaleLowerCase('fi')
 
 /** The longest name a team named at entry may have, once tidied (KOE-1721). */
-const MAX_TEAM_NAME_LENGTH = 60
+export const MAX_TEAM_NAME_LENGTH = 60
 
 /**
  * Why an entry's team cannot be stored (KOE-1721): not a team's shape, no question asked, no name, or a

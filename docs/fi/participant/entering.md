@@ -61,6 +61,16 @@ nimillään.
 
 !shot[EntryInfo/entry-info-with-classes] Koeluokka, päivät ja varasijan varoitusaika
 
+**Joukkue.** Jos kokeessa on joukkuekilpailu ja järjestäjä kysyy joukkuetta ilmoittautuessa,
+lomakkeella on osio *{t:registration.teamEntry}*. Kirjoita siihen joukkueen nimi, jos koirasi kuuluu
+esimerkiksi yhdistyksen tai kennelin joukkueeseen, ja rastita *{t:registration.teamEntryPrimary}*,
+jos joukkue on yhdistyksen tai kennelin ensimmäinen joukkue. Joukkue on vapaaehtoinen. Koesihteeri
+kokoaa joukkueet ilmoitettujen nimien mukaan, ja saman joukkueen koirat kannattaa ilmoittaa samalla
+nimellä; isot ja pienet kirjaimet ja välilyönnit eivät erota nimiä toisistaan. Nimessä voi olla
+enintään 60 merkkiä.
+
+!shot[TeamEntryInfo/team-entry-info] Joukkueen nimi ja ykkösjoukkueen merkintä
+
 **{t:registration.agreeToTerms}** on hyväksyttävä ennen kuin ilmoittautumisen voi vahvistaa.
 
 Jos vahvistuspainike ei aktivoidu, avaa lomakkeen alalaidasta *{t:registration.accordionTitle}* —

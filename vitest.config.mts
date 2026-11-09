@@ -111,7 +111,7 @@ export default defineConfig({
                 // The charts skip their grow/draw animation when the viewer prefers reduced motion,
                 // so a capture never catches a half-drawn bar.
                 reducedMotion: 'reduce',
-                viewport: { height: 3000, width: 1280 },
+                viewport: { height: 3600, width: 1280 },
               },
             }),
             headless: true,

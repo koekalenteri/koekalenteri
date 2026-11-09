@@ -102,6 +102,20 @@ describe('RegistrationForm', () => {
     ])
   })
 
+  // KOE-1721: the team section follows the class, only where the event asks for a team at entry.
+  it('asks for the team after the class where the event asks for one', async () => {
+    render(
+      <RegistrationForm
+        event={{ ...eventWithStaticDates, teamCompetition: { askAtEntry: true } }}
+        registration={registrationWithStaticDates}
+      />,
+      { wrapper: Wrapper }
+    )
+    await flushPromises()
+
+    expect(sectionTitles().slice(0, 3)).toEqual(['registration.class', 'registration.teamEntry', 'registration.dog'])
+  })
+
   it('renders with invalid dog information', async () => {
     render(
       <RegistrationForm
@@ -290,6 +304,124 @@ describe('RegistrationForm', () => {
           )
         })
       })
+    })
+  })
+
+  describe('the team named at entry (KOE-1721)', () => {
+    // Before the trial, so the entry is still the registrant's to change.
+    beforeEach(() => vi.setSystemTime(frozenInstant('2021-01-01')))
+    afterEach(() => vi.setSystemTime(vi.getRealSystemTime()))
+
+    it('names the team as typed, and leaves the entry without a team once the name is cleared', async () => {
+      let changed: object = {}
+      const onChange = vi.fn((registration: object) => {
+        changed = registration
+      })
+      const { user } = renderWithUserEvents(
+        <RegistrationForm
+          event={{ ...eventWithStaticDates, teamCompetition: { askAtEntry: true } }}
+          registration={{ ...registrationWithStaticDates, teamEntry: { name: 'Golden Ring' } }}
+          onChange={onChange}
+        />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      await flushPromises()
+
+      await user.clear(screen.getByRole('textbox', { name: 'registration.teamEntryName' }))
+      await flushPromises()
+
+      // The key goes, not only its value, so the save sends the team's removal.
+      expect(onChange).toHaveBeenCalled()
+      expect(Object.hasOwn(changed, 'teamEntry')).toBe(false)
+    })
+
+    // The form keeps what it is given, as the edit page does, so a tick shows on the next change.
+    const StatefulForm = ({
+      initial,
+      onChange,
+    }: {
+      readonly initial: Registration
+      readonly onChange: (registration: Registration) => void
+    }) => {
+      const [registration, setRegistration] = useState(initial)
+      return (
+        <RegistrationForm
+          event={{ ...eventWithStaticDates, teamCompetition: { askAtEntry: true } }}
+          registration={registration}
+          onChange={(changed) => {
+            setRegistration(changed)
+            onChange(changed)
+          }}
+        />
+      )
+    }
+
+    it('takes the first-team mark off as it put it on, and keeps it through a rename', async () => {
+      const onChange = vi.fn()
+      const { user } = renderWithUserEvents(
+        <StatefulForm
+          initial={{ ...registrationWithStaticDates, teamEntry: { name: 'Golden Ring' } }}
+          onChange={onChange}
+        />,
+        { wrapper: Wrapper },
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      await flushPromises()
+      const primary = () => screen.getByRole('checkbox', { name: 'registration.teamEntryPrimary' })
+
+      await user.click(primary())
+      await flushPromises()
+      expect(onChange).toHaveBeenLastCalledWith(
+        expect.objectContaining({ teamEntry: { name: 'Golden Ring', primary: true } })
+      )
+
+      await user.click(primary())
+      await flushPromises()
+      expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ teamEntry: { name: 'Golden Ring' } }))
+
+      await user.click(primary())
+      await user.type(screen.getByRole('textbox', { name: 'registration.teamEntryName' }), ' 2')
+      await flushPromises()
+      expect(onChange).toHaveBeenLastCalledWith(
+        expect.objectContaining({ teamEntry: { name: 'Golden Ring 2', primary: true } })
+      )
+    })
+
+    it('shows a team the entry already names where the trial no longer asks for one', async () => {
+      render(
+        <RegistrationForm
+          event={eventWithStaticDates}
+          registration={{ ...registrationWithStaticDates, teamEntry: { name: 'Golden Ring' } }}
+        />,
+        { wrapper: Wrapper }
+      )
+      await flushPromises()
+
+      expect(sectionTitles()).toContain('registration.teamEntry')
+      expect(screen.getByRole('textbox', { name: 'registration.teamEntryName' })).toHaveValue('Golden Ring')
+    })
+
+    it('leaves the team as it is while the entry is locked or the form is disabled', async () => {
+      // The trial is past: the entry's details are no longer the registrant's to change.
+      vi.setSystemTime(vi.getRealSystemTime())
+      const onChange = vi.fn()
+      const registration = { ...registrationWithStaticDates, teamEntry: { name: 'Golden Ring' } }
+      const event = { ...eventWithStaticDates, teamCompetition: { askAtEntry: true } }
+      const { rerender } = render(<RegistrationForm event={event} registration={registration} onChange={onChange} />, {
+        wrapper: Wrapper,
+      })
+      await flushPromises()
+
+      expect(screen.getByRole('textbox', { name: 'registration.teamEntryName' })).toBeDisabled()
+      expect(screen.getByRole('checkbox', { name: 'registration.teamEntryPrimary' })).toBeDisabled()
+
+      vi.setSystemTime(frozenInstant('2021-01-01'))
+      rerender(<RegistrationForm disabled event={event} registration={registration} onChange={onChange} />)
+      await flushPromises()
+
+      expect(screen.getByRole('textbox', { name: 'registration.teamEntryName' })).toBeDisabled()
+      expect(onChange).not.toHaveBeenCalled()
     })
   })
 

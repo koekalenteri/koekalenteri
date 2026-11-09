@@ -1297,6 +1297,32 @@ describe('validation', () => {
       ])
     })
 
+    // KOE-1721: the form holds the team named at entry to the rule the save holds it to (`entryTeamError`).
+    describe('the team named at entry', () => {
+      const asking = { ...nameFormatEvent, teamCompetition: { askAtEntry: true } }
+      const base = regWithOwnerNamed('Matti Meikäläinen')
+      const teamErrors = (reg: Registration, event: PublicConfirmedEvent, saved?: Registration) =>
+        validateRegistration(reg, event, saved).filter((e) => e.opts.field === 'teamEntry')
+
+      it('takes a name where the event asks for one, and no team at all', () => {
+        expect(teamErrors({ ...base, teamEntry: { name: 'Golden Ring', primary: true } }, asking)).toEqual([])
+        expect(teamErrors(base, asking)).toEqual([])
+      })
+
+      it('refuses a name longer than the save takes', () => {
+        expect(teamErrors({ ...base, teamEntry: { name: 'x'.repeat(61) } }, asking)).toEqual([
+          { key: 'teamEntryTooLong', opts: { field: 'teamEntry', length: 60 } },
+        ])
+      })
+
+      it('refuses a team where the event does not ask for one, but keeps a stored one', () => {
+        const named = { ...base, teamEntry: { name: 'Golden Ring' } }
+
+        expect(teamErrors(named, nameFormatEvent)).toEqual([{ key: 'teamEntryNotAsked', opts: { field: 'teamEntry' } }])
+        expect(teamErrors(named, nameFormatEvent, named)).toEqual([])
+      })
+    })
+
     it('should skip fields in NOT_VALIDATED list', () => {
       const mockEvent: PublicConfirmedEvent = {
         ...eventWithStaticDates,
