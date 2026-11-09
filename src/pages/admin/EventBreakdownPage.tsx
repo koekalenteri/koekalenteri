@@ -64,7 +64,7 @@ export default function EventBreakdownPage() {
         sheetName: t('stats.admin.eventClassStatsSheet'),
       })
     } catch (error) {
-      // The download fails in the browser only; say so, or the button looks like it did nothing (KOE-1713).
+      // A failed request is shown to the user as well as reported, or the button looks like it did nothing (KOE-1713).
       reportError(error)
       enqueueSnackbar(t('stats.admin.eventClassStatsFailed'), errorSnackbarOptions)
     } finally {
