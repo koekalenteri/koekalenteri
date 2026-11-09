@@ -1,4 +1,4 @@
-import { union, unknown } from 'valibot'
+import { literal, optional, union, unknown } from 'valibot'
 import { arrayOf, bool, maybe, num, objectOf, oneOf, str } from './common'
 
 /**
@@ -72,4 +72,6 @@ export const registrationBodySchema = objectOf({
   qualifyingResults: maybe(arrayOf(unknown())),
   reserve: maybe(oneOf(['ANY', 'DAY', 'WEEK', 'NO', ''])),
   results: maybe(arrayOf(testResult)),
+  /** The team named at entry (KOE-1721); where it may be written is `entryTeamError`'s. */
+  teamEntry: maybe(objectOf({ name: str, primary: optional(literal(true)) })),
 })

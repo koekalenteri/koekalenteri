@@ -75,6 +75,7 @@ const CHANGED: Record<string, unknown> = {
   reserve: 'DAY',
   results: [{ date: '2020-08-01' }],
   selectedCost: 'custom',
+  teamEntry: { name: 'Savon Nuuskut 1' },
 }
 
 const lockedFields = Object.entries(PARTICIPANT_FIELD_SECTIONS).flatMap(([field, section]) =>
