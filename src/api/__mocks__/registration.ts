@@ -178,14 +178,16 @@ export const putAdminRegistrationNotes = vi.fn(
   ): Promise<void> => undefined
 )
 
-export async function putRegistrationGroups(
-  _eventId: string,
-  _moves: RegistrationGroupMove[],
-  _token: string,
-  _signal?: AbortSignal
-): Promise<Pick<ConfirmedEvent, 'classes' | 'entries'> & { items: Registration[] }> {
-  throw new Error('not implemented')
-}
+export const putRegistrationGroups = vi.fn(
+  async (
+    _eventId: string,
+    _moves: RegistrationGroupMove[],
+    _token: string,
+    _signal?: AbortSignal
+  ): Promise<Pick<ConfirmedEvent, 'classes' | 'entries'> & { items: Registration[] }> => {
+    throw new Error('not implemented')
+  }
+)
 
 const getMockStartList = (eventId: string): Promise<Registration[]> =>
   new Promise((resolve, reject) => {

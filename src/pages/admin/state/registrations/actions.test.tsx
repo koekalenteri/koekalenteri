@@ -367,6 +367,32 @@ describe('useAdminRegistrationActions', () => {
     consoleError.mockRestore()
   })
 
+  // KOE-1722: a move the class does not allow is refused with its reason, and the secretary reads why.
+  it('tells the secretary why the server refused a move', async () => {
+    const refusal = new APIError(new Response(null, { status: 409 }), {
+      error: 'groupMoveRefused',
+      reason: 'reserveAfterPicking',
+    })
+    vi.spyOn(registrationApi, 'putRegistrationGroups').mockRejectedValueOnce(refusal)
+    listRegistrations.mockResolvedValueOnce([registrationWithStaticDates])
+    const { result } = renderHook(() => useAdminRegistrationActions(eventWithStaticDates.id), {
+      wrapper: groupQueueWrapper,
+    })
+
+    let saved: false | undefined
+    await act(async () => {
+      saved = await result.current.saveGroups(eventWithStaticDates.id, [
+        { group: { key: 'reserve' }, id: registrationWithStaticDates.id },
+      ])
+    })
+
+    expect(saved).toBe(false)
+    expect(mockEnqueueSnackbar).toHaveBeenCalledWith(
+      'registration.groupMoveRefused context',
+      expect.objectContaining({ variant: 'warning' })
+    )
+  })
+
   it('stores the start list flag the invitations settled, not the copy from before them', async () => {
     // An event from before the flag reads an absent flag as a published list. Sending the invitations
     // settles it to false on the server; the copy stored here has to say so too, or the panel keeps

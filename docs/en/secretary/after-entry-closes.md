@@ -20,7 +20,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: d0a094
+sourceHash: 17ff80
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -243,6 +243,29 @@ once the extra dogs have moved to other teams. The team's name, dogs and first-t
 then be changed like any other team's, and **{t:save}** stores the changes.
 
 !shot[EventTeamsPage/teams-suggestions] The question at entry is on, and Kultaiset Noutajat, given in two spellings, is one suggestion with the first-team mark
+
+### Moving a whole team
+
+Each team shows whether its dogs are participants, on the reserve list or some of each.
+**{t:teams.toParticipants}** moves the team's dogs on the reserve list to the participants, each to
+the day and group it entered, and **{t:teams.toReserve}** moves the team's participants to the
+reserve list. A dog that cancelled is not moved.
+
+If the move sends the dogs a confirmation of their place, that is, once the class's participants are
+picked, Koekalenteri asks first and names the dogs the message goes to. The dogs are moved one class
+at a time. If a class fails to move, the dogs of the other classes still move, and Koekalenteri
+names the dogs that were not moved.
+
+The moves follow the same rules as the class's participant view. Once the class's participants are
+picked, its participants cannot be moved to the reserve list, and once the class's entries are closed
+(the trial is over or the class judged), its dogs cannot be moved at all; the reason shows under the
+button. A dog with no class, or whose class has no group to move it to, stays where it is, and
+Koekalenteri names it after the move.
+
+A team is moved as it is saved: while the page has changes not saved, the move buttons wait for
+the save. While a move runs, the buttons wait for it to finish.
+
+!shot[EventTeamsPage/teams-move] One of the team's dogs is a participant and one on the reserve list, so the team can be moved either way
 
 ### Series
 

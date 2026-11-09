@@ -5,6 +5,7 @@ import { eventWithStaticDatesAnd3Classes } from '@/__mockData__/events'
 import { recordEvent } from '@/lib/client/rum'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '@/lib/registration'
 import { applyRegistrationGroupMoves } from '@/lib/registrationGroups'
+import { freezeClockAt } from '@/test-utils/freezeClock'
 import { determineChangesFromDrop } from './dnd'
 import { useDnDHandlers } from './useDnDHandlers'
 
@@ -68,6 +69,9 @@ describe('useDnDHandlers', () => {
   const mockSaveGroups = vi.fn().mockResolvedValue(undefined)
   const mockOnCancelOpen = vi.fn()
 
+  // Before the trial: its classes still take moves (`groupMoveError`, KOE-1722).
+  freezeClockAt('2021-02-01')
+
   const defaultProps = {
     canArrangeReserve: true,
     confirm: mockConfirm,
@@ -76,7 +80,6 @@ describe('useDnDHandlers', () => {
     registrations: mockRegistrations,
     saveGroups: mockSaveGroups,
     setSelectedRegistrationId: mockSetSelectedRegistrationId,
-    state: 'confirmed' as const,
   }
 
   beforeEach(() => {
@@ -102,7 +105,7 @@ describe('useDnDHandlers', () => {
       const props = {
         ...defaultProps,
         confirm: mockConfirmWithStructure,
-        state: 'picked' as const,
+        event: { ...eventWithStaticDatesAnd3Classes, state: 'picked' as const },
       }
 
       const { result } = renderHook(() => useDnDHandlers(props))
@@ -127,7 +130,7 @@ describe('useDnDHandlers', () => {
       const props = {
         ...defaultProps,
         confirm: mockCancelledConfirm,
-        state: 'picked' as const,
+        event: { ...eventWithStaticDatesAnd3Classes, state: 'picked' as const },
       }
 
       const { result } = renderHook(() => useDnDHandlers(props))
@@ -152,7 +155,6 @@ describe('useDnDHandlers', () => {
         ...defaultProps,
         confirm: mockConfirmWithStructure,
         event: { ...eventWithStaticDatesAnd3Classes, state: 'invited' as const },
-        state: 'invited' as const,
       }
 
       const { result } = renderHook(() => useDnDHandlers(props))
@@ -177,7 +179,7 @@ describe('useDnDHandlers', () => {
       const props = {
         ...defaultProps,
         confirm: mockUnusedConfirm,
-        state: 'picked' as const,
+        event: { ...eventWithStaticDatesAnd3Classes, state: 'picked' as const },
       }
 
       const { result } = renderHook(() => useDnDHandlers(props))
@@ -386,7 +388,7 @@ describe('useDnDHandlers', () => {
     it('should show warning when trying to move from participants to reserve after picking', () => {
       const props = {
         ...defaultProps,
-        state: 'picked' as const,
+        event: { ...eventWithStaticDatesAnd3Classes, state: 'picked' as const },
       }
 
       const { result } = renderHook(() => useDnDHandlers(props))

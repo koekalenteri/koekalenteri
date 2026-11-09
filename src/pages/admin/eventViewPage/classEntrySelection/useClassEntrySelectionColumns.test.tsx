@@ -1196,4 +1196,28 @@ describe('placement column', () => {
 
     expect(result.current.participantColumns.some((col) => col.field === 'placement')).toBe(false)
   })
+
+  // KOE-1722: the dog's own class decides, as on the server, not the event's state. Class ALO is
+  // picked while the event and class AVO are not, so only the ALO participant stays where it is.
+  it("offers the reserve list by the dog's own class, not the event's state", () => {
+    vi.useFakeTimers({ now: new Date('2021-02-01T12:00:00Z'), toFake: ['Date'] })
+    const mixed: ConfirmedEvent = {
+      ...eventWithStaticDatesAnd3Classes,
+      classes: eventWithStaticDatesAnd3Classes.classes.map((c) => (c.class === 'ALO' ? { ...c, state: 'picked' } : c)),
+      state: 'confirmed',
+    }
+    const { result } = renderHook(() =>
+      useClassEntrySelectionColumns(mockAvailableDates, mixed, { moveToReserve: vi.fn() })
+    )
+    const actionsColumn = result.current.entryColumns.find((col) => col.field === 'actions')
+    const moveToReserve = (eventClass: string) =>
+      getRowActions(
+        actionsColumn,
+        asRegistration({ cancelled: false, class: eventClass, group: { key: 'P' }, id: `p-${eventClass}` })
+      ).find((action) => action.key === 'moveToReserve')
+
+    expect(moveToReserve('ALO')?.props.disabled).toBe(true)
+    expect(moveToReserve('AVO')?.props.disabled).toBe(false)
+    vi.useRealTimers()
+  })
 })

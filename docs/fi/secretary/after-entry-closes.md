@@ -237,11 +237,34 @@ tekee ehdotuksesta joukkueen: se täyttää ensimmäisen tyhjän joukkueen, joll
 koiria, tai lisää uuden joukkueen loppuun. Tyhjän joukkueen sarja säilyy, ja ykkösjoukkueen
 merkintä tulee ehdotuksesta. Jos nimen on ilmoittanut useampi koira kuin joukkueeseen mahtuu,
 ehdotus kertoo sen, ja joukkueeksi tehtynä se kertoo, montako koiraa joukkueessa voi olla:
-tallentaa voi vasta, kun ylimääräiset koirat on siirretty muihin joukkueisiin. Joukkueen nimeä, koiria ja ykkösjoukkueen merkintää voi
-sen jälkeen muuttaa kuten muidenkin joukkueiden, ja muutokset tallennetaan
-painikkeella **{t:save}**.
+tallentaa voi vasta, kun ylimääräiset koirat on siirretty muihin joukkueisiin. Joukkueen nimeä,
+koiria ja ykkösjoukkueen merkintää voi sen jälkeen muuttaa kuten muidenkin joukkueiden, ja
+muutokset tallennetaan painikkeella **{t:save}**.
 
 !shot[EventTeamsPage/teams-suggestions] Kysymys ilmoittautumisessa on päällä, ja kahdella kirjoitusasulla ilmoitettu Kultaiset Noutajat on yksi ehdotus ykkösjoukkueen merkinnällä
+
+### Koko joukkueen siirto
+
+Jokaisen joukkueen kohdalla kerrotaan, ovatko sen koirat osallistujina, varasijalla vai osa
+kummassakin. Painike **{t:teams.toParticipants}** siirtää joukkueen varasijalla olevat koirat
+osallistujiin, kunkin sen päivän ja ryhmän osallistujiin, johon se on ilmoittautunut, ja
+**{t:teams.toReserve}** siirtää joukkueen osallistujat varasijalle. Perunutta koiraa ei siirretä.
+
+Jos siirto lähettää koirille vahvistusviestin koepaikasta, eli luokan osallistujat on jo valittu,
+Koekalenteri kysyy ensin ja kertoo, mille koirille viesti lähtee. Koirat siirretään luokka
+kerrallaan. Jos jonkin luokan siirto epäonnistuu, muiden luokkien koirat siirtyvät silti, ja
+Koekalenteri kertoo, mitkä koirat jäivät siirtämättä.
+
+Siirrot noudattavat samoja sääntöjä kuin luokan osallistujanäkymä. Kun luokan osallistujat on
+valittu, sen osallistujia ei voi siirtää varasijalle, ja kun luokan ilmoittautumiset on suljettu
+(koe on päättynyt tai luokka arvosteltu), sen koiria ei voi siirtää lainkaan; painikkeen alla
+kerrotaan syy. Koira, jolla ei ole luokkaa tai jonka luokalla ei ole ryhmää, johon sen voisi
+siirtää, jää paikalleen, ja Koekalenteri nimeää sen siirron jälkeen.
+
+Joukkue siirretään sellaisena kuin se on tallennettu: kun sivulla on tallentamattomia muutoksia,
+siirtopainikkeet odottavat tallennusta. Siirron aikana painikkeet odottavat sen valmistumista.
+
+!shot[EventTeamsPage/teams-move] Joukkueen koirista yksi on osallistujana ja yksi varasijalla, joten joukkueen voi siirtää kumpaan suuntaan tahansa
 
 ### Sarjat
 
