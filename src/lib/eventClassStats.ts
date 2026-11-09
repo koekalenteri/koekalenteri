@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next'
-import type { DayKey, EventState, JsonDogEvent, JsonRegistration } from '../types'
+import type { DayKey, DogEventCost, EventState, JsonDogEvent, JsonRegistration } from '../types'
 import type { EventClassStatsRow } from '../types/Stats'
 import { getCostValue } from './cost'
 import { compareRegistrationClasses, eventDates, placesForClass, uniqueClasses } from './event'
@@ -7,11 +7,10 @@ import { PRIORITY, priorityValuesToPriority } from './priority'
 import { hasPriority, isFinishedEntry, isStarter } from './registration'
 import { unique } from './utils'
 
+/** A draft or tentative trial is saved without a price; only a confirmed one must have it (KOE-1713). */
 type EventClassStatsEvent = Pick<
   JsonDogEvent,
   | 'classes'
-  | 'cost'
-  | 'costMember'
   | 'endDate'
   | 'entryEndDate'
   | 'entryStartDate'
@@ -23,7 +22,8 @@ type EventClassStatsEvent = Pick<
   | 'qualificationStartDate'
   | 'startDate'
   | 'state'
-> & { organizer: Pick<JsonDogEvent['organizer'], 'id'> }
+> &
+  Partial<Pick<JsonDogEvent, 'cost' | 'costMember'>> & { organizer: Pick<JsonDogEvent['organizer'], 'id'> }
 
 type EventClassStatsRegistration = Pick<
   JsonRegistration,
@@ -82,8 +82,9 @@ const classDays = (event: EventClassStatsEvent, eventClass: string): DayKey[] =>
   return unique(days).sort((a, b) => a.localeCompare(b))
 }
 
-const memberCost = (event: EventClassStatsEvent): number | undefined =>
-  event.costMember === undefined ? undefined : getCostValue(event.costMember, 'normal')
+/** The normal price, or undefined for a trial without one: an empty cell, so it never looks free. */
+const optionalCostValue = (cost: DogEventCost | number | undefined): number | undefined =>
+  cost === undefined ? undefined : getCostValue(cost, 'normal')
 
 /**
  * The trial's classes as rows: each class it runs, then each class only its entries name (one it no
@@ -107,8 +108,8 @@ export const buildEventClassStats = (
   }
 
   const eventFields = {
-    cost: getCostValue(event.cost, 'normal'),
-    costMember: memberCost(event),
+    cost: optionalCostValue(event.cost),
+    costMember: optionalCostValue(event.costMember),
     endDate: event.endDate,
     entryEndDate: event.entryEndDate,
     entryStartDate: event.entryStartDate,

@@ -1528,6 +1528,7 @@
       "eventClassStatsDays": "Luokan päivät",
       "eventClassStatsEntries": "Ilmoittautuneet",
       "eventClassStatsExport": "Lataa kokeet luokittain",
+      "eventClassStatsFailed": "Kokeiden lataus luokittain epäonnistui. Yritä hetken kuluttua uudelleen.",
       "eventClassStatsPaid": "Maksettu yhteensä",
       "eventClassStatsPickedFromReserve": "Nostettu varasijalta",
       "eventClassStatsPlaces": "Paikkoja luokassa",

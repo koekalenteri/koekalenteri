@@ -68,6 +68,15 @@ describe('buildEventClassStats', () => {
     expect(alo.priority).toEqual([])
   })
 
+  it('leaves both fees unset for a tentative trial stored without a price (KOE-1713)', () => {
+    // A draft or tentative trial is saved without a price; only a confirmed one must have it.
+    const { cost: _cost, costMember: _costMember, ...withoutPrice } = event
+    const [alo] = buildEventClassStats({ ...withoutPrice, state: 'tentative' }, [])
+
+    expect(alo.cost).toBeUndefined()
+    expect(alo.costMember).toBeUndefined()
+  })
+
   it('counts the entries of a class without naming anyone', () => {
     const registrations = [
       registration({ ...starter, paidAmount: 50 }),
@@ -203,5 +212,18 @@ describe('eventClassStatsSpreadsheetRows', () => {
     expect(rows[1][8]).toBe(`${t('priority.members')}, ${t('breed:110')}`)
     expect(rows[3][6]).toBeUndefined()
     expect(rows[3][10]).toBeUndefined()
+  })
+
+  it('leaves the fee cells empty, not zero, for a trial without a price (KOE-1713)', () => {
+    const { cost: _cost, costMember: _costMember, ...withoutPrice } = event
+    const [, alo] = eventClassStatsSpreadsheetRows(
+      buildEventClassStats({ ...withoutPrice, state: 'tentative' }, []),
+      t,
+      (id) => `Club ${id}`
+    )
+
+    expect(alo[11]).toBe('ALO')
+    expect(alo[9]).toBeUndefined()
+    expect(alo[10]).toBeUndefined()
   })
 })
