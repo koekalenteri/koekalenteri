@@ -59,7 +59,7 @@ describe('getRegistrationChanges', () => {
           {
             field: 'teamEntry',
             labelKey: 'registration.teamEntry',
-            next: { text: 'Ensisijainen joukkue: kyllä' },
+            next: { text: 'Ykkösjoukkue: kyllä' },
             previous: { state: 'empty' },
           },
         ],
