@@ -15,7 +15,6 @@ import { putEvent } from '../../api/event'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
-import { renderAdminRoutes } from '../../test-utils/adminRoutes'
 import { expectConsoleOutput } from '../../test-utils/consoleGuard'
 import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
 import AppSnackbarProvider from '../components/AppSnackbarProvider'
@@ -24,6 +23,7 @@ import EventEditPage from './EventEditPage'
 import EventStationsPage from './EventStationsPage'
 import EventDetailsDialog from './eventViewPage/EventDetailsDialog'
 import { adminEventRegistrationsAtom } from './state'
+import { renderAdminRoutes } from './test-utils/adminRoutes'
 
 vi.mock('../../api/user')
 vi.mock('../../api/event')

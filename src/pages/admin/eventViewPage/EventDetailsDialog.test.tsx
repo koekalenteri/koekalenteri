@@ -5,10 +5,10 @@ import { useState } from 'react'
 import { eventWithStaticDates } from '@/__mockData__/events'
 import { putEvent } from '@/api/event'
 import { Path } from '@/routeConfig'
-import { renderAdminRoutes } from '@/test-utils/adminRoutes'
 import { describeInLanguage } from '@/test-utils/language'
 import { flushPromises, runPendingTimers, TEST_ID_TOKEN } from '@/test-utils/utils'
 import { adminEventAtom, adminEventIdAtom } from '../state'
+import { renderAdminRoutes } from '../test-utils/adminRoutes'
 import EventDetailsDialog from './EventDetailsDialog'
 
 vi.mock('@/api/user')
