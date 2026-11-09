@@ -8,7 +8,7 @@ const entry = (
   id: string,
   extra: Partial<Pick<JsonRegistration, 'cancelled' | 'teamEntry' | 'dog' | 'breeder'>> = {}
 ): Pick<JsonRegistration, 'id' | 'cancelled' | 'class' | 'group' | 'state' | 'teamEntry' | 'dog' | 'breeder'> => ({
-  breeder: { location: 'Akaa', name: `Kasvattaja ${id}` },
+  breeder: { name: `Kasvattaja ${id}` },
   cancelled: false,
   class: 'AVO',
   dog: { dob: DOB, name: `Koira ${id}`, regNo: `FI${id}/24` },
@@ -22,7 +22,8 @@ const litterDog = (id: string, sire = 'Isä', dam = 'Emä', dob: DayKey = DOB) =
   entry(id, { dog: { dam: { name: dam }, dob, name: `Pentu ${id}`, regNo: `FI${id}/24`, sire: { name: sire } } })
 
 const event = (teams: EventTeam[] = [], litters = false) => ({
-  classes: [{ class: 'AVO', state: 'confirmed' as const }],
+  // The class is not picked yet, so every finished entry may join a team.
+  classes: [{ class: 'AVO' }],
   state: 'confirmed' as const,
   teamCompetition: { litters },
   teams,
@@ -41,6 +42,14 @@ describe('teamSuggestions', () => {
     expect(teamSuggestions(event(), entries)).toEqual([
       { kind: 'name', name: 'Golden Ring', registrationIds: ['a', 'b'] },
       { kind: 'name', name: 'Pirkan Damit', registrationIds: ['c'] },
+    ])
+  })
+
+  it('reads an event without teams as one whose dogs are in none', () => {
+    const { teams: _teams, ...noTeams } = event()
+
+    expect(teamSuggestions(noTeams, [entry('a', { teamEntry: { name: 'Golden Ring' } })])).toEqual([
+      { kind: 'name', name: 'Golden Ring', registrationIds: ['a'] },
     ])
   })
 
@@ -88,8 +97,20 @@ describe('teamSuggestions', () => {
   })
 
   it('takes a litter only from dogs whose parents and birth day are all known', () => {
-    const unknown = (id: string) => entry(id, { dog: { dob: DOB, name: id, regNo: id, sire: { name: 'Isä' } } })
+    const noDam = (id: string) => entry(id, { dog: { dob: DOB, name: id, regNo: id, sire: { name: 'Isä' } } })
+    const noSire = (id: string) => entry(id, { dog: { dam: { name: 'Emä' }, dob: DOB, name: id, regNo: id } })
+    const noBirthDay = (id: string) =>
+      entry(id, { dog: { dam: { name: 'Emä' }, name: id, regNo: id, sire: { name: 'Isä' } } })
 
-    expect(teamSuggestions(event([], true), [unknown('a'), unknown('b')])).toEqual([])
+    expect(
+      teamSuggestions(event([], true), [
+        noDam('a'),
+        noDam('b'),
+        noSire('c'),
+        noSire('d'),
+        noBirthDay('e'),
+        noBirthDay('f'),
+      ])
+    ).toEqual([])
   })
 })
