@@ -13,6 +13,7 @@ import {
   toPublicStationTurn,
   turnDurationMs,
   waitEstimate,
+  wholeMinutes,
 } from './stationTurns'
 
 const turn = (overrides: Partial<JsonStationTurn>): JsonStationTurn => ({
@@ -90,6 +91,14 @@ describe('stationTurns', () => {
       expect(
         turnDurationMs({ endedAt: new Date('2026-09-12T08:06:00Z'), startedAt: new Date('2026-09-12T08:00:00Z') })
       ).toBe(6 * 60000)
+    })
+  })
+
+  describe('wholeMinutes', () => {
+    it('rounds to the nearest minute and never goes below zero', () => {
+      expect(wholeMinutes(89_999)).toBe(1)
+      expect(wholeMinutes(90_000)).toBe(2)
+      expect(wholeMinutes(-5000)).toBe(0)
     })
   })
 

@@ -24,12 +24,11 @@ import {
   stationThroughput,
   turnElapsedMs,
   waitEstimate,
+  wholeMinutes,
 } from '../../lib/stationTurns'
 
 const POLL_INTERVAL_MS = 60000
 const CLOCK_TICK_MS = 30000
-
-const minutes = (ms: number) => Math.max(0, Math.round(ms / 60000))
 
 /** A row of the published start list, as far as the live view reads it. */
 type LiveParticipant = SortableRegistration & { cancelled?: boolean }
@@ -116,7 +115,7 @@ const LiveStationCard = ({ event, stationId, turns, participants, single }: Stat
     const phase = currentPhase(open)
     if (isWholeTurn(open)) return t('liveStatus.pauseSince', { label: phaseLabel(phase), time })
     const named = phase === undefined ? '' : ` · ${phaseLabel(phase)}`
-    const since = t('liveStatus.sinceMinutes', { minutes: minutes(turnElapsedMs(open)) })
+    const since = t('liveStatus.sinceMinutes', { minutes: wholeMinutes(turnElapsedMs(open)) })
     return `${open.dogs.map(dogLabel).join(', ')}${named} · ${since}`
   }
 
@@ -146,9 +145,9 @@ const LiveStationCard = ({ event, stationId, turns, participants, single }: Stat
         {t('liveStatus.through', { count: dogsThrough(turns, stationId) })}
         {throughput
           ? ` · ${t('liveStatus.throughput', {
-              max: minutes(throughput.maxMs),
-              mean: minutes(throughput.meanMs),
-              min: minutes(throughput.minMs),
+              max: wholeMinutes(throughput.maxMs),
+              mean: wholeMinutes(throughput.meanMs),
+              min: wholeMinutes(throughput.minMs),
             })}`
           : ` · ${t('liveStatus.noEstimate')}`}
       </Typography>
@@ -164,8 +163,8 @@ const LiveStationCard = ({ event, stationId, turns, participants, single }: Stat
         >
           {t('liveStatus.waitEstimate', {
             count: wait.groupsAhead,
-            max: minutes(wait.maxMs),
-            min: minutes(wait.minMs),
+            max: wholeMinutes(wait.maxMs),
+            min: wholeMinutes(wait.minMs),
           })}
         </Typography>
       )}

@@ -29,6 +29,7 @@ import {
   openTurn,
   stationThroughput,
   turnElapsedMs,
+  wholeMinutes,
 } from '@/lib/stationTurns'
 import { useTickWhile } from '../../../hooks/useTickWhile'
 import { AsyncButton } from '../AsyncButton'
@@ -74,8 +75,6 @@ type RunOp = (op: StationTurnOp) => Promise<void>
 
 const turnDogLabel = (dog: { name?: string; number?: number }) =>
   dog.number ? `${dog.number} ${dog.name ?? ''}`.trim() : (dog.name ?? '')
-
-const minutes = (ms: number) => Math.max(0, Math.round(ms / 60000))
 
 /** The turn names no exercise, the dog's place in the queue names none, or both name the same one. */
 const sameExercise = (turn: StationTurnItem, dog: TurnDog) =>
@@ -126,7 +125,7 @@ const statusLineOf = (
   }
   // A whole-entry phase reads like a break: its label and when it began, no dogs to name.
   if (isWholeTurn(open)) return t('liveStatus.pauseSince', { label: labelOf(currentPhase(open)), time })
-  const since = t('liveStatus.sinceMinutes', { minutes: minutes(turnElapsedMs(open)) })
+  const since = t('liveStatus.sinceMinutes', { minutes: wholeMinutes(turnElapsedMs(open)) })
   const openPhase = currentPhase(open)
   const named = openPhase === undefined ? '' : ` · ${labelOf(openPhase)}`
   return `${open.dogs.map(turnDogLabel).join(', ')}${named} · ${since}`
@@ -274,9 +273,9 @@ const ThroughputLine = ({
       {t('liveStatus.through', { count: through })}
       {throughput
         ? ` · ${t('liveStatus.throughput', {
-            max: minutes(throughput.maxMs),
-            mean: minutes(throughput.meanMs),
-            min: minutes(throughput.minMs),
+            max: wholeMinutes(throughput.maxMs),
+            mean: wholeMinutes(throughput.meanMs),
+            min: wholeMinutes(throughput.minMs),
           })}`
         : ` · ${t('liveStatus.noEstimate')}`}
     </Typography>
