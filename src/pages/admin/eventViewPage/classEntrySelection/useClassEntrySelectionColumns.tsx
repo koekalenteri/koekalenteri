@@ -16,7 +16,14 @@ import { GridActionsCellItem } from '@mui/x-data-grid'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { breedAbbreviation } from '@/lib/dog'
-import { eventDayKey, formatTypeOf, isEventOngoing, isEventOver, registrationDatesOutsideClass } from '@/lib/event'
+import {
+  eventDayKey,
+  formatTypeOf,
+  getEventStateForClass,
+  isEventOngoing,
+  isEventOver,
+  registrationDatesOutsideClass,
+} from '@/lib/event'
 import { scoresAtPosts } from '@/lib/liveFormat'
 import { getPaymentPicture } from '@/lib/payment'
 import {
@@ -27,6 +34,7 @@ import {
   getRegistrationGroupKey,
   isPredefinedReason,
 } from '@/lib/registration'
+import { groupMoveError } from '@/lib/registrationGroups'
 import { placementsFor, shownEventResult } from '@/lib/results'
 import { isConfirmedEvent } from '@/lib/typeGuards'
 import GroupColors from './GroupColors'
@@ -57,7 +65,7 @@ interface RegistrationActionsOptions {
   callbacks?: RegistrationActionCallbacks
   event: PricedDogEvent
   row: Registration
-  t: (key: string) => any
+  t: (key: string) => string
 }
 
 const spinnerOr = (icon: ReactElement, pending: boolean) => (pending ? <CircularProgress size={18} /> : icon)
@@ -97,7 +105,15 @@ const getParticipantMovementActions = ({
     <GridActionsCellItem
       key="moveToReserve"
       disabled={
-        isPendingMove || Boolean(callbacks?.movementDisabled) || event.state === 'picked' || event.state === 'invited'
+        isPendingMove ||
+        Boolean(callbacks?.movementDisabled) ||
+        // The dog's own class decides, as on the server (`groupMoveError`, KOE-1722), not the event's state.
+        !!groupMoveError(
+          event,
+          getEventStateForClass(event, getRegistrationClass(row, event)),
+          getRegistrationGroupKey(row),
+          GROUP_KEY_RESERVE
+        )
       }
       icon={spinnerOr(<LowPriorityOutlined fontSize="small" />, isPendingMove)}
       label={t('registration.actions.moveToReserve')}

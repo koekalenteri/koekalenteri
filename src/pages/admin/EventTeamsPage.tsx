@@ -1,5 +1,7 @@
 import type { TeamStanding } from '@/lib/teamStandings'
 import type { DogEvent, EventTeam, TeamCompetition } from '@/types'
+import type { TeamMoveOption } from './eventTeamsPage/TeamCard'
+import type { TeamMoveTarget } from './eventTeamsPage/useMoveTeam'
 import Cancel from '@mui/icons-material/Cancel'
 import Save from '@mui/icons-material/Save'
 import Box from '@mui/material/Box'
@@ -16,6 +18,7 @@ import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
 import { withStoredTotals } from '@/lib/results'
 import { teamSeriesName } from '@/lib/startListView'
 import { isTeamCandidate, teamCompetitionErrors, teamCountedDays, teamTrialDays } from '@/lib/team'
+import { teamSelection } from '@/lib/teamSelection'
 import { teamStandings, withRunOffWinner } from '@/lib/teamStandings'
 import { Path } from '@/routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
@@ -24,6 +27,7 @@ import { EntryPageHeader } from './components/EntryPageHeader'
 import EventNotFound from './components/EventNotFound'
 import TeamCard from './eventTeamsPage/TeamCard'
 import TeamCompetitionSettings from './eventTeamsPage/TeamCompetitionSettings'
+import { useMoveTeam } from './eventTeamsPage/useMoveTeam'
 import useEventForm from './hooks/useEventForm'
 import { adminEventAtom, adminEventRegistrationsAtom } from './state'
 import { useAdminEventScope } from './state/eventScope'
@@ -108,6 +112,23 @@ export default function EventTeamsPage() {
       (registration) => !!event && isTeamCandidate(event, registration) && !taken.has(registration.id)
     )
   }, [event, registrations, teams])
+  // Where each team's dogs stand in the selection, and the move of a whole team (KOE-1722). A team moves
+  // as saved: while the page holds changes the moves wait, so no dog moves for a team then cancelled.
+  const selections = useMemo(() => teamSelection(teams, registrations), [teams, registrations])
+  const { moveTeam, pending: movePending, plan: planMove } = useMoveTeam(event, registrations)
+  const moveOptions = (team: EventTeam): Partial<Record<TeamMoveTarget, TeamMoveOption>> => {
+    const options: Partial<Record<TeamMoveTarget, TeamMoveOption>> = {}
+    for (const to of ['participants', 'reserve'] as const) {
+      const { moves, refused } = planMove(team, to)
+      if (!moves.length && !refused) continue
+      let reason: string | undefined
+      if (canSave) reason = t('teams.moveSaveFirst')
+      else if (!moves.length) reason = t('teams.moveRefused', { context: refused })
+      options[to] = { disabled: canSave || movePending || !moves.length, reason }
+    }
+    return options
+  }
+
   // A team is its number, its place in the list: only the last ones come and go (KOE-1714).
   const numbered = useMemo(() => teams.map((team, index) => ({ number: index + 1, team })), [teams])
   // The standings of the draft, so a run-off marked shows before it is saved; the totals a round stored
@@ -201,6 +222,9 @@ export default function EventTeamsPage() {
               onChange={(changed) => setTeams(teams.map((item, at) => (at === number - 1 ? changed : item)))}
               onRunOffChange={(won) => setTeams(withRunOffWinner(teams, number - 1, won))}
               series={series}
+              selection={selections[number - 1]}
+              onMove={(to) => void moveTeam(number, team, to)}
+              moveOptions={moveOptions(team)}
               countedDays={countedDays}
               standing={standings.get(number - 1)}
               team={team}

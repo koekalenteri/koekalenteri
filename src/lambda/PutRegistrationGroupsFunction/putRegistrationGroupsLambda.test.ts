@@ -144,6 +144,16 @@ const mockUser: JsonUser = {
   name: 'Test User',
 }
 
+/** The event as it stood before its participants were picked: the class open to every move. */
+const beforePicking = (invited: typeof eventWithParticipantsInvited) => {
+  const event = JSON.parse(JSON.stringify(invited))
+  return {
+    ...event,
+    classes: event.classes.map((eventClass: { state?: string }) => ({ ...eventClass, state: 'confirmed' })),
+    state: 'confirmed',
+  }
+}
+
 describe('putRegistrationGroupsLambda', () => {
   vi.spyOn(console, 'debug').mockImplementation(() => undefined)
   vi.spyOn(console, 'log').mockImplementation(() => undefined)
@@ -646,8 +656,57 @@ describe('putRegistrationGroupsLambda', () => {
     })
   })
 
+  // KOE-1722: the class view's rules hold on the server too, whoever sends the move.
+  describe('the moves a class allows', () => {
+    const participant = jsonRegistrationsToEventWithParticipantsInvited[0]
+    // The refusal comes under the lock, which is taken and given back; nothing else is written.
+    const expectNoMoveWritten = () => {
+      for (const write of [
+        mockRemoveRegistrationField,
+        mockUpdateRegistrationField,
+        mockWriteEventFields,
+        mockWriteRegistrationFields,
+      ])
+        expect(write).not.toHaveBeenCalled()
+      expect(mockClearWorkflowLock).toHaveBeenCalled()
+    }
+    const send = async (event: unknown, moves: unknown) => {
+      authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
+      mockReadEventRegistrations.mockResolvedValueOnce(jsonRegistrationsToEventWithParticipantsInvited)
+      mockReadEvent.mockResolvedValue(event)
+      return putRegistrationGroupsLambda(
+        constructAPIGwEvent(moves, { pathParameters: { eventId: eventWithParticipantsInvited.id } })
+      )
+    }
+
+    it('refuses a participant back to the reserve list once the class is invited', async () => {
+      const res = await send(JSON.parse(JSON.stringify(eventWithParticipantsInvited)), [
+        { group: { key: 'reserve' }, id: participant.id },
+      ])
+
+      expect(res.statusCode).toBe(409)
+      expect(JSON.parse(res.body)).toMatchObject({ error: 'groupMoveRefused', reason: 'reserveAfterPicking' })
+      expectNoMoveWritten()
+    })
+
+    it('refuses any move once the trial is over', async () => {
+      const over = {
+        ...beforePicking(eventWithParticipantsInvited),
+        endDate: '2020-01-02',
+        startDate: '2020-01-01',
+      }
+
+      const res = await send(over, [{ group: { key: 'reserve' }, id: participant.id }])
+
+      expect(res.statusCode).toBe(409)
+      expect(JSON.parse(res.body)).toMatchObject({ error: 'groupMoveRefused', reason: 'closed' })
+      expectNoMoveWritten()
+    })
+  })
+
   it('publishes group field removals when moving a participant to reserve', async () => {
-    const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
+    // Before the picking: a participant goes back to the reserve list only while the class is not picked (KOE-1722).
+    const event = beforePicking(eventWithParticipantsInvited)
     const registration = jsonRegistrationsToEventWithParticipantsInvited[0]
     authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
     mockReadEventRegistrations.mockResolvedValueOnce(jsonRegistrationsToEventWithParticipantsInvited)
@@ -678,7 +737,8 @@ describe('putRegistrationGroupsLambda', () => {
    * so, and both the response and the broadcast carry the removal.
    */
   it('releases the drawn start number when a participant is moved to reserve (KOE-1428)', async () => {
-    const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
+    // Before the picking: a participant goes back to the reserve list only while the class is not picked (KOE-1722).
+    const event = beforePicking(eventWithParticipantsInvited)
     const startGroup = { ...jsonRegistrationsToEventWithParticipantsInvited[0].group, number: 2 }
     const stored = jsonRegistrationsToEventWithParticipantsInvited.map((r, index) =>
       index === 0 ? { ...r, startGroup } : { ...r }

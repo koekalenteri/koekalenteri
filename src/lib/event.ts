@@ -1597,6 +1597,44 @@ export const getEventClassesByDays = (event: Pick<DogEvent, 'startDate' | 'endDa
 /** A group's key from its Finnish day and its time. */
 export const groupKeyOf = (day: DayKey, time: RegistrationDate['time']) => `${day}-${time}`
 
+/** The groups an entry is placed in by default: the type's halves, the whole day only where it has no halves. */
+export const defaultRegistrationGroups = (eventTypeGroups: readonly RegistrationTime[]): RegistrationTime[] =>
+  eventTypeGroups.length > 1 ? eventTypeGroups.filter((g) => g !== 'kp') : [...eventTypeGroups]
+
+/** What the groups of a trial are read from: its class days with their groups, or its days and dates. */
+type GroupsOwner = Pick<PublicDogEvent, 'classes' | 'endDate' | 'startDate' | 'dates'>
+
+/**
+ * The days and halves a trial's entries are placed in, one class's or the whole trial's: each class day
+ * with its groups, else the type's default ones (`defaultGroups`), each day and half once. Without classes
+ * the trial's own dates, else each day with the default groups. The class view and the teams page read
+ * the groups by this one rule.
+ */
+export const adminRegistrationDates = (
+  event: GroupsOwner,
+  defaultGroups: readonly RegistrationTime[],
+  eventClass?: string
+): RegistrationDate[] => {
+  if (event.classes?.length) {
+    const dates = event.classes
+      .filter((c) => (eventClass ? c.class === eventClass : true))
+      .flatMap((c) => (c.groups ?? defaultGroups).map((time) => ({ date: c.date, time })))
+    // Classes that run the same day share the day group - its key carries no class - so without a
+    // class filter the same day would otherwise come back once per class (KOE-912).
+    const seen = new Set<string>()
+    return dates.filter((date) => {
+      const key = eventRegistrationDateKey(date)
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+  }
+
+  if (event.dates) return event.dates
+
+  return getEventDays(event).flatMap((date) => defaultGroups.map((time) => ({ date, time })))
+}
+
 /** A group's key: its day and its time. */
 export const eventRegistrationDateKey = (rd: RegistrationDate) => groupKeyOf(rd.date, rd.time)
 
