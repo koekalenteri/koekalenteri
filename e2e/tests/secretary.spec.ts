@@ -120,6 +120,28 @@ test.describe('a secretary', { annotation: issue('KOE-1478'), tag: '@secretary' 
     await expect(nameField).toHaveValue(name)
   })
 
+  // The form scrolls inside the admin content area, so the page itself has nothing to scroll. Text hidden
+  // for screen readers is absolutely positioned and stretched the page when nothing positioned held it
+  // (KOE-1740). jsdom does no layout, so only a browser can tell.
+  test('the event edit page scrolls only inside the form, not as a whole', {
+    annotation: issue('KOE-1740'),
+  }, async ({ context, page }) => {
+    const organizer = await seedOrganizer()
+    const secretary = await seedStaffUser({ roles: { [organizer.id]: 'secretary' } })
+    const event = await seedEvent({ organizer: { id: organizer.id, name: organizer.name } })
+    await signInAs(context, secretary)
+
+    await page.goto(`/admin/event/edit/${event.id}`)
+    await expect(page.getByRole('textbox', { name: 'Nimi (Suomeksi)' })).toHaveValue(event.name)
+    await expect(page.getByRole('columnheader', { name: 'Toiminnot' }).first()).toBeAttached()
+
+    const { pageHeight, viewportHeight } = await page.evaluate(() => ({
+      pageHeight: document.documentElement.scrollHeight,
+      viewportHeight: window.innerHeight,
+    }))
+    expect(pageHeight).toBeLessThanOrEqual(viewportHeight)
+  })
+
   // Esc closes the event view's details dialog the way Cancel does, also before the 300 ms in which the
   // field passes a typed value on: Chrome takes the focus off the field as the dialog removes it, and that
   // late value must not land in the draft the close has just dropped. jsdom moves no focus on removal.

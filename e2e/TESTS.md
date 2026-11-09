@@ -57,6 +57,7 @@ bug is fixed. See [README.md](README.md) for how they run.
 | a secretary › whose role has been taken away cannot save an event | `@secretary` | [KOE-1478](https://koekalenteri.atlassian.net/browse/KOE-1478) |
 | a secretary › is told when saving is refused | `@secretary` | [KOE-1478](https://koekalenteri.atlassian.net/browse/KOE-1478)<br>[KOE-1482](https://koekalenteri.atlassian.net/browse/KOE-1482) |
 | a secretary › asks before leaving the edit page with a change: staying keeps it, leaving drops it | `@secretary` | [KOE-1478](https://koekalenteri.atlassian.net/browse/KOE-1478)<br>[KOE-1700](https://koekalenteri.atlassian.net/browse/KOE-1700) |
+| a secretary › the event edit page scrolls only inside the form, not as a whole | `@secretary` | [KOE-1478](https://koekalenteri.atlassian.net/browse/KOE-1478)<br>[KOE-1740](https://koekalenteri.atlassian.net/browse/KOE-1740) |
 | a secretary › closing the details dialog with Esc right after typing drops the change | `@secretary` | [KOE-1478](https://koekalenteri.atlassian.net/browse/KOE-1478)<br>[KOE-1700](https://koekalenteri.atlassian.net/browse/KOE-1700) |
 | a secretary › closing an entry with Esc right after typing an internal note still saves the note | `@secretary` | [KOE-1478](https://koekalenteri.atlassian.net/browse/KOE-1478)<br>[KOE-1700](https://koekalenteri.atlassian.net/browse/KOE-1700) |
 
@@ -73,4 +74,4 @@ bug is fixed. See [README.md](README.md) for how they run.
 | dev after a deploy › the front page lists the event and its registration form opens from the list | `@public` | [KOE-1559](https://koekalenteri.atlassian.net/browse/KOE-1559) |
 | dev after a deploy › the registration form lists what is missing and takes the terms off once accepted | `@public` | [KOE-1559](https://koekalenteri.atlassian.net/browse/KOE-1559) |
 
-27 tests.
+28 tests.
