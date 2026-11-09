@@ -216,7 +216,15 @@ describe('teamRowPrefix', () => {
       '1A',
     ],
   ])('names %s', (_what, reg, showClass, expected) => {
-    expect(teamRowPrefix(reg, showClass)).toBe(expected)
+    expect(teamRowPrefix(reg, showClass, {}, 'fi')).toBe(expected)
+  })
+
+  // KOE-674: a day of several classes names an own class as the rest of the list does.
+  it('names an own class by its name', () => {
+    const ownClasses = [{ code: 'DERBY', name: { en: 'Derby class', fi: 'Derby-luokka' } }]
+    const reg = registration('Aapo', DAY_1, { class: 'DERBY', team: { code: '1A', number: 1 } })
+
+    expect(teamRowPrefix(reg, true, { ownClasses }, 'en')).toBe('Derby class 1A')
   })
 })
 

@@ -6,7 +6,6 @@ import { ClassHeader } from './ClassHeader'
 // Mock i18next
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    i18n: { language: 'fi' },
     t: vi.fn((key) => key),
   }),
 }))

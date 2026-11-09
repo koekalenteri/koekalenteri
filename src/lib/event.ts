@@ -320,6 +320,21 @@ export type ClassOrderOwner = { ownClasses?: readonly Partial<Pick<OwnClass, 'co
 export const ownClassCodes = (event: ClassOrderOwner | null | undefined) =>
   (event?.ownClasses ?? []).map(({ code }) => code)
 
+/** What the class names read of an event: the own classes it lists, with their names. */
+export type ClassLabelOwner = { ownClasses?: readonly Pick<OwnClass, 'code' | 'name'>[] | null }
+
+/**
+ * A class as a participant reads it (KOE-674): an own class by its name in the reader's language, in
+ * Finnish when it has none there, and by its code without either. An official class is its code.
+ */
+export const classLabel = (event: ClassLabelOwner | null | undefined, key: string, language: Language): string => {
+  const ownClass = event?.ownClasses?.find(({ code }) => code === key)
+  return written(ownClass?.name[language]) ?? written(ownClass?.name.fi) ?? key
+}
+
+/** A name that says something: not missing, and not blank. */
+const written = (name: string | undefined) => (name?.trim() ? name : undefined)
+
 /**
  * The order of an event's classes (KOE-674): its own classes as the secretary listed them, then the
  * rest in the official order, ALO, AVO, VOI, and anything else after them. The one class order of

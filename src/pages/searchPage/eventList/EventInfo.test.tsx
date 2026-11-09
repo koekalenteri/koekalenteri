@@ -47,6 +47,7 @@ describe('EventInfo', () => {
       ...testEvent,
       classes: [{ ...testEvent.classes[0], class: 'DERBY' }],
       eventType: 'WT-harjoitus',
+      judges: [{ id: 1, name: 'Test Judge' }],
       ownClasses: [{ code: 'DERBY', name: { fi: 'Derby-luokka' } }],
     }
     render(

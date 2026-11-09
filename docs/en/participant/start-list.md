@@ -5,7 +5,7 @@ order: 30
 covers:
   - src/pages/StartListPage.tsx
   - src/pages/startListPage/**
-sourceHash: 1d179e
+sourceHash: abf5b3
 ---
 
 The start list is the trial's public page, where the organizer publishes the participants, the
@@ -15,7 +15,9 @@ one class. Before that the page reads *{t:error.startListNotAvailable}*.
 
 ## What the list shows
 
-The list runs day by day and class by class. A class's heading names its judges, and where a day
+The list runs day by day and class by class. An unofficial trial's own classes come in the order
+the organizer gave them and show by their names, in the copied and the downloaded list too. A
+class's heading names its judges, and where a day
 is split into a morning and an afternoon, each group is its own section. For every dog and handler
 the list gives the start number, breed, titles, name, registration number and date of birth, the
 parents, the owner and handler, and the breeder. A withdrawn dog stays in its place marked

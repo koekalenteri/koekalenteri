@@ -87,8 +87,8 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - An unofficial event may run classes of its own (`ownClasses`, KOE-674): the list names them and
   orders them, and `classes` holds their days. `src/lib/eventClass.ts` holds the rules:
   `ownClassErrors` (PutEvent refuses with `invalidOwnClasses`), `isEventClass` for whether a key is
-  one of the event's classes (never a classless trial's format), `classLabel` and
-  `registrationOrder` (a day's entries class by class, then time and number). A check that a key is
+  one of the event's classes (never a classless trial's format), and `registrationOrder` (a day's
+  entries class by class, then time and number). A check that a key is
   a class of the event takes `isEventClass`, not `isRegistrationClass`. A writer holds a class to the
   classes the event runs (`isRunClass`): an entry's class (`assertEntryClass` in PutRegistration and
   PutAdminRegistration) and a running order's group (`unknownClass`). A per-class write refuses a key
@@ -98,6 +98,11 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   of classes or entries takes the event, never a fixed order. The reserve numbering
   (`normalizeRegistrationGroups`) keeps its alphabetical order, so reordering the own classes never
   renumbers the reserves.
+- `classLabel(event, key, language)` (`src/lib/event.ts`) is a class as a participant reads it: an own
+  class by its name in their language, an official class by its code. The participant's views (the
+  calendar card, the entry form, the public start list with its copied text and spreadsheet) and the
+  emails show it; the admin pages and the link views show the code. In the email template data
+  `reg.class` holds the label, since the stored templates print `{{reg.class}}`.
 - These stay on the trial's own `eventType`: who may enter (`qualification.ts`, `rules.ts`), everything
   official (`isOfficialEventType`, Kennelliitto, Omakoira, the kcId), the statistics, the event's
   name and labels, and the B-trial's game-or-dummies and the NOWT's Mock trial choices.

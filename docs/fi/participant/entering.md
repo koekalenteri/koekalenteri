@@ -56,6 +56,8 @@ jäsenyystiedoissa tai koiran tiedoissa, mikä jää täyttymättä.
 
 **Koeluokka ja päivät.** Valitse luokka ja monipäiväisessä kokeessa ne päivät, jotka sinulle
 sopivat. Jos ilmoittaudut varasijalle, kerro myös kuinka lyhyellä varoitusajalla ehdit paikalle.
+Epävirallisessa kokeessa järjestäjä voi antaa luokille omat nimet, ja luokat näkyvät silloin
+nimillään.
 
 !shot[EntryInfo/entry-info-with-classes] Koeluokka, päivät ja varasijan varoitusaika
 

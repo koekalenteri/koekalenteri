@@ -21,6 +21,7 @@ import { reportError } from '../../lib/client/error'
 import { downloadXlsx } from '../../lib/client/xlsx'
 import { breedAbbreviation, formatDogName } from '../../lib/dog'
 import {
+  classLabel,
   classOrder,
   eventRegistrationDateKey,
   isStartListAvailableForClass,
@@ -83,8 +84,8 @@ export const ParticipantList = ({
     [event, includeUnpublished, participants]
   )
   const spreadsheetRows = useMemo(
-    () => startListSpreadsheetRows(visibleParticipants, event, t),
-    [event, t, visibleParticipants]
+    () => startListSpreadsheetRows(visibleParticipants, event, t, language),
+    [event, language, t, visibleParticipants]
   )
   const startListItems = useMemo(() => getStartListItems(visibleParticipants, event), [event, visibleParticipants])
   // The team view reads the running order's rows as they are sorted, so both list a day's dogs alike.
@@ -96,7 +97,10 @@ export const ParticipantList = ({
   const hasTeams = teamDays.some((day) => day.teams.length > 0)
   const byTeam = hasTeams && view === 'team'
   const copyText = useMemo(
-    () => (byTeam ? formatTeamStartList(teamDays, event, t, language) : formatStartList(visibleParticipants, event, t)),
+    () =>
+      byTeam
+        ? formatTeamStartList(teamDays, event, t, language)
+        : formatStartList(visibleParticipants, event, t, language),
     [byTeam, event, language, t, teamDays, visibleParticipants]
   )
   // Preview only (KOE-1218): where a class+day has drawn numbers, an undrawn dog's working-order
@@ -313,7 +317,14 @@ function classLine(classValue: string, judges: string, note: PublicationNote | u
   return [classValue, judges, note && `(${t(note)})`].filter(Boolean).join(' ')
 }
 
-function formatStartList(participants: PublicRegistration[], event: PublicConfirmedEvent, t: TFunction) {
+function formatStartList(
+  participants: PublicRegistration[],
+  event: PublicConfirmedEvent,
+  t: TFunction,
+  language: Language
+) {
+  // A class is named as on the page: an own class by its name (KOE-674).
+  const label = (eventClass: string) => classLabel(event, eventClass, language)
   let lastDate: DayKey | undefined
   let lastClass: PublicRegistration['class']
   let lastGroup: string | undefined
@@ -339,7 +350,7 @@ function formatStartList(participants: PublicRegistration[], event: PublicConfir
         isStartListAvailableForClass(event, item.eventClass),
         isStartNumbersAvailableForClass(event, item.eventClass)
       )
-      lines.push(classLine(item.eventClass.class, judges, note, t))
+      lines.push(classLine(label(item.eventClass.class), judges, note, t))
       lastClass = item.eventClass.class
       lastGroup = undefined
       return
@@ -350,7 +361,7 @@ function formatStartList(participants: PublicRegistration[], event: PublicConfir
     if (lastClass !== reg.class) {
       if (reg.class) {
         lines.push(
-          classLine(reg.class, formatClassJudges(event, reg.class, date, t), rowPublicationNote(event, reg), t)
+          classLine(label(reg.class), formatClassJudges(event, reg.class, date, t), rowPublicationNote(event, reg), t)
         )
       }
       lastClass = reg.class
@@ -460,7 +471,11 @@ function formatTeamStartList(
 ) {
   const lines: string[] = []
   const group = (heading: string[], rows: readonly PublicRegistration[], showClass: boolean) => {
-    lines.push('', ...heading, ...rows.map((reg) => formatRegistration(reg, t, teamRowPrefix(reg, showClass))))
+    lines.push(
+      '',
+      ...heading,
+      ...rows.map((reg) => formatRegistration(reg, t, teamRowPrefix(reg, showClass, event, language)))
+    )
   }
 
   days.forEach((day) => {

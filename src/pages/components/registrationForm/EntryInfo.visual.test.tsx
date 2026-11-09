@@ -2,7 +2,7 @@ import type { Language } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { page } from 'vitest/browser'
+import { commands, page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import { eventWithStaticDates, eventWithStaticDatesAndClass } from '@/__mockData__/events'
 import { registrationWithStaticDates, registrationWithStaticDatesAndClass } from '@/__mockData__/registrations'
@@ -11,6 +11,9 @@ import { locales } from '@/i18n'
 import { TestProvider } from '@/test-utils/AtomProvider'
 import { describeInLanguage } from '@/test-utils/language'
 import { EntryInfo } from './EntryInfo'
+
+// The own classes' test clicks the class list; the mouse stays there and would hover the next test's field.
+afterEach(() => commands.resetMouse())
 
 interface FrameProps {
   readonly children: React.ReactNode
@@ -83,6 +86,44 @@ it('stacks the fields in a single column on a phone', async () => {
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('entry-info-with-classes-phone')
 })
 
+// KOE-674: an event's own classes are offered by their names, in the reader's language.
+const ownClassEvent = {
+  ...eventWithStaticDatesAndClass,
+  classes: [
+    ...eventWithStaticDatesAndClass.classes.map((eventClass) => ({ ...eventClass, class: 'DERBY' })),
+    ...eventWithStaticDatesAndClass.classes.map((eventClass) => ({ ...eventClass, class: 'VET10' })),
+  ],
+  eventType: 'WT-harjoitus',
+  ownClasses: [
+    { code: 'DERBY', name: { en: 'Derby class', fi: 'Derby-luokka' } },
+    { code: 'VET10', name: { en: 'Veterans', fi: 'Veteraanit' } },
+  ],
+}
+
+const renderOwnClasses = (frame: Omit<FrameProps, 'children'> = {}) =>
+  render(
+    <TestProvider>
+      <Frame {...frame}>
+        <EntryInfo
+          reg={{ ...registrationWithStaticDatesAndClass, class: 'DERBY', eventType: 'WT-harjoitus' }}
+          event={ownClassEvent}
+          errorStates={{}}
+          helperTexts={{}}
+          open
+        />
+      </Frame>
+    </TestProvider>
+  )
+
+it("offers an event's own classes by their names", async () => {
+  await page.viewport(1200, 900)
+  const screen = await renderOwnClasses()
+
+  await screen.getByRole('combobox', { name: 'Koeluokka' }).click()
+  await expect.element(screen.getByRole('option', { name: 'Veteraanit' })).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('entry-info-own-classes')
+})
+
 // The guide's English page shows the section in English (KOE-1437).
 describeInLanguage('en', () => {
   it('adds the class picker once the event has classes', async () => {
@@ -92,5 +133,14 @@ describeInLanguage('en', () => {
 
     await expect.element(screen.getByRole('combobox', { name: 'Event class' })).toHaveValue('ALO')
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('entry-info-with-classes-en')
+  })
+
+  it("offers an event's own classes by their names", async () => {
+    await page.viewport(1200, 900)
+    const screen = await renderOwnClasses({ language: 'en' })
+
+    await screen.getByRole('combobox', { name: 'Event class' }).click()
+    await expect.element(screen.getByRole('option', { name: 'Veterans' })).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('entry-info-own-classes-en')
   })
 })

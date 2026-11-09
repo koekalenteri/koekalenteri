@@ -121,6 +121,8 @@ describe('EntryInfo', () => {
 
     const classInput = screen.getByRole('combobox', { name: 'registration.class' })
     expect(classInput).toHaveValue('Derby-luokka')
+    // The section's summary names it too.
+    expect(screen.getByText(/^Derby-luokka/)).toBeInTheDocument()
 
     await user.click(classInput)
     await flushPromises()

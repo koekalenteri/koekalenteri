@@ -730,7 +730,7 @@ describe('ParticipantList', () => {
 
   it('formats the public start list for an Excel spreadsheet', () => {
     const participant = createMockRegistration('AVO', 'Dog; One', 1, '2023-01-01', 'ap')
-    const rows = startListSpreadsheetRows([participant], mockEvent, t)
+    const rows = startListSpreadsheetRows([participant], mockEvent, t, 'en')
 
     expect(rows).toEqual([
       [

@@ -85,7 +85,7 @@ describe('startListSpreadsheetRows', () => {
       ownerHandles: true,
     } as PublicRegistration
 
-    expect(startListSpreadsheetRows([registration], event, t)).toEqual([
+    expect(startListSpreadsheetRows([registration], event, t, 'en')).toEqual([
       [
         'Date',
         'Time',
@@ -146,7 +146,7 @@ describe('a published result on the exported list', () => {
       result: 'ALO1',
     } as PublicRegistration
 
-    const [, row] = startListSpreadsheetRows([registration], event, t)
+    const [, row] = startListSpreadsheetRows([registration], event, t, 'en')
 
     // The download is what gets circulated, so a result missing here is a file that disagrees with
     // the page it came from.
@@ -190,7 +190,7 @@ describe('a published result on the exported list', () => {
       result: 'ALO1',
     }
 
-    const [header, row] = startListSpreadsheetRows([registration], event, t)
+    const [header, row] = startListSpreadsheetRows([registration], event, t, 'en')
 
     expect(header.at(-1)).toBe('Place')
     expect(row.at(-1)).toBe(2)
@@ -209,7 +209,7 @@ describe('a published result on the exported list', () => {
       result: 'AVO0',
     } as PublicRegistration
 
-    const [, row] = startListSpreadsheetRows([registration], event, t)
+    const [, row] = startListSpreadsheetRows([registration], event, t, 'en')
 
     expect(row.at(-6)).toBe('AVO0')
     expect(row.at(-2)).toBe('Stopped')
@@ -232,7 +232,7 @@ describe('a published result on the exported list', () => {
     }
 
     it('come after the result as plain numbers, the percentage rounded as the line shows it', () => {
-      const [header, row] = startListSpreadsheetRows([scored], event, t)
+      const [header, row] = startListSpreadsheetRows([scored], event, t, 'en')
 
       expect(header.slice(-6)).toEqual(['Result', 'Points', 'Maximum', '%', 'Additional marks', 'Place'])
       expect(row.slice(-6)).toEqual(['ALO1', 65, 80, 81, '', 2])
@@ -240,20 +240,20 @@ describe('a published result on the exported list', () => {
 
     it('are empty cells for a result without them', () => {
       const { maxPoints, percentage, points, ...qualitative } = scored
-      const [, row] = startListSpreadsheetRows([{ ...qualitative, placement: undefined }], event, t)
+      const [, row] = startListSpreadsheetRows([{ ...qualitative, placement: undefined }], event, t, 'en')
 
       expect(row.slice(-6)).toEqual(['ALO1', '', '', '', '', ''])
     })
 
     it('each have a width of their own, so the marks and the place keep theirs', () => {
-      const [header] = startListSpreadsheetRows([], event, t)
+      const [header] = startListSpreadsheetRows([], event, t, 'en')
 
       expect(startListColumnWidths).toHaveLength(header.length)
       expect(startListColumnWidths.slice(-6)).toEqual([12, 8, 8, 6, 16, 8])
     })
 
     it('are empty cells on a cancelled row, which is as wide as the header', () => {
-      const [header, row] = startListSpreadsheetRows([{ ...scored, cancelled: true }], event, t)
+      const [header, row] = startListSpreadsheetRows([{ ...scored, cancelled: true }], event, t, 'en')
 
       expect(row).toHaveLength(header.length)
       expect(row.slice(-6)).toEqual(['', '', '', '', '', ''])
@@ -280,7 +280,7 @@ describe.each(['Europe/Helsinki', 'America/New_York', 'Asia/Tokyo'])("the dog's 
 
     it('is 1.1.2021 in the sheet', () => {
       const event = { classes: [], startDate: eventWithStaticDates.startDate } as unknown as PublicConfirmedEvent
-      const [, row] = startListSpreadsheetRows([registration()], event, t)
+      const [, row] = startListSpreadsheetRows([registration()], event, t, 'en')
 
       expect(row[6]).toEqual(new Date(2021, 0, 1, 12))
     })

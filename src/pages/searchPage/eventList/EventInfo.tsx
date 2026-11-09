@@ -1,13 +1,15 @@
-import type { PublicDogEvent, PublicJudge } from '@/types'
+import type { Language, PublicDogEvent, PublicJudge } from '@/types'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
+import { useAtomValue } from 'jotai'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { dayEnd, TIME_ZONE } from '@/lib/day'
-import { formatTypeOf, hasExplicitPlacesForClass, isEntryOpen, uniqueClasses } from '@/lib/event'
+import { classLabel, formatTypeOf, hasExplicitPlacesForClass, isEntryOpen, uniqueClasses } from '@/lib/event'
 import { judgeName } from '@/lib/judge'
 import { RESTRICTION } from '@/lib/priority'
 import { printContactInfo } from '@/lib/utils'
+import { languageAtom } from '@/pages/state/user/atoms'
 import { getRankingPeriod } from '@/rules_ch'
 import CostInfo from '../../components/CostInfo'
 import { EntryStatus } from '../../components/EntryStatus'
@@ -23,14 +25,15 @@ interface Props {
   readonly event: PublicDogEvent
 }
 
-const judgeClasses = (judge: PublicJudge, event: PublicDogEvent) => {
+/** The classes a judge judges, as a participant reads them: an own class by its name (KOE-674). */
+const judgeClasses = (judge: PublicJudge, event: PublicDogEvent, language: Language) => {
   const classes = uniqueClasses({
     classes: event.classes.filter((c) =>
       Array.isArray(c.judge) ? c.judge.find((j) => j.id === judge.id) : c.judge?.id === judge.id
     ),
     ownClasses: event.ownClasses,
   })
-  return classes.length ? ` (${classes.join(', ')})` : ''
+  return classes.length ? ` (${classes.map((key) => classLabel(event, key, language)).join(', ')})` : ''
 }
 
 /** The countdown to the entry's close, while the entry is open and has a day it closes on. */
@@ -41,6 +44,7 @@ const EntryTimeLeft = ({ event }: Props) => {
 
 export const EventInfo = ({ event }: Props) => {
   const { t } = useTranslation()
+  const language = useAtomValue(languageAtom)
   const official = useMemo(() => printContactInfo(event.contactInfo?.official), [event.contactInfo?.official])
   const secretary = useMemo(() => printContactInfo(event.contactInfo?.secretary), [event.contactInfo?.secretary])
   const classes = useMemo(
@@ -52,8 +56,8 @@ export const EventInfo = ({ event }: Props) => {
   // shown once here instead of (misleadingly) on every class row.
   const showPlacesTotal = classes.length > 1 && classes.some((c) => !hasExplicitPlacesForClass(event, c))
   const judges = useMemo(
-    () => event.judges.map((j) => `${judgeName(j, t)}${judgeClasses(j, event)}`).filter(Boolean),
-    [event, t]
+    () => event.judges.map((j) => `${judgeName(j, t)}${judgeClasses(j, event, language)}`).filter(Boolean),
+    [event, language, t]
   )
   const rankingPeriod = getRankingPeriod(
     event.eventType,
