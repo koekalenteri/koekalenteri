@@ -3,6 +3,7 @@ import type { BreedCode, DayKey, Dog, PublicConfirmedEvent, Registration, TestRe
 import { dogAgeInMonths, isMicrochip, minDogAgeFor, typedDogFields } from '@/lib/dog'
 import { validName } from '@/lib/name'
 import { getOwnerRole, getRegistrationOwners, ownerKeyAt, resolveOwnerSelection } from '@/lib/registration'
+import { entryTeamError, MAX_TEAM_NAME_LENGTH } from '@/lib/team'
 import { regNoError } from '@/lib/validation'
 import { REQUIREMENTS } from '@/rules'
 import { validateOwner, validatePerson } from './personValidation'
@@ -39,12 +40,34 @@ const VALIDATORS: Validators2<Registration, 'registration', PublicConfirmedEvent
   selectedCost: () => false,
 }
 
+/**
+ * The team named at entry, held to the rule the save holds it to (`entryTeamError`, KOE-1721): the
+ * stored team stays the entry's to keep, as on the server.
+ */
+function validateTeamEntry(
+  registration: Registration,
+  event: PublicConfirmedEvent,
+  savedRegistration?: Registration | null
+): ValidationResult<Registration, 'registration'> {
+  switch (entryTeamError(event, registration.teamEntry, savedRegistration?.teamEntry)) {
+    case undefined:
+      return false
+    case 'tooLong':
+      return { key: 'teamEntryTooLong', opts: { field: 'teamEntry', length: MAX_TEAM_NAME_LENGTH } }
+    case 'notAsked':
+      return { key: 'teamEntryNotAsked', opts: { field: 'teamEntry' } }
+    default:
+      return { key: 'teamEntryNoName', opts: { field: 'teamEntry' } }
+  }
+}
+
 function validateRegistrationField(
   registration: Registration,
   field: keyof Registration,
   event: PublicConfirmedEvent,
   savedRegistration?: Registration | null
 ): ValidationResult<Registration, 'registration'> {
+  if (field === 'teamEntry') return validateTeamEntry(registration, event, savedRegistration)
   const validator = VALIDATORS[field] ?? ((value) => value[field] === undefined || value[field] === '')
   // The dog alone is judged against the saved entry: a number already stored is not judged again.
   const result =

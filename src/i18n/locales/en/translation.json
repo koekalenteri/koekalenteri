@@ -1139,6 +1139,8 @@
       "received": "Registration received"
     },
     "teamEntry": "Team",
+    "teamEntryInfo": "Give the team's name if your dog runs in a team, for example a club's or a kennel's team. The secretary puts the teams together by the names given.",
+    "teamEntryName": "Team name",
     "teamEntryPrimary": "First team",
     "terms": "I accept the <2>registration terms</2> and the <6>data protection statement</6>.",
     "time": {
@@ -1735,6 +1737,9 @@
       "restrictedToBreeds": "Only dogs of these breeds may enter this trial: {{breeds}}.",
       "restrictedToMembers": "Only members of the organizing club may enter this trial. Tick the membership if the owner or the handler is a member.",
       "restrictedToMembersOrBreeds": "Only members of the organizing club and dogs of these breeds may enter this trial: {{breeds}}. Tick the membership if the owner or the handler is a member.",
+      "teamEntryNoName": "Write the team's name.",
+      "teamEntryNotAsked": "This trial does not take a team at entry.",
+      "teamEntryTooLong": "A team's name can be at most {{length}} characters long.",
       "terms": "It is mandatory to accept registration terms and the data protection statement."
     },
     "regNo": {

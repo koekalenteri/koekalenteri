@@ -1139,6 +1139,8 @@
       "received": "Ilmoittautuminen vastaanotettu"
     },
     "teamEntry": "Joukkue",
+    "teamEntryInfo": "Kerro joukkueen nimi, jos koirasi kuuluu johonkin joukkueeseen, esimerkiksi yhdistyksen tai kennelin joukkueeseen. Koesihteeri kokoaa joukkueet ilmoitettujen nimien mukaan.",
+    "teamEntryName": "Joukkueen nimi",
     "teamEntryPrimary": "Ykkösjoukkue",
     "terms": "Hyväksyn <2>ilmoittautumisen ehdot</2> ja <6>tietosuojaselosteen</6>.",
     "time": {
@@ -1735,6 +1737,9 @@
       "restrictedToBreeds": "Kokeeseen voivat ilmoittautua vain koirat, joiden rotu on jokin näistä: {{breeds}}.",
       "restrictedToMembers": "Kokeeseen voivat ilmoittautua vain järjestävän yhdistyksen jäsenet. Merkitse jäsenyys, jos omistaja tai ohjaaja on jäsen.",
       "restrictedToMembersOrBreeds": "Kokeeseen voivat ilmoittautua vain järjestävän yhdistyksen jäsenet sekä koirat, joiden rotu on jokin näistä: {{breeds}}. Merkitse jäsenyys, jos omistaja tai ohjaaja on jäsen.",
+      "teamEntryNoName": "Kirjoita joukkueen nimi.",
+      "teamEntryNotAsked": "Tähän kokeeseen ei ilmoiteta joukkuetta.",
+      "teamEntryTooLong": "Joukkueen nimessä voi olla enintään {{length}} merkkiä.",
       "terms": "Ilmoittautumisen ehtojen ja tietosuojaselosteen hyväksyminen on pakollista."
     },
     "regNo": {
