@@ -5,6 +5,7 @@ import { Suspense } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStations, registrationsToEventWithStations } from '@/__mockData__/resultsEvent'
 import { putEvent } from '@/api/event'
+import { putRegistrationGroups } from '@/api/registration'
 import theme from '@/assets/Theme'
 import { Path } from '@/routeConfig'
 import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '@/test-utils/utils'
@@ -303,6 +304,61 @@ describe('EventTeamsPage', () => {
       await flushPromises()
 
       expect(screen.queryByText(/^teams\.result/)).not.toBeInTheDocument()
+    })
+  })
+
+  // KOE-1722: a whole team goes to the participants or to the reserve list at once, one request per
+  // class, as the group endpoint takes the dogs of one class; a class that fails is named by its dogs.
+  describe('moving a whole team', () => {
+    const onReserve = (id: string, name: string, eventClass: string): Registration => ({
+      ...registrations[0],
+      class: eventClass,
+      dates: [{ date: eventWithStations.startDate, time: 'ap' }],
+      dog: { ...registrations[0].dog, name, regNo: `REG-${id}` },
+      group: { key: 'reserve', number: 1 },
+      id,
+    })
+    const teamEntries = [onReserve('alo-1', 'Alokas', 'ALO'), onReserve('avo-1', 'Avoin', 'AVO')]
+    const teamEvent = { ...eventWithStations, teams: [{ registrationIds: ['alo-1', 'avo-1'] }] }
+    const moved = (entries: Registration[]) => ({ classes: eventWithStations.classes, entries: 2, items: entries })
+
+    it('moves the team to the participants one class at a time, and says when it is done', async () => {
+      vi.mocked(putRegistrationGroups)
+        .mockResolvedValueOnce(moved(teamEntries))
+        .mockResolvedValueOnce(moved(teamEntries))
+      const { user } = await renderPage(teamEvent, teamEntries)
+      await flushPromises()
+
+      await user.click(within(teamSections()[0]).getByRole('button', { name: 'teams.toParticipants' }))
+      await flushPromises()
+
+      expect(putRegistrationGroups).toHaveBeenNthCalledWith(
+        1,
+        eventWithStations.id,
+        [expect.objectContaining({ id: 'alo-1' })],
+        TEST_ID_TOKEN
+      )
+      expect(putRegistrationGroups).toHaveBeenNthCalledWith(
+        2,
+        eventWithStations.id,
+        [expect.objectContaining({ id: 'avo-1' })],
+        TEST_ID_TOKEN
+      )
+      expect(screen.getByText('teams.moved')).toBeInTheDocument()
+    })
+
+    it('moves the classes it can, and names the dogs of a class that did not move', async () => {
+      vi.mocked(putRegistrationGroups)
+        .mockResolvedValueOnce(moved(teamEntries))
+        .mockRejectedValueOnce(new Error('did not move'))
+      const { user } = await renderPage(teamEvent, teamEntries)
+      await flushPromises()
+
+      await user.click(within(teamSections()[0]).getByRole('button', { name: 'teams.toParticipants' }))
+      await flushPromises()
+
+      expect(putRegistrationGroups).toHaveBeenCalledTimes(2)
+      expect(screen.getByText(/teams\.movePartlyFailed/)).toHaveTextContent('Avoin')
     })
   })
 

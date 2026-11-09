@@ -89,6 +89,20 @@ describe('teamGroupMoves', () => {
     expect(teamGroupMoves({ registrationIds: ['v'] }, [reserve('v', 'VOI')], 'participants', groups)).toEqual([])
   })
 
+  // KOE-674: the moves go class by class in the event's own order, as the secretary's lists read.
+  it("moves the classes in the event's order", () => {
+    const ownGroups = new Map([
+      ['DERBY', [morning]],
+      ['VET10', [morning]],
+    ])
+    const event = { ownClasses: [{ code: 'VET10' }, { code: 'DERBY' }] }
+    const team: EventTeam = { registrationIds: ['d', 'v'] }
+
+    const moves = teamGroupMoves(team, [reserve('d', 'DERBY'), reserve('v', 'VET10')], 'participants', ownGroups, event)
+
+    expect(moves.map(({ eventClass }) => eventClass)).toEqual(['VET10', 'DERBY'])
+  })
+
   it('has no moves for a team already where it is sent', () => {
     expect(teamGroupMoves({ registrationIds: ['a'] }, [running('a')], 'participants', groups)).toEqual([])
   })
