@@ -15,7 +15,7 @@ import { useParams } from 'react-router'
 import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
 import { withStoredTotals } from '@/lib/results'
 import { teamSeriesName } from '@/lib/startListView'
-import { teamCompetitionErrors } from '@/lib/team'
+import { isTeamCandidate, teamCompetitionErrors } from '@/lib/team'
 import { teamStandings, withRunOffWinner } from '@/lib/teamStandings'
 import { Path } from '@/routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
@@ -100,10 +100,14 @@ export default function EventTeamsPage() {
     () => new Map(registrations.map((registration) => [registration.id, registration])),
     [registrations]
   )
+  // The dogs a team may take, by the rule the save holds to (`isTeamCandidate`, KOE-1725): once a class is
+  // picked, only its picked dogs. A dog already in a team is in no other.
   const available = useMemo(() => {
     const taken = new Set(teams.flatMap((team) => team.registrationIds))
-    return registrations.filter((registration) => !registration.cancelled && !taken.has(registration.id))
-  }, [registrations, teams])
+    return registrations.filter(
+      (registration) => !!event && isTeamCandidate(event, registration) && !taken.has(registration.id)
+    )
+  }, [event, registrations, teams])
   // A team is its number, its place in the list: only the last ones come and go (KOE-1714).
   const numbered = useMemo(() => teams.map((team, index) => ({ number: index + 1, team })), [teams])
   // The standings of the draft, so a run-off marked shows before it is saved; the totals a round stored

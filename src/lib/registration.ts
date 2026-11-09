@@ -161,6 +161,7 @@ export const PUBLIC_REGISTRATION_FIELDS = [
   'reserve',
   'results',
   'selectedCost',
+  'teamEntry',
 ] as const satisfies ReadonlyArray<PublicRegistrationField>
 
 /** A field a participant's request may write. */

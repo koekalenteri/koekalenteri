@@ -1,7 +1,10 @@
 import type { EventTeam, TeamCompetition } from '../types'
 import {
+  entryTeamError,
+  isTeamCandidate,
   isTeamCountedDay,
   MAX_TEAM_MEMBERS,
+  normalizeTeamName,
   pruneTeamDays,
   teamCompetitionDiffers,
   teamCompetitionErrors,
@@ -167,6 +170,118 @@ describe('teamCompetitionDiffers (KOE-1720)', () => {
     ['a counted day removed', { days: ['2026-08-01', '2026-08-02'] }, { days: ['2026-08-01'] }],
   ])('reads %s as a change of the list', (_name, a, b) => {
     expect(teamCompetitionDiffers(a, b)).toBe(true)
+  })
+})
+
+// KOE-1725: once a dog's class is picked, only the dogs picked into it may join a team.
+describe('team candidates (KOE-1725)', () => {
+  const participant = {
+    class: 'ALO',
+    group: { key: 'ALO-2026-08-01-ap', number: 1 },
+    id: 'run',
+    state: 'ready' as const,
+  }
+  const reserve = { class: 'ALO', group: { key: 'reserve', number: 1 }, id: 'wait', state: 'ready' as const }
+  const unplaced = { class: 'ALO', id: 'new', state: 'ready' as const }
+  const cancelled = { ...participant, cancelled: true, id: 'gone' }
+  const event = (state?: 'picked' | 'invited' | 'started') => ({
+    classes: [{ class: 'ALO', ...(state ? { state } : {}) }],
+    eventType: 'NOWT',
+    state: 'confirmed' as const,
+  })
+
+  describe('isTeamCandidate', () => {
+    it('takes every dog that has not cancelled while its class is not picked yet', () => {
+      expect([participant, reserve, unplaced, cancelled].map((entry) => isTeamCandidate(event(), entry))).toEqual([
+        true,
+        true,
+        true,
+        false,
+      ])
+    })
+
+    it.each(['picked', 'invited', 'started'] as const)('takes only the picked dogs once the class is %s', (state) => {
+      expect([participant, reserve, unplaced, cancelled].map((entry) => isTeamCandidate(event(state), entry))).toEqual([
+        true,
+        false,
+        false,
+        false,
+      ])
+    })
+
+    it('takes no entry that is not finished, whatever its class', () => {
+      expect(isTeamCandidate(event(), { ...unplaced, state: 'creating' })).toBe(false)
+      expect(isTeamCandidate(event('picked'), { ...participant, state: 'creating' })).toBe(false)
+    })
+
+    it("reads a classless trial's own state", () => {
+      const classless = { classes: [], eventType: 'NOU', state: 'picked' as const }
+
+      expect(isTeamCandidate(classless, { ...reserve, class: undefined })).toBe(false)
+      expect(isTeamCandidate(classless, { ...participant, class: undefined })).toBe(true)
+    })
+  })
+
+  describe('teamErrors with the entries', () => {
+    const entries = [participant, reserve, cancelled]
+
+    it('refuses a dog joining a team that is no candidate, or that the entries do not hold', () => {
+      const teams: EventTeam[] = [{ registrationIds: ['run', 'wait', 'nobody'] }]
+
+      expect(teamErrors({ ...event('picked'), teams }, entries, [])).toEqual([
+        { kind: 'notCandidate', registrationId: 'wait' },
+        { kind: 'notCandidate', registrationId: 'nobody' },
+      ])
+    })
+
+    it('keeps a dog that was in a team before, whatever became of its entry since', () => {
+      const before: EventTeam[] = [{ registrationIds: ['wait', 'gone'] }]
+      const teams: EventTeam[] = [{ registrationIds: ['run'] }, { registrationIds: ['gone', 'wait'] }]
+
+      expect(teamErrors({ ...event('picked'), teams }, entries, before)).toEqual([])
+    })
+
+    it('reads no candidates without the entries', () => {
+      expect(teamErrors({ ...event('picked'), teams: [{ registrationIds: ['wait'] }] })).toEqual([])
+    })
+  })
+})
+
+// KOE-1721: the team a participant names at entry, when the event asks for one.
+describe('normalizeTeamName (KOE-1721)', () => {
+  it('trims the name and keeps one space between its words', () => {
+    expect(normalizeTeamName('  Savon \t Nuuskut\u00a0 1 ')).toBe('Savon Nuuskut 1')
+    expect(normalizeTeamName(' ')).toBe('')
+  })
+})
+
+describe('entryTeamError (KOE-1721)', () => {
+  const asks = { teamCompetition: { askAtEntry: true } }
+
+  it('accepts a named team where the event asks for one, and no team anywhere', () => {
+    expect(entryTeamError(asks, { name: 'Savon Nuuskut 1' })).toBeUndefined()
+    expect(entryTeamError(asks, { name: 'Savon Nuuskut 1', primary: true })).toBeUndefined()
+    expect(entryTeamError(asks, { name: ` ${'N'.repeat(60)} ` })).toBeUndefined()
+    expect(entryTeamError({}, undefined)).toBeUndefined()
+    expect(entryTeamError({}, null)).toBeUndefined()
+  })
+
+  it.each([
+    ['without asking for it', {}, { name: 'Savon Nuuskut 1' }, 'notAsked'],
+    ['with the question off', { teamCompetition: { askAtEntry: false } }, { name: 'Savon Nuuskut 1' }, 'notAsked'],
+    ['without a name', asks, { name: '  ' }, 'noName'],
+    ['with a name longer than sixty characters', asks, { name: 'N'.repeat(61) }, 'tooLong'],
+    ['with a name that is not text', asks, { name: 1 }, 'invalid'],
+    ['with a first-team mark that is not true', asks, { name: 'Savon Nuuskut 1', primary: false }, 'invalid'],
+  ])('refuses a team named %s', (_name, event, teamEntry, error) => {
+    expect(entryTeamError(event, teamEntry)).toBe(error)
+  })
+
+  it('keeps a stored team as it is where the event no longer asks for one', () => {
+    const stored = { name: 'Savon Nuuskut 1' }
+
+    expect(entryTeamError({}, { name: ' Savon  Nuuskut 1' }, stored)).toBeUndefined()
+    expect(entryTeamError({}, { name: 'Savon Nuuskut 2' }, stored)).toBe('notAsked')
   })
 })
 

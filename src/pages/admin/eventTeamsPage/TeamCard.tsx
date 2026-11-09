@@ -29,7 +29,7 @@ interface Props {
   readonly team: EventTeam
   /** The event's entries by id, to show the members by. */
   readonly entries: ReadonlyMap<string, Registration>
-  /** The entries the team may take: not cancelled, and in no team yet. */
+  /** The entries the team may take: candidates (`isTeamCandidate`, KOE-1725) in no team yet. */
   readonly available: readonly Registration[]
   readonly onChange: (team: EventTeam) => void
   /** The team's points and placing over the trial, in a format scored at posts once a dog has a result. */

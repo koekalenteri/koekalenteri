@@ -1,7 +1,7 @@
 import type { ConfirmedEvent, Registration } from '@/types'
 import { ThemeProvider } from '@mui/material/styles'
 import { Suspense } from 'react'
-import { page } from 'vitest/browser'
+import { commands, page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import { eventWithStations, RESULTS_EVENT_DAY, registrationsToEventWithStations } from '@/__mockData__/resultsEvent'
 import theme from '@/assets/Theme'
@@ -17,6 +17,10 @@ import { adminEventRegistrationsAtom, adminEventsAtom } from './state'
 // A day of its own keeps what the page says about the trial from moving (KOE-1423).
 freezeClockAt('2026-11-08')
 
+// The candidates test clicks the dog list; the mouse stays there and would hover the next test's
+// team name field.
+afterEach(() => commands.resetMouse())
+
 const [base] = registrationsToEventWithStations
 
 /** An entry of the trial: a dog, its handler and where it runs. */
@@ -26,6 +30,8 @@ const entry = (id: string, dog: string, handler: string, overrides: Partial<Regi
   group: { date: RESULTS_EVENT_DAY, key: 'ALO-AP', number: 1, time: 'ap' },
   handler: { ...base.handler, name: handler },
   id,
+  // The admin list holds finished entries only.
+  state: 'ready',
   ...overrides,
 })
 
@@ -93,6 +99,13 @@ const seriesEvent: ConfirmedEvent = {
   ],
 }
 
+// The ALO class picked (KOE-1725): a team takes only its picked dogs, so the reserve dog is not offered.
+const pickedEvent: ConfirmedEvent = {
+  ...eventWithStations,
+  classes: eventWithStations.classes.map((eventClass) => ({ ...eventClass, state: 'picked' })),
+  teams: [{ name: 'Loistavat Lintukoirat', registrationIds: ['dog-1'] }],
+}
+
 const renderPage = (shown: ConfirmedEvent = event, entries: Registration[] = registrations) =>
   render(
     <div data-testid="visual-root" style={{ background: '#fff', width: 900 }}>
@@ -141,6 +154,15 @@ it('sets the series and ranks each team within its own (KOE-1720)', async () => 
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-series')
 })
 
+it('offers only the picked dogs once the class is picked (KOE-1725)', async () => {
+  await page.viewport(900, 900)
+  const screen = await renderPage(pickedEvent)
+
+  await screen.getByRole('combobox', { name: 'Lisää koira' }).click()
+  await expect.element(screen.getByRole('option', { name: 'Kultakuonon Kide' })).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-candidates')
+})
+
 describeInLanguage('en', () => {
   it('sets the series and ranks each team within its own (KOE-1720)', async () => {
     await page.viewport(900, 1700)
@@ -148,6 +170,15 @@ describeInLanguage('en', () => {
 
     await expect.element(screen.getByRole('heading', { name: 'Series' })).toBeVisible()
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-series-en')
+  })
+
+  it('offers only the picked dogs once the class is picked (KOE-1725)', async () => {
+    await page.viewport(900, 900)
+    const screen = await renderPage(pickedEvent)
+
+    await screen.getByRole('combobox', { name: 'Add a dog' }).click()
+    await expect.element(screen.getByRole('option', { name: 'Kultakuonon Kide' })).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-candidates-en')
   })
 
   it("shows each team's points and placing, and the run-off of a tie for first (KOE-1717)", async () => {

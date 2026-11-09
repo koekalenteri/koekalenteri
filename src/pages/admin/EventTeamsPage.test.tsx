@@ -27,7 +27,10 @@ const cancelled: Registration = {
   dog: { ...registrationsToEventWithStations[0].dog, name: 'Peruja' },
   id: 'gone-1',
 }
-const registrations = [...registrationsToEventWithStations, cancelled]
+// The admin list holds finished entries only, as the page receives them.
+const registrations = [...registrationsToEventWithStations, cancelled].map(
+  (registration): Registration => ({ ...registration, state: 'ready' })
+)
 
 const renderPage = (event: ConfirmedEvent = eventWithStations, entries: Registration[] = registrations) =>
   renderSuspendedWithUserEvents(
@@ -117,6 +120,26 @@ describe('EventTeamsPage', () => {
 
     await user.click(within(second).getByRole('combobox', { name: 'teams.addDog' }))
     expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Toinen'])
+  })
+
+  // KOE-1725: once a class is picked, a team takes only the dogs picked into it, as the save holds to.
+  it('offers only the picked dogs of a picked class, and keeps a reserve dog already in a team', async () => {
+    const [, , waiting] = registrations
+    const secondReserve = { ...waiting, dog: { ...waiting.dog, name: 'Toinen varalla' }, id: 'reserve-2' }
+    const { user } = await renderPage(
+      {
+        ...eventWithStations,
+        classes: eventWithStations.classes.map((eventClass) => ({ ...eventClass, state: 'picked' as const })),
+        teams: [{ registrationIds: ['reserve-1'] }, { registrationIds: [] }],
+      },
+      [...registrations, secondReserve]
+    )
+    await flushPromises()
+    const [first, second] = teamSections()
+
+    expect(members(first)).toEqual(['1A Varalla' + 'teams.memberReserve'])
+    await user.click(within(second).getByRole('combobox', { name: 'teams.addDog' }))
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Ensimmainen', 'Toinen'])
   })
 
   it('moves the letters with the dogs, and closes the gap a removed dog leaves', async () => {
