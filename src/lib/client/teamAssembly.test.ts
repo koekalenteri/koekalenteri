@@ -1,5 +1,5 @@
 import type { DayKey, EventTeam, JsonRegistration } from '../../types'
-import { teamSuggestions } from './teamAssembly'
+import { litterMismatches, teamSuggestions } from './teamAssembly'
 
 const DOB: DayKey = '2024-03-01'
 
@@ -138,5 +138,32 @@ describe('teamSuggestions', () => {
         noBirthDay('f'),
       ])
     ).toEqual([])
+  })
+})
+
+// KOE-1727: a litter team is the dogs of one litter; the page says which dog is of another.
+describe('litterMismatches', () => {
+  const byId = (...dogs: ReturnType<typeof litterDog>[]) => new Map(dogs.map((dog) => [dog.id, dog]))
+
+  it('names the dogs of another litter than most of the team, and the dogs whose litter is not known', () => {
+    const unknown = entry('d', { dog: { dob: DOB, name: 'd', regNo: 'd' } })
+    const entries = byId(litterDog('a'), litterDog('b'), litterDog('c', 'Toinen isä'), unknown)
+
+    expect(litterMismatches({ registrationIds: ['c', 'a', 'b', 'd'] }, entries)).toEqual([
+      { kind: 'otherLitter', registrationId: 'c' },
+      { kind: 'unknownLitter', registrationId: 'd' },
+    ])
+  })
+
+  it("takes the first dog's litter where the litters are as many", () => {
+    const entries = byId(litterDog('a'), litterDog('b', 'Toinen isä'))
+
+    expect(litterMismatches({ registrationIds: ['b', 'a'] }, entries)).toEqual([
+      { kind: 'otherLitter', registrationId: 'a' },
+    ])
+  })
+
+  it('finds nothing in a team of one litter, and skips an id the entries do not hold', () => {
+    expect(litterMismatches({ registrationIds: ['a', 'b', 'gone'] }, byId(litterDog('a'), litterDog('b')))).toEqual([])
   })
 })
