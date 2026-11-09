@@ -10,7 +10,7 @@ import { registrationWithStaticDates } from '@/__mockData__/registrations'
 import { getLocations } from '@/api/location'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
-import { adminEventRegistrationsAtom } from '@/pages/admin/state'
+import { adminEventRegistrationsAtom, adminEventTypesAtom } from '@/pages/admin/state'
 import { idTokenAtom } from '@/pages/state'
 import { expectConsoleOutput } from '@/test-utils/consoleGuard'
 import {
@@ -118,6 +118,69 @@ describe('EventForm', () => {
     const times = screen.getAllByRole('option').map((option) => option.textContent)
     expect(times.length).toBeGreaterThan(0)
     expect(times.every((time) => time?.includes('registration.timeLong.kp'))).toBe(true)
+  })
+
+  // KOE-674: the basic-info slice carries the own classes, or a change of type or format reads the
+  // trial as having none: their days are dropped, and an official type is not told to drop the list.
+  describe("an unofficial trial's own classes", () => {
+    const ownClassEvent: DogEvent = {
+      ...eventWithEntryNotYetOpen,
+      classes: [{ class: 'DERBY', date: eventWithEntryNotYetOpen.startDate }],
+      eventType: 'WT-harjoitus',
+      ownClasses: [{ code: 'DERBY', name: { fi: 'Derby' } }],
+    }
+    const eventType = (name: string, official: boolean) => ({
+      active: true,
+      createdAt: new Date('2026-01-01T00:00:00Z'),
+      createdBy: 'test',
+      description: { en: name, fi: name, sv: name },
+      eventType: name,
+      modifiedAt: new Date('2026-01-01T00:00:00Z'),
+      modifiedBy: 'test',
+      official,
+    })
+
+    it('keeps their days when the format the trial follows changes', async () => {
+      const changeHandler = vi.fn()
+      const { user } = await renderComponent(ownClassEvent, undefined, undefined, changeHandler)
+      await flushPromises()
+
+      await user.click(screen.getByRole('combobox', { name: 'event.officialFormat' }))
+      await user.click(screen.getByRole('option', { name: 'NOWT' }))
+      await flushPromises()
+
+      expect(changeHandler).toHaveBeenLastCalledWith(
+        expect.objectContaining({ classes: [expect.objectContaining({ class: 'DERBY' })], officialFormat: 'NOWT' })
+      )
+    })
+
+    it('drops the list and the days when the trial becomes an official one', async () => {
+      const changeHandler = vi.fn()
+      const store = createStore()
+      void store.set(adminEventTypesAtom, [eventType('WT-harjoitus', false), eventType('NOWT', true)])
+      const { user } = await renderSuspendedWithUserEvents(
+        <ThemeProvider theme={theme}>
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+            <Provider store={store}>
+              <Suspense fallback={<div>loading?...</div>}>
+                <EventForm event={ownClassEvent} canSave onChange={changeHandler} />
+              </Suspense>
+            </Provider>
+          </LocalizationProvider>
+        </ThemeProvider>,
+        undefined,
+        { advanceTimers: vi.advanceTimersByTime }
+      )
+      await flushPromises()
+
+      await user.click(screen.getByRole('combobox', { name: 'event.eventType' }))
+      await user.click(screen.getByRole('option', { name: 'NOWT' }))
+      await flushPromises()
+
+      // The form drops a field sent as null, as it drops a cleared official format.
+      expect(changeHandler).toHaveBeenLastCalledWith(expect.objectContaining({ classes: [], eventType: 'NOWT' }))
+      expect(changeHandler).toHaveBeenLastCalledWith(expect.not.objectContaining({ ownClasses: expect.anything() }))
+    })
   })
 
   it('keeps an unsaved past event editable', async () => {

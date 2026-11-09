@@ -103,6 +103,74 @@ describe('BasicInfoSection', () => {
       )
     })
 
+    // KOE-674: an unofficial trial's own classes are its own, whatever type or format it takes, as long
+    // as it stays unofficial; an official type runs none.
+    describe("the event's own classes", () => {
+      const withOwnClasses: PartialEvent = {
+        ...unofficial,
+        classes: [{ class: 'DERBY', date: newEventStartDate }],
+        ownClasses: [{ code: 'DERBY', name: { fi: 'Derby' } }],
+      }
+
+      it('keeps them when the format the trial follows changes', async () => {
+        const changeHandler = vi.fn()
+        const { user } = renderComponent({
+          event: withOwnClasses,
+          eventTypeClasses: EVENT_TYPE_CLASSES,
+          onChange: changeHandler,
+          open: true,
+          selectedEventType: harjoitus,
+        })
+
+        await user.click(screen.getByRole('combobox', { name: 'event.officialFormat' }))
+        await user.click(screen.getByRole('option', { name: 'NOWT' }))
+
+        expect(changeHandler).toHaveBeenCalledWith({
+          classes: [expect.objectContaining({ class: 'DERBY', date: newEventStartDate })],
+          officialFormat: 'NOWT',
+        })
+      })
+
+      it('keeps them when the trial changes to another unofficial type', async () => {
+        const changeHandler = vi.fn()
+        const { user } = renderComponent({
+          event: withOwnClasses,
+          eventTypeClasses: EVENT_TYPE_CLASSES,
+          eventTypes: ['Harjoitus', 'Koulutus'],
+          onChange: changeHandler,
+          open: true,
+          selectedEventType: harjoitus,
+        })
+
+        await user.click(screen.getByRole('combobox', { name: 'event.eventType' }))
+        await user.click(screen.getByRole('option', { name: 'Koulutus' }))
+
+        expect(changeHandler).toHaveBeenCalledWith(
+          expect.objectContaining({ classes: [{ class: 'DERBY', date: newEventStartDate }], eventType: 'Koulutus' })
+        )
+        expect(changeHandler).toHaveBeenLastCalledWith(expect.not.objectContaining({ ownClasses: expect.anything() }))
+      })
+
+      it('drops them, list and days, when the trial becomes an official one', async () => {
+        const changeHandler = vi.fn()
+        const { user } = renderComponent({
+          event: withOwnClasses,
+          eventTypeClasses: EVENT_TYPE_CLASSES,
+          eventTypes: ['Harjoitus', 'NOWT'],
+          onChange: changeHandler,
+          open: true,
+          selectedEventType: harjoitus,
+        })
+
+        await user.click(screen.getByRole('combobox', { name: 'event.eventType' }))
+        await user.click(screen.getByRole('option', { name: 'NOWT' }))
+
+        expect(changeHandler).toHaveBeenCalledWith(
+          expect.objectContaining({ classes: [], eventType: 'NOWT', ownClasses: null })
+        )
+      })
+    })
+
     it('is locked once a result or a turn is saved', () => {
       renderComponent({
         event: { ...unofficial, officialFormat: 'NOWT' },

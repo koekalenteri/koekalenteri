@@ -43,6 +43,7 @@ import {
   isMockTrialClass,
   isOfficialEventType,
   OFFICIAL_EVENT_TYPES,
+  ownClassCodes,
 } from '@/lib/event'
 import { isRegistrationClass } from '@/lib/registration'
 import CollapsibleSection from '@/pages/components/CollapsibleSection'
@@ -176,8 +177,11 @@ function BasicInfoSection({
       // Only a NOWT can be a Mock trial (KOE-308); a trial that changes format drops the mark.
       const mockTrial = hasMockTrialChoice(eventType) ? event.mockTrial : null
       const filterClasses = getTypeClasses(eventType, eventTypeClasses, !!mockTrial)
-      const classes = event.classes.filter((c) => isRegistrationClass(c.class) && filterClasses.includes(c.class))
       const official = OFFICIAL_EVENT_TYPES.includes(eventType ?? '')
+      // An unofficial trial keeps its own classes (KOE-674); an official type runs none, so the list
+      // goes with their days, as any class the new type does not run goes.
+      const dropsOwnClasses = official && !!event.ownClasses?.length
+      const classes = dropsOwnClasses ? [] : keptClasses(event, filterClasses)
       const judges =
         official && (event.judges.length === 0 || !event.judges[0].official)
           ? [{ id: 0, name: '', official: true }, ...event.judges]
@@ -186,9 +190,17 @@ function BasicInfoSection({
       // one that becomes a B-trial starts with game (KOE-1570).
       const retrieveType = hasRetrieveTypeChoice(eventType) ? (event.retrieveType ?? 'game') : null
       // Another type is another trial: the official type it follows is chosen anew (KOE-1718).
-      onChange?.({ classes, eventType, judges, mockTrial, officialFormat: null, retrieveType })
+      onChange?.({
+        classes,
+        eventType,
+        judges,
+        mockTrial,
+        officialFormat: null,
+        retrieveType,
+        ...(dropsOwnClasses ? { ownClasses: null } : {}),
+      })
     },
-    [event.classes, event.judges, event.mockTrial, event.retrieveType, eventTypeClasses, onChange]
+    [event, eventTypeClasses, onChange]
   )
   // An unofficial trial may follow an official type (KOE-1718), and then runs by its format. Its classes
   // follow the format; an entry keeps the class it was made in, so the choice cannot add or take away the
@@ -209,21 +221,12 @@ function BasicInfoSection({
         followedFormat,
         event.startDate,
         event.endDate,
-        event.classes.filter((c) => isRegistrationClass(c.class) && filterClasses.includes(c.class))
+        keptClasses(event, filterClasses)
       )
       // A cleared choice is sent as null, which removes it from the stored event.
       onChange?.({ classes, officialFormat: officialFormat ?? null })
     },
-    [
-      changesShape,
-      event.classes,
-      event.endDate,
-      event.eventType,
-      event.mockTrial,
-      event.startDate,
-      eventTypeClasses,
-      onChange,
-    ]
+    [changesShape, event, eventTypeClasses, onChange]
   )
   const officialFormatHelperText = officialFormatGuidance(officialFormatLocked, hasEntries, t)
   const handleMockTrialChange = useCallback(
@@ -495,6 +498,18 @@ function BasicInfoSection({
 }
 
 export default memo(BasicInfoSection)
+
+/**
+ * The class days a trial keeps when its type or the format it follows changes: the days of its own
+ * classes while it has any (KOE-674), else the days of the official classes `typeClasses` runs.
+ */
+function keptClasses(event: Pick<BasicInfoEvent, 'classes' | 'ownClasses'>, typeClasses: readonly RegistrationClass[]) {
+  if (event.ownClasses?.length) {
+    const own = ownClassCodes(event)
+    return event.classes.filter((c) => own.includes(c.class))
+  }
+  return event.classes.filter((c) => isRegistrationClass(c.class) && typeClasses.includes(c.class))
+}
 
 /** What the official type choice says under it: why it is locked, or which types it still offers. */
 function officialFormatGuidance(locked: boolean, hasEntries: boolean, t: TFunction): string | undefined {
