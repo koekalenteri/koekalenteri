@@ -12,7 +12,7 @@ export type EventResultRequirementFn = (
 
 export type EventResultRequirement = Partial<TestResult> & { count: number; excludeCurrentYear?: boolean }
 export type EventResultRequirements = Array<EventResultRequirement>
-export type EventResultRules = EventResultRequirements | Array<EventResultRequirements> | EventResultRequirementFn
+type EventResultRules = EventResultRequirements | Array<EventResultRequirements> | EventResultRequirementFn
 
 export type EventRequirement = {
   age?: number

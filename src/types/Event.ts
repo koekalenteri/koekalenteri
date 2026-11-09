@@ -26,8 +26,8 @@ export type PaymentTime = 'registration' | 'confirmation'
 export type RetrieveType = 'game' | 'dummies'
 /** The official types an unofficial trial may follow (KOE-1718): their format runs the trial. */
 export const OFFICIAL_FORMATS = ['NOU', 'NOME-B', 'NOME-A', 'NOWT'] as const
-export type OfficialFormat = (typeof OFFICIAL_FORMATS)[number]
-export type StartListPublishedState = boolean | Partial<Record<ClassKey, boolean>>
+type OfficialFormat = (typeof OFFICIAL_FORMATS)[number]
+type StartListPublishedState = boolean | Partial<Record<ClassKey, boolean>>
 
 /**
  * Which days' start numbers are out: every day (`true`), none (`false`), or the listed days as
@@ -42,7 +42,7 @@ export type StartListPublishedState = boolean | Partial<Record<ClassKey, boolean
  * Day keys on both sides of the wire (KOE-1546); a half-day entry carries its time after the key.
  */
 export type StartNumbersDayScope = boolean | string[]
-export type StartNumbersPublishedState = StartNumbersDayScope | Partial<Record<ClassKey, StartNumbersDayScope>>
+type StartNumbersPublishedState = StartNumbersDayScope | Partial<Record<ClassKey, StartNumbersDayScope>>
 
 /**
  * Which days' results are out: every day (`true`), none (`false`), or the listed days as yyyy-MM-dd
@@ -289,7 +289,7 @@ export type StationTurnPause = 'coffee' | 'lunch' | 'weather' | 'other'
 export type LiveMark = 'onRetrieve' | 'gotRetrieve' | 'noRetrieve' | 'eyeWipe' | 'firstDogDown'
 
 /** The public face of a dog in a turn: what the published start list already tells. */
-export interface JsonStationTurnDog {
+interface JsonStationTurnDog {
   name: string
   number?: number
   /** How this dog's turn is going, where the format has a mark vocabulary. */

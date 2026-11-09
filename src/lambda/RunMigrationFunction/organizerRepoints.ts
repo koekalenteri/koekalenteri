@@ -10,7 +10,7 @@ interface OrganizerReference {
 }
 
 /** An id the organizer table does not hold that no single live organizer accounts for. */
-export interface UnmatchedOrganizer {
+interface UnmatchedOrganizer {
   /** The events on the id, as read. */
   eventIds: string[]
   /** The names those events give the organizer, as written. */

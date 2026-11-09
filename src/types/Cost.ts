@@ -17,7 +17,7 @@ export interface CustomCost {
   }
 }
 
-export interface EarlyBirdCost {
+interface EarlyBirdCost {
   cost: number
   days: number
 }

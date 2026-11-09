@@ -24,7 +24,7 @@ export interface StationTurnSpan {
 }
 
 /** The least a span's dog line says: what a run is told apart by across spans. */
-export interface StationTurnSpanDog {
+interface StationTurnSpanDog {
   name: string
   number?: number
 }
