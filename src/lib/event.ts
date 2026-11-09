@@ -24,6 +24,7 @@ import type {
   SanitizedPublicConfirmedDogEvent,
   SanitizedPublicDogEvent,
   StartNumbersDayScope,
+  TeamCompetition,
 } from '../types'
 import { LANGUAGES } from '../types'
 import {
@@ -1701,6 +1702,15 @@ export const shiftPlacesPerDay = (placesPerDay: Record<string, number>, days: nu
   return shifted
 }
 
+/**
+ * A team competition's settings with its counted days moved `days` calendar days, as a copy moves its
+ * days (KOE-1726). Settings without counted days are given back as they are.
+ */
+export const shiftTeamDays = (teamCompetition: TeamCompetition, days: number): TeamCompetition =>
+  teamCompetition.days
+    ? { ...teamCompetition, days: teamCompetition.days.map((day) => addDays(day, days)) }
+    : teamCompetition
+
 export const copyDogEvent = (event: DogEvent, now = new Date()): DogEvent => {
   const copy = structuredClone(event)
   const origStartDay = event.startDate
@@ -1732,6 +1742,8 @@ export const copyDogEvent = (event: DogEvent, now = new Date()): DogEvent => {
   })
 
   if (event.placesPerDay) copy.placesPerDay = shiftPlacesPerDay(event.placesPerDay, shift)
+  // The days a team competition counts move with their days (KOE-1726).
+  if (event.teamCompetition) copy.teamCompetition = shiftTeamDays(event.teamCompetition, shift)
 
   const newDates = newEventDates(now)
   copy.startDate = newDates.startDate

@@ -10,7 +10,7 @@ import { getStartNumberLink } from '../../api/startNumbers'
 import { reportError } from '../../lib/client/error'
 import { errorSnackbarOptions } from '../../lib/client/snackbar'
 import { refusedStartNumber } from '../../lib/client/startNumberErrors'
-import { isRegistrationClass } from '../../lib/registration'
+import { isEventClass } from '../../lib/eventClass'
 import { Path } from '../../routeConfig'
 import { idTokenAtom } from '../state'
 import { EntryPageHeader } from './components/EntryPageHeader'
@@ -42,7 +42,7 @@ export default function EventStartNumbersPage() {
     async (numbers: StartNumberEntry[], eventClass?: string) => {
       try {
         await eventActions.enterStartNumbers(eventId, {
-          ...(isRegistrationClass(eventClass) ? { eventClass } : {}),
+          ...(isEventClass(event ?? {}, eventClass) ? { eventClass } : {}),
           numbers,
         })
         enqueueSnackbar(t('startNumbers.saved'), { variant: 'success' })
@@ -56,7 +56,7 @@ export default function EventStartNumbersPage() {
         return false
       }
     },
-    [eventId, t, eventActions.enterStartNumbers]
+    [eventId, t, eventActions.enterStartNumbers, event]
   )
 
   const handleCopyLink = useCallback(

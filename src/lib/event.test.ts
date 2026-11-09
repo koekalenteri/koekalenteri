@@ -100,6 +100,7 @@ import {
   placesForClass,
   registrationDatesOutsideClass,
   sanitizeDogEvent,
+  shiftTeamDays,
   startNumbersSlotKey,
   storedDayKey,
   storedMonthKey,
@@ -1176,6 +1177,17 @@ describe('lib/event', () => {
     })
   })
 
+  describe('shiftTeamDays (KOE-1726)', () => {
+    it('moves each counted day, and leaves settings without days as they are', () => {
+      expect(shiftTeamDays({ days: ['2026-08-01', '2026-08-02'], litters: true }, 371)).toEqual({
+        days: ['2027-08-07', '2027-08-08'],
+        litters: true,
+      })
+      const plain = { litters: true }
+      expect(shiftTeamDays(plain, 371)).toBe(plain)
+    })
+  })
+
   describe('copyDogEvent', () => {
     // Copied on 15.6.2026: ninety days on is Sunday 13.9., so the copy starts on Saturday 19.9.2026.
     const now = NOON_2026_06_15
@@ -1208,6 +1220,12 @@ describe('lib/event', () => {
         teams: [{ name: 'Team Finland 1', registrationIds: ['run-1'] }],
       })
       expect(copy.teams).toBeUndefined()
+    })
+    // The counted days are days of the trial, so they move with it as the classes do.
+    it('moves the days a team competition counts with the trial (KOE-1726)', () => {
+      const source = eventWithParticipantsInvited
+      const copy = copyNow({ ...source, teamCompetition: { askAtEntry: true, days: [source.endDate] } })
+      expect(copy.teamCompetition).toEqual({ askAtEntry: true, days: [copy.endDate] })
     })
     it('should not carry the link to a Kennelliitto trial (KOE-1534)', () => {
       const copy = copyNow({

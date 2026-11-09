@@ -605,6 +605,22 @@ describe('readPublishedStartList (KOE-1516)', () => {
       expect(teams['Dog b']).toEqual({ code: '3A', number: 3, seriesId: 'breed' })
     })
 
+    // KOE-1726: a competition that counts only the first day ranks and releases by that day alone.
+    it('ranks the teams by the counted days, and waits for no result of another day', async () => {
+      mockGetLiveEvent.mockResolvedValue({
+        ...standingsEvent,
+        resultsPublished: { ALO: true, AVO: false },
+        teamCompetition: { days: ['2025-01-01'] },
+      })
+
+      expect(await teamsOf()).toEqual({
+        'Dog a': { code: '1A', number: 1, placement: 1, points: 90 },
+        'Dog b': { code: '1B', number: 1, placement: 1, points: 90 },
+        'Dog c': { code: '2A', name: 'Team Finland 2', number: 2, placement: 2, points: 85 },
+        'Dog d': { code: '2B', name: 'Team Finland 2', number: 2, placement: 2, points: 85 },
+      })
+    })
+
     it('ranks a team added to a published list beside the teams already on it', async () => {
       mockGetLiveEvent.mockResolvedValue({
         ...standingsEvent,
