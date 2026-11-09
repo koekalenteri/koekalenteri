@@ -7,7 +7,6 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { cleanup, screen } from '@testing-library/react'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, Outlet } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStaticDates } from '../../__mockData__/events'
 import { putEvent } from '../../api/event'
@@ -18,8 +17,7 @@ import { DataMemoryRouter, flushPromises, renderSuspended, TEST_ID_TOKEN } from 
 import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
 import EventEditPage from './EventEditPage'
-import { adminEventRegistrationsAtom } from './state'
-import { renderAdminRoutes } from './test-utils/adminRoutes'
+import { renderEditPage } from './test-utils/editPageRoutes'
 
 vi.mock('../../api/user')
 vi.mock('../../api/event')
@@ -143,30 +141,7 @@ describe('EventEditPage', () => {
     const EDIT_DRAFT_KEY = `adminEditableEvent/edit/Id__${editable.id}`
     const description = () => screen.getByLabelText('event.description (locale.fi)')
 
-    const openPage = async () => {
-      const rendered = await renderAdminRoutes({
-        events: [editable],
-        initialEntry: Path.admin.editEvent(editable.id),
-        initializeState: ({ set }) => set(adminEventRegistrationsAtom(editable.id), []),
-        routes: [
-          {
-            children: [
-              { element: <EventEditPage />, path: Path.admin.editEvent() },
-              { element: <div>event list</div>, path: Path.admin.events },
-              { element: <div>elsewhere</div>, path: '/elsewhere' },
-            ],
-            element: (
-              <>
-                <Link to="/elsewhere">menu</Link>
-                <Outlet />
-              </>
-            ),
-          },
-        ],
-      })
-      await flushPromises()
-      return rendered
-    }
+    const openPage = () => renderEditPage(editable)
     const change = async (user: Awaited<ReturnType<typeof openPage>>['user']) => {
       await user.type(description(), 'Muutos')
       await flushPromises()

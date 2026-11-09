@@ -1,12 +1,8 @@
 import type { DogEvent, Patch } from '@/types'
 import { cleanup, fireEvent, screen } from '@testing-library/react'
-import { Link, Outlet } from 'react-router'
 import { eventWithStaticDates } from '@/__mockData__/events'
-import { Path } from '@/routeConfig'
 import { flushPromises } from '@/test-utils/utils'
-import EventEditPage from './EventEditPage'
-import { adminEventRegistrationsAtom } from './state'
-import { renderAdminRoutes } from './test-utils/adminRoutes'
+import { renderEditPage } from './test-utils/editPageRoutes'
 
 vi.mock('@/api/user')
 vi.mock('@/api/event')
@@ -51,26 +47,7 @@ describe('EventEditPage, left with an unsaved change', () => {
   const description = () => screen.getByLabelText('description')
 
   const openPage = async () => {
-    const rendered = await renderAdminRoutes({
-      events: [editable],
-      initialEntry: Path.admin.editEvent(editable.id),
-      initializeState: ({ set }) => set(adminEventRegistrationsAtom(editable.id), []),
-      routes: [
-        {
-          children: [
-            { element: <EventEditPage />, path: Path.admin.editEvent() },
-            { element: <div>elsewhere</div>, path: '/elsewhere' },
-          ],
-          element: (
-            <>
-              <Link to="/elsewhere">menu</Link>
-              <Outlet />
-            </>
-          ),
-        },
-      ],
-    })
-    await flushPromises()
+    const rendered = await renderEditPage(editable)
     await rendered.user.type(description(), 'Muutos')
     await flushPromises()
     return rendered
