@@ -1,6 +1,8 @@
 import type { APIGatewayEvent } from 'aws-lambda'
 import { CognitoJwtVerifier } from 'aws-jwt-verify'
-import { authorizeWithMemberOf } from '../../lib/auth'
+import { authorize } from '../auth'
+import { httpError } from '../lambda'
+import { userIsMemberOf } from '../user'
 
 type JwtPayload = {
   [k: string]: unknown
@@ -38,16 +40,22 @@ const withClaims = (event: APIGatewayEvent, claims: JwtPayload): APIGatewayEvent
   },
 })
 
+/**
+ * Who the token's user is, not what they may see: a signed-in user without any role authenticates
+ * too, with `admin: false` and no clubs, and keeps the public channels. The admin and event
+ * channels decide on these fields themselves (`connectionPolicy.ts`, `subscriptionService.ts`).
+ */
 export const authenticateWebSocketToken = async (event: APIGatewayEvent, token: string) => {
   const claims: JwtPayload = await getVerifier().verify(token)
-  const auth = await authorizeWithMemberOf(withClaims(event, claims))
+  const user = await authorize(withClaims(event, claims))
+  if (!user) throw httpError(401, 'Unauthorized')
 
   return {
-    admin: auth.user.admin,
+    admin: user.admin === true,
     expiresAt: getExpiryEpochSeconds(claims),
-    memberOf: auth.memberOf,
-    userEmail: auth.user.email,
-    userId: auth.user.id,
-    userName: auth.user.name,
+    memberOf: userIsMemberOf(user),
+    userEmail: user.email,
+    userId: user.id,
+    userName: user.name,
   }
 }
