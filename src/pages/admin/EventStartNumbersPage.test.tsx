@@ -297,9 +297,10 @@ describe('EventStartNumbersPage', () => {
         { code: 'DERBY', name: { fi: 'Derby' } },
       ],
     }
-    const ownClassRegistrations = registrationsToEventWithStations.map((registration) => ({
+    // The fixture's dogs all run ALO; every other one runs VET10 here, so both classes have dogs.
+    const ownClassRegistrations = registrationsToEventWithStations.map((registration, index) => ({
       ...registration,
-      class: registration.class === 'ALO' ? 'DERBY' : 'VET10',
+      class: index % 2 ? 'VET10' : 'DERBY',
       eventType: 'WT-harjoitus',
     }))
     const { i18n } = useTranslation()

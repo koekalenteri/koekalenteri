@@ -17,13 +17,8 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
 import { classOrder } from '@/lib/event'
-import { registrationOrder } from '@/lib/eventClass'
-import {
-  getRegistrationClass,
-  getRegistrationPlacement,
-  isRegistrationClass,
-  isScorableRegistration,
-} from '@/lib/registration'
+import { isEventClass, registrationOrder } from '@/lib/eventClass'
+import { getRegistrationClass, getRegistrationPlacement, isScorableRegistration } from '@/lib/registration'
 import { AsyncButton } from '../../components/AsyncButton'
 import { StartDaySelector } from '../components/StartDaySelector'
 import { useStartDayClasses } from '../components/useStartDayClasses'
@@ -98,7 +93,7 @@ export function StartNumbersEntry({ event, registrations, onSave, header, render
   const linkClasses = useMemo(
     () =>
       [...new Set(scorable.map((registration) => getRegistrationClass(registration, event)))]
-        .filter(isRegistrationClass)
+        .filter((key) => isEventClass(event, key))
         .sort(classOrder(event)),
     [event, scorable]
   )

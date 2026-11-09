@@ -59,6 +59,7 @@ export type BasicInfoEvent = Pick<
   | 'official'
   | 'officialFormat'
   | 'organizer'
+  | 'ownClasses'
   | 'placesPerDay'
   | 'retrieveType'
   | 'secretary'
