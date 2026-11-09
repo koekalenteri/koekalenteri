@@ -87,4 +87,34 @@ test.describe('a secretary', { annotation: issue('KOE-1478'), tag: '@secretary' 
 
     await expect(page.getByRole('alert')).toHaveText('Sinulla ei ole oikeutta tallentaa tätä koetta.')
   })
+
+  test('asks before leaving the edit page with a change: staying keeps it, leaving drops it', {
+    annotation: issue('KOE-1700'),
+  }, async ({ context, page }) => {
+    const { organizer, secretary, name } = await seedOrganization()
+    await signInAs(context, secretary)
+    const form = new EventFormPage(page)
+    await form.gotoCreate()
+    await form.fillDraft({ name, organizer, secretary })
+    await form.save.click()
+    await expect(page.getByText('Tapahtuma on tallennettu luonnoksena')).toBeVisible()
+    const [draft] = await readEventsOf(organizer.id)
+
+    await page.goto(`/admin/event/edit/${draft.id}`)
+    const nameField = page.getByRole('textbox', { name: 'Nimi (Suomeksi)' })
+    await nameField.fill(`${name} muutettu`)
+    const judgesLink = page.getByRole('link', { name: 'Tuomarit' })
+
+    await judgesLink.click()
+    await page.getByRole('button', { name: 'Jatka muokkausta' }).click()
+    await expect(nameField).toHaveValue(`${name} muutettu`)
+
+    await judgesLink.click()
+    await page.getByRole('button', { name: 'Poistu tallentamatta' }).click()
+    await expect(page).toHaveURL(/\/admin\/judge/)
+
+    // The change went with the answer: the page opens on the event as saved.
+    await page.goto(`/admin/event/edit/${draft.id}`)
+    await expect(nameField).toHaveValue(name)
+  })
 })

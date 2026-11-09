@@ -10,7 +10,7 @@ covers:
   - src/pages/admin/EventCreatePage.tsx
   - src/pages/admin/EventEditPage.tsx
   - src/pages/admin/OrganizerListPage.tsx
-sourceHash: 62415a
+sourceHash: 40d9f4
 ---
 
 Once a trial has been created in the calendar, the secretary's job before entry opens is to make
@@ -56,6 +56,10 @@ required is in place. Go through the sections and check in particular:
 - **the judges and the classes each of them judges**,
 - **{t:event.kcIdSectionTitle}**: the trial is linked to the Kennel Club event so that the results can be saved,
 - **contact details** — which of the chief officer's and the secretary's details entrants may see.
+
+If you leave the form with unsaved changes, it asks first: **{t:unsavedChanges.stay}** keeps you on
+the form, and **{t:unsavedChanges.leave}** discards the changes. Closing or reloading the tab gets the
+browser's own question. **{t:cancel}** discards the changes at once without asking.
 
 ## 2. Check the trial's state
 
