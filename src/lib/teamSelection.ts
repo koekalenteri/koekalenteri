@@ -1,5 +1,6 @@
 import type { ClassKey, DayKey, EventTeam, JsonRegistration, RegistrationGroupMove, RegistrationTime } from '../types'
-import { compareRegistrationClasses } from './event'
+import type { ClassOrderOwner } from './event'
+import { classOrder } from './event'
 import { GROUP_KEY_RESERVE, getRegistrationGroupKey, isParticipantGroup } from './registration'
 
 /** What the selection reads of an entry: its class, the days it entered, and where it is now. */
@@ -9,7 +10,7 @@ export type AssemblyEntry = Pick<JsonRegistration, 'id' | 'cancelled' | 'group'>
 }
 
 /** A group of a class's day a dog can be moved to: its key, its day and its half. */
-interface ClassGroup {
+export interface ClassGroup {
   date: DayKey
   key: string
   time?: RegistrationTime
@@ -19,7 +20,7 @@ interface ClassGroup {
  * Where a team stands in the selection (KOE-1722): every running member a participant (`selected`),
  * some (`partial`), none (`reserve`), or no member that runs at all (`empty`).
  */
-type TeamSelectionState = 'empty' | 'partial' | 'reserve' | 'selected'
+export type TeamSelectionState = 'empty' | 'partial' | 'reserve' | 'selected'
 
 /** The team's members that run: those the entries hold, the cancelled left out. */
 const liveMembers = <T extends AssemblyEntry>(team: EventTeam, byId: ReadonlyMap<string, T>): T[] =>
@@ -66,7 +67,7 @@ const moveOf = (entry: AssemblyEntry, to: 'participants' | 'reserve', groups: re
 
 /**
  * The moves that send a whole team to the participants or to the reserve list (KOE-1722), one class
- * at a time, in the class order, for PutRegistrationGroups takes the moves of one class. A
+ * at a time, in the event's class order (`classOrder`, KOE-674), for PutRegistrationGroups takes the moves of one class. A
  * member already there, and a cancelled one, is not moved. A reserve member goes to the group of a day
  * it entered (`groupsByClass`, its class's groups as the class view lists them).
  */
@@ -74,7 +75,8 @@ export const teamGroupMoves = (
   team: EventTeam,
   entries: readonly AssemblyEntry[],
   to: 'participants' | 'reserve',
-  groupsByClass: ReadonlyMap<string, readonly ClassGroup[]>
+  groupsByClass: ReadonlyMap<string, readonly ClassGroup[]>,
+  event: ClassOrderOwner
 ): ClassMoves[] => {
   const byClass = new Map<ClassKey, RegistrationGroupMove[]>()
   for (const entry of liveMembers(team, byIdOf(entries))) {
@@ -84,7 +86,7 @@ export const teamGroupMoves = (
     byClass.set(entry.class, [...(byClass.get(entry.class) ?? []), move])
   }
   return [...byClass.keys()]
-    .sort(compareRegistrationClasses)
+    .sort(classOrder(event))
     .map((eventClass) => ({ eventClass, moves: byClass.get(eventClass) ?? [] }))
 }
 

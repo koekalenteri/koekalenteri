@@ -49,7 +49,7 @@ describe('teamGroupMoves', () => {
     const team: EventTeam = { registrationIds: ['a', 'b', 'c', 'd'] }
     const entries = [running('a'), reserve('b', 'ALO', 'ip'), reserve('c', 'AVO', 'ip'), reserve('d')]
 
-    expect(teamGroupMoves(team, entries, 'participants', groups)).toEqual([
+    expect(teamGroupMoves(team, entries, 'participants', groups, {})).toEqual([
       {
         eventClass: 'ALO',
         moves: [
@@ -64,7 +64,7 @@ describe('teamGroupMoves', () => {
   it("moves a member to the class's first group when it entered no day the class runs", () => {
     const entry = { ...reserve('b'), dates: [{ date: '2026-08-02' as const, time: 'ap' as const }] }
 
-    expect(teamGroupMoves({ registrationIds: ['b'] }, [entry], 'participants', groups)).toEqual([
+    expect(teamGroupMoves({ registrationIds: ['b'] }, [entry], 'participants', groups, {})).toEqual([
       { eventClass: 'ALO', moves: [{ group: { date: DAY, key: morning.key, time: 'ap' }, id: 'b' }] },
     ])
   })
@@ -72,7 +72,7 @@ describe('teamGroupMoves', () => {
   it('moves the running members to the reserve list, and leaves a cancelled one where it is', () => {
     const team: EventTeam = { registrationIds: ['a', 'b', 'x'] }
 
-    expect(teamGroupMoves(team, [running('a'), reserve('b'), cancelled('x')], 'reserve', groups)).toEqual([
+    expect(teamGroupMoves(team, [running('a'), reserve('b'), cancelled('x')], 'reserve', groups, {})).toEqual([
       { eventClass: 'ALO', moves: [{ group: { key: 'reserve' }, id: 'a' }] },
     ])
   })
@@ -80,13 +80,13 @@ describe('teamGroupMoves', () => {
   it('leaves a member with no class where it is: no class, no group to move it to', () => {
     const noClass = { ...reserve('b'), class: null }
 
-    expect(teamGroupMoves({ registrationIds: ['a', 'b'] }, [reserve('a'), noClass], 'participants', groups)).toEqual([
-      { eventClass: 'ALO', moves: [{ group: { date: DAY, key: morning.key, time: 'ap' }, id: 'a' }] },
-    ])
+    expect(
+      teamGroupMoves({ registrationIds: ['a', 'b'] }, [reserve('a'), noClass], 'participants', groups, {})
+    ).toEqual([{ eventClass: 'ALO', moves: [{ group: { date: DAY, key: morning.key, time: 'ap' }, id: 'a' }] }])
   })
 
   it('leaves a reserve member where it is when its class has no group to take it, for the secretary to place', () => {
-    expect(teamGroupMoves({ registrationIds: ['v'] }, [reserve('v', 'VOI')], 'participants', groups)).toEqual([])
+    expect(teamGroupMoves({ registrationIds: ['v'] }, [reserve('v', 'VOI')], 'participants', groups, {})).toEqual([])
   })
 
   // KOE-674: the moves go class by class in the event's own order, as the secretary's lists read.
@@ -104,7 +104,7 @@ describe('teamGroupMoves', () => {
   })
 
   it('has no moves for a team already where it is sent', () => {
-    expect(teamGroupMoves({ registrationIds: ['a'] }, [running('a')], 'participants', groups)).toEqual([])
+    expect(teamGroupMoves({ registrationIds: ['a'] }, [running('a')], 'participants', groups, {})).toEqual([])
   })
 })
 

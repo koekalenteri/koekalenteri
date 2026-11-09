@@ -16,6 +16,7 @@ import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
 import { withStoredTotals } from '@/lib/results'
 import { teamSeriesName } from '@/lib/startListView'
 import { isTeamCandidate, teamCompetitionErrors } from '@/lib/team'
+import { teamSelection } from '@/lib/teamSelection'
 import { teamStandings, withRunOffWinner } from '@/lib/teamStandings'
 import { Path } from '@/routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
@@ -24,6 +25,7 @@ import { EntryPageHeader } from './components/EntryPageHeader'
 import EventNotFound from './components/EventNotFound'
 import TeamCard from './eventTeamsPage/TeamCard'
 import TeamCompetitionSettings from './eventTeamsPage/TeamCompetitionSettings'
+import { useMoveTeam } from './eventTeamsPage/useMoveTeam'
 import useEventForm from './hooks/useEventForm'
 import { adminEventAtom, adminEventRegistrationsAtom } from './state'
 import { useAdminEventScope } from './state/eventScope'
@@ -108,6 +110,12 @@ export default function EventTeamsPage() {
       (registration) => !!event && isTeamCandidate(event, registration) && !taken.has(registration.id)
     )
   }, [event, registrations, teams])
+  // Where each team's dogs stand in the selection, and the move of a whole team (KOE-1722). A team moves
+  // as saved: while the page holds changes the moves wait, so no dog moves for a team then cancelled.
+  const selections = useMemo(() => teamSelection(teams, registrations), [teams, registrations])
+  const moveTeam = useMoveTeam(event, registrations)
+  const moveBlocked = canSave ? t('teams.moveSaveFirst') : undefined
+
   // A team is its number, its place in the list: only the last ones come and go (KOE-1714).
   const numbered = useMemo(() => teams.map((team, index) => ({ number: index + 1, team })), [teams])
   // The standings of the draft, so a run-off marked shows before it is saved; the totals a round stored
@@ -192,6 +200,9 @@ export default function EventTeamsPage() {
               onChange={(changed) => setTeams(teams.map((item, at) => (at === number - 1 ? changed : item)))}
               onRunOffChange={(won) => setTeams(withRunOffWinner(teams, number - 1, won))}
               series={series}
+              selection={selections[number - 1]}
+              onMove={(to) => void moveTeam(number, team, to)}
+              moveBlocked={moveBlocked}
               standing={standings.get(number - 1)}
               team={team}
             />

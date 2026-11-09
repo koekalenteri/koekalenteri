@@ -1,6 +1,7 @@
 import type { ConfirmedEvent, Registration } from '@/types'
 import { ThemeProvider } from '@mui/material'
 import { cleanup, screen, within } from '@testing-library/react'
+import { ConfirmProvider } from 'material-ui-confirm'
 import { Suspense } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStations, registrationsToEventWithStations } from '@/__mockData__/resultsEvent'
@@ -8,6 +9,7 @@ import { putEvent } from '@/api/event'
 import { putRegistrationGroups } from '@/api/registration'
 import theme from '@/assets/Theme'
 import { Path } from '@/routeConfig'
+import { expectConsoleOutput } from '@/test-utils/consoleGuard'
 import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '@/test-utils/utils'
 import AppSnackbarProvider from '../components/AppSnackbarProvider'
 import { idTokenAtom } from '../state'
@@ -45,13 +47,15 @@ const renderPage = (event: ConfirmedEvent = eventWithStations, entries: Registra
       >
         <Suspense fallback={<div>loading...</div>}>
           <AppSnackbarProvider>
-            <DataMemoryRouter
-              initialEntries={[Path.admin.teams(event.id)]}
-              routes={[
-                { element: <EventTeamsPage />, path: Path.admin.teams() },
-                { element: <div>event view</div>, path: Path.admin.viewEvent() },
-              ]}
-            />
+            <ConfirmProvider>
+              <DataMemoryRouter
+                initialEntries={[Path.admin.teams(event.id)]}
+                routes={[
+                  { element: <EventTeamsPage />, path: Path.admin.teams() },
+                  { element: <div>event view</div>, path: Path.admin.viewEvent() },
+                ]}
+              />
+            </ConfirmProvider>
           </AppSnackbarProvider>
         </Suspense>
       </Provider>
@@ -320,7 +324,19 @@ describe('EventTeamsPage', () => {
     })
     const teamEntries = [onReserve('alo-1', 'Alokas', 'ALO'), onReserve('avo-1', 'Avoin', 'AVO')]
     const teamEvent = { ...eventWithStations, teams: [{ registrationIds: ['alo-1', 'avo-1'] }] }
-    const moved = (entries: Registration[]) => ({ classes: eventWithStations.classes, entries: 2, items: entries })
+    const moved = (entries: Registration[]) => ({
+      cancelledFailed: [],
+      cancelledOk: [],
+      classes: eventWithStations.classes,
+      entries: 2,
+      invitedFailed: [],
+      invitedOk: [],
+      items: entries,
+      pickedFailed: [],
+      pickedOk: [],
+      reserveFailed: [],
+      reserveOk: [],
+    })
 
     it('moves the team to the participants one class at a time, and says when it is done', async () => {
       vi.mocked(putRegistrationGroups)
@@ -344,10 +360,61 @@ describe('EventTeamsPage', () => {
         [expect.objectContaining({ id: 'avo-1' })],
         TEST_ID_TOKEN
       )
-      expect(screen.getByText('teams.moved')).toBeInTheDocument()
+      expect(screen.getByText(/^teams\.moved/)).toBeInTheDocument()
+    })
+
+    it('asks first, naming the dogs that are mailed their place, where a class is picked', async () => {
+      vi.mocked(putRegistrationGroups)
+        .mockResolvedValueOnce(moved(teamEntries))
+        .mockResolvedValueOnce(moved(teamEntries))
+      const picked = { ...teamEvent, classes: teamEvent.classes.map((c) => ({ ...c, state: 'picked' as const })) }
+      const { user } = await renderPage(picked, teamEntries)
+      await flushPromises()
+
+      await user.click(within(teamSections()[0]).getByRole('button', { name: 'teams.toParticipants' }))
+      await flushPromises()
+
+      const dialog = screen.getByRole('dialog')
+      expect(dialog).toHaveTextContent('Alokas, Avoin')
+      expect(putRegistrationGroups).not.toHaveBeenCalled()
+
+      await user.click(within(dialog).getByRole('button', { name: 'teams.moveConfirm' }))
+      await flushPromises()
+      expect(putRegistrationGroups).toHaveBeenCalledTimes(2)
+    })
+
+    it('waits for the teams to be saved before a team moves', async () => {
+      const { user } = await renderPage(teamEvent, teamEntries)
+      await flushPromises()
+
+      await user.type(within(teamSections()[0]).getByRole('textbox', { name: 'teams.name' }), 'Uusi')
+      await flushPromises()
+
+      expect(within(teamSections()[0]).getByRole('button', { name: 'teams.toParticipants' })).toBeDisabled()
+      expect(within(teamSections()[0]).getByText('teams.moveSaveFirst')).toBeInTheDocument()
+    })
+
+    it('moves a team of participants to the reserve list', async () => {
+      vi.mocked(putRegistrationGroups).mockResolvedValueOnce(moved(registrations))
+      const { user } = await renderPage({ ...eventWithStations, teams: [{ registrationIds: ['run-1', 'run-2'] }] })
+      await flushPromises()
+
+      await user.click(within(teamSections()[0]).getByRole('button', { name: 'teams.toReserve' }))
+      await flushPromises()
+
+      expect(putRegistrationGroups).toHaveBeenCalledWith(
+        eventWithStations.id,
+        [
+          { group: { key: 'reserve' }, id: 'run-1' },
+          { group: { key: 'reserve' }, id: 'run-2' },
+        ],
+        TEST_ID_TOKEN
+      )
     })
 
     it('moves the classes it can, and names the dogs of a class that did not move', async () => {
+      // The failed class is reported, and the page reloads the entries, which the mock does not hold.
+      expectConsoleOutput(/reportError Error: did not move/, /Unable to refresh registrations after group move failure/)
       vi.mocked(putRegistrationGroups)
         .mockResolvedValueOnce(moved(teamEntries))
         .mockRejectedValueOnce(new Error('did not move'))

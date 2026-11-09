@@ -130,7 +130,7 @@ const renderPage = (shown: ConfirmedEvent = event, entries: Registration[] = reg
   )
 
 it('lists the teams with their dogs by code, a cancelled and a reserve dog marked (KOE-1714)', async () => {
-  await page.viewport(900, 1300)
+  await page.viewport(900, 1500)
   const screen = await renderPage()
 
   await expect.element(screen.getByText('1C Rantasuon Ruska')).toBeVisible()
@@ -139,15 +139,26 @@ it('lists the teams with their dogs by code, a cancelled and a reserve dog marke
 })
 
 it("shows each team's points and placing, and the run-off of a tie for first (KOE-1717)", async () => {
-  await page.viewport(900, 1300)
+  await page.viewport(900, 1700)
   const screen = await renderPage(standingsEvent, standingsRegistrations)
 
   await expect.element(screen.getByText('Joukkueen tulos: 1. sija, 90 pistettä (uusintatehtävä)')).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-standings')
 })
 
+// KOE-1722: a team with a dog among the participants and one on the reserve list can go either way.
+const partlySelected: ConfirmedEvent = { ...eventWithStations, teams: [{ registrationIds: ['dog-1', 'dog-4'] }] }
+
+it('tells where a team stands, and moves it whole either way (KOE-1722)', async () => {
+  await page.viewport(900, 900)
+  const screen = await renderPage(partlySelected)
+
+  await expect.element(screen.getByRole('button', { name: 'Siirrä osallistujiin' })).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-move')
+})
+
 it('sets the series and ranks each team within its own (KOE-1720)', async () => {
-  await page.viewport(900, 1700)
+  await page.viewport(900, 1900)
   const screen = await renderPage(seriesEvent, standingsRegistrations)
 
   await expect.element(screen.getByRole('heading', { name: 'Sarjat' })).toBeVisible()
@@ -165,11 +176,19 @@ it('offers only the picked dogs once the class is picked (KOE-1725)', async () =
 
 describeInLanguage('en', () => {
   it('sets the series and ranks each team within its own (KOE-1720)', async () => {
-    await page.viewport(900, 1700)
+    await page.viewport(900, 1900)
     const screen = await renderPage(seriesEvent, standingsRegistrations)
 
     await expect.element(screen.getByRole('heading', { name: 'Series' })).toBeVisible()
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-series-en')
+  })
+
+  it('tells where a team stands, and moves it whole either way (KOE-1722)', async () => {
+    await page.viewport(900, 900)
+    const screen = await renderPage(partlySelected)
+
+    await expect.element(screen.getByRole('button', { name: 'Move to the participants' })).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-move-en')
   })
 
   it('offers only the picked dogs once the class is picked (KOE-1725)', async () => {
@@ -182,7 +201,7 @@ describeInLanguage('en', () => {
   })
 
   it("shows each team's points and placing, and the run-off of a tie for first (KOE-1717)", async () => {
-    await page.viewport(900, 1300)
+    await page.viewport(900, 1700)
     const screen = await renderPage(standingsEvent, standingsRegistrations)
 
     await expect.element(screen.getByText('Team result: place 1, 90 points (run-off)')).toBeVisible()
@@ -190,7 +209,7 @@ describeInLanguage('en', () => {
   })
 
   it('lists the teams with their dogs by code, a cancelled and a reserve dog marked (KOE-1714)', async () => {
-    await page.viewport(900, 1300)
+    await page.viewport(900, 1500)
     const screen = await renderPage()
 
     await expect.element(screen.getByText('1C Rantasuon Ruska')).toBeVisible()

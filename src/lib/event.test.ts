@@ -19,6 +19,7 @@ import { freezeClockAt } from '../test-utils/freezeClock'
 import { describeInTimeZone, withTimeZone } from '../test-utils/timeZone'
 import { addDays as addDaysToKey, dayStart, TIME_ZONE } from './day'
 import {
+  adminRegistrationDates,
   applyNewGroupsToDogEventClass,
   applyNewGroupsToDogEventDates,
   applySingleDayNowtGroups,
@@ -30,6 +31,7 @@ import {
   copyDogEvent,
   defaultEntryEndDate,
   defaultEntryStartDate,
+  defaultRegistrationGroups,
   eventDayKey,
   eventRegistrationDateKey,
   eventTypeLabel,
@@ -3257,5 +3259,51 @@ describe('classLabel', () => {
     expect(classLabel({}, 'AVO', 'en')).toBe('AVO')
     expect(classLabel(undefined, 'AVO', 'en')).toBe('AVO')
     expect(classLabel({ ownClasses: [{ code: 'YKS', name: { en: ' ' } }] }, 'YKS', 'en')).toBe('YKS')
+  })
+})
+
+// The groups a trial's entries are placed in, read alike by the class view and the teams page (KOE-1722).
+describe('adminRegistrationDates', () => {
+  const day1 = '2026-08-01' as const
+  const day2 = '2026-08-02' as const
+
+  it('takes the type halves by default, and the whole day only where the type has no halves', () => {
+    expect(defaultRegistrationGroups(['ap', 'ip', 'kp'])).toEqual(['ap', 'ip'])
+    expect(defaultRegistrationGroups(['kp'])).toEqual(['kp'])
+  })
+
+  it("lists a class's days with their groups, and each day once for the whole trial", () => {
+    const event = {
+      classes: [
+        { class: 'ALO', date: day1 },
+        { class: 'AVO', date: day1, groups: ['kp' as const] },
+        { class: 'AVO', date: day2 },
+      ],
+      endDate: day2,
+      startDate: day1,
+    }
+
+    expect(adminRegistrationDates(event, ['ap', 'ip'], 'AVO')).toEqual([
+      { date: day1, time: 'kp' },
+      { date: day2, time: 'ap' },
+      { date: day2, time: 'ip' },
+    ])
+    expect(adminRegistrationDates(event, ['ap'])).toEqual([
+      { date: day1, time: 'ap' },
+      { date: day1, time: 'kp' },
+      { date: day2, time: 'ap' },
+    ])
+  })
+
+  it('reads a trial without classes from its own dates, else from its days', () => {
+    const noClasses = { classes: [], endDate: day2, startDate: day1 }
+
+    expect(adminRegistrationDates({ ...noClasses, dates: [{ date: day1, time: 'kp' }] }, ['ap'])).toEqual([
+      { date: day1, time: 'kp' },
+    ])
+    expect(adminRegistrationDates(noClasses, ['ap'])).toEqual([
+      { date: day1, time: 'ap' },
+      { date: day2, time: 'ap' },
+    ])
   })
 })

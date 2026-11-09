@@ -1,8 +1,11 @@
+import type { TeamSelectionState } from '@/lib/teamSelection'
 import type { TeamStanding } from '@/lib/teamStandings'
 import type { EventTeam, Registration } from '@/types'
+import type { TeamMoveTarget } from './useMoveTeam'
 import ArrowDownward from '@mui/icons-material/ArrowDownward'
 import ArrowUpward from '@mui/icons-material/ArrowUpward'
 import DeleteOutline from '@mui/icons-material/DeleteOutlined'
+import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
 import Chip from '@mui/material/Chip'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -38,6 +41,49 @@ interface Props {
   readonly onRunOffChange: (won: boolean) => void
   /** The competition's series by id and name as the secretary reads it (KOE-1720); none, no choice. */
   readonly series?: readonly { id: string; name: string }[]
+  /** Where the team's dogs stand in the selection (`teamSelection`, KOE-1722). */
+  readonly selection?: TeamSelectionState
+  /** Moves the whole team to the participants or to the reserve list (KOE-1722). */
+  readonly onMove?: (to: TeamMoveTarget) => void
+  /** Why the team cannot be moved now, if it cannot: the page holds changes not saved. */
+  readonly moveBlocked?: string
+}
+
+interface TeamMoveProps {
+  readonly selection: TeamSelectionState
+  readonly onMove: (to: TeamMoveTarget) => void
+  readonly moveBlocked?: string
+}
+
+/**
+ * Where the team's dogs stand in the selection, and the moves of the whole team (KOE-1722): to the
+ * participants while a dog is on the reserve list, to the reserve list while a dog is a participant.
+ * The moves wait for the teams to be saved, so no dog moves for a team the secretary then cancels.
+ */
+const TeamMove = ({ selection, onMove, moveBlocked }: TeamMoveProps) => {
+  const { t } = useTranslation()
+  return (
+    <Stack spacing={0.5}>
+      <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+        <Typography variant="body2">{t('teams.selection', { context: selection })}</Typography>
+        {selection !== 'selected' && (
+          <Button disabled={!!moveBlocked} onClick={() => onMove('participants')} size="small" variant="outlined">
+            {t('teams.toParticipants')}
+          </Button>
+        )}
+        {selection !== 'reserve' && (
+          <Button disabled={!!moveBlocked} onClick={() => onMove('reserve')} size="small" variant="outlined">
+            {t('teams.toReserve')}
+          </Button>
+        )}
+      </Stack>
+      {moveBlocked && (
+        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+          {moveBlocked}
+        </Typography>
+      )}
+    </Stack>
+  )
 }
 
 /** The value of the series choice for a team in no series: a select takes no undefined. */
@@ -93,6 +139,9 @@ export default function TeamCard({
   standing,
   onRunOffChange,
   series = [],
+  selection,
+  onMove,
+  moveBlocked,
 }: Props) {
   const { t } = useTranslation()
   const ids = team.registrationIds
@@ -160,6 +209,9 @@ export default function TeamCard({
           </TextField>
         )}
         <TeamResult standing={standing} runOffWon={!!team.runOffWon} onRunOffChange={onRunOffChange} />
+        {selection && onMove && selection !== 'empty' && (
+          <TeamMove selection={selection} onMove={onMove} moveBlocked={moveBlocked} />
+        )}
         {ids.length === 0 && (
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             {t('teams.noDogs')}

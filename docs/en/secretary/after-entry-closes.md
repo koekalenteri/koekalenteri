@@ -20,7 +20,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 81fe1b
+sourceHash: 0c0362
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -216,6 +216,23 @@ to first place and the others share the next one. Marking one team clears the ma
 If a result is later corrected so that the teams are no longer level, the mark has no effect.
 
 !shot[EventTeamsPage/teams-standings] The team results: teams 1 and 2 are level on points, and team 2 is marked as the winner of the run-off
+
+### Moving a whole team
+
+Each team shows whether its dogs are participants, on the reserve list or some of each.
+**{t:teams.toParticipants}** moves the team's dogs on the reserve list to the participants, each to
+the day and group it entered, and **{t:teams.toReserve}** moves the team's participants to the
+reserve list. A dog that cancelled is not moved.
+
+If the move sends the dogs a confirmation of their place, that is, once the class's participants are
+picked, Koekalenteri asks first and names the dogs the message goes to. The dogs are moved one class
+at a time. If a class fails to move, the dogs of the other classes still move, and Koekalenteri
+names the dogs that were not moved.
+
+A team is moved as it is saved: while the page has changes not saved, the move buttons wait for
+the save.
+
+!shot[EventTeamsPage/teams-move] One of the team's dogs is a participant and one on the reserve list, so the team can be moved either way
 
 ### Series
 
