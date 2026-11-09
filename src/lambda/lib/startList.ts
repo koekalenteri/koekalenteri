@@ -24,7 +24,8 @@ import {
   withDefaultOwnerSelection,
 } from '../../lib/registration'
 import { placementsFor, resultMarks, shownEventResult, withStoredTotals } from '../../lib/results'
-import { countedTeamMembers, teamMembers, teamStandings } from '../../lib/team'
+import { teamMembers } from '../../lib/team'
+import { countedTeamMembers, teamStandings } from '../../lib/teamStandings'
 import { getLiveEvent } from './event'
 import { readEventRegistrations } from './repositories/registrationRepository'
 
