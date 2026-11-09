@@ -17,7 +17,7 @@ import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
 import { teamSuggestions } from '@/lib/client/teamAssembly'
 import { withStoredTotals } from '@/lib/results'
 import { teamSeriesName } from '@/lib/startListView'
-import { isTeamCandidate, teamCompetitionErrors, teamCountedDays, teamTrialDays } from '@/lib/team'
+import { isTeamCandidate, teamCompetitionErrors, teamCountedDays, teamErrors, teamTrialDays } from '@/lib/team'
 import { teamStandings, withRunOffWinner } from '@/lib/teamStandings'
 import { Path } from '@/routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
@@ -70,12 +70,19 @@ const withTeamCompetition = (event: DogEvent, teamCompetition: TeamCompetition, 
 
 /**
  * The teams with a suggestion made into one (KOE-1721): its name, its dogs and its first-team mark, in
- * the first team still empty, of no name and no dogs, or else in a new team at the end.
+ * the first team still empty, of no name and no dogs, which keeps its series, or else in a new team at
+ * the end.
  */
 const withSuggestion = (teams: EventTeam[], { name, primary, registrationIds }: TeamSuggestion): EventTeam[] => {
   const team: EventTeam = { name, ...(primary ? { primary } : {}), registrationIds }
   const empty = teams.findIndex((item) => !item.name && !item.registrationIds.length)
-  return empty < 0 ? [...teams, team] : teams.map((item, at) => (at === empty ? { ...item, ...team } : item))
+  if (empty < 0) return [...teams, team]
+  // The empty team keeps its series; its first-team mark is the suggestion's, or none.
+  return teams.map((item, at) => {
+    if (at !== empty) return item
+    const { primary: _primary, ...kept } = item
+    return { ...kept, ...team }
+  })
 }
 
 /** The count typed, or undefined while the field holds no whole number of teams. */
@@ -153,6 +160,14 @@ export default function EventTeamsPage() {
   // A series the save would refuse, unnamed in Finnish or given an id twice, keeps the save closed: the
   // rule the server holds the settings to (`teamCompetitionErrors`, KOE-1720).
   const seriesUnsettled = teamCompetitionErrors(event?.teamCompetition).length > 0
+  // The teams' shape by the rule the save holds them to (`teamErrors`): a team made from a suggestion
+  // may hold more dogs than a team can, and is kept whole for the secretary to split, so the save stays
+  // closed and the team says why until it fits.
+  const shapeErrors = useMemo(() => (event ? teamErrors(event) : []), [event])
+  const overfull = useMemo(
+    () => new Set(shapeErrors.flatMap((error) => (error.kind === 'tooMany' ? [error.team] : []))),
+    [shapeErrors]
+  )
 
   const handleTeamCompetition = useCallback(
     (teamCompetition: TeamCompetition, removedSeriesId?: string) => {
@@ -227,6 +242,7 @@ export default function EventTeamsPage() {
               countedDays={countedDays}
               standing={standings.get(number - 1)}
               team={team}
+              tooMany={overfull.has(number - 1)}
             />
           ))}
         </Stack>
@@ -238,7 +254,7 @@ export default function EventTeamsPage() {
       >
         <AsyncButton
           color="primary"
-          disabled={!canSave || seriesUnsettled}
+          disabled={!canSave || seriesUnsettled || shapeErrors.length > 0}
           startIcon={<Save />}
           variant="contained"
           onClick={handleSave}

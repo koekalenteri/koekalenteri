@@ -5,6 +5,7 @@ import { commands, page } from 'vitest/browser'
 import { render } from 'vitest-browser-react'
 import { eventWithStations, RESULTS_EVENT_DAY, registrationsToEventWithStations } from '@/__mockData__/resultsEvent'
 import theme from '@/assets/Theme'
+import { MAX_TEAM_MEMBERS } from '@/lib/team'
 import { Path } from '@/routeConfig'
 import { TestProvider } from '@/test-utils/AtomProvider'
 import { freezeClockAt } from '@/test-utils/freezeClock'
@@ -137,6 +138,11 @@ const suggestionsRegistrations: Registration[] = registrations.map((registration
   return teamEntry ? { ...registration, teamEntry } : registration
 })
 
+// A name given by more dogs than a team holds: the suggestion is kept whole and says so.
+const crowdRegistrations: Registration[] = Array.from({ length: MAX_TEAM_MEMBERS + 1 }, (_, at) =>
+  entry(`crowd-${at}`, `Joukkokoira ${at + 1}`, 'Maila Mallinen', { teamEntry: { name: 'Iso Joukkue' } })
+)
+
 const renderPage = (shown: ConfirmedEvent = event, entries: Registration[] = registrations) =>
   render(
     <div data-testid="visual-root" style={{ background: '#fff', width: 900 }}>
@@ -208,6 +214,14 @@ it('asks for the team at entry and suggests the teams named there (KOE-1721)', a
 
   await expect.element(screen.getByRole('heading', { name: 'Ehdotetut joukkueet' })).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-suggestions')
+})
+
+it('says a suggestion holds more dogs than a team (KOE-1721)', async () => {
+  await page.viewport(900, 1000)
+  const screen = await renderPage({ ...eventWithStations, teamCompetition: { askAtEntry: true } }, crowdRegistrations)
+
+  await expect.element(screen.getByText(/^Ehdotuksessa on enemmän koiria/)).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-suggestion-too-many')
 })
 
 describeInLanguage('en', () => {

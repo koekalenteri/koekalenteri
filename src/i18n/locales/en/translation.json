@@ -1631,11 +1631,13 @@
     "settings": "Team competition settings",
     "suggestions": "Suggested teams",
     "suggestionsInfo": "The suggestions are gathered from the team names given at entry, and names that differ only in capital letters or spacing are the same team. A suggestion fills the first empty team or adds a new one. The first-team mark comes along if any of the team's dogs marked it. Check the mark, as the system does not know which club or kennel a team belongs to.",
+    "suggestionTooMany": "The suggestion has more dogs than a team holds ({{count}}). Split the dogs once the team is made.",
     "takeSuggestion": "Make team {{name}}",
     "takeSuggestionShort": "Make team",
     "team": "Team {{number}}",
     "teamSeries": "Series",
-    "title": "Teams"
+    "title": "Teams",
+    "tooMany": "A team can hold at most {{count}} dogs. Remove the extra dogs before saving."
   },
   "templateEditor": {
     "editor": {

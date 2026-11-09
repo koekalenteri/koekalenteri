@@ -20,7 +20,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 1dd1a9
+sourceHash: d0a094
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -236,7 +236,10 @@ named as the first participant to enter wrote it. A suggestion holds the dogs th
 a team from **{t:teams.addDog}** and are in no team yet, in the order they entered. If any of the
 dogs marked the team its first team, the suggestion reads *{t:teams.primary}*. The button
 **{t:teams.takeSuggestionShort}** makes the suggestion a team: it fills the first empty team, with
-no name and no dogs, or adds a new team at the end. The team's name, dogs and first-team mark can
+no name and no dogs, or adds a new team at the end. The empty team keeps its series, and its
+first-team mark comes from the suggestion. If more dogs gave the name than a team holds, the
+suggestion says so, and once made a team it says how many dogs a team can hold: it can be saved only
+once the extra dogs have moved to other teams. The team's name, dogs and first-team mark can
 then be changed like any other team's, and **{t:save}** stores the changes.
 
 !shot[EventTeamsPage/teams-suggestions] The question at entry is on, and Kultaiset Noutajat, given in two spellings, is one suggestion with the first-team mark

@@ -6,6 +6,7 @@ import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithStations, registrationsToEventWithStations } from '@/__mockData__/resultsEvent'
 import { putEvent } from '@/api/event'
 import theme from '@/assets/Theme'
+import { MAX_TEAM_MEMBERS } from '@/lib/team'
 import { Path } from '@/routeConfig'
 import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '@/test-utils/utils'
 import AppSnackbarProvider from '../components/AppSnackbarProvider'
@@ -602,6 +603,50 @@ describe('EventTeamsPage', () => {
 
       expect(teamSections()).toHaveLength(2)
       expect(members(teamSections()[1])).toEqual(['2A Ensimmainen', '2B Toinen'])
+    })
+
+    it('leaves no first-team mark of its own on the empty team a suggestion without one fills', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const unmarked = [named(registrations[0], 'Kultaiset'), ...registrations.slice(1)]
+      const { user } = await renderPage(
+        {
+          ...eventWithStations,
+          teamCompetition: { series: [{ id: 'open', name: { fi: 'Avoin' } }] },
+          teams: [{ primary: true, registrationIds: [], seriesId: 'open' }],
+        },
+        unmarked
+      )
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'teams.takeSuggestion name' }))
+      await flushPromises()
+      expect(primaryBox(teamSections()[0])).not.toBeChecked()
+
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+      expectSaved({ teams: [{ name: 'Kultaiset', registrationIds: ['run-1'], seriesId: 'open' }] })
+    })
+
+    // A suggestion is kept whole for the secretary to split; the save would refuse a team too large
+    // (`teamErrors`), so the page says why and keeps the save closed until it fits.
+    it('says a team made from a suggestion holds too many dogs, and keeps the save closed until it fits', async () => {
+      const crowd = Array.from({ length: MAX_TEAM_MEMBERS + 1 }, (_, at) =>
+        named({ ...registrations[0], dog: { ...registrations[0].dog, name: `Koira ${at}` }, id: `crowd-${at}` }, 'Iso')
+      )
+      const { user } = await renderPage(eventWithStations, crowd)
+      await flushPromises()
+
+      expect(screen.getByText('teams.suggestionTooMany count')).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: 'teams.takeSuggestion name' }))
+      await flushPromises()
+
+      const [team] = teamSections()
+      expect(within(team).getByText('teams.tooMany count')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'save' })).toBeDisabled()
+
+      await user.click(within(team).getAllByRole('button', { name: 'teams.remove code' })[0])
+      expect(within(team).queryByText('teams.tooMany count')).not.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'save' })).toBeEnabled()
     })
 
     it('marks a team the first team of its club', async () => {

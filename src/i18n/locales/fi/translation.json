@@ -1631,11 +1631,13 @@
     "settings": "Joukkuekilpailun asetukset",
     "suggestions": "Ehdotetut joukkueet",
     "suggestionsInfo": "Ehdotukset kootaan ilmoittautumisissa kerrotuista joukkueiden nimistä, ja nimet, jotka eroavat vain isoilta ja pieniltä kirjaimilta tai väleiltä, ovat sama joukkue. Ehdotus täyttää ensimmäisen tyhjän joukkueen tai lisää uuden. Ykkösjoukkueen merkintä tulee mukaan, jos joku joukkueen koirista on merkinnyt sen. Tarkista merkintä, sillä järjestelmä ei tiedä, mihin yhdistykseen tai kenneliin joukkue kuuluu.",
+    "suggestionTooMany": "Ehdotuksessa on enemmän koiria kuin joukkueeseen mahtuu ({{count}}). Jaa koirat joukkueen tekemisen jälkeen.",
     "takeSuggestion": "Tee joukkue {{name}}",
     "takeSuggestionShort": "Tee joukkue",
     "team": "Joukkue {{number}}",
     "teamSeries": "Sarja",
-    "title": "Joukkueet"
+    "title": "Joukkueet",
+    "tooMany": "Joukkueessa voi olla enintään {{count}} koiraa. Poista ylimääräiset koirat ennen tallennusta."
   },
   "templateEditor": {
     "editor": {

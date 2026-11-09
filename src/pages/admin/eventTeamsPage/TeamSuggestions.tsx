@@ -10,6 +10,7 @@ import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
+import { MAX_TEAM_MEMBERS } from '@/lib/team'
 
 interface Props {
   readonly suggestions: readonly TeamSuggestion[]
@@ -26,7 +27,8 @@ const dogNames = (suggestion: TeamSuggestion, entries: ReadonlyMap<string, Regis
 
 /**
  * The teams the page suggests (`teamSuggestions`, KOE-1721): each by its name, with its dogs and the
- * first-team mark a dog gave it, and a button that makes it a team.
+ * first-team mark a dog gave it, and a button that makes it a team. A suggestion of more dogs than a
+ * team holds is kept whole for the secretary to split, and says so.
  */
 export default function TeamSuggestions({ suggestions, entries, onTake }: Props) {
   const { t } = useTranslation()
@@ -65,7 +67,16 @@ export default function TeamSuggestions({ suggestions, entries, onTake }: Props)
                     {suggestion.primary && <Chip label={t('teams.primary')} size="small" />}
                   </Stack>
                 }
-                secondary={dogNames(suggestion, entries)}
+                secondary={
+                  <>
+                    {dogNames(suggestion, entries)}
+                    {suggestion.registrationIds.length > MAX_TEAM_MEMBERS && (
+                      <Typography component="span" variant="body2" sx={{ color: 'error.main', display: 'block' }}>
+                        {t('teams.suggestionTooMany', { count: MAX_TEAM_MEMBERS })}
+                      </Typography>
+                    )}
+                  </>
+                }
               />
             </ListItem>
           ))}

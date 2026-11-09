@@ -40,6 +40,8 @@ interface Props {
   readonly series?: readonly { id: string; name: string }[]
   /** The days the points come from where the competition counts only some (`teamCountedDays`, KOE-1726). */
   readonly countedDays?: readonly DayKey[]
+  /** The team holds more dogs than a team may (`teamErrors`), as a suggestion taken whole can. */
+  readonly tooMany?: boolean
 }
 
 /** The value of the series choice for a team in no series: a select takes no undefined. */
@@ -98,6 +100,7 @@ export default function TeamCard({
   onRunOffChange,
   series = [],
   countedDays,
+  tooMany,
 }: Props) {
   const { t } = useTranslation()
   const ids = team.registrationIds
@@ -182,6 +185,11 @@ export default function TeamCard({
           runOffWon={!!team.runOffWon}
           onRunOffChange={onRunOffChange}
         />
+        {tooMany && (
+          <Typography variant="body2" sx={{ color: 'error.main' }}>
+            {t('teams.tooMany', { count: MAX_TEAM_MEMBERS })}
+          </Typography>
+        )}
         {ids.length === 0 && (
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             {t('teams.noDogs')}

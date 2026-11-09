@@ -234,7 +234,10 @@ ne koirat, jotka voisi lisätä joukkueeseen valikosta **{t:teams.addDog}** ja j
 missään joukkueessa, ilmoittautumisjärjestyksessä. Jos joku koirista on merkinnyt joukkueen
 ykkösjoukkueeksi, ehdotuksessa lukee *{t:teams.primary}*. Painike **{t:teams.takeSuggestionShort}**
 tekee ehdotuksesta joukkueen: se täyttää ensimmäisen tyhjän joukkueen, jolla ei ole nimeä eikä
-koiria, tai lisää uuden joukkueen loppuun. Joukkueen nimeä, koiria ja ykkösjoukkueen merkintää voi
+koiria, tai lisää uuden joukkueen loppuun. Tyhjän joukkueen sarja säilyy, ja ykkösjoukkueen
+merkintä tulee ehdotuksesta. Jos nimen on ilmoittanut useampi koira kuin joukkueeseen mahtuu,
+ehdotus kertoo sen, ja joukkueeksi tehtynä se kertoo, montako koiraa joukkueessa voi olla:
+tallentaa voi vasta, kun ylimääräiset koirat on siirretty muihin joukkueisiin. Joukkueen nimeä, koiria ja ykkösjoukkueen merkintää voi
 sen jälkeen muuttaa kuten muidenkin joukkueiden, ja muutokset tallennetaan
 painikkeella **{t:save}**.
 
