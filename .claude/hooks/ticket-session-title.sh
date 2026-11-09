@@ -1,16 +1,33 @@
 #!/usr/bin/env bash
-# UserPromptSubmit: "/ticket KOE-1490" names the session "KOE-1490 <summary>".
-# The summary comes from Jira with the credentials in .env; without them, or when Jira does not
-# answer in time, the session is named by the key alone. Any other prompt passes through untouched.
+# UserPromptSubmit: "/ticket KOE-1490" names the session "KOE-1490 <summary>". The summary
+# comes from Jira with the credentials in .env; without them, or when Jira does not answer in
+# time, the session is named by the key alone. "/release-plan 2.3.0", "/design 2.3.0 <area>" and
+# "/build 2.3.0" name it by the version and the phase: "2.3.0 julkaisusuunnitelma". Any other
+# prompt passes through untouched.
 set -u
 
 input=$(cat)
 prompt=$(jq -r '.prompt // ""' <<<"$input")
-key=$(sed -nE '1s/^[[:space:]]*\/ticket[[:space:]]+([A-Za-z]+-[0-9]+).*/\1/p' <<<"$prompt" | tr '[:lower:]' '[:upper:]')
+line=$(head -n 1 <<<"$prompt")
+current=$(jq -r '.session_title // ""' <<<"$input")
+
+phase=$(sed -nE 's/^[[:space:]]*\/(release-plan|design|build)[[:space:]]+([0-9][^[:space:]]*).*/\1 \2/p' <<<"$line")
+if [ -n "$phase" ]; then
+  read -r skill version <<<"$phase"
+  case $skill in
+    release-plan) title="$version julkaisusuunnitelma" ;;
+    design) title="$version suunnittelu" ;;
+    build) title="$version toteutus" ;;
+  esac
+  [ "$current" = "$title" ] && exit 0
+  jq -n --arg title "$title" '{hookSpecificOutput: {hookEventName: "UserPromptSubmit", sessionTitle: $title}}'
+  exit 0
+fi
+
+key=$(sed -nE 's/^[[:space:]]*\/ticket[[:space:]]+([A-Za-z]+-[0-9]+).*/\1/p' <<<"$line" | tr '[:lower:]' '[:upper:]')
 [ -n "$key" ] || exit 0
 
 title=$key
-current=$(jq -r '.session_title // ""' <<<"$input")
 case "$current" in "$key" | "$key "*) exit 0 ;; esac
 
 # A worktree has no .env of its own; the main checkout's is beside the shared git directory.

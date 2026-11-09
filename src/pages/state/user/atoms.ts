@@ -41,6 +41,13 @@ export const languageAtom = atom(
 export const spaAtom = atom(false)
 export const loginPathAtom = atomWithSessionStorage<string | undefined>('loginPath', '/')
 
+/**
+ * Set by a sign-out, cleared by the next sign-in. Sign-out clears the token before the router has
+ * left the page, and an admin page that was showing must not read that as a visitor to send to
+ * login: the sign-out takes them home (KOE-1734). An admin page opened later ignores it.
+ */
+export const signingOutAtom = atom(false)
+
 /** Used to force-refresh the user atom after mutations (e.g. updating own name). */
 export const userRefreshAtom = atom(0)
 

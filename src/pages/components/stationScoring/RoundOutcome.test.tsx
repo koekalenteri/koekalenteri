@@ -17,7 +17,7 @@ const tasks = [{ exercise: 1, part: 1, points: 15 }]
 
 const renderOutcome = (value: ResultEdit, eventType = 'NOWT') => {
   const onChange = vi.fn()
-  render(<RoundOutcome eventType={eventType} onChange={onChange} stations={[]} value={value} />)
+  render(<RoundOutcome event={{ eventType }} onChange={onChange} stations={[]} value={value} />)
   return onChange
 }
 

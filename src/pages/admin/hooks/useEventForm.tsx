@@ -34,6 +34,8 @@ type RefusalKey =
   | 'event.kcIdConflict'
   | 'event.kcGuidConflict'
   | 'event.kcGuidLocked'
+  | 'event.officialFormatClassShape'
+  | 'event.officialFormatLocked'
   | 'event.paymentLocked'
   | 'event.resultsLocked'
 
@@ -42,6 +44,8 @@ const CONFLICT_NOTICES: Partial<Record<string, RefusalKey>> = {
   kcGuidConflict: 'event.kcGuidConflict',
   kcGuidLocked: 'event.kcGuidLocked',
   kcIdConflict: 'event.kcIdConflict',
+  officialFormatClassShape: 'event.officialFormatClassShape',
+  officialFormatLocked: 'event.officialFormatLocked',
   paymentLocked: 'event.paymentLocked',
   staleData: 'event.staleData',
 }

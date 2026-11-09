@@ -443,7 +443,11 @@ describe('paymentSuccessLambda', () => {
 
     await paymentSuccessLambda(event)
 
-    expect(mockFixRegistrationGroups).toHaveBeenCalledWith([readyRegistration], { name: 'payment' })
+    expect(mockFixRegistrationGroups).toHaveBeenCalledWith(
+      [readyRegistration],
+      expect.objectContaining({ id: 'event123' }),
+      { name: 'payment' }
+    )
     expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
       'event123',
       [expect.objectContaining({ group: { key: 'reserve', number: 1 }, id: 'reg456' })],

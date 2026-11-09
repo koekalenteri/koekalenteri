@@ -1,3 +1,4 @@
+import type { FormatOwner } from '@/lib/event'
 import type { StationTurnItem } from './StationTurnControls'
 import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -10,11 +11,20 @@ const openTurn: StationTurnItem = {
   stationId: 'post-1',
 }
 
-const renderControls = (props: Partial<Parameters<typeof StationTurnControls>[0]> = {}) => {
+/** The controls' props, with the trial named by its type and the official type it may follow. */
+type ControlsProps = Partial<Omit<Parameters<typeof StationTurnControls>[0], 'event'>> & Partial<FormatOwner>
+
+const renderControls = ({ eventType, officialFormat, ...props }: ControlsProps = {}) => {
   const onTurn = vi.fn().mockResolvedValue(undefined)
   render(
     <AppSnackbarProvider>
-      <StationTurnControls onTurn={onTurn} station={{ id: 'post-1', tasks: 1 }} turns={[]} {...props} />
+      <StationTurnControls
+        event={eventType ? { eventType, officialFormat } : undefined}
+        onTurn={onTurn}
+        station={{ id: 'post-1', tasks: 1 }}
+        turns={[]}
+        {...props}
+      />
     </AppSnackbarProvider>
   )
   return { onTurn }

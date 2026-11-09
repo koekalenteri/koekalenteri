@@ -64,7 +64,8 @@ Ikkuna näyttää ensin ilmoittautumisen ostoskorin sellaisena kuin se on nyt ja
 ilmoittautumisen maksut. Valitse palautettava maksu, kirjaa tarvittaessa
 *{t:registration.refundDialog.handlingCost}*, joka jää yhdistykselle, ja lisää halutessasi sisäinen kommentti — se ei näy
 ilmoittautujalle. **{t:refund}** tekee palautuksen Paytrailin kautta samalle maksutavalle, jolla
-maksu tuli. Palautettu summa näkyy sen jälkeen ilmoittautumisen rivillä.
+maksu tuli. Palautettu summa näkyy sen jälkeen ilmoittautumisen rivillä. Kesken oleva palautus näkyy
+ikkunassa ja on vähennetty palautettavasta, kunnes se on tehty tai epäonnistunut.
 
 Jos luokkalistojen yläpuolella on ilmoitus *{t:registration.duplicatePayments.title}*, koiran
 ilmoittautuminen on maksettu kahdesti, ja se maksu odottaa palautustasi. Palauta se ilmoituksen

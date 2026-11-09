@@ -12,7 +12,7 @@ import { atom, useAtomValue } from 'jotai'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { objectsDiffer } from '@/lib/diff'
-import { getEventSeason, isEventOver } from '@/lib/event'
+import { formatTypeOf, getEventSeason, isEventOver } from '@/lib/event'
 import { allMaybe } from '@/lib/maybePromise'
 import { hasEarlyBirdPrice } from '@/lib/payment'
 import { merge, withTimeout } from '@/lib/utils'
@@ -21,6 +21,7 @@ import AutocompleteSingle from '../../components/AutocompleteSingle'
 import {
   adminActiveEventTypesAtom,
   adminActiveJudgesAtom,
+  adminEventOfficialFormatLockedAtom,
   adminEventPaymentLockedAtom,
   adminEventTypeClassesAtom,
   adminLocationNamesAtom,
@@ -81,6 +82,8 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
     useAtomValue(eventFormOptionsAtom)
   // The event's registrations lock its payment terms, as PutEvent does (KOE-1568).
   const paymentLocked = useAtomValue(adminEventPaymentLockedAtom(event.id ?? ''))
+  // A turn or a result locks the official type an unofficial trial follows, as PutEvent does (KOE-1718).
+  const officialFormatLocked = useAtomValue(adminEventOfficialFormatLockedAtom(event.id ?? ''))
   const entryStartLocked = paymentLocked && hasEarlyBirdPrice(event)
   const [errors, setErrors] = useState(event ? validateEvent(event, { judges: activeJudges }) : [])
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({
@@ -115,10 +118,9 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
     () => activeEventTypes?.find((et) => et.eventType === event.eventType),
     [activeEventTypes, event.eventType]
   )
-  const selectedEventTypeClasses = useMemo(
-    () => eventTypeClasses?.[event.eventType],
-    [event.eventType, eventTypeClasses]
-  )
+  // The classes of the format the trial runs by: an unofficial trial following NOWT has NOWT's (KOE-1718).
+  const formatType = formatTypeOf(event)
+  const selectedEventTypeClasses = useMemo(() => eventTypeClasses?.[formatType], [formatType, eventTypeClasses])
 
   // Narrow slices of `event` for the sections below, memoized by the specific fields each
   // section actually reads. `event`'s sub-fields keep their previous reference when untouched
@@ -144,6 +146,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       name: event.name,
       names: event.names,
       official: event.official,
+      officialFormat: event.officialFormat,
       organizer: event.organizer,
       placesPerDay: event.placesPerDay,
       retrieveType: event.retrieveType,
@@ -169,6 +172,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       event.name,
       event.names,
       event.official,
+      event.officialFormat,
       event.organizer,
       event.placesPerDay,
       event.retrieveType,
@@ -183,9 +187,18 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       eventType: event.eventType,
       judges: event.judges,
       mockTrial: event.mockTrial,
+      officialFormat: event.officialFormat,
       startDate: event.startDate,
     }),
-    [event.classes, event.endDate, event.eventType, event.judges, event.mockTrial, event.startDate]
+    [
+      event.classes,
+      event.endDate,
+      event.eventType,
+      event.judges,
+      event.mockTrial,
+      event.officialFormat,
+      event.startDate,
+    ]
   )
   const entryEvent = useMemo(
     () => ({
@@ -196,6 +209,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       entryEndDate: event.entryEndDate,
       entryStartDate: event.entryStartDate,
       eventType: event.eventType,
+      officialFormat: event.officialFormat,
       places: event.places,
       placesPerDay: event.placesPerDay,
       priority: event.priority,
@@ -210,6 +224,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       event.entryEndDate,
       event.entryStartDate,
       event.eventType,
+      event.officialFormat,
       event.places,
       event.placesPerDay,
       event.priority,
@@ -373,6 +388,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
           fields={fields}
           helperTexts={helperTexts}
           locations={locations}
+          officialFormatLocked={officialFormatLocked}
           officials={officials}
           onChange={handleChange}
           onOpenChange={handleBasicOpenChange}

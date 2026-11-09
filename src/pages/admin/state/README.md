@@ -118,9 +118,9 @@ signing out clears the storage (KOE-1668). `adminEventsRereadAtom` is write-only
 socket that was away, written over the list without moving the fetch key, so a failure leaves the list
 as it is and only rejects to its caller; a row in hand with a newer stamp stays (`keepNewerRows`), and
 the answer is dropped if the key moved during the read (KOE-1698). `adminEditableEventByIdAtom(eventId)` is one draft per
-event in sessionStorage, shared by every form on the event: the stations page, the edit page and the
-event view's details dialog, which also picks up a draft another of them left (KOE-1700). The stations
-page leaves none behind: leaving it unsaved asks, and the answer to leave discards the draft (KOE-1699),
+event in sessionStorage, shared by every form on the event: the stations page, the teams page (KOE-1714), the edit page and
+the event view's details dialog, which also picks up a draft another of them left (KOE-1700). The stations
+and teams pages leave none behind: leaving it unsaved asks, and the answer to leave discards the draft (KOE-1699),
 also one another form left there, since it is the same draft (KOE-1700).
 `adminSaveEventAtom` is write-only: after the read and the call shown here, it
 writes `adminEventIdAtom`, `adminCurrentEventAtom` and the public `eventsAtom`.
@@ -183,8 +183,11 @@ graph LR
 
 `adminEventTypesAtom` is `adminEventTypesRemoteAtom` under a second name, a cached collection
 ([cached/README.md](cached/README.md)). `adminEventTypeClassesAtom` and `adminEventTypeGroupsByTypeAtom` are constant
-tables, the classes and the registration times each event type offers; `adminEventTypeGroupsAtom(eventType)` picks the
-times of one type, with the unofficial events' times for a type that is not official.
+tables, the classes and the registration times each event type offers (the classes are `EVENT_TYPE_CLASSES` of
+`src/lib/event.ts`, which the rule of a followed type's classes reads too); `adminEventTypeGroupsAtom(eventType)` picks
+the times of one type, with the unofficial events' times for a type that is not official. Its readers pass the
+event's format, `formatTypeOf(event)`, so an unofficial trial that follows an official type gets that type's times
+(KOE-1718).
 
 ```mermaid
 graph LR
@@ -334,6 +337,9 @@ graph LR
 
   adminEventRegistrationAtom-->adminEventRegistrationsAtom
   adminEventPaymentLockedAtom-->adminEventRegistrationsAtom
+  adminEventOfficialFormatLockedAtom-->adminEventAtom
+  adminEventOfficialFormatLockedAtom-->adminEventRegistrationsAtom
+  adminProjectedEventRegistrationsAtom-->adminEventAtom
   adminProjectedEventRegistrationsAtom-->adminEventRegistrationsAtom
   adminProjectedEventRegistrationsAtom-->adminPendingRegistrationGroupMovesAtom
 

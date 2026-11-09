@@ -100,10 +100,10 @@ export function Component() {
   return (
     <StationScoring
       classes={entry.event.classes}
-      eventType={entry.event.eventType}
+      event={entry.event}
       header={
         <StationHeading
-          eventType={entry.event.eventType}
+          event={entry.event}
           station={entry.station}
           subtitle={eventSubtitle(entry.event, language, t)}
         />

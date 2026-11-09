@@ -177,10 +177,15 @@ describe('lib/registration', () => {
   })
 
   describe('getRegistrationClass', () => {
-    it('prefers class and falls back to event type', () => {
-      expect(getRegistrationClass({ class: 'ALO', eventType: 'NOME-B' })).toBe('ALO')
-      expect(getRegistrationClass({ eventType: 'NOU' })).toBe('NOU')
-      expect(getRegistrationClass({})).toBeUndefined()
+    it('prefers class and falls back to the format of the event', () => {
+      expect(getRegistrationClass({ class: 'ALO' }, { eventType: 'NOME-B' })).toBe('ALO')
+      expect(getRegistrationClass({}, { eventType: 'NOU' })).toBe('NOU')
+    })
+
+    // KOE-1718: a classless trial's key is the official type it follows, as its results are spelled.
+    it('keys a classless trial by the official type it follows', () => {
+      expect(getRegistrationClass({}, { eventType: 'NOU-harjoitus', officialFormat: 'NOU' })).toBe('NOU')
+      expect(getRegistrationClass({}, { eventType: 'NOU-harjoitus' })).toBe('NOU-harjoitus')
     })
   })
 
@@ -194,10 +199,12 @@ describe('lib/registration', () => {
       endDate: '2021-02-11',
       entryEndDate: '2021-02-07',
       entryStartDate: '2021-02-01',
+      eventType: 'NOME-B',
       startDate: '2021-02-10',
       state: 'started' as const,
     }
     const avo = { class: 'AVO', eventType: 'NOME-B' }
+
     const alo = { class: 'ALO', eventType: 'NOME-B' }
     const at = (stamp: string) => new Date(`${stamp}+02:00`)
 
@@ -780,53 +787,49 @@ describe('lib/registration', () => {
   })
 
   describe('getRegistrationNumberingGroupKey', () => {
+    const nomeB = { eventType: 'NOME-B' }
+    const nou = { eventType: 'NOU' }
+
     it('should return cancelled for class or eventType', () => {
-      expect(getRegistrationNumberingGroupKey({ cancelled: true, class: 'AVO', eventType: 'NOME-B' })).toEqual(
-        'cancelled-AVO'
-      )
-      expect(getRegistrationNumberingGroupKey({ cancelled: true, eventType: 'NOU' })).toEqual('cancelled-NOU')
+      expect(getRegistrationNumberingGroupKey({ cancelled: true, class: 'AVO' }, nomeB)).toEqual('cancelled-AVO')
+      expect(getRegistrationNumberingGroupKey({ cancelled: true }, nou)).toEqual('cancelled-NOU')
     })
 
     it('should return participants if group has date', () => {
       expect(
-        getRegistrationNumberingGroupKey({
-          class: 'AVO',
-          eventType: 'NOME-B',
-          group: { date: '2026-08-15', key: 'test', number: 1 },
-        })
+        getRegistrationNumberingGroupKey({ class: 'AVO', group: { date: '2026-08-15', key: 'test', number: 1 } }, nomeB)
       ).toEqual('participants')
     })
 
     it('should return reserve for rest', () => {
-      expect(
-        getRegistrationNumberingGroupKey({
-          class: 'AVO',
-          eventType: 'NOME-B',
-          group: { key: 'test', number: 1 },
-        })
-      ).toEqual('reserve-AVO')
-      expect(
-        getRegistrationNumberingGroupKey({
-          eventType: 'NOU',
-          group: { key: 'test', number: 1 },
-        })
-      ).toEqual('reserve-NOU')
-      expect(
-        getRegistrationNumberingGroupKey({
-          eventType: 'NOU',
-        })
-      ).toEqual('reserve-NOU')
+      expect(getRegistrationNumberingGroupKey({ class: 'AVO', group: { key: 'test', number: 1 } }, nomeB)).toEqual(
+        'reserve-AVO'
+      )
+      expect(getRegistrationNumberingGroupKey({ group: { key: 'test', number: 1 } }, nou)).toEqual('reserve-NOU')
+      expect(getRegistrationNumberingGroupKey({}, nou)).toEqual('reserve-NOU')
     })
 
     it.each(['NOWT', 'NOWT SM'])('numbers the reserves of a %s trial across its classes', (eventType) => {
       // The WT reserve list belongs to the trial, not the class (KOE-912), so every class shares
       // one numbering group and the position a dog is told counts the whole trial.
-      expect(getRegistrationNumberingGroupKey({ class: 'ALO', eventType })).toEqual('reserve')
-      expect(getRegistrationNumberingGroupKey({ class: 'VOI', eventType })).toEqual('reserve')
+      expect(getRegistrationNumberingGroupKey({ class: 'ALO' }, { eventType })).toEqual('reserve')
+      expect(getRegistrationNumberingGroupKey({ class: 'VOI' }, { eventType })).toEqual('reserve')
+    })
+
+    // KOE-1718: an unofficial trial that follows NOWT has NOWT's reserve list, and a classless one is keyed
+    // by the type it follows.
+    it('numbers the reserves by the official type an unofficial trial follows', () => {
+      expect(
+        getRegistrationNumberingGroupKey({ class: 'ALO' }, { eventType: 'WT-harjoitus', officialFormat: 'NOWT' })
+      ).toEqual('reserve')
+      expect(getRegistrationNumberingGroupKey({ class: 'ALO' }, { eventType: 'WT-harjoitus' })).toEqual('reserve-ALO')
+      expect(getRegistrationNumberingGroupKey({}, { eventType: 'NOU-harjoitus', officialFormat: 'NOU' })).toEqual(
+        'reserve-NOU'
+      )
     })
 
     it("still numbers a WT trial's cancelled entries by class", () => {
-      expect(getRegistrationNumberingGroupKey({ cancelled: true, class: 'ALO', eventType: 'NOWT' })).toEqual(
+      expect(getRegistrationNumberingGroupKey({ cancelled: true, class: 'ALO' }, { eventType: 'NOWT' })).toEqual(
         'cancelled-ALO'
       )
     })
@@ -1559,7 +1562,7 @@ describe('lib/registration', () => {
   })
 
   describe('clearInvitationState (KOE-1564)', () => {
-    const event = { invitationAttachments: { ALO: 'copy-key' } }
+    const event = { eventType: 'NOU', invitationAttachments: { ALO: 'copy-key' } }
 
     it('forgets the invitation and its reading, keeps the other messages, and leaves the entry to be invited', () => {
       const registration: InvitationAttachmentRegistration = {
@@ -1671,6 +1674,7 @@ describe('lib/registration', () => {
     const now = new Date('2024-01-10T12:00:00.000Z')
     const event = {
       entryEndDate: '2024-01-05' as const,
+      eventType: 'NOME-B',
       invitationAttachment: 'common-attachment',
       invitationAttachments: { ALO: 'alo-attachment' },
       startDate: '2024-01-20' as const,
@@ -1791,6 +1795,7 @@ describe('invitation payment gate', () => {
     cost: 40,
     costMember: 40,
     entryStartDate: '2026-01-01' as const,
+    eventType: 'NOME-B',
     state: 'picked' as const,
   }
   const participant = {
@@ -1855,7 +1860,8 @@ describe('invitation payment gate', () => {
 })
 
 describe('resolveInvitationRead', () => {
-  const event = { invitationAttachment: 'attachment-2' }
+  const event = { eventType: 'NOME-B', invitationAttachment: 'attachment-2' }
+
   const sent = { eventType: 'NOME-B', invitationAttachmentSent: 'attachment-2', messagesSent: { invitation: true } }
 
   it('counts the first reading of the sent invitation', () => {

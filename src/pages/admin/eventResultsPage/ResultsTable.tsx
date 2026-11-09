@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import type { FormatOwner } from '@/lib/event'
 import type { KcBadge } from '@/lib/kennelliittoResults'
 import type { ExerciseSlot } from '@/lib/resultTasks'
 import type { EventStation, NowtZeroFault, PublicJudge, Registration } from '@/types'
@@ -15,6 +16,7 @@ import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { formatTypeOf } from '@/lib/event'
 import { scoresAtPosts } from '@/lib/liveFormat'
 import { getRegistrationPlacement } from '@/lib/registration'
 import { formatTaskName } from '@/lib/results'
@@ -42,7 +44,8 @@ interface Props {
    * round ended at, and so read "kesk" (KOE-1669). Not a signal to derive a prize, as {@link fullRoundFor} is.
    */
   readonly wholeRoundFor: (registration: Registration) => ExerciseSlot[]
-  readonly eventType: string
+  /** The trial, whose format (`formatTypeOf`) decides what is entered and how a result is spelled. */
+  readonly event: FormatOwner
   readonly eventClass?: string
   readonly stations: EventStation[]
   /** Set when the view covers one post only. */
@@ -108,7 +111,7 @@ function ResultsTable({
   roundFor,
   fullRoundFor,
   wholeRoundFor,
-  eventType,
+  event,
   eventClass,
   stations,
   stationId,
@@ -124,6 +127,7 @@ function ResultsTable({
   placements,
 }: Props) {
   const { t } = useTranslation()
+  const eventType = formatTypeOf(event)
   const qualitative = !scoresAtPosts(eventType)
   const outcomeColumn = outcomeLabelKeys().column
   // A format with nothing to ask has no column, unless a dog's stored stop still needs clearing.
@@ -212,7 +216,7 @@ function ResultsTable({
         <RoundOutcome
           carriesStop={carriesStop(registration)}
           disabled={disabled}
-          eventType={eventType}
+          event={event}
           inline={!compact}
           places={qualitative ? undefined : places}
           stationId={stationId}
@@ -225,8 +229,8 @@ function ResultsTable({
         <ResultSummary
           disabled={disabled}
           edit={edit}
+          event={event}
           eventClass={eventClass}
-          eventType={eventType}
           onChange={(next) => report(registration, attributed(next))}
           round={fullRoundFor?.(registration)}
           placement={edits[registration.id] ? undefined : placements?.get(registration.id)}

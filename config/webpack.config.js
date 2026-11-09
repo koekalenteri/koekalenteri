@@ -544,10 +544,11 @@ module.exports = function (webpackEnv) {
     // A budget, not decoration: xlsx reached the initial chunk through exactly one static import
     // and nothing said a word (KOE-1332). `hints: 'error'` puts the numbers into the compilation
     // errors, and build-frontend.js rejects on those, so CI fails instead of merely printing.
-    // The entrypoint limit is the real gate -- it is the first load of the public calendar,
-    // measured at 2 021 kB uncompressed after this change, with a little headroom. The per-asset
-    // limit only catches something egregious; the largest emitted chunk today is the admin bundle
-    // at 673 kB.
+    // The entrypoint limit is the real gate: it is the first load of the public calendar, measured
+    // at 1 981 kB uncompressed once the Authenticator screens left it (`npm run build-e2e-frontend`,
+    // then the sizes of the files under `entrypoints` in build-e2e/asset-manifest.json summed). The
+    // per-asset limit only catches something egregious; the largest emitted chunk today is the
+    // admin bundle at 676 kB.
     performance: isEnvProduction
       ? {
           hints: 'error',

@@ -13,10 +13,12 @@ import type {
   ResultMark,
   StationVisitLayout,
 } from '../types'
+import type { FormatOwner } from './event'
 import type { SortableRegistration } from './registration'
 import type { ExerciseSlot, ScoredTask } from './resultTasks'
 import type { RotationEvent } from './rotation'
 import { objectsDiffer } from './diff'
+import { formatTypeOf } from './event'
 import { scoresAtPosts } from './liveFormat'
 import {
   getRegistrationClass,
@@ -271,11 +273,11 @@ export const formatTaskName = (slot: ExerciseSlot, t: TFunction<'translation'>):
  * whole trial: every dog, in start order.
  */
 export const stationDogsInOrder = <T extends SortableRegistration>(
-  event: RotationEvent & { eventType: string },
+  event: RotationEvent & FormatOwner,
   stationId: string,
   registrations: readonly T[]
 ): (T & { visit?: StationVisitLayout })[] => {
-  if (!scoresAtPosts(event.eventType)) return [...registrations].sort(sortRegistrationsByDateClassTimeAndNumber)
+  if (!scoresAtPosts(formatTypeOf(event))) return [...registrations].sort(sortRegistrationsByDateClassTimeAndNumber)
 
   return stationQueue(event, stationId, registrations).map(({ registration, visit }) => ({ ...registration, visit }))
 }
@@ -385,8 +387,9 @@ export const canBeStopped = (resultCode?: ResultCode): boolean =>
 
 /**
  * Results are written as a prefix and a code: `ALO1`, `AVO-`, and for event types without classes
- * `NOU1` or `NKM0`. This is the same class-or-event-type rule `getEventProgress` already applies when
- * it falls back to `[event.eventType]` for an event with no classes.
+ * `NOU1` or `NKM0`. This is the same class-or-format rule `getRegistrationClass` applies to a classless
+ * trial. The event type given is the format (`formatTypeOf`), so an unofficial trial that follows NOU
+ * writes `NOU1` too (KOE-1718).
  */
 export const eventResultPrefix = (eventType: string, eventClass?: string): string => eventClass ?? eventType
 
@@ -405,8 +408,8 @@ export const hasJudgeStop = (eventType?: string): boolean =>
  * of the format's name. NOME-A and its championship write `A1`, NOU and NKM keep their own name. Takes
  * an event type or Koe/Koemuoto's `koemuoto`, which name a format the same way.
  *
- * A class equal to the event type is no class: the pages read a classless dog's class as its event type
- * (`getRegistrationClass`), and `eventResultPrefix` stores both the same.
+ * A class equal to the event type is no class: the pages read a classless dog's class as its trial's
+ * format (`getRegistrationClass`), the type given here, and `eventResultPrefix` stores both the same.
  */
 export const resultPrefixAsKennelClub = (eventType: string, eventClass?: string): string => {
   if (eventClass && eventClass !== eventType) return eventClass
@@ -524,18 +527,24 @@ export const resolveEventResult = (
   }
 }
 
+/** What `withStoredTotals` reads of a stored result: its totals and its tasks' scores. */
+type StoredTotalsResult = Pick<JsonEventResult, 'maxPoints' | 'percentage' | 'points'> & {
+  tasks?: readonly Pick<JsonEventResultTask, 'exercise' | 'part' | 'points'>[]
+}
+
 /**
  * The registration with its NOWT totals worked out from its stored tasks where the stored result has
  * none: a round that ended early saved before KOE-1669, when such a round kept no totals. The tasks are
  * read against the dog's round as `resolveEventResult` reads them; nothing else of the result changes.
- * A result with totals, or of a type not scored at posts, is returned as it is.
+ * A result with totals, or of a type not scored at posts, is returned as it is. The stored row and the
+ * browser's alike: the teams page sums the same totals the start list does (KOE-1717).
  */
-export const withStoredTotals = <T extends SortableRegistration & { eventResult?: JsonEventResult }>(
-  event: RotationEvent,
+export const withStoredTotals = <T extends SortableRegistration & { eventResult?: StoredTotalsResult }>(
+  event: RotationEvent & FormatOwner,
   registration: T
 ): T => {
   const stored = registration.eventResult
-  if (!stored?.tasks || stored.percentage !== undefined || !scoresAtPosts(registration.eventType)) return registration
+  if (!stored?.tasks || stored.percentage !== undefined || !scoresAtPosts(formatTypeOf(event))) return registration
 
   const { maxPoints, percentage, points } = nowtTotals(
     toScoredTasks(dogRound(event, rotationDogOf(registration)), stored.tasks)
@@ -564,10 +573,7 @@ export const sameEventResult = (a?: JsonEventResult, b?: JsonEventResult): boole
 }
 
 /** What `placementsFor` reads of a registration: where the dog ran and what it scored. */
-type PlacementRow = Pick<
-  JsonRegistration | Registration,
-  'id' | 'class' | 'eventType' | 'cancelled' | 'group' | 'startGroup'
-> & {
+type PlacementRow = Pick<JsonRegistration | Registration, 'id' | 'class' | 'cancelled' | 'group' | 'startGroup'> & {
   eventResult?: Pick<JsonEventResult, 'result' | 'points' | 'maxPoints'>
 }
 
@@ -589,18 +595,20 @@ type PlacementRow = Pick<
  * calendar day (`getRegistrationGroupDay`). The sending to Kennelliitto keys its day the same way
  * (`kcResultDay`), so a dog ranks among the dogs of the day its result is sent for.
  */
-export const placementsFor = (rows: readonly PlacementRow[]): Map<string, number> => {
+export const placementsFor = (rows: readonly PlacementRow[], event: FormatOwner): Map<string, number> => {
   const groups = new Map<string, { id: string; points: number; maxPoints: number }[]>()
+  const formatType = formatTypeOf(event)
+  if (!scoresAtPosts(formatType)) return new Map()
 
   for (const row of rows) {
     const { eventResult } = row
     const day = getRegistrationGroupDay(getRegistrationPlacement(row)?.date)
-    if (!scoresAtPosts(row.eventType) || !isScorableRegistration(row) || !day) continue
+    if (!isScorableRegistration(row) || !day) continue
     const { points, maxPoints } = eventResult ?? {}
     if (typeof points !== 'number' || typeof maxPoints !== 'number' || maxPoints <= 0) continue
 
-    const eventClass = getRegistrationClass(row)
-    const code = parseEventResultCode(eventResult?.result, row.eventType, eventClass)
+    const eventClass = getRegistrationClass(row, event)
+    const code = parseEventResultCode(eventResult?.result, formatType, eventClass)
     if (code !== '1' && code !== '2' && code !== '3') continue
 
     const key = `${eventClass}|${day}`
@@ -615,15 +623,35 @@ export const placementsFor = (rows: readonly PlacementRow[]): Map<string, number
     // a before b when a.points / a.maxPoints is larger, without dividing.
     entries.sort((a, b) => b.points * a.maxPoints - a.points * b.maxPoints)
 
-    let rank = 0
+    const ranks = sharedRanks(entries, (a, b) => a.points * b.maxPoints === b.points * a.maxPoints)
     entries.forEach((entry, index) => {
-      const previous = entries[index - 1]
-      const tied = previous && previous.points * entry.maxPoints === entry.points * previous.maxPoints
-      // A tie keeps the rank of the dog before it; otherwise the rank is the position, so 1, 2, 2, 4.
-      if (!tied) rank = index + 1
-      placements.set(entry.id, rank)
+      placements.set(entry.id, ranks[index])
     })
   }
 
   return placements
 }
+
+/**
+ * The ranks of entries already in order, best first: an entry tied with the one before it keeps that
+ * one's rank, any other ranks at its position, so 1, 2, 2, 4. The dogs of a class (`placementsFor`) and
+ * the teams of a day (`teamStandings`) are ranked by this one rule; each caller says what a tie is.
+ */
+export const sharedRanks = <T>(sorted: readonly T[], tied: (previous: T, entry: T) => boolean): number[] => {
+  const ranks: number[] = []
+  sorted.forEach((entry, index) => {
+    ranks.push(index > 0 && tied(sorted[index - 1], entry) ? ranks[index - 1] : index + 1)
+  })
+  return ranks
+}
+
+/**
+ * Whether the official type an unofficial trial follows is locked (KOE-1718): once a post has recorded
+ * a turn or any dog has a saved result, the trial has run by that format, and what was recorded is read
+ * by it. The event form disables the choice by this rule and PutEvent refuses a change by it. The turns
+ * are on the event, so a caller that finds them need not read the registrations.
+ */
+export const isOfficialFormatLocked = (
+  event: { turns?: readonly unknown[] },
+  registrations: readonly { eventResult?: unknown }[]
+): boolean => !!event.turns?.length || registrations.some((registration) => registration.eventResult !== undefined)

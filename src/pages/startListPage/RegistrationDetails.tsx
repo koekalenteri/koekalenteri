@@ -13,9 +13,19 @@ interface RegistrationDetailsProps {
   index: number
   /** Preview only (KOE-1218): the class has drawn numbers, but this dog's is still the working order. */
   warnNumberPending?: boolean
+  /**
+   * The team view only (KOE-1715): what goes in front of the number, the dog's class where the day's
+   * teams mix classes and its team code ("AVO 1A").
+   */
+  teamPrefix?: string
 }
 
-export const RegistrationDetails = ({ registration: reg, index, warnNumberPending }: RegistrationDetailsProps) => {
+export const RegistrationDetails = ({
+  registration: reg,
+  index,
+  warnNumberPending,
+  teamPrefix,
+}: RegistrationDetailsProps) => {
   const { t } = useTranslation()
   // The preview greys a working-order number the same way the entry view does: only an entered or
   // frozen number reads as the dog's own (KOE-1218).
@@ -49,6 +59,7 @@ export const RegistrationDetails = ({ registration: reg, index, warnNumberPendin
           }}
         >
           <Box sx={{ fontWeight: 'bold' }}>
+            {teamPrefix && `${teamPrefix} `}
             {reg.group.number != null && <Box component="span" sx={numberSx}>{`${reg.group.number}. `}</Box>}
             {warnNumberPending && (
               <Tooltip title={t('startList.numberPending')}>

@@ -5,6 +5,7 @@ import i18next from 'i18next'
 import { render } from 'vitest-browser-react'
 import theme from '@/assets/Theme'
 import { locales } from '@/i18n'
+import { EVENT_TYPE_CLASSES } from '@/lib/event'
 import { idTokenAtom } from '@/pages/state'
 import { TestProvider } from '@/test-utils/AtomProvider'
 import BasicInfoSection from './BasicInfoSection'
@@ -176,4 +177,56 @@ it('tells to choose the organizer before the secretary (KOE-1473)', async () => 
     .element(screen.getByText('Valitse ensin järjestäjä, niin voit valita koesihteerin yhdistyksen jäsenistä.'))
     .toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('basic-info-section-secretary-guidance')
+})
+
+describe('the official type an unofficial trial follows (KOE-1718)', () => {
+  const event = {
+    classes: [{ class: 'ALO' as const, date: '2026-06-01' as const }],
+    description: '',
+    endDate: '2026-06-01' as const,
+    eventType: 'WT-harjoitus',
+    id: 'test',
+    judges: [],
+    name: 'Harjoitus-WT',
+    officialFormat: 'NOWT' as const,
+    startDate: '2026-06-01' as const,
+  }
+  const selectedEventType = {
+    active: true,
+    description: { en: 'Training WT', fi: 'Harjoitus-WT', sv: 'Övnings-WT' },
+    eventType: 'WT-harjoitus',
+    official: false,
+  }
+
+  it.each([
+    ['basic-info-section-official-format', false],
+    ['basic-info-section-official-format-locked', true],
+  ])('shows the choice: %s', async (shot, officialFormatLocked) => {
+    const screen = await render(
+      <TestProvider initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
+        <Frame>
+          <BasicInfoSection
+            event={event}
+            eventTypeClasses={EVENT_TYPE_CLASSES}
+            eventTypes={['WT-harjoitus']}
+            officialFormatLocked={officialFormatLocked}
+            open
+            selectedEventType={selectedEventType}
+          />
+        </Frame>
+      </TestProvider>
+    )
+
+    const choice = screen.getByRole('combobox', { name: 'Noudattelee virallista koetta' })
+    const lockedText = screen.getByText('Kokeeseen on jo tallennettu tuloksia', { exact: false })
+    await expect.element(choice).toHaveValue('NOWT')
+    if (officialFormatLocked) {
+      await expect.element(choice).toBeDisabled()
+      await expect.element(lockedText).toBeVisible()
+    } else {
+      await expect.element(lockedText).not.toBeInTheDocument()
+    }
+
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot(shot)
+  })
 })

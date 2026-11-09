@@ -85,6 +85,7 @@ export function Component() {
       sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, maxHeight: '100%', maxWidth: '100%' }}
     >
       <StartNumbersEntry
+        event={entry.event}
         reserved={entry.reserved}
         header={
           <Box sx={{ pt: 2, px: 2 }}>

@@ -9,11 +9,13 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { useAtomValue } from 'jotai'
+import { enqueueSnackbar } from 'notistack'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate } from 'react-router'
 import { getEventClassStats } from '../../api/stats'
 import { reportError } from '../../lib/client/error'
+import { errorSnackbarOptions } from '../../lib/client/snackbar'
 import { downloadXlsx } from '../../lib/client/xlsx'
 import { currentYear, TIME_ZONE } from '../../lib/day'
 import { buildEventBreakdownTable, eventBreakdownSpreadsheetRows } from '../../lib/eventBreakdown'
@@ -61,6 +63,10 @@ export default function EventBreakdownPage() {
         rows: eventClassStatsSpreadsheetRows(classRows, t, organizerName),
         sheetName: t('stats.admin.eventClassStatsSheet'),
       })
+    } catch (error) {
+      // A failed request is shown to the user as well as reported, or the button looks like it did nothing (KOE-1713).
+      reportError(error)
+      enqueueSnackbar(t('stats.admin.eventClassStatsFailed'), errorSnackbarOptions)
     } finally {
       setLoadingClassStats(false)
     }
@@ -104,9 +110,10 @@ export default function EventBreakdownPage() {
           {t('stats.admin.eventBreakdownExport')}
         </Button>
         <Button
-          disabled={loadingClassStats}
+          loading={loadingClassStats}
+          loadingPosition="start"
           onClick={() => {
-            downloadEventClassStats().catch(reportError)
+            void downloadEventClassStats()
           }}
           size="small"
           startIcon={<DownloadOutlined />}

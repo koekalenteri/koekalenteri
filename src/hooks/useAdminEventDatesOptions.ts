@@ -1,13 +1,13 @@
 import type { PublicDogEvent } from '../types'
 import { useAtomValue } from 'jotai'
-import { getEventDays } from '../lib/event'
+import { formatTypeOf, getEventDays } from '../lib/event'
 import { adminEventTypeGroupsAtom } from '../pages/admin/state'
 
 export const useAdminEventDatesOptions = (
   event: Pick<PublicDogEvent, 'classes' | 'endDate' | 'startDate'> & Partial<Pick<PublicDogEvent, 'eventType'>>,
   eventClass?: string
 ) => {
-  const eventTypeGroups = useAtomValue(adminEventTypeGroupsAtom(event.eventType))
+  const eventTypeGroups = useAtomValue(adminEventTypeGroupsAtom(formatTypeOf(event)))
 
   if (event.classes?.length) {
     return event.classes

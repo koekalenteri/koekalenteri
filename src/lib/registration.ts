@@ -29,11 +29,12 @@ import type {
   RegistrationTime,
 } from '../types'
 import type { AuditActor } from './audit'
-import type { EventVitals } from './event'
+import type { EventVitals, FormatOwner } from './event'
 import { nanoid } from 'nanoid'
 import { emptyBreeder, emptyDog, emptyPerson } from './data'
 import { addDays, calendarDayOf, dayOf, TIME_ZONE } from './day'
 import {
+  formatTypeOf,
   getEventStateForClass,
   groupKeyOf,
   hasSharedReserveList,
@@ -329,13 +330,17 @@ export const nomeBChQualificationStartDay = (qualificationStartDate: Date | stri
 
 export const REG_CLASSES = new Set<RegistrationClass>(['ALO', 'AVO', 'VOI'])
 
-export function getRegistrationClass(registration: Pick<JsonRegistration | Registration, 'class' | 'eventType'>): string
-export function getRegistrationClass(registration: { class?: string | null; eventType?: string }): string | undefined
-export function getRegistrationClass(registration: { class?: string | null; eventType?: string }) {
-  return registration.class ?? registration.eventType
-}
+/**
+ * The class the entry runs in, or for a classless trial the trial's format (`formatTypeOf`): the key a
+ * classless trial's start list, links, attachments and publishing flags go by. The format is the
+ * event's to say (KOE-1718), which an entry does not carry, so the event is always given.
+ */
+export const getRegistrationClass = (
+  registration: Pick<SortableRegistration, 'class' | 'eventType'>,
+  event: FormatOwner
+): string => registration.class ?? formatTypeOf(event)
 
-type RegistrationEditingEvent = EventVitals & Parameters<typeof getEventStateForClass>[0]
+type RegistrationEditingEvent = EventVitals & Parameters<typeof getEventStateForClass>[0] & FormatOwner
 type RegistrationClassFields = Parameters<typeof getRegistrationClass>[0]
 
 /**
@@ -347,7 +352,7 @@ export const isRegistrationEditingClosed = (
   event: RegistrationEditingEvent,
   registration: RegistrationClassFields,
   now = new Date()
-): boolean => isEntryEditingClosed(event, getEventStateForClass(event, getRegistrationClass(registration)), now)
+): boolean => isEntryEditingClosed(event, getEventStateForClass(event, getRegistrationClass(registration, event)), now)
 
 /**
  * Whether the participant may no longer change what the entry says: from the close of entry to the
@@ -671,10 +676,14 @@ const byTimeAndNumber = <T extends SortableRegistration>(a: T, b: T): number =>
     ? (placementOf(a)?.number ?? Number.MAX_SAFE_INTEGER) - (placementOf(b)?.number ?? Number.MAX_SAFE_INTEGER)
     : getRegistrationGroupTime(a).localeCompare(getRegistrationGroupTime(b))
 
+/**
+ * The class as the order compares it. The entries of one trial all run in classes or none does, and a
+ * classless trial's key is the same for every entry, so the order needs no format (KOE-1718).
+ */
+const sortClass = (registration: SortableRegistration): string => registration.class ?? ''
+
 const byClassTimeAndNumber = <T extends SortableRegistration>(a: T, b: T): number =>
-  getRegistrationClass(a) === getRegistrationClass(b)
-    ? byTimeAndNumber(a, b)
-    : (getRegistrationClass(a) ?? '').localeCompare(getRegistrationClass(b) ?? '')
+  sortClass(a) === sortClass(b) ? byTimeAndNumber(a, b) : sortClass(a).localeCompare(sortClass(b))
 
 export const sortRegistrationsByDateClassTimeAndNumber = <T extends SortableRegistration>(a: T, b: T): number =>
   sortableDate(placementOf(a)?.date) === sortableDate(placementOf(b)?.date)
@@ -700,9 +709,10 @@ export const inRegistrationOrder = <T extends { readonly id: string }>(
 }
 
 export const getRegistrationNumberingGroupKey = <T extends JsonRegistration | Registration>(
-  reg: Pick<T, 'cancelled' | 'class' | 'eventType' | 'group'>
+  reg: Pick<T, 'cancelled' | 'class' | 'group'>,
+  event: FormatOwner
 ) => {
-  const classOrType = getRegistrationClass(reg)
+  const classOrType = getRegistrationClass(reg, event)
   if (reg.cancelled) {
     return `${GROUP_KEY_CANCELLED}-${classOrType}`
   }
@@ -710,7 +720,7 @@ export const getRegistrationNumberingGroupKey = <T extends JsonRegistration | Re
     return 'participants'
   }
   // A WT trial's reserve list is the whole trial's, so its numbers run across the classes (KOE-912).
-  return hasSharedReserveList(reg.eventType) ? GROUP_KEY_RESERVE : `${GROUP_KEY_RESERVE}-${classOrType}`
+  return hasSharedReserveList(formatTypeOf(event)) ? GROUP_KEY_RESERVE : `${GROUP_KEY_RESERVE}-${classOrType}`
 }
 
 export const isParticipantGroup = (group?: string): boolean =>
@@ -764,18 +774,19 @@ export const hasPaymentPicture = <T extends Pick<Registration, 'payment'>>(
 ): registration is T & { payment: PaymentPicture } => registration.payment !== undefined
 
 /**
- * The picked participants by class, a classless event's under its event type: what the publishing
- * gates count on the panel and on the server alike (KOE-1466).
+ * The picked participants by class, a classless event's under its format (`getRegistrationClass`): what
+ * the publishing gates count on the panel and on the server alike (KOE-1466).
  */
 export const groupParticipantsByClass = <
-  T extends Pick<JsonRegistration | Registration, 'cancelled' | 'class' | 'eventType' | 'group'>,
+  T extends Pick<JsonRegistration | Registration, 'cancelled' | 'class' | 'group'>,
 >(
-  registrations: readonly T[]
+  registrations: readonly T[],
+  event: FormatOwner
 ): Record<string, T[]> => {
   const byClass: Record<string, T[]> = {}
   for (const registration of registrations) {
     if (!isStarter(registration)) continue
-    const eventClass = getRegistrationClass(registration)
+    const eventClass = getRegistrationClass(registration, event)
     byClass[eventClass] ??= []
     byClass[eventClass].push(registration)
   }
@@ -844,7 +855,8 @@ type InvitationAttachmentEvent = Partial<
     ConfirmedEvent | JsonConfirmedEvent,
     'entryEndDate' | 'invitationAttachment' | 'invitationAttachments' | 'startDate'
   >
->
+> &
+  FormatOwner
 export type InvitationAttachmentRegistration = Pick<
   JsonRegistration | Registration,
   'class' | 'eventType' | 'invitationAttachmentRead' | 'invitationAttachmentSent' | 'invitationRead' | 'messagesSent'
@@ -890,9 +902,10 @@ export const getInvitationReadStatus = (registration: InvitationState): Invitati
 }
 
 export const getCurrentInvitationAttachment = (
-  event: Partial<Pick<ConfirmedEvent | JsonConfirmedEvent, 'invitationAttachment' | 'invitationAttachments'>>,
+  event: Partial<Pick<ConfirmedEvent | JsonConfirmedEvent, 'invitationAttachment' | 'invitationAttachments'>> &
+    FormatOwner,
   registration: Pick<JsonRegistration | Registration, 'class' | 'eventType'>
-) => event.invitationAttachments?.[getRegistrationClass(registration)] ?? event.invitationAttachment
+) => event.invitationAttachments?.[getRegistrationClass(registration, event)] ?? event.invitationAttachment
 
 export const getSentInvitationAttachment = (
   event: InvitationAttachmentEvent,
@@ -933,7 +946,7 @@ export const shouldSendInvitationToRegistration = (
   }
 
   const currentAttachment = getCurrentInvitationAttachment(event, registration)
-  const currentClassAttachment = event.invitationAttachments?.[getRegistrationClass(registration)]
+  const currentClassAttachment = event.invitationAttachments?.[getRegistrationClass(registration, event)]
 
   if (!registration.invitationAttachmentSent) {
     return Boolean(currentClassAttachment)
@@ -985,7 +998,7 @@ type PaidForPlace = Pick<PaymentPicture, 'paidForPlace'>
  * trial as a whole is. Both are what the group move reads when it decides to invite a dog it lifts.
  */
 const isInvitedRound = (event: InvitationPaymentEvent, registration: InvitationPaymentRegistration): boolean =>
-  event.state === 'invited' || getEventStateForClass(event, getRegistrationClass(registration)) === 'invited'
+  event.state === 'invited' || getEventStateForClass(event, getRegistrationClass(registration, event)) === 'invited'
 
 /**
  * Whether this participant is still owed the koekutsu of a round that has already gone out: the

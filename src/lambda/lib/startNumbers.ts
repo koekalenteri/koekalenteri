@@ -12,7 +12,7 @@ import {
   startNumbersSlotKey,
   withDayKey,
 } from '../../lib/event'
-import { getRegistrationClass, isScorableRegistration, REGISTRATION_WRITE_CONCURRENCY } from '../../lib/registration'
+import { isScorableRegistration, REGISTRATION_WRITE_CONCURRENCY } from '../../lib/registration'
 import { isObject, mapWithConcurrency } from '../../lib/utils'
 import { audit, registrationAuditKey } from './audit'
 import { httpError, LambdaError } from './lambda'
@@ -67,7 +67,7 @@ const inScope = (
   date?: string,
   time?: StartNumbersTime
 ) =>
-  (!eventClass || getRegistrationClass(registration) === eventClass) &&
+  (!eventClass || registration.class === eventClass) &&
   (!date || (!!registration.group?.date && placementDay(registration.group.date) === date)) &&
   (!time || registration.group?.time === time)
 
@@ -263,12 +263,8 @@ const yieldingHolders = (
       continue
     }
 
-    throw refusedNumber(
-      'startNumberTaken',
-      entry.startNumber,
-      `is already taken`,
-      getRegistrationClass(other) ?? undefined
-    )
+    // The holder's class says where to look; a classless trial has only the one list to look in.
+    throw refusedNumber('startNumberTaken', entry.startNumber, `is already taken`, other.class ?? undefined)
   }
   return yielding
 }

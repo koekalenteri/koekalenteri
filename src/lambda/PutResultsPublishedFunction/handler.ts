@@ -1,7 +1,7 @@
 import type { ClassOrNone, JsonConfirmedEvent } from '../../types'
 import { resultsPublishedAudit } from '../../lib/audit'
 import { isDayKey } from '../../lib/day'
-import { getClassDays, uniqueClasses } from '../../lib/event'
+import { formatTypeOf, getClassDays, uniqueClasses } from '../../lib/event'
 import { groupParticipantsByClass, isRegistrationClass } from '../../lib/registration'
 import { audit, eventAuditKey } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
@@ -40,7 +40,7 @@ const requestedClass = (
 /** The participants of the class, or of a classless event, whose results a publish would put out. */
 const readParticipants = async (confirmedEvent: JsonConfirmedEvent, eventClass: ClassOrNone) => {
   const registrations = await readEventRegistrations(confirmedEvent.id, true)
-  return groupParticipantsByClass(registrations)[eventClass ?? confirmedEvent.eventType] ?? []
+  return groupParticipantsByClass(registrations, confirmedEvent)[eventClass ?? formatTypeOf(confirmedEvent)] ?? []
 }
 
 /**

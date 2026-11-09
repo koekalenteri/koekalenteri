@@ -424,7 +424,7 @@ export const resolveDuplicateRegistration = async ({
   registration,
   ...options
 }: ResolveDuplicateRegistrationOptions): Promise<ResolvedDuplicateRegistration> => {
-  const groupPatches = await repairReadyRegistrationGroups(duplicate.eventId, options.user)
+  const groupPatches = await repairReadyRegistrationGroups(duplicate.eventId, options.confirmedEvent, options.user)
   const isIdempotentRetry =
     typeof registration.creationIdempotencyKey === 'string' &&
     registration.creationIdempotencyKey === duplicate.creationIdempotencyKey

@@ -20,7 +20,7 @@ import EventFormPlaces from './entrySection/EventFormPlaces'
 
 interface Props extends Readonly<Omit<SectionProps, 'changes' | 'event'>> {
   readonly event: EntryEvent
-  readonly eventTypeClasses?: RegistrationClass[]
+  readonly eventTypeClasses?: readonly RegistrationClass[]
   readonly entryDatesChanged?: boolean
   /** The early-bird rate counts from the entry start, and the event has registrations (KOE-1568). */
   readonly entryStartLocked?: boolean

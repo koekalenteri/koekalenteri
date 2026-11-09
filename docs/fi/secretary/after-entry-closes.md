@@ -14,6 +14,8 @@ covers:
   - src/pages/admin/eventViewPage/MessageRecipientsDialog.tsx
   - src/pages/admin/EventStartNumbersPage.tsx
   - src/pages/admin/eventStartNumbersPage/**
+  - src/pages/admin/EventTeamsPage.tsx
+  - src/pages/admin/eventTeamsPage/**
   - src/pages/admin/StartListPage.tsx
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
@@ -173,6 +175,50 @@ arvonta olisi vielä tekemättä. Julkisella starttilistalla iltapäivän koirak
 ilman numeroa. Kun molemmat vuorot on julkaistu, päivä on julkaistu kokonaan.
 
 !shot[StartNumbersPublishing/start-numbers-publishing-half-day] Aamupäivän numerot julkaistaan ennen iltapäivän arvontaa
+
+## Joukkueet
+
+Kokeessa voi olla joukkuekilpailu, olipa koemuoto mikä tahansa. Joukkueet määritellään paneelin
+*{t:eventManagement.actions}* -osion painikkeella **{t:eventManagement.teams}**. Kenttään
+**{t:teams.count}** kirjoitetaan, montako joukkuetta kilpailussa on, ja sivulle tulee yhtä monta
+joukkuetta numeroituina: Joukkue 1, Joukkue 2 ja niin edelleen. Kun määrää pienennetään, joukkueet
+poistuvat lopusta ja niiden koirat vapautuvat muihin joukkueisiin. Jos määrä on nolla, kokeessa ei
+ole joukkuekilpailua.
+
+Joukkueelle voi antaa numeron lisäksi nimen kenttään **{t:teams.name}**, esimerkiksi Team Finland 1.
+Koirat lisätään joukkueeseen valikosta **{t:teams.addDog}**, joka tarjoaa kokeen ilmoittautuneista
+ne, jotka eivät ole peruneet eivätkä jo ole jossakin joukkueessa. Koira voi siis kuulua vain yhteen
+joukkueeseen, ja myös varasijalla oleva koira kelpaa. Joukkueessa voi olla enintään 26 koiraa.
+
+Koira saa joukkueessa tunnuksen siinä järjestyksessä kuin se on lisätty: joukkueen 1 koirat ovat
+1A, 1B, 1C ja niin edelleen. Tunnusta vaihdetaan siirtämällä koiraa rivin nuolilla ylös tai alas,
+ja roskakori poistaa koiran joukkueesta. Kun koira poistetaan, sen perässä olevat siirtyvät
+ylöspäin, joten esimerkiksi 1B:n poistaminen tekee entisestä 1C:stä 1B:n. Jos joukkueen koira
+perutaan, se jää paikalleen merkinnällä *{t:teams.memberCancelled}*, eikä muiden tunnus muutu ennen
+kuin poistat sen itse. Varasijalla olevan koiran kohdalla lukee *{t:teams.memberReserve}*.
+
+!shot[EventTeamsPage/teams] Joukkueet koirineen ja niiden tunnuksineen
+
+Kokeessa, jossa koirat saavat pisteitä (NOWT), jokaisen joukkueen kohdalla on rivi
+*{t:teams.result}*, kun ensimmäinen tulos on kirjattu: joukkueen sijoitus ja pisteet koko kokeesta.
+Pisteet ovat joukkueen koirien pisteet yhteensä, mistä luokasta ja miltä päivältä tahansa, ja
+koira, jolla ei vielä ole tulosta, tuo nolla pistettä. Tasapisteissä olevat joukkueet jakavat sijan.
+Jos ensimmäisestä sijasta on tasapisteitä, niiden joukkueiden kohdalla on valinta
+**{t:teams.runOffWon}**. Merkitse siihen uusintatehtävän voittaja ja tallenna: voittaja nousee
+ensimmäiseksi ja muut jakavat seuraavan sijan. Valinta yhdessä joukkueessa poistaa sen muista. Jos
+tulos myöhemmin korjataan niin, ettei tasapisteitä enää ole, valinnalla ei ole vaikutusta.
+
+!shot[EventTeamsPage/teams-standings] Joukkueiden tulokset: joukkueet 1 ja 2 ovat tasapisteissä, ja joukkue 2 on merkitty uusintatehtävän voittajaksi
+
+Muutokset tallennetaan painikkeella **{t:save}**. **{t:cancel}** palaa tapahtumaan tallentamatta.
+
+Tallennetut joukkueet näkyvät julkisella starttilistalla, joka avautuu joukkueittain
+([Starttilista ja tulokset](/docs/participant/start-list)). Listalla näkyvät vain julkaistut koirat:
+varalla oleva tai vielä julkaisematon koira ei näy, eikä joukkuetta, jonka yhtäkään koiraa ei ole
+julkaistu, näytetä lainkaan. Joukkueiden sijoitukset ja pisteet näkyvät listalla, kun kaikkien
+joukkueiden koirien tulokset on julkaistu ja kaikki koirat ovat listalla: koira, jonka starttinumeroa
+ei ole syötetty, pitää kaikkien joukkueiden tuloksen piilossa. Muutos joukkueisiin, uusintatehtävän voittajaan tai
+tuloksiin päivittyy avoimille starttilistoille itsestään.
 
 ## Peruutukset ja palautukset
 

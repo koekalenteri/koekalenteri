@@ -1,4 +1,5 @@
 import type { TextFieldProps } from '@mui/material/TextField'
+import type { FormatOwner } from '@/lib/event'
 import type { ExerciseSlot } from '@/lib/resultTasks'
 import type { EliminatingFault, EventStation } from '@/types'
 import type { ResultEdit } from './types'
@@ -10,6 +11,7 @@ import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { formatTypeOf } from '@/lib/event'
 import { outcomeReasonEnabled } from '@/lib/features'
 import { scoresAtPosts } from '@/lib/liveFormat'
 import { canBeStopped, eliminatingFaults, hasJudgeStop, STOPPED_RESULT_CODE } from '@/lib/results'
@@ -74,8 +76,11 @@ const cellLayout = (inline: boolean, outcome: string, name: string) => {
 interface Props {
   readonly value: ResultEdit
   readonly disabled?: boolean
-  /** Which rules' hylkäävät virheet to offer. They are not the same list for every event type. */
-  readonly eventType?: string
+  /**
+   * The trial, whose format (`formatTypeOf`) says which rules' hylkäävät virheet to offer. They are not
+   * the same list for every event type.
+   */
+  readonly event?: FormatOwner
   /** The day's posts, which name the places on offer. */
   readonly stations: EventStation[]
   /** Set in a post's own view: the round can only have ended at the post being scored. */
@@ -120,7 +125,7 @@ const withoutOutcome = ({ elimination: _elimination, retirement: _retirement, ..
 export const RoundOutcome = ({
   value,
   disabled,
-  eventType,
+  event,
   stations,
   stationId,
   places,
@@ -129,6 +134,7 @@ export const RoundOutcome = ({
   onChange,
 }: Props) => {
   const { t } = useTranslation()
+  const eventType = event && formatTypeOf(event)
   const labels = outcomeLabelKeys()
   const outcome = outcomeOf(value)
   // A post's own view already knows where it happened; the whole-round view has to ask.

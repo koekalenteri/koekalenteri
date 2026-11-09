@@ -312,7 +312,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
     delete data.emailDeliveryStatus
   }
 
-  const persisted = await persistRegistrationWithGroups(data, existing, user)
+  const persisted = await persistRegistrationWithGroups(data, existing, confirmedEvent, user)
   if (persisted.kind === 'conflict') {
     throw httpError(409, registrationConflictBody(persisted.conflict))
   }

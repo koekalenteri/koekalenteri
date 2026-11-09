@@ -308,14 +308,17 @@ describe('lib/publishing', () => {
   })
 
   describe('groupParticipantsByClass', () => {
-    it('counts only the dogs picked into a group, a classless one under its event type', () => {
+    it('counts only the dogs picked into a group, a classless one under its format', () => {
       const picked = { eventType: 'NOU', group: { key: 'day-1', number: 1 } }
-      const byClass = groupParticipantsByClass([
-        picked,
-        { ...picked, group: { key: 'reserve', number: 1 } },
-        { ...picked, cancelled: true },
-        { eventType: 'NOU' },
-      ])
+      const byClass = groupParticipantsByClass(
+        [
+          picked,
+          { ...picked, group: { key: 'reserve', number: 1 } },
+          { ...picked, cancelled: true },
+          { group: undefined },
+        ],
+        { eventType: 'NOU' }
+      )
 
       expect(byClass).toEqual({ NOU: [picked] })
     })

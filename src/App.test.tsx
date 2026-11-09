@@ -14,7 +14,10 @@ import { flushPromises, makeTestIdToken } from './test-utils/utils'
 
 const { pageMounted } = vi.hoisted(() => ({ pageMounted: vi.fn() }))
 
-vi.mock('@aws-amplify/ui-react', () => import('./pages/global-mocks/auth/idle'))
+vi.mock('@aws-amplify/ui-react-core', async () => {
+  const { Provider } = await import('./pages/global-mocks/auth/idle')
+  return { AuthenticatorProvider: Provider }
+})
 // Settling the session talks to Cognito; its own tests cover it, here only the gate matters.
 vi.mock('./hooks/useAuthSessionInitialization', () => ({ useAuthSessionInitialization: vi.fn(() => true) }))
 // The session refresh runs for real up to the Cognito call.

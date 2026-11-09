@@ -15,7 +15,7 @@ it('names both versions of a NOME-A result as Kennelliitto lists them (KOE-1592)
       <ConflictDialog
         choices={{}}
         conflicts={nomeAConflicts}
-        eventType="NOME-A"
+        event={{ eventType: 'NOME-A' }}
         onChoose={noop}
         onClose={noop}
         onResolve={async () => {}}
@@ -50,7 +50,7 @@ it("shows a post's own scores and how the round ended, on a phone (KOE-1697)", a
             submitted: { tasks: [{ exercise: 1, part: 0, points: 18, updatedAt: at }], updatedAt: at },
           },
         ]}
-        eventType="NOWT"
+        event={{ eventType: 'NOWT' }}
         exercisesOf={() => [1, 2]}
         onChoose={noop}
         onClose={noop}

@@ -1,3 +1,4 @@
+import type { FormatOwner } from '@/lib/event'
 import type { StationTurnItem } from './StationTurnControls'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -37,12 +38,15 @@ const dogs = [
   },
 ]
 
-const renderScoring = (props: Partial<Parameters<typeof StationScoring>[0]> = {}) => {
+/** The screen's props, with the trial named by its type and the official type it may follow. */
+type ScoringProps = Partial<Omit<Parameters<typeof StationScoring>[0], 'event'>> & Partial<FormatOwner>
+
+const renderScoring = ({ eventType = 'NOME-B', officialFormat, ...props }: ScoringProps = {}) => {
   const onSave = vi.fn().mockResolvedValue({ conflicts: [], saved: [{ id: 'run-1' }], unchanged: [] })
-  const tree = (more: Partial<Parameters<typeof StationScoring>[0]> = {}) => (
+  const tree = ({ eventType: moreType, officialFormat: moreFormat, ...more }: ScoringProps = {}) => (
     <AppSnackbarProvider>
       <StationScoring
-        eventType="NOME-B"
+        event={{ eventType: moreType ?? eventType, officialFormat: moreFormat ?? officialFormat }}
         onSave={onSave}
         onTurn={async () => {}}
         registrations={dogs}
@@ -54,7 +58,7 @@ const renderScoring = (props: Partial<Parameters<typeof StationScoring>[0]> = {}
     </AppSnackbarProvider>
   )
   const { rerender } = render(tree())
-  return { onSave, rerender: (more: Partial<Parameters<typeof StationScoring>[0]>) => rerender(tree(more)) }
+  return { onSave, rerender: (more: ScoringProps) => rerender(tree(more)) }
 }
 
 describe('StationScoring', () => {

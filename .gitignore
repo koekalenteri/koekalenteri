@@ -36,3 +36,6 @@ report.html
 
 # Vitest browser-mode run artifacts (screenshot diffs of failed visual tests)
 .vitest-attachments/
+
+# Claude's browser on dev: snapshots and console logs of the Playwright MCP server (KOE-1731)
+/.playwright-mcp/

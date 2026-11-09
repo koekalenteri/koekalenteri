@@ -13,6 +13,7 @@ import type {
 import { createHash } from 'node:crypto'
 import { resultRecomputedAudit, resultSavedAudit } from '../../lib/audit'
 import { objectsDiffer } from '../../lib/diff'
+import { formatTypeOf } from '../../lib/event'
 import { makeArray } from '../../lib/judge'
 import { isResultsLocked } from '../../lib/kennelliittoResults'
 import { scoresAtPosts } from '../../lib/liveFormat'
@@ -310,7 +311,7 @@ const pickSubmittedResult = (
 ): ResultSubmission['eventResult'] => {
   if (!isRecord(value)) throw new LambdaError(422, 'Malformed result submission')
 
-  const { eventType } = confirmedEvent
+  const eventType = formatTypeOf(confirmedEvent)
   const resultCode =
     typeof value.resultCode === 'string'
       ? availableResultCodes(eventType).find((code) => code === value.resultCode)
@@ -408,7 +409,7 @@ export const stationScopedSubmission = (
   registration: JsonRegistration | undefined
 ): ResultSubmission => {
   const { tasks, resultCode, judge } = submission.eventResult
-  const qualitative = !scoresAtPosts(confirmedEvent.eventType)
+  const qualitative = !scoresAtPosts(formatTypeOf(confirmedEvent))
   const exercises = registration && !qualitative ? stationExercises(confirmedEvent, registration, stationId) : []
   const { elimination, retirement } = qualitative
     ? atPost(submission.eventResult, stationId)
@@ -445,7 +446,7 @@ const resolveFor = (
   return {
     ...resolveEventResult(submitted, {
       eventClass,
-      eventType: confirmedEvent.eventType,
+      eventType: formatTypeOf(confirmedEvent),
       round: dogRound(confirmedEvent, rotationDogOf(registration)),
     }),
     updatedAt,
@@ -473,7 +474,7 @@ const classifySubmission = (
   // A post's slice of a scored round is its tasks, the exercises the dog's group does there. Where
   // nothing is scored the post is the whole trial, and its submission is the whole result, compared,
   // versioned and merged as one.
-  const stationId = scoresAtPosts(confirmedEvent.eventType) ? submission.stationId : undefined
+  const stationId = scoresAtPosts(formatTypeOf(confirmedEvent)) ? submission.stationId : undefined
   const exercises = stationId ? stationExercises(confirmedEvent, registration, stationId) : []
   const renewed = outcomeExercises(
     stored,
@@ -587,7 +588,7 @@ const planSubmission = (
     throw new LambdaError(422, `Registration '${submission.id}' did not run`)
   }
 
-  if (scoresAtPosts(confirmedEvent.eventType)) {
+  if (scoresAtPosts(formatTypeOf(confirmedEvent))) {
     const { stationId } = submission
     validateSubmittedTasks(
       dogRound(confirmedEvent, rotationDogOf(registration)),
@@ -599,8 +600,9 @@ const planSubmission = (
   // The alphabet is the event type's own: a pass/fail test awards 1 or 0 and nothing else, so a code
   // outside it is a client bug to refuse, not a judgement to store.
   const { resultCode } = submission.eventResult
-  if (resultCode && !availableResultCodes(confirmedEvent.eventType).includes(resultCode)) {
-    throw new LambdaError(422, `Result code '${resultCode}' is not valid for ${confirmedEvent.eventType}`)
+  const formatType = formatTypeOf(confirmedEvent)
+  if (resultCode && !availableResultCodes(formatType).includes(resultCode)) {
+    throw new LambdaError(422, `Result code '${resultCode}' is not valid for ${formatType}`)
   }
 
   return {
@@ -662,7 +664,7 @@ export const processResultSubmissions = async (
       auditKey: registrationAuditKey({ eventId, id: submission.id }),
       ...resultSavedAudit(
         outcome.hadStored,
-        auditResultText(eventResult, confirmedEvent.eventType, registration.class ?? undefined)
+        auditResultText(eventResult, formatTypeOf(confirmedEvent), registration.class ?? undefined)
       ),
       user: userName,
     })
@@ -808,7 +810,7 @@ const writeRecomputed = async (
   await audit({
     auditKey: registrationAuditKey({ eventId, id }),
     ...resultRecomputedAudit(
-      auditResultText(eventResult, context.after.eventType, registration.class ?? undefined),
+      auditResultText(eventResult, formatTypeOf(context.after), registration.class ?? undefined),
       droppedExercises
     ),
     user: context.userName,
@@ -842,7 +844,7 @@ export const recomputeEventResults = async ({
   timestamp,
   userName,
 }: ResultRecomputeRequest): Promise<Patch<JsonRegistration>[]> => {
-  if (!existing || !scoresAtPosts(data.eventType)) return []
+  if (!existing || !scoresAtPosts(formatTypeOf(data))) return []
   if (!objectsDiffer(roundInputsOf(existing), roundInputsOf(data))) return []
 
   const context: RecomputeContext = { after: data, before: existing, timestamp, userName }
