@@ -56,7 +56,8 @@ describe('useDebouncedCallback', () => {
     expect(onChange).toHaveBeenCalledTimes(1)
   })
 
-  it('drops a call still pending when the field goes', () => {
+  // The timer goes with the field: only a focusout delivers the value then.
+  it('drops a call still pending when the field goes without a focusout', () => {
     const onChange = vi.fn()
     const { rerender } = render(<Form onChange={onChange} open />)
     type('a')
@@ -67,9 +68,9 @@ describe('useDebouncedCallback', () => {
   })
 
   // Chrome takes the focus off a field as the field is removed, and fires focusout on it while it is still
-  // in the page; jsdom does not. Esc closes a dialog that way right after its draft was dropped, and the
-  // value must not land in the dropped draft (KOE-1700).
-  it('drops a call still pending when the field goes, also when the browser moves focus off it as it goes', () => {
+  // in the page; jsdom does not. A value typed just before the field goes is then still delivered: an
+  // internal note saves as it is typed, and closing its dialog must not lose it (KOE-1700).
+  it('delivers a pending call when the browser moves focus off the field as it removes it', () => {
     const removeChild = Node.prototype.removeChild
     const blurOnRemove = vi.spyOn(Node.prototype, 'removeChild').mockImplementation(function <T extends Node>(
       this: Node,
@@ -85,6 +86,7 @@ describe('useDebouncedCallback', () => {
 
     rerender(<Form onChange={onChange} open={false} />)
     blurOnRemove.mockRestore()
-    expect(onChange).not.toHaveBeenCalled()
+    expect(onChange).toHaveBeenCalledTimes(1)
+    expect(onChange).toHaveBeenCalledWith('a')
   })
 })

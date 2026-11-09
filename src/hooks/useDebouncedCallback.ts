@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 
 interface DebounceOptions {
   /**
@@ -30,12 +30,8 @@ export default function useDebouncedCallback<T extends (...args: never[]) => unk
     run?.()
   }, [])
 
-  // A call still pending when the component goes is dropped, never delivered. A layout cleanup, because
-  // React runs it before it removes the component's elements: Chrome takes the focus off a field as it is
-  // removed, and the focusout that would deliver the call then finds no listener. A dialog closed with Esc
-  // right after typing has already dropped its draft, and the value must not land in it (KOE-1700).
   // biome-ignore lint/correctness/useExhaustiveDependencies: we need to clear the timeout when wait changes
-  useLayoutEffect(
+  useEffect(
     () => () => {
       // With nothing pending, a flush only clears the timer and the listener.
       pending.current = undefined
