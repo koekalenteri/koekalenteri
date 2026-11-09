@@ -12,19 +12,7 @@ import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
-
-/** Text for screen readers only: the column of buttons has a name, and none to look at. */
-const VISUALLY_HIDDEN = {
-  border: 0,
-  clip: 'rect(0 0 0 0)',
-  height: 1,
-  margin: -1,
-  overflow: 'hidden',
-  padding: 0,
-  position: 'absolute',
-  whiteSpace: 'nowrap',
-  width: 1,
-} as const
+import { SCREEN_READER_ONLY } from '../../../components/screenReaderOnly'
 
 /**
  * A short value is read at a glance only on one line. Paikka, Järjestäjä, Kennelliitto's trial name and
@@ -66,7 +54,7 @@ export default function KcIdChoiceDialog({ choices, linkedKcGuids, onClose, onSe
               <TableCell>{t('event.kcIdChoiceOrganizer')}</TableCell>
               <TableCell>{t('event.kcIdChoiceStatus')}</TableCell>
               <TableCell>
-                <span style={VISUALLY_HIDDEN}>{t('event.kcIdSelect')}</span>
+                <span style={SCREEN_READER_ONLY}>{t('event.kcIdSelect')}</span>
               </TableCell>
             </TableRow>
           </TableHead>
