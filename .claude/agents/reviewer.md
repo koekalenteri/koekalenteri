@@ -110,7 +110,9 @@ takes away. Findings:
   function and each inline block of more than a few lines, `git grep` `src/lib` and
   `src/lambda/lib` for one that computes the same thing, since a function semindex does not list
   can still be a copy. Name what you find (a second deep merge beside `patchMerge`, a
-  hand-written task filter beside `stationTasks`);
+  hand-written task filter beside `stationTasks`), and say for each such finding who found it:
+  `semindex`, `git grep` or `both`. Under what you looked at, say whether `semindex diff` ran
+  and how many functions it listed;
 - an export the diff leaves without a production caller: for each call the diff removes or
   moves, `git grep` the callee; when only its own file and tests still use it, it goes, with
   those tests. knip does not catch this, since a test import counts as a use for it.
