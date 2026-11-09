@@ -1,7 +1,9 @@
 import type { EventTeam, TeamCompetition } from '../types'
 import {
+  entryTeamError,
   isTeamCountedDay,
   MAX_TEAM_MEMBERS,
+  normalizeTeamName,
   pruneTeamDays,
   teamCompetitionDiffers,
   teamCompetitionErrors,
@@ -167,6 +169,44 @@ describe('teamCompetitionDiffers (KOE-1720)', () => {
     ['a counted day removed', { days: ['2026-08-01', '2026-08-02'] }, { days: ['2026-08-01'] }],
   ])('reads %s as a change of the list', (_name, a, b) => {
     expect(teamCompetitionDiffers(a, b)).toBe(true)
+  })
+})
+
+// KOE-1721: the team a participant names at entry, when the event asks for one.
+describe('normalizeTeamName (KOE-1721)', () => {
+  it('trims the name and keeps one space between its words', () => {
+    expect(normalizeTeamName('  Savon \t Nuuskut\u00a0 1 ')).toBe('Savon Nuuskut 1')
+    expect(normalizeTeamName(' ')).toBe('')
+  })
+})
+
+describe('entryTeamError (KOE-1721)', () => {
+  const asks = { teamCompetition: { askAtEntry: true } }
+
+  it('accepts a named team where the event asks for one, and no team anywhere', () => {
+    expect(entryTeamError(asks, { name: 'Savon Nuuskut 1' })).toBeUndefined()
+    expect(entryTeamError(asks, { name: 'Savon Nuuskut 1', primary: true })).toBeUndefined()
+    expect(entryTeamError(asks, { name: ` ${'N'.repeat(60)} ` })).toBeUndefined()
+    expect(entryTeamError({}, undefined)).toBeUndefined()
+    expect(entryTeamError({}, null)).toBeUndefined()
+  })
+
+  it.each([
+    ['without asking for it', {}, { name: 'Savon Nuuskut 1' }, 'notAsked'],
+    ['with the question off', { teamCompetition: { askAtEntry: false } }, { name: 'Savon Nuuskut 1' }, 'notAsked'],
+    ['without a name', asks, { name: '  ' }, 'noName'],
+    ['with a name longer than sixty characters', asks, { name: 'N'.repeat(61) }, 'tooLong'],
+    ['with a name that is not text', asks, { name: 1 }, 'invalid'],
+    ['with a first-team mark that is not true', asks, { name: 'Savon Nuuskut 1', primary: false }, 'invalid'],
+  ])('refuses a team named %s', (_name, event, teamEntry, error) => {
+    expect(entryTeamError(event, teamEntry)).toBe(error)
+  })
+
+  it('keeps a stored team as it is where the event no longer asks for one', () => {
+    const stored = { name: 'Savon Nuuskut 1' }
+
+    expect(entryTeamError({}, { name: ' Savon  Nuuskut 1' }, stored)).toBeUndefined()
+    expect(entryTeamError({}, { name: 'Savon Nuuskut 2' }, stored)).toBe('notAsked')
   })
 })
 

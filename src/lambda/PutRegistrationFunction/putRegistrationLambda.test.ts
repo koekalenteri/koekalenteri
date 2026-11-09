@@ -2190,6 +2190,79 @@ describe('putRegistrationLabmda', () => {
     })
   })
 
+  // KOE-1721: the team a participant names at entry, written only where the event asks for one.
+  describe('the team named at entry (KOE-1721)', () => {
+    const { id: _1, paidAmount: _2, paidAt: _3, paymentStatus: _4, ...entry } = registrationWithStaticDatesAndClass
+    const asking = (askAtEntry: boolean) => {
+      const event = JSON.parse(JSON.stringify(eventWithStaticDatesAndClass))
+      mockGetLiveEvent.mockResolvedValueOnce({ ...event, teamCompetition: { askAtEntry } })
+    }
+
+    beforeEach(() => {
+      vi.setSystemTime(eventWithStaticDatesAndClass.entryStartDate)
+    })
+
+    it('stores the team of a new entry, its name tidied, where the event asks for one', async () => {
+      asking(true)
+
+      const res = await putRegistrationLabmda(
+        constructAPIGwEvent({ ...entry, state: 'ready', teamEntry: { name: '  Savon   Nuuskut 1 ' } })
+      )
+
+      expect(res.statusCode).toBe(200)
+      expect(mockWriteRegistration).toHaveBeenCalledWith(
+        expect.objectContaining({ teamEntry: { name: 'Savon Nuuskut 1' } })
+      )
+    })
+
+    it.each([
+      ['an event that does not ask for one', false, { name: 'Savon Nuuskut 1' }, 'notAsked'],
+      ['no name', true, { name: ' ' }, 'noName'],
+    ])('refuses a team named on %s', async (_name, askAtEntry, teamEntry, error) => {
+      asking(askAtEntry)
+
+      const res = await putRegistrationLabmda(constructAPIGwEvent({ ...entry, state: 'ready', teamEntry }))
+
+      expect(res.statusCode).toBe(400)
+      expect(JSON.parse(res.body)).toMatchObject({ error: 'invalidTeamEntry', reason: error })
+      expect(mockWriteRegistration).not.toHaveBeenCalled()
+    })
+
+    it('stores the name and the first-team mark alone', async () => {
+      asking(true)
+
+      const res = await putRegistrationLabmda(
+        constructAPIGwEvent({ ...entry, state: 'ready', teamEntry: { extra: 'x', name: 'Ykkönen', primary: true } })
+      )
+
+      expect(res.statusCode).toBe(200)
+      expect(mockWriteRegistration).toHaveBeenCalledWith(
+        expect.objectContaining({ teamEntry: { name: 'Ykkönen', primary: true } })
+      )
+    })
+
+    it('refuses a name longer than a team name may be', async () => {
+      asking(true)
+
+      const res = await putRegistrationLabmda(
+        constructAPIGwEvent({ ...entry, state: 'ready', teamEntry: { name: 'N'.repeat(61) } })
+      )
+
+      expect(res.statusCode).toBe(400)
+      expect(JSON.parse(res.body)).toMatchObject({ error: 'invalidTeamEntry', reason: 'tooLong' })
+      expect(mockWriteRegistration).not.toHaveBeenCalled()
+    })
+
+    it('refuses a team that is not a named object', async () => {
+      asking(true)
+
+      const res = await putRegistrationLabmda(constructAPIGwEvent({ ...entry, state: 'ready', teamEntry: 'Nuuskut' }))
+
+      expect(res.statusCode).toBe(400)
+      expect(mockWriteRegistration).not.toHaveBeenCalled()
+    })
+  })
+
   // The chip the registrant types must be one Kennelliitto takes (KOE-1650); the one Kennelliitto
   // itself gave the dog, and the one a stored entry already holds, pass as they are.
   describe('microchip (KOE-1650)', () => {
@@ -2396,6 +2469,7 @@ describe('putRegistrationLabmda', () => {
       ['the class', 'entry', { class: 'AVO' }],
       ['the days', 'entry', { dates: [{ date: '2021-02-11', time: 'ip' }] }],
       ['the reserve wish', 'entry', { reserve: 'DAY' }],
+      ['the team named at entry (KOE-1721)', 'entry', { teamEntry: { name: 'Savon Nuuskut 1' } }],
       ['the dog', 'dog', { dog: { ...picked.dog, name: 'Another dog' } }],
       ['the breeder', 'people', { breeder: { name: 'Another breeder' } }],
       ['the owner', 'people', { owner: { ...picked.owner, name: 'Another owner' } }],

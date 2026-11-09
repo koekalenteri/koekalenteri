@@ -39,6 +39,7 @@ import { participantResponse } from '../lib/payment'
 import {
   applyOwnerOverrides,
   assertEntryClass,
+  assertEntryTeam,
   authorizeRegistrationEdit,
   getRegistration,
   getRegistrationEditToken,
@@ -290,6 +291,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   const locks = existing ? getParticipantFieldLocks(confirmedEvent, existing) : NO_PARTICIPANT_FIELD_LOCKS
   assertParticipantFieldsUnlocked(existing, data, locks)
   assertEntryClass(data, existing, confirmedEvent)
+  assertEntryTeam(data, existing, confirmedEvent)
   await assertTypedRegNo(data, existing)
   await assertTypedMicrochip(data, existing)
 

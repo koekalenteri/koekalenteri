@@ -35,6 +35,7 @@ import {
   resolveOwnerPerson,
 } from '../../lib/registration'
 import { withRegistrationDayKeys } from '../../lib/storedDays'
+import { entryTeamError, storedTeamEntry } from '../../lib/team'
 import { isObject, mapWithConcurrency } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { audit, eventAuditKey, registrationAuditKey } from './audit'
@@ -628,4 +629,22 @@ export const assertEntryClass = (
   if (!known) {
     throw httpError(400, { error: 'invalidClass', message: `Bad request: the event runs no class ${eventClass}` })
   }
+}
+
+/**
+ * The team an entry names (KOE-1721), held to the one rule both the participant's and the secretary's
+ * save read (`entryTeamError`): a name, written only where the event asks for one. A stored team stays
+ * the entry's to save as it is. It is stored as its tidied name and its first-team mark alone
+ * (`storedTeamEntry`), whatever else the request carried.
+ */
+export const assertEntryTeam = (
+  data: JsonRegistration,
+  existing: JsonRegistration | undefined,
+  event: Pick<JsonConfirmedEvent, 'teamCompetition'>
+) => {
+  const reason = entryTeamError(event, data.teamEntry, existing?.teamEntry)
+  if (reason) {
+    throw httpError(400, { error: 'invalidTeamEntry', message: 'Bad request: the team cannot be named', reason })
+  }
+  if (data.teamEntry) data.teamEntry = storedTeamEntry(data.teamEntry)
 }

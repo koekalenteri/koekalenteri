@@ -58,6 +58,7 @@ export const PARTICIPANT_FIELD_SECTIONS = {
   reserve: 'entry',
   results: 'results',
   selectedCost: 'payment',
+  teamEntry: 'entry',
 } as const satisfies Record<PublicRegistrationFieldName, Exclude<ParticipantLockSection, 'membership'> | 'free'>
 
 /** What the locks are worked out from: the stored entry, never the participant's draft of it. */
@@ -66,8 +67,8 @@ type LockFacts = { messagesSent?: { picked?: boolean } | null; paidAt?: unknown 
 /**
  * What of an entry the participant may no longer change, by the rule both their form and
  * PutRegistration read (KOE-1588):
- * - the class, the days and the reserve wish once the entry has closed (on the trial days too) or the
- *   dog has been picked;
+ * - the class, the days, the reserve wish and the team named at entry (KOE-1721) once the entry has
+ *   closed (on the trial days too) or the dog has been picked;
  * - the dog once picked or paid;
  * - the breeder, the owners and the handler, and the manual results, once picked;
  * - the memberships, the cost and the optional costs, and the terms, once paid.
@@ -153,6 +154,7 @@ export type LockableRegistration = {
   reserve?: string
   results?: DatedResult[]
   selectedCost?: string
+  teamEntry?: { name?: string; primary?: boolean } | null
 }
 
 /**
@@ -195,8 +197,9 @@ const PROJECTED_SECTIONS: readonly ProjectedSection[] = ['entry', 'dog', 'people
 /** The sections other than membership, as the values they are compared by. */
 const SECTION_PROJECTIONS: Record<ProjectedSection, (r: LockableRegistration) => object> = {
   dog: (r) => ({ dog: dogWithoutResults(r.dog) }),
-  // The form sorts the days; their order is no change.
-  entry: (r) => ({ class: r.class, dates: sortedDates(r.dates), reserve: r.reserve }),
+  // The form sorts the days; their order is no change. The team named at entry is a wish of the entry's
+  // own (KOE-1721), and closes with it.
+  entry: (r) => ({ class: r.class, dates: sortedDates(r.dates), reserve: r.reserve, teamEntry: r.teamEntry }),
   payment: (r) => ({
     agreeToTerms: r.agreeToTerms,
     optionalCosts: r.optionalCosts ? [...r.optionalCosts].sort((a, b) => a - b) : r.optionalCosts,
