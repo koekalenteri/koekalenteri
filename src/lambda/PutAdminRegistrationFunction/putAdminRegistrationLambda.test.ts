@@ -264,6 +264,27 @@ describe('putAdminRegistrationLambda', () => {
       )
     })
 
+    it("stores an edit's team as its name and first-team mark alone, and refuses a name too long", async () => {
+      mockGetEvent.mockResolvedValue({ cost: 40, organizer: { id: 'org-1' }, teamCompetition: { askAtEntry: true } })
+
+      const stored = await putAdminRegistrationLambda(
+        edit([{ path: ['teamEntry'], type: 'CREATE', value: { extra: { deep: true }, name: 'Ykkönen' } }])
+      )
+
+      expect(stored.statusCode).toBe(200)
+      expect(mockPatchRegistration).toHaveBeenCalledWith(
+        'event123',
+        'reg456',
+        expect.anything(),
+        expect.objectContaining({ teamEntry: { name: 'Ykkönen' } })
+      )
+
+      const tooLong = await putAdminRegistrationLambda(withTeam({ name: 'N'.repeat(61) }))
+
+      expect(tooLong.statusCode).toBe(400)
+      expect(JSON.parse(tooLong.body)).toMatchObject({ reason: 'tooLong' })
+    })
+
     it('refuses a team named on an event that does not ask for one', async () => {
       const result = await putAdminRegistrationLambda(withTeam({ name: 'Savon Nuuskut 1' }))
 

@@ -184,6 +184,7 @@ describe('entryTeamError (KOE-1721)', () => {
   it('accepts a named team where the event asks for one, and no team anywhere', () => {
     expect(entryTeamError(asks, { name: 'Savon Nuuskut 1' })).toBeUndefined()
     expect(entryTeamError(asks, { name: 'Savon Nuuskut 1', primary: true })).toBeUndefined()
+    expect(entryTeamError(asks, { name: ` ${'N'.repeat(60)} ` })).toBeUndefined()
     expect(entryTeamError({}, undefined)).toBeUndefined()
     expect(entryTeamError({}, null)).toBeUndefined()
   })
@@ -192,6 +193,7 @@ describe('entryTeamError (KOE-1721)', () => {
     ['without asking for it', {}, { name: 'Savon Nuuskut 1' }, 'notAsked'],
     ['with the question off', { teamCompetition: { askAtEntry: false } }, { name: 'Savon Nuuskut 1' }, 'notAsked'],
     ['without a name', asks, { name: '  ' }, 'noName'],
+    ['with a name longer than sixty characters', asks, { name: 'N'.repeat(61) }, 'tooLong'],
     ['with a name that is not text', asks, { name: 1 }, 'invalid'],
     ['with a first-team mark that is not true', asks, { name: 'Savon Nuuskut 1', primary: false }, 'invalid'],
   ])('refuses a team named %s', (_name, event, teamEntry, error) => {

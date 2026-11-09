@@ -50,6 +50,24 @@ describe('getRegistrationChanges', () => {
     })
   })
 
+  it('reports a change of the first-team mark alone (KOE-1721)', () => {
+    const before = { ...existing(), teamEntry: { name: 'Ykkönen' } }
+
+    expect(getRegistrationChanges(before, { ...before, teamEntry: { name: 'Ykkönen', primary: true } }, event)).toEqual(
+      {
+        changes: [
+          {
+            field: 'teamEntry',
+            labelKey: 'registration.teamEntry',
+            next: { text: 'Ensisijainen joukkue: kyllä' },
+            previous: { state: 'empty' },
+          },
+        ],
+        messageKey: 'audit.changed',
+      }
+    )
+  })
+
   it('reports nothing when nothing the trail follows changed', () => {
     expect(changesOf({ modifiedAt: '2026-01-01T00:00:00.000Z' })).toBeUndefined()
   })

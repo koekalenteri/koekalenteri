@@ -2150,8 +2150,6 @@ describe('putRegistrationLabmda', () => {
     })
   })
 
-  // The chip the registrant types must be one Kennelliitto takes (KOE-1650); the one Kennelliitto
-  // itself gave the dog, and the one a stored entry already holds, pass as they are.
   // KOE-1721: the team a participant names at entry, written only where the event asks for one.
   describe('the team named at entry (KOE-1721)', () => {
     const { id: _1, paidAmount: _2, paidAt: _3, paymentStatus: _4, ...entry } = registrationWithStaticDatesAndClass
@@ -2190,6 +2188,31 @@ describe('putRegistrationLabmda', () => {
       expect(mockWriteRegistration).not.toHaveBeenCalled()
     })
 
+    it('stores the name and the first-team mark alone', async () => {
+      asking(true)
+
+      const res = await putRegistrationLabmda(
+        constructAPIGwEvent({ ...entry, state: 'ready', teamEntry: { extra: 'x', name: 'Ykkönen', primary: true } })
+      )
+
+      expect(res.statusCode).toBe(200)
+      expect(mockWriteRegistration).toHaveBeenCalledWith(
+        expect.objectContaining({ teamEntry: { name: 'Ykkönen', primary: true } })
+      )
+    })
+
+    it('refuses a name longer than a team name may be', async () => {
+      asking(true)
+
+      const res = await putRegistrationLabmda(
+        constructAPIGwEvent({ ...entry, state: 'ready', teamEntry: { name: 'N'.repeat(61) } })
+      )
+
+      expect(res.statusCode).toBe(400)
+      expect(JSON.parse(res.body)).toMatchObject({ error: 'invalidTeamEntry', reason: 'tooLong' })
+      expect(mockWriteRegistration).not.toHaveBeenCalled()
+    })
+
     it('refuses a team that is not a named object', async () => {
       asking(true)
 
@@ -2200,6 +2223,8 @@ describe('putRegistrationLabmda', () => {
     })
   })
 
+  // The chip the registrant types must be one Kennelliitto takes (KOE-1650); the one Kennelliitto
+  // itself gave the dog, and the one a stored entry already holds, pass as they are.
   describe('microchip (KOE-1650)', () => {
     const { id: _1, paidAmount: _2, paidAt: _3, paymentStatus: _4, ...entry } = registrationWithStaticDatesAndClass
     const withChip = (rfid: string) => ({ ...entry, dog: { ...entry.dog, rfid }, state: 'ready' })

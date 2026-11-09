@@ -67,6 +67,12 @@ const yesNo = (value: boolean | undefined, t: Translate) => {
   return value ? t('audit.yes') : t('audit.no')
 }
 
+/** The team named at entry (KOE-1721): its name, and the first-team mark where it has one. */
+const teamEntryLines = (teamEntry: JsonRegistration['teamEntry'], t: Translate): Line[] => {
+  const name: Line = ['', teamEntry?.name ?? '']
+  return teamEntry?.primary ? [name, [t('registration.teamEntryPrimary'), yesNo(true, t)]] : [name]
+}
+
 const personLines = (person: Partial<RegistrationPerson> | undefined, t: Translate): Line[] =>
   person
     ? [
@@ -153,7 +159,7 @@ const AUDITED_FIELDS: readonly AuditedFieldText[] = [
     labelKey: 'registration.reserve',
     lines: (r, _e, t) => single(r.reserve ? t(`registration.reserveChoises.${r.reserve}`) : ''),
   },
-  { field: 'teamEntry', labelKey: 'registration.teamEntry', lines: (r) => single(r.teamEntry?.name) },
+  { field: 'teamEntry', labelKey: 'registration.teamEntry', lines: (r, _e, t) => teamEntryLines(r.teamEntry, t) },
   { field: 'dog', labelKey: 'registration.dog', lines: (r, _e, t) => (r.dog ? dogLines(r.dog, t) : []) },
   { field: 'breeder', labelKey: 'registration.breeder', lines: (r, _e, t) => breederLines(r.breeder, t) },
   { field: 'owners', labelKey: 'registration.owners', lines: (r, _e, t) => ownerLines(r, t) },

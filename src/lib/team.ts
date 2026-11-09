@@ -133,8 +133,14 @@ export const teamCompetitionDiffers = (
 /** A team's name as it is stored: trimmed, with one space between its words (KOE-1721). */
 export const normalizeTeamName = (name: string): string => name.replaceAll(/\s+/gu, ' ').trim()
 
-/** Why an entry's team cannot be stored: no question asked, no name, or not a team's shape (KOE-1721). */
-type EntryTeamError = 'invalid' | 'noName' | 'notAsked'
+/** The longest name a team named at entry may have, once tidied (KOE-1721). */
+const MAX_TEAM_NAME_LENGTH = 60
+
+/**
+ * Why an entry's team cannot be stored (KOE-1721): not a team's shape, no question asked, no name, or a
+ * name longer than `MAX_TEAM_NAME_LENGTH`.
+ */
+type EntryTeamError = 'invalid' | 'noName' | 'notAsked' | 'tooLong'
 
 const isTeamEntry = (value: unknown): value is TeamEntry =>
   isObject(value) && typeof value.name === 'string' && (value.primary === undefined || value.primary === true)
@@ -155,5 +161,15 @@ export const entryTeamError = (
   const name = normalizeTeamName(teamEntry.name)
   if (stored && name === normalizeTeamName(stored.name) && teamEntry.primary === stored.primary) return undefined
   if (event.teamCompetition?.askAtEntry !== true) return 'notAsked'
-  return name ? undefined : 'noName'
+  if (!name) return 'noName'
+  return name.length > MAX_TEAM_NAME_LENGTH ? 'tooLong' : undefined
 }
+
+/**
+ * The team named at entry as it is stored (KOE-1721): the tidied name, and the first-team mark where it
+ * has one, nothing else the request carried.
+ */
+export const storedTeamEntry = ({ name, primary }: TeamEntry): TeamEntry => ({
+  name: normalizeTeamName(name),
+  ...(primary ? { primary } : {}),
+})
