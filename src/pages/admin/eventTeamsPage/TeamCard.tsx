@@ -47,7 +47,7 @@ const NO_SERIES = ''
 
 interface StandingProps {
   readonly standing?: TeamStanding
-  readonly countedDays?: Props['countedDays']
+  readonly countedDays: Props['countedDays']
   readonly runOffWon: boolean
   readonly onRunOffChange: Props['onRunOffChange']
 }

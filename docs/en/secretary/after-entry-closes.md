@@ -20,7 +20,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: cd0b76
+sourceHash: d8beb9
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -220,7 +220,7 @@ If a result is later corrected so that the teams are no longer level, the mark h
 ### Series
 
 A team competition may have several series, for example an open series and a breed series. Series
-are added above the teams, under *{t:teams.series}*, with **{t:teams.addSeries}**. Each series is
+are added above the teams, in the panel *{t:teams.settings}* under *{t:teams.series}*, with **{t:teams.addSeries}**. Each series is
 given a name in Finnish and, if wanted, in English; the English name shows on the start list in
 English. When there are series, each team has the choice **{t:teams.teamSeries}**, which puts the
 team in a series. A team can also be in no series (*{t:teams.noSeries}*).
@@ -235,10 +235,11 @@ shows its current name.
 ### Days counted
 
 In a trial of several days you can choose which days' results count for the teams' points, for
-example a derby's qualifying day but not its final. The choice is where the series are, under
-*{t:teams.countedDays}*, and it shows once the trial has at least one team or series. By default
-every day counts. Clearing a day leaves its results out of the teams' points; the last day counted
-cannot be cleared. Once every day is chosen again, every day counts, also a day added to the trial
+example a derby's qualifying day but not its final. The choice is in the same panel as the series,
+*{t:teams.settings}*, under *{t:teams.countedDays}*, and the panel shows once the trial has at least
+one team or series. By default every day counts. Clearing a day leaves its results out of the teams'
+points. At least one day must be chosen, so the last day counted cannot be cleared: to switch the
+day, choose the new day first and then clear the old one. Once every day is chosen again, every day counts, also a day added to the trial
 later. If the trial's days change, the days it no longer has drop out of the choice, and a copy
 moves the choice with the trial.
 

@@ -217,7 +217,7 @@ tulos myöhemmin korjataan niin, ettei tasapisteitä enää ole, valinnalla ei o
 ### Sarjat
 
 Joukkuekilpailussa voi olla useita sarjoja, esimerkiksi avoin sarja ja rotusarja. Sarjat lisätään
-joukkueiden yläpuolelta kohdasta *{t:teams.series}* painikkeella **{t:teams.addSeries}**. Jokaiselle
+joukkueiden yläpuolelta paneelista *{t:teams.settings}* kohdasta *{t:teams.series}* painikkeella **{t:teams.addSeries}**. Jokaiselle
 sarjalle annetaan nimi suomeksi ja halutessa englanniksi; englanninkielinen nimi näkyy
 englanninkielisellä starttilistalla. Kun sarjoja on, jokaisen joukkueen kohdalla on valinta
 **{t:teams.teamSeries}**, josta joukkue liitetään sarjaan. Joukkue voi myös olla sarjoihin
@@ -233,10 +233,12 @@ tahansa; starttilistalla näkyy aina sarjan nykyinen nimi.
 ### Lasketut päivät
 
 Monipäiväisessä kokeessa voi valita, minkä päivien tulokset lasketaan joukkueiden pisteisiin,
-esimerkiksi derbyn karsintapäivän mutta ei finaalia. Valinta on samassa kohdassa kuin sarjat,
-otsikon *{t:teams.countedDays}* alla, ja se tulee näkyviin, kun kokeella on vähintään yksi joukkue
-tai sarja. Oletuksena kaikki päivät lasketaan. Kun päivän valinnan poistaa, sen päivän tulokset
-eivät kuulu joukkueille; viimeistä laskettavaa päivää ei voi poistaa. Kun kaikki päivät on taas
+esimerkiksi derbyn karsintapäivän mutta ei finaalia. Valinta on samassa paneelissa kuin sarjat,
+*{t:teams.settings}*, otsikon *{t:teams.countedDays}* alla, ja paneeli tulee näkyviin, kun kokeella
+on vähintään yksi joukkue tai sarja. Oletuksena kaikki päivät lasketaan. Kun päivän valinnan
+poistaa, sen päivän tulokset eivät kuulu joukkueille. Vähintään yhden päivän on oltava valittuna,
+joten viimeistä laskettavaa päivää ei voi poistaa: jos haluat vaihtaa päivän, valitse ensin uusi
+päivä ja poista sitten vanha. Kun kaikki päivät on taas
 valittu, lasketaan kaikki päivät, myös päivä, joka kokeeseen myöhemmin lisätään. Jos kokeen päiviä
 muutetaan, päivät, joita kokeessa ei enää ole, poistuvat valinnasta, ja kopio siirtää valinnan
 kokeen mukana.

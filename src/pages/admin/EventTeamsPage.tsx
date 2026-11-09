@@ -13,10 +13,9 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
-import { eventDates } from '@/lib/event'
 import { withStoredTotals } from '@/lib/results'
 import { teamSeriesName } from '@/lib/startListView'
-import { isTeamCandidate, teamCompetitionErrors, teamCountedDays } from '@/lib/team'
+import { isTeamCandidate, teamCompetitionErrors, teamCountedDays, teamTrialDays } from '@/lib/team'
 import { teamStandings, withRunOffWinner } from '@/lib/teamStandings'
 import { Path } from '@/routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
@@ -128,7 +127,7 @@ export default function EventTeamsPage() {
 
   // The trial's days for the choice of those the teams count, and the days a team's points come from
   // where the choice leaves some out (KOE-1726).
-  const trialDays = useMemo(() => (event ? eventDates(event) : []), [event])
+  const trialDays = useMemo(() => (event ? teamTrialDays(event) : []), [event])
   const countedDays = useMemo(() => (event ? teamCountedDays(event) : []), [event])
 
   // A series the save would refuse, unnamed in Finnish or given an id twice, keeps the save closed: the

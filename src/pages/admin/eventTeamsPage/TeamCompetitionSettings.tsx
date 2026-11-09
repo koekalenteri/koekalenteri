@@ -3,16 +3,16 @@ import Add from '@mui/icons-material/Add'
 import DeleteOutline from '@mui/icons-material/DeleteOutlined'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
-import FormControl from '@mui/material/FormControl'
+import Divider from '@mui/material/Divider'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormGroup from '@mui/material/FormGroup'
-import FormLabel from '@mui/material/FormLabel'
 import IconButton from '@mui/material/IconButton'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { nanoid } from 'nanoid'
+import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LANGUAGES } from '@/types'
 
@@ -43,6 +43,13 @@ const withDays = (
   return days.length < trialDays.length ? { ...rest, days: trialDays.filter((day) => days.includes(day)) } : rest
 }
 
+/** A part of the settings, one level under the panel's heading. */
+const SectionHeading = ({ children, id }: { readonly children: string; readonly id?: string }) => (
+  <Typography id={id} variant="subtitle1" component="h3" sx={{ fontWeight: 500 }}>
+    {children}
+  </Typography>
+)
+
 interface CountedDaysProps {
   readonly teamCompetition?: TeamCompetition
   readonly trialDays: readonly DayKey[]
@@ -55,16 +62,17 @@ interface CountedDaysProps {
  */
 const CountedDays = ({ teamCompetition, trialDays, onChange }: CountedDaysProps) => {
   const { t } = useTranslation()
+  const headingId = useId()
   const chosen = (teamCompetition?.days ?? []).filter((day) => trialDays.includes(day))
   const counted = chosen.length ? chosen : trialDays
 
   return (
-    <FormControl component="fieldset" sx={{ pt: 1 }}>
-      <FormLabel component="legend">{t('teams.countedDays')}</FormLabel>
+    <Stack spacing={1}>
+      <SectionHeading id={headingId}>{t('teams.countedDays')}</SectionHeading>
       <Typography variant="body2" sx={{ color: 'text.secondary' }}>
         {t('teams.countedDaysInfo')}
       </Typography>
-      <FormGroup row>
+      <FormGroup aria-labelledby={headingId} role="group" row>
         {trialDays.map((day) => {
           const checked = counted.includes(day)
           return (
@@ -91,7 +99,7 @@ const CountedDays = ({ teamCompetition, trialDays, onChange }: CountedDaysProps)
           )
         })}
       </FormGroup>
-    </FormControl>
+    </Stack>
   )
 }
 
@@ -121,8 +129,9 @@ export default function TeamCompetitionSettings({ teamCompetition, trialDays, on
     <Paper variant="outlined" sx={{ p: 2 }}>
       <Stack spacing={1}>
         <Typography variant="h6" component="h2">
-          {t('teams.series')}
+          {t('teams.settings')}
         </Typography>
+        <SectionHeading>{t('teams.series')}</SectionHeading>
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
           {t('teams.seriesInfo')}
         </Typography>
@@ -168,7 +177,10 @@ export default function TeamCompetitionSettings({ teamCompetition, trialDays, on
           </Button>
         </div>
         {trialDays.length > 1 && (
-          <CountedDays teamCompetition={teamCompetition} trialDays={trialDays} onChange={onChange} />
+          <>
+            <Divider />
+            <CountedDays teamCompetition={teamCompetition} trialDays={trialDays} onChange={onChange} />
+          </>
         )}
       </Stack>
     </Paper>
