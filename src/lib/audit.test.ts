@@ -358,6 +358,11 @@ const messages: Array<[string, AuditMessage & Pick<JsonAuditRecord, 'changes'>]>
       template: 'invitation',
     }),
   ],
+  // KOE-674: an own class is a class like any other, never the whole event.
+  [
+    'classEmailSent (own class)',
+    emailsSentAudit({ failed: [], ok: ['a@example.com'], registrations: [{ class: 'DERBY' }], template: 'picked' }),
+  ],
 ]
 
 const i18n = i18next.createInstance()
@@ -367,6 +372,14 @@ const en = () => i18n.getFixedT('en')
 beforeAll(async () => {
   await i18n.init({ ...i18nInitOptions(), debug: false, lng: 'fi' })
   registerFormatters(i18n)
+})
+
+describe('emailsSentAudit (KOE-674)', () => {
+  it('names an own class as the class the mail went to, never the whole event', () => {
+    expect(
+      emailsSentAudit({ failed: [], ok: ['a@example.com'], registrations: [{ class: 'DERBY' }], template: 'picked' })
+    ).toMatchObject({ messageKey: 'audit.messages.classEmailSent', messageParams: { eventClass: 'DERBY' } })
+  })
 })
 
 describe('each audit message', () => {

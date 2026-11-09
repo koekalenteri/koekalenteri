@@ -834,6 +834,23 @@ describe('sendMessagesLambda', () => {
     }
   )
 
+  // KOE-674: an own class is marked as that class, never as the whole event.
+  it("marks the participants of an own class as that class's", async () => {
+    mockReadEvent.mockResolvedValue({
+      ...mockEvent,
+      classes: [{ class: 'DERBY', state: 'draft' }],
+      eventType: 'Labradorien derby',
+      ownClasses: [{ code: 'DERBY', name: { fi: 'Derby' } }],
+    })
+    mockGetReadyRegistrationsByEventId.mockResolvedValueOnce(
+      mockRegistrations.map((registration) => ({ ...registration, class: 'DERBY' }))
+    )
+
+    await sendMessagesLambda(event)
+
+    expect(mockMarkParticipants).toHaveBeenCalledWith(expect.anything(), 'invited', 'DERBY')
+  })
+
   it('handles registrations with no class by using eventType', async () => {
     // Create registrations with no class
     const noClassRegistrations: Partial<Registration>[] = [

@@ -2,7 +2,8 @@ import type { ClassOrNone, JsonConfirmedEvent } from '../../types'
 import { resultsPublishedAudit } from '../../lib/audit'
 import { isDayKey } from '../../lib/day'
 import { formatTypeOf, getClassDays, uniqueClasses } from '../../lib/event'
-import { groupParticipantsByClass, isRegistrationClass } from '../../lib/registration'
+import { isRunClass } from '../../lib/eventClass'
+import { groupParticipantsByClass } from '../../lib/registration'
 import { audit, eventAuditKey } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { getEvent, setResultsPublishedState } from '../lib/event'
@@ -33,7 +34,8 @@ const requestedClass = (
     if (eventClass !== undefined) throw httpError(422, 'invalid class')
     return undefined
   }
-  if (!isRegistrationClass(eventClass) || !classes.includes(eventClass)) throw httpError(422, 'invalid class')
+  // A class the event runs, an own class among them (KOE-674).
+  if (!isRunClass(confirmedEvent, eventClass)) throw httpError(422, 'invalid class')
   return eventClass
 }
 

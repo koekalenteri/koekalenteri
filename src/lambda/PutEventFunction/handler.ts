@@ -15,6 +15,7 @@ import {
   isStartNumbersAvailableForClass,
   moveClasslessKey,
   OFFICIAL_EVENT_TYPES,
+  ownClassCodes,
   uniqueClasses,
 } from '../../lib/event'
 import { isEventClass, ownClassErrors } from '../../lib/eventClass'
@@ -269,10 +270,7 @@ const checkOwnClasses = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEven
  */
 const checkOwnClassEntries = async (existing: JsonConfirmedEvent | undefined, data: JsonConfirmedEvent) => {
   if (!existing) return
-  const before = [
-    ...existing.classes.map((eventClass) => eventClass.class),
-    ...(existing.ownClasses ?? []).map(({ code }) => code),
-  ]
+  const before = [...existing.classes.map((eventClass) => eventClass.class), ...ownClassCodes(existing)]
   if (before.every((key) => !key || isEventClass(data, key))) return
 
   const registered = (await readEventRegistrations(existing.id)).map((reg) => reg.class)

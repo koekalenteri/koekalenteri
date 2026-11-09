@@ -2,6 +2,7 @@ import type { ParseKeys, TFunction } from 'i18next'
 import type {
   AuditRecord,
   AuditUserSource,
+  ClassKey,
   EmailTemplateId,
   JsonAuditChange,
   JsonAuditDetail,
@@ -13,13 +14,7 @@ import type {
 import { formatDate } from '../i18n/dates'
 import { dayStart, isDayKey, TIME_ZONE } from './day'
 import { eventDayKey } from './event'
-import {
-  GROUP_KEY_CANCELLED,
-  GROUP_KEY_RESERVE,
-  isKeyRespelling,
-  isPredefinedReason,
-  isRegistrationClass,
-} from './registration'
+import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, isKeyRespelling, isPredefinedReason } from './registration'
 
 /**
  * Whom an audit row is attributed to. An authenticated user has no `source`; a name taken from the
@@ -374,7 +369,10 @@ interface EmailsSent {
  * in one, the failed recipients as a detail.
  */
 export const emailsSentAudit = ({ failed, ok, registrations, template }: EmailsSent): AuditMessage => {
-  const classes = [...new Set(registrations.map((registration) => registration.class).filter(isRegistrationClass))]
+  // Any class key, an own class among them (KOE-674); a classless entry has none.
+  const classes = [
+    ...new Set(registrations.map((registration) => registration.class).filter((key): key is ClassKey => !!key)),
+  ]
   const eventClass = classes.length === 1 ? classes[0] : undefined
 
   return {

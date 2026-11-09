@@ -89,7 +89,10 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   `ownClassErrors` (PutEvent refuses with `invalidOwnClasses`), `isEventClass` for whether a key is
   one of the event's classes (never a classless trial's format), `classLabel` and
   `registrationOrder` (a day's entries class by class, then time and number). A check that a key is
-  a class of the event takes `isEventClass`, not `isRegistrationClass`.
+  a class of the event takes `isEventClass`, not `isRegistrationClass`. A writer holds a class to the
+  classes the event runs (`isRunClass`): an entry's class (`assertEntryClass` in PutRegistration and
+  PutAdminRegistration) and a running order's group (`unknownClass`). A per-class write refuses a key
+  the event does not run, never reading it as the whole event.
 - `classOrder(event)` (`src/lib/event.ts`) is the one class order of every list and view: the own
   classes as listed, then ALO, AVO, VOI. `uniqueClasses` and `registrationOrder` sort by it; a sort
   of classes or entries takes the event, never a fixed order. The reserve numbering

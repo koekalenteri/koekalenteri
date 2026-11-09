@@ -121,6 +121,70 @@ describe('putStartNumbersLambda', () => {
     ])
   })
 
+  // KOE-674: an own class's numbers are that class's, never the whole event's.
+  describe('an own class', () => {
+    beforeEach(() => {
+      mockGetAuthorizedEvent.mockResolvedValue(
+        asJsonConfirmedEvent({
+          ...confirmedEvent(),
+          classes: [{ class: 'DERBY' }],
+          eventType: 'Labradorien derby',
+          ownClasses: [{ code: 'DERBY', name: { fi: 'Derby' } }],
+          startListPublished: { DERBY: true },
+          startNumbersPublished: { DERBY: false },
+        })
+      )
+      mockReadEventRegistrations.mockResolvedValue([registration('run-1', { class: 'DERBY' })])
+    })
+
+    it('publishes the numbers of that class alone', async () => {
+      await putStartNumbersLambda(apiEvent({ eventClass: 'DERBY', published: true }))
+
+      expect(mockWriteEventFields).toHaveBeenCalledWith('event-1', {
+        set: { startNumbersPublished: { DERBY: true }, updatedAt: expect.any(String) },
+      })
+    })
+
+    it('refuses a class the event does not run, rather than the whole event', async () => {
+      await putStartNumbersLambda(apiEvent({ eventClass: 'ALO', published: true }))
+
+      expect(mockResponse).toHaveBeenCalledWith(422, 'invalid class', expect.anything())
+      expect(mockWriteEventFields).not.toHaveBeenCalled()
+    })
+  })
+
+  // KOE-674: an official class whose day was dropped while it still has entries keeps its numbers, scoped.
+  it('enters the numbers of an official class the event no longer has a day for, as that class', async () => {
+    mockReadEventRegistrations.mockResolvedValue([
+      registration('run-1', {
+        class: 'AVO',
+        startGroup: { date: '2026-09-12', key: 'AVO-AP', number: 1, time: 'ap' },
+      }),
+    ])
+
+    await putStartNumbersLambda(apiEvent({ eventClass: 'AVO', numbers: [{ id: 'run-1', startNumber: 4 }] }))
+
+    expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
+      'event-1',
+      'run-1',
+      'startGroup',
+      expect.objectContaining({ number: 4 })
+    )
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messageKey: 'audit.messages.startNumbersEnteredClass',
+        messageParams: { count: 1, eventClass: 'AVO' },
+      })
+    )
+  })
+
+  it('refuses a key that is no class of the event, rather than the whole event', async () => {
+    await putStartNumbersLambda(apiEvent({ eventClass: 'XYZ', published: true }))
+
+    expect(mockResponse).toHaveBeenCalledWith(422, 'invalid class', expect.anything())
+    expect(mockWriteEventFields).not.toHaveBeenCalled()
+  })
+
   it('publishing freezes the class and flips the flag in the same locked request', async () => {
     await putStartNumbersLambda(apiEvent({ eventClass: 'ALO', published: true }))
 

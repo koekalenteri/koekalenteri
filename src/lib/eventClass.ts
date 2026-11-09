@@ -96,6 +96,13 @@ export const classLabel = (event: Partial<ClassOwner>, key: ClassKey, language: 
 const written = (name: string | undefined) => (name?.trim() ? name : undefined)
 
 /**
+ * Whether a key is a class the event runs (KOE-674): a key of its kind (`isEventClass`) that is among
+ * its `classes`. What a writer holds an entry's class to, and a per-class publish its class.
+ */
+export const isRunClass = (event: Partial<ClassOwner>, key: string | null | undefined): key is ClassKey =>
+  isEventClass(event, key) && !!event.classes?.some((eventClass) => eventClass.class === key)
+
+/**
  * The order of the event's start list (KOE-674): day, then class in the event's order (`classOrder`),
  * then time and number. Every view of the entries reads it, the public list, its spreadsheet and the
  * secretary's lists alike.

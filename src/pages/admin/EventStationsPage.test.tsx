@@ -318,6 +318,37 @@ describe('EventStationsPage', () => {
     })
   })
 
+  // KOE-674: a group of a class the event dropped is named, and the next edit leaves it out of the save.
+  it('names a stored group of a class the event no longer runs, and saves without it after an edit', async () => {
+    vi.mocked(putEvent).mockResolvedValueOnce(eventWithStations)
+    const dropped: ConfirmedEvent = {
+      ...eventWithStations,
+      rotations: [
+        { class: 'ALO', exercises: [{ stationId: 'post-1' }] },
+        { class: 'VOI', exercises: [{ stationId: 'post-1' }] },
+      ],
+    }
+    const { user } = await renderSeeded(dropped, registrationsToEventWithStations)
+    await flushPromises()
+
+    expect(screen.getByText(/^event\.rotation\.error\.unknownClass/)).toBeInTheDocument()
+
+    await user.click(screen.getAllByRole('button', { name: 'event.stationAdd' })[0])
+    await flushPromises()
+    expect(screen.queryByText(/^event\.rotation\.error\.unknownClass/)).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'save' }))
+    await flushPromises()
+
+    expect(putEvent).toHaveBeenLastCalledWith(
+      expect.objectContaining({ rotations: [expect.objectContaining({ class: 'ALO' })] }),
+      TEST_ID_TOKEN,
+      undefined,
+      undefined
+    )
+    expect(screen.getByText('event view')).toBeInTheDocument()
+  })
+
   it('will not save two groups of one class that both hold every number (KOE-1665)', async () => {
     // ALO and AVO run the day; a third group goes with the last class, AVO, again without a range.
     const { user } = await renderSeeded(eventWithStations, registrationsToEventWithStations)

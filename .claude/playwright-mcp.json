@@ -15,7 +15,9 @@
       "https://cognito-identity.eu-north-1.amazonaws.com",
       "https://sts.eu-north-1.amazonaws.com",
       "https://dataplane.rum.eu-north-1.amazonaws.com",
-      "https://services.paytrail.com"
+      "https://services.paytrail.com",
+      "https://resources.paytrail.com",
+      "https://epmt.nordea.fi"
     ]
   }
 }
