@@ -11,6 +11,7 @@ import type {
   QualifyingResult,
   QualifyingResults,
   Registration,
+  RegistrationClass,
   TestResult,
 } from '../types'
 import { getRequirements } from '../rules'
@@ -35,9 +36,12 @@ const byDate = (a: TestResult, b: TestResult) => {
   if (!a.date || !b.date) return Number(!a.date) - Number(!b.date)
   return a.date.localeCompare(b.date)
 }
-const CLASS_ORDER: Registration['class'][] = ['ALO', 'AVO', 'VOI']
+const CLASS_ORDER: OfficialClass[] = ['ALO', 'AVO', 'VOI']
 
-const isHigherClass = (resultClass: Partial<TestResult>['class'], regClass?: Registration['class']) =>
+/** An entry's class as eligibility reads it: an official one, or none. */
+type OfficialClass = RegistrationClass | null | undefined
+
+const isHigherClass = (resultClass: Partial<TestResult>['class'], regClass?: OfficialClass) =>
   Boolean(
     resultClass &&
       regClass &&
@@ -48,17 +52,17 @@ const isHigherClass = (resultClass: Partial<TestResult>['class'], regClass?: Reg
 const hasSameClassResult = (
   results: TestResult[] | ManualTestResult[] | undefined,
   eventType: string,
-  regClass?: Registration['class']
+  regClass?: OfficialClass
 ) => Boolean(regClass && results?.some((result) => result.type === eventType && result.class === regClass))
 
-const isNOUDisqualifyingResult = (result: TestResult, eventType: string, regClass?: Registration['class']) =>
+const isNOUDisqualifyingResult = (result: TestResult, eventType: string, regClass?: OfficialClass) =>
   eventType === 'NOU' && !regClass && Boolean(result.class) && result.type.startsWith('NOME-')
 
 const findDisqualifyingResult = (
   officialResults: TestResult[] | undefined,
   manualResults: ManualTestResult[] | undefined,
   eventType: string,
-  regClass?: Registration['class']
+  regClass?: OfficialClass
 ): QualifyingResults | undefined => {
   const compare = (result: TestResult) =>
     (result.type === eventType && (isHigherClass(result.class, regClass) || result.result === 'NOU1')) ||
@@ -116,7 +120,7 @@ const checkRequiredResults = (
 
 const bestResults = (
   eventType: string,
-  regClass: Registration['class'],
+  regClass: OfficialClass,
   officialResults: TestResult[] | undefined,
   manualResults: ManualTestResult[] | undefined,
   sameClassOnly = false
@@ -142,10 +146,12 @@ export function filterRelevantResults(
     entryOrigEndDate,
     qualificationStartDate,
   }: Pick<DogEvent, 'eventType' | 'startDate' | 'entryEndDate' | 'entryOrigEndDate' | 'qualificationStartDate'>,
-  regClass: Registration['class'],
+  entryClass: Registration['class'],
   officialResults?: TestResult[],
   manualResults?: ManualTestResult[]
 ): QualifyingResults {
+  // Eligibility is Kennelliitto's, read for ALO, AVO and VOI alone (KOE-674).
+  const regClass = isRegistrationClass(entryClass) ? entryClass : undefined
   const nextClass = getNextClass(regClass)
   const rules = getRequirements(eventType, regClass, startDate)
   const nextClassRules = nextClass && getRequirements(eventType, nextClass, startDate)

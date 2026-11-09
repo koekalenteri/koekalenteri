@@ -1,5 +1,6 @@
 import type { ParseKeys } from 'i18next'
 import type {
+  ClassKey,
   JsonAuditChange,
   JsonAuditChangeValue,
   JsonAuditDetail,
@@ -8,7 +9,6 @@ import type {
   JsonDogEvent,
   JsonRegistration,
   Patch,
-  RegistrationClass,
 } from '../../types'
 import {
   eventChangedAudit,
@@ -103,7 +103,7 @@ const getStartListAuditMessages = (
   }
 
   const existingMap = getStartListPublishedClassMap(existing)
-  const startListPublished: Partial<Record<RegistrationClass, boolean>> = isStartListPublishedClassMap(
+  const startListPublished: Partial<Record<ClassKey, boolean>> = isStartListPublishedClassMap(
     existing.startListPublished
   )
     ? { ...existing.startListPublished }
@@ -111,16 +111,16 @@ const getStartListAuditMessages = (
 
   for (const [eventClass, published] of Object.entries(item.startListPublished)) {
     if (typeof published === 'boolean') {
-      startListPublished[eventClass as RegistrationClass] = published
+      startListPublished[eventClass] = published
     } else if (published === null) {
-      delete startListPublished[eventClass as RegistrationClass]
+      delete startListPublished[eventClass]
     }
   }
 
   const nextMap = getStartListPublishedClassMap({ ...existing, startListPublished })
   return Object.entries(nextMap)
-    .filter(([eventClass, published]) => existingMap[eventClass as RegistrationClass] !== published)
-    .map(([eventClass, published]) => startListAudit(published, eventClass))
+    .filter(([eventClass, published]) => existingMap[eventClass] !== published)
+    .map(([eventClass, published]) => startListAudit(published === true, eventClass))
 }
 
 const formatAuditValue = (value: unknown): JsonAuditChangeValue => {

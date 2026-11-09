@@ -1,6 +1,6 @@
 import type { ChangeEvent } from 'react'
 import type useAdminEventRegistrationInfo from '@/hooks/useAdminEventRegistrationsInfo'
-import type { ConfirmedEvent, InvitationAttachmentVersion, RegistrationClass } from '@/types'
+import type { ClassKey, ConfirmedEvent, InvitationAttachmentVersion } from '@/types'
 import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -124,7 +124,7 @@ interface Props {
   readonly event: ConfirmedEvent
   readonly eventFinished: boolean
   readonly numbersByClass: RegistrationInfo['numbersByClass']
-  readonly onUpload: (eventClass?: RegistrationClass) => (event: ChangeEvent<HTMLInputElement>) => void
+  readonly onUpload: (eventClass?: ClassKey) => (event: ChangeEvent<HTMLInputElement>) => void
   readonly selectedByClass: RegistrationInfo['selectedByClass']
   readonly stateByClass: RegistrationInfo['stateByClass']
 }

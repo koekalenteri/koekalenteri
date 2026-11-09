@@ -528,6 +528,13 @@ describe('lib/event', () => {
       ).toBe(true)
     })
 
+    it('reads a per-class map as nothing published for no class at all', () => {
+      const event = { startNumbersPublished: { ALO: true } }
+
+      expect(isStartNumbersPublishedForDay(event, undefined, '2026-09-26')).toBe(false)
+      expect(isStartNumbersPublishedForDay(event, 'ALO', '2026-09-26')).toBe(true)
+    })
+
     it('publishes a day by halves, the morning before the afternoon (KOE-1430)', () => {
       const event = {
         classes: [

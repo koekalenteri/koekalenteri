@@ -1,11 +1,11 @@
 import type {
+  ClassKey,
   ClassOrNone,
   ConfirmedEvent,
   DogEvent,
   JsonConfirmedEvent,
   JsonRegistration,
   Registration,
-  RegistrationClass,
   ResultsDayScope,
   ResultsPublishedState,
 } from '../types'
@@ -42,7 +42,7 @@ export type PublishBlocker = 'participants' | 'state' | 'invitations' | 'startLi
 /** The class's entry — its first day's, for a class running on several — or none for a classless event. */
 export const classEntry = (
   event: { readonly classes: ReadonlyArray<Pick<ClassEntry, 'class' | 'state'>> },
-  eventClass: RegistrationClass | undefined
+  eventClass: ClassKey | undefined
 ): Pick<ClassEntry, 'class' | 'state'> | undefined =>
   eventClass ? event.classes.find((item) => item.class === eventClass) : undefined
 
@@ -60,7 +60,7 @@ export const isStartListPublished = (event: StartListEvent, eventClass?: Pick<Cl
  * carried the event to 'invited'; read as published everywhere, it hid the first publish of a trial
  * that never sent invitations (KOE-1465).
  */
-export const isStartListFlagPublished = (event: StartListEvent, eventClass: RegistrationClass | undefined) =>
+export const isStartListFlagPublished = (event: StartListEvent, eventClass: ClassKey | undefined) =>
   event.startListPublished === undefined
     ? isStartListPublished(event, classEntry(event, eventClass))
     : isStartListPublishedForClass(event, eventClass ?? formatTypeOf(event))
@@ -74,7 +74,7 @@ export const isStartListFlagPublished = (event: StartListEvent, eventClass: Regi
  */
 export const getStartListBlocker = (
   event: PublishingEvent,
-  eventClass: RegistrationClass | undefined,
+  eventClass: ClassKey | undefined,
   participants: readonly InvitationAttachmentRegistration[]
 ): PublishBlocker | undefined => {
   const state = getEventStateForClass(event, eventClass)
@@ -92,7 +92,7 @@ export const getStartListBlocker = (
 /** The numbers wait on everything the start list does, and on the list itself being out. */
 export const getStartNumbersBlocker = (
   event: PublishingEvent,
-  eventClass: RegistrationClass | undefined,
+  eventClass: ClassKey | undefined,
   participants: readonly InvitationAttachmentRegistration[]
 ): PublishBlocker | undefined => {
   const blocker = getStartListBlocker(event, eventClass, participants)

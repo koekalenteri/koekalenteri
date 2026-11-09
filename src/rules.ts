@@ -7,6 +7,7 @@ import type {
   Registration,
 } from './types'
 import { calendarDayOf, TIME_ZONE } from './lib/day'
+import { isRegistrationClass } from './lib/registration'
 import { keysOf } from './lib/typeGuards'
 import { isModernFinnishRegNo } from './lib/validation'
 import { NOME_A_CH_requirements, NOME_B_CH_requirements, NOWT_CH_requirements } from './rules_ch'
@@ -43,12 +44,26 @@ export function getRuleDate(date: string, available: Readonly<RuleDate[]> = RULE
 const validateDogForSM = (dog: Partial<Dog>) =>
   dog.regNo && dog.kcId && isModernFinnishRegNo(dog.regNo) ? false : 'dogSM'
 
+/** A type whose eligibility is ruled class by class: its rules are keyed ALO, AVO and VOI. */
+const isClassRequirement = (
+  requirements: EventRequirement | EventClassRequirement
+): requirements is EventClassRequirement => Object.keys(requirements).some(isRegistrationClass)
+
+/**
+ * The rules of the entry's class: the type's own, or, for a type ruled class by class, the official
+ * class's. Any other class key, an event's own class among them, has none there (KOE-674).
+ */
+const requirementsOf = (eventType: string, regClass: Registration['class']): EventRequirement | undefined => {
+  const requirements = REQUIREMENTS[eventType] ?? {}
+  if (!isClassRequirement(requirements)) return requirements
+  return isRegistrationClass(regClass) ? requirements[regClass] : undefined
+}
+
+/** The eligibility of the entry's class on the trial's day (`requirementsOf`). */
 export function getRequirements(eventType: string, regClass: Registration['class'], date: DayKey) {
-  const eventRequirements = REQUIREMENTS[eventType] || {}
-  const classRequirements = regClass && (eventRequirements as EventClassRequirement)[regClass]
-  const requirements = classRequirements ?? (eventRequirements as EventRequirement)
+  const requirements = requirementsOf(eventType, regClass)
   let results: EventResultRequirementsByDate | undefined
-  if (requirements.results) {
+  if (requirements?.results) {
     const resultRequirements = requirements.results
     const ruleDates = keysOf(resultRequirements)
     const ruleDate = getRuleDate(date, ruleDates)
