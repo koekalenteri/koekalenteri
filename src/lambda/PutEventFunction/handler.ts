@@ -17,7 +17,7 @@ import {
   OFFICIAL_EVENT_TYPES,
   uniqueClasses,
 } from '../../lib/event'
-import { ownClassErrors } from '../../lib/eventClass'
+import { isEventClass, ownClassErrors } from '../../lib/eventClass'
 import { scoresAtPosts } from '../../lib/liveFormat'
 import { hasPaymentLockingRegistrations, paymentTermsDiffer } from '../../lib/payment'
 import { getStartListBlocker, isStartListFlagPublished } from '../../lib/publishing'
@@ -219,8 +219,9 @@ const invalidOwnClasses = (errors: ReturnType<typeof ownClassErrors>) =>
   httpError(400, { error: 'invalidOwnClasses', errors, message: 'Bad request: the own classes do not fit the event' })
 
 /**
- * An unofficial event's own classes (KOE-674), read on the merged event when the save carries what they
- * rest on: their codes and names, and a class day for each and of each (`ownClassErrors`). Whether an
+ * An event's classes (KOE-674), read on the merged event when the save carries what they rest on: the
+ * own classes' codes and names, a class day for each own class, and every class day of a class of the
+ * event (`ownClassErrors`). Whether an
  * entry holds a code the save takes away is read from the registrations (`checkOwnClassEntries`).
  */
 const checkOwnClasses = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>) => {
@@ -230,19 +231,19 @@ const checkOwnClasses = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEven
 }
 
 /**
- * An entry's class stays one of the event's classes (KOE-674): a save of own classes that takes away a
- * class the event had, by changing its code or removing it, is refused while an entry holds it, a
- * cancelled one included, whose row keeps its class. The registrations are read only for such a save
- * of an event with entries.
+ * An entry's class stays one of the event's classes (KOE-674): a save that takes away a class the event
+ * had, by changing an own code, removing an own class or the own classes altogether, is refused while
+ * a registration holds it. Every registration counts, a cancelled or an unpaid one too, since its row
+ * keeps its class; the event's count of entries holds neither. The registrations are read only for a
+ * save that takes a class away.
  */
 const checkOwnClassEntries = async (existing: JsonConfirmedEvent | undefined, data: JsonConfirmedEvent) => {
-  if (!existing || !hasEntries(existing) || !data.ownClasses?.length) return
-  const codes = new Set(data.ownClasses.map(({ code }) => code))
+  if (!existing) return
   const before = [
     ...existing.classes.map((eventClass) => eventClass.class),
     ...(existing.ownClasses ?? []).map(({ code }) => code),
   ]
-  if (before.every((key) => codes.has(key))) return
+  if (before.every((key) => !key || isEventClass(data, key))) return
 
   const registered = (await readEventRegistrations(existing.id)).map((reg) => reg.class)
   const errors = ownClassErrors(data, registered).filter(({ kind }) => kind === 'registered')

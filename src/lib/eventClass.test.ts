@@ -85,6 +85,27 @@ describe('ownClassErrors', () => {
     expect(ownClassErrors(renamed, ['DERBY', 'VET10', null])).toEqual([{ code: 'VET10', kind: 'registered' }])
     expect(ownClassErrors(unofficial, ['DERBY', 'VET10'])).toEqual([])
   })
+  it('refuses a class day of no official class on an event without own classes', () => {
+    const classes = [
+      { class: 'ALO', date: '2026-08-01' as const },
+      { class: 'DERBY', date: '2026-08-01' as const },
+    ]
+
+    expect(ownClassErrors({ classes, eventType: 'Derby' })).toEqual([{ code: 'DERBY', kind: 'notOwnClass' }])
+    expect(ownClassErrors({ classes: [], eventType: 'NOU' })).toEqual([])
+  })
+
+  it('passes a class day still without its class, as a half filled form leaves it', () => {
+    expect(ownClassErrors({ classes: [{ class: '', date: '2026-08-01' }], eventType: 'NOWT' })).toEqual([])
+  })
+
+  it('refuses taking the own classes away from under an entry', () => {
+    const classes = [{ class: 'ALO', date: '2026-08-01' as const }]
+
+    expect(ownClassErrors({ classes, eventType: unofficial.eventType }, ['DERBY', 'ALO'])).toEqual([
+      { code: 'DERBY', kind: 'registered' },
+    ])
+  })
 })
 
 describe('isEventClass', () => {

@@ -27,34 +27,14 @@ const OWN_CLASS_CODE = /^[A-Z][A-Z0-9]{0,9}$/
 
 const ownCodes = (event: Partial<ClassOwner>): string[] => (event.ownClasses ?? []).map(({ code }) => code)
 
-/**
- * Every reason the event save refuses its own classes (KOE-674), read on the event as it would be
- * saved:
- * - an official type runs its official classes, never its own (`isOfficialEventType`);
- * - a code is upper case letters and digits from a letter, ten at most, and the event's classes have
- *   it once;
- * - a code is not the event's own type or an official type, which a classless trial keys its classes
- *   by; the official classes' names are free, as the Hankinome runs ALO, AVO, VOI and VET of its own;
- * - every own class has a Finnish name;
- * - every own class has a class day, and every class day is of an own class;
- * - an entry's class (`registeredClasses`) stays among the own classes, so a code an entry holds is
- *   not changed or removed.
- */
-export const ownClassErrors = (
-  event: ClassOwner,
-  registeredClasses: readonly (ClassKey | null | undefined)[] = []
-): OwnClassError[] => {
-  const ownClasses = event.ownClasses ?? []
-  if (!ownClasses.length) return []
-  if (isOfficialEventType(event.eventType)) return [{ kind: 'officialType' }]
-
+/** What is wrong with the own classes themselves: their codes, their names and a day for each. */
+const ownClassListErrors = (event: ClassOwner): OwnClassError[] => {
   const typeNames = new Set([event.eventType, ...OFFICIAL_EVENT_TYPES].map((name) => name.toUpperCase()))
-  const codes = new Set(ownCodes(event))
   const dayClasses = new Set(event.classes?.map((eventClass) => eventClass.class))
   const seen = new Set<string>()
   const errors: OwnClassError[] = []
 
-  for (const { code, name } of ownClasses) {
+  for (const { code, name } of event.ownClasses ?? []) {
     if (!OWN_CLASS_CODE.test(code)) errors.push({ code, kind: 'badCode' })
     else if (typeNames.has(code.toUpperCase())) errors.push({ code, kind: 'typeName' })
     if (seen.has(code)) errors.push({ code, kind: 'codeTwice' })
@@ -62,12 +42,38 @@ export const ownClassErrors = (
     if (!name.fi?.trim()) errors.push({ code, kind: 'unnamed' })
     if (!dayClasses.has(code)) errors.push({ code, kind: 'noClassDay' })
   }
-  for (const code of dayClasses) if (!codes.has(code)) errors.push({ code, kind: 'notOwnClass' })
-  for (const code of new Set(registeredClasses)) {
-    if (code && !codes.has(code)) errors.push({ code, kind: 'registered' })
-  }
-
   return errors
+}
+
+/** The keys among `keys` that are not a class of the event (`isEventClass`); a missing key is none. */
+const outsideClasses = (event: Partial<ClassOwner>, keys: Iterable<string | null | undefined>): string[] =>
+  [...new Set(keys)].filter((key): key is string => !!key && !isEventClass(event, key))
+
+/**
+ * Every reason the event save refuses its classes (KOE-674), read on the event as it would be saved:
+ * - an official type runs its official classes, never its own (`isOfficialEventType`);
+ * - a code is upper case letters and digits from a letter, ten at most, and the event's classes have
+ *   it once;
+ * - a code is not the event's own type or an official type, which a classless trial keys its classes
+ *   by; the official classes' names are free, as the Hankinome runs ALO, AVO, VOI and VET of its own;
+ * - every own class has a Finnish name and a class day;
+ * - every class day is of a class of the event: an own class, or without own classes ALO, AVO or VOI;
+ * - an entry's class (`registeredClasses`) stays a class of the event, so a code an entry holds is
+ *   not changed or removed, nor the own classes taken away from under it.
+ * A class day still without its class, as a form half filled leaves it, is none of these.
+ */
+export const ownClassErrors = (
+  event: ClassOwner,
+  registeredClasses: readonly (ClassKey | null | undefined)[] = []
+): OwnClassError[] => {
+  if (event.ownClasses?.length && isOfficialEventType(event.eventType)) return [{ kind: 'officialType' }]
+
+  const dayClasses = event.classes?.map((eventClass) => eventClass.class) ?? []
+  return [
+    ...ownClassListErrors(event),
+    ...outsideClasses(event, dayClasses).map((code): OwnClassError => ({ code, kind: 'notOwnClass' })),
+    ...outsideClasses(event, registeredClasses).map((code): OwnClassError => ({ code, kind: 'registered' })),
+  ]
 }
 
 /**

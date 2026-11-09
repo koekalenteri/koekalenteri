@@ -1830,6 +1830,22 @@ describe('putEventLambda', () => {
         { classes: [{ class: 'DERBY', date: '2025-06-01' }] },
         { code: 'VET10', kind: 'noClassDay' },
       ],
+      [
+        'without a Finnish name',
+        { ownClasses: [derby, { ...veterans, name: { en: 'Veterans' } }] },
+        { code: 'VET10', kind: 'unnamed' },
+      ],
+      [
+        'with a code twice',
+        { ownClasses: [derby, veterans, { ...derby, name: { fi: 'Toinen' } }] },
+        { code: 'DERBY', kind: 'codeTwice' },
+      ],
+      [
+        'with a class day of no own class',
+        { classes: [...own.classes, { class: 'ALO', date: '2025-06-02' }] },
+        { code: 'ALO', kind: 'notOwnClass' },
+      ],
+      ['taken away while their class days stay', { ownClasses: [] }, { code: 'DERBY', kind: 'notOwnClass' }],
     ])('refuses own classes %s', async (_name, body, error) => {
       const res = await patch(own, body)
 
@@ -1848,25 +1864,69 @@ describe('putEventLambda', () => {
       expect(patchEventMock).not.toHaveBeenCalled()
     })
 
-    it('refuses changing a code an entry holds, and stores it once no entry does', async () => {
-      const entered = { ...own, entries: 2 }
-      const renamed = {
-        classes: [own.classes[0], { class: 'VET', date: '2025-06-02' }],
-        ownClasses: [derby, { ...veterans, code: 'VET' }],
-      }
+    // The event's count of entries holds neither a cancelled nor an unpaid registration; both keep their class.
+    const renamed = {
+      classes: [own.classes[0], { class: 'VET', date: '2025-06-02' }],
+      ownClasses: [derby, { ...veterans, code: 'VET' }],
+    }
+
+    it.each([
+      ['an entry', {}],
+      ['a cancelled entry', { cancelled: true }],
+      ['an unpaid entry', { state: 'creating' }],
+    ])('refuses changing a code %s holds, whatever the count of entries', async (_name, registration) => {
       mockReadEventRegistrations.mockResolvedValue([
         { ...invitedParticipant(), class: 'DERBY' },
-        { ...invitedParticipant(), cancelled: true, class: 'VET10' },
+        { ...invitedParticipant(), ...registration, class: 'VET10' },
       ])
 
-      const refused = await patch(entered, renamed)
+      const res = await patch({ ...own, entries: 0 }, renamed)
 
-      expect(refused.statusCode).toEqual(400)
-      expect(JSON.parse(refused.body)).toMatchObject({ errors: [{ code: 'VET10', kind: 'registered' }] })
+      expect(res.statusCode).toEqual(400)
+      expect(JSON.parse(res.body)).toMatchObject({
+        error: 'invalidOwnClasses',
+        errors: [{ code: 'VET10', kind: 'registered' }],
+      })
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
 
+    it('stores a changed code once no registration holds it', async () => {
       mockReadEventRegistrations.mockResolvedValue([{ ...invitedParticipant(), class: 'DERBY' }])
 
-      expect((await patch(entered, renamed)).statusCode).toEqual(200)
+      expect((await patch(own, renamed)).statusCode).toEqual(200)
+    })
+
+    it.each([
+      ['an empty list', []],
+      ['a null', null],
+    ])('refuses taking the own classes away with %s while an entry holds one', async (_name, ownClasses) => {
+      mockReadEventRegistrations.mockResolvedValue([{ ...invitedParticipant(), cancelled: true, class: 'DERBY' }])
+
+      const res = await patch(own, { classes: [{ class: 'ALO', date: '2025-06-01' }], ownClasses })
+
+      expect(res.statusCode).toEqual(400)
+      expect(JSON.parse(res.body)).toMatchObject({ errors: [{ code: 'DERBY', kind: 'registered' }] })
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    it('stores the own classes taken away once no registration holds one', async () => {
+      mockReadEventRegistrations.mockResolvedValue([{ ...invitedParticipant(), class: 'ALO' }])
+
+      const res = await patch(own, { classes: [{ class: 'ALO', date: '2025-06-01' }], ownClasses: null })
+
+      expect(res.statusCode).toEqual(200)
+      expect(patchEventMock).toHaveBeenCalledWith(
+        'existing',
+        own,
+        expect.not.objectContaining({ ownClasses: expect.anything() })
+      )
+    })
+
+    it('refuses a class day of no official class on an event without own classes', async () => {
+      const res = await patch(mockEvent, { classes: [{ class: 'DERBY', date: '2025-06-01' }] })
+
+      expect(res.statusCode).toEqual(400)
+      expect(JSON.parse(res.body)).toMatchObject({ errors: [{ code: 'DERBY', kind: 'notOwnClass' }] })
     })
 
     it('reads no entries for a save that keeps every class the event had', async () => {
