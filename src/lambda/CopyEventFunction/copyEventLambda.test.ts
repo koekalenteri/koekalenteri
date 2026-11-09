@@ -299,6 +299,7 @@ describe('copyEventHandler', () => {
         { date: source.startDate, id: 'post-1', number: 1, tasks: 1 },
         { date: source.endDate, id: 'post-2', number: 1, tasks: 1 },
       ],
+      teamCompetition: { askAtEntry: true, days: [source.endDate] },
     })
     mockNanoid.mockReturnValueOnce('newid123')
     mockReadEventRegistrations.mockResolvedValueOnce([
@@ -330,6 +331,8 @@ describe('copyEventHandler', () => {
           { date: expected.startDate, id: 'post-1', number: 1, tasks: 1 },
           { date: expected.endDate, id: 'post-2', number: 1, tasks: 1 },
         ],
+        // The days a team competition counts move with the trial (KOE-1726).
+        teamCompetition: { askAtEntry: true, days: [expected.endDate] },
       })
     )
     expect(mockReadEventRegistrations).toHaveBeenCalledWith('event123')

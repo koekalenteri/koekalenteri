@@ -1202,6 +1202,12 @@ describe('lib/event', () => {
       })
       expect(copy.teams).toBeUndefined()
     })
+    // The counted days are days of the trial, so they move with it as the classes do.
+    it('moves the days a team competition counts with the trial (KOE-1726)', () => {
+      const source = eventWithParticipantsInvited
+      const copy = copyNow({ ...source, teamCompetition: { askAtEntry: true, days: [source.endDate] } })
+      expect(copy.teamCompetition).toEqual({ askAtEntry: true, days: [copy.endDate] })
+    })
     it('should not carry the link to a Kennelliitto trial (KOE-1534)', () => {
       const copy = copyNow({
         ...eventWithParticipantsInvited,
