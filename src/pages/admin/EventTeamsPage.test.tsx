@@ -526,6 +526,102 @@ describe('EventTeamsPage', () => {
     })
   })
 
+  // KOE-1721: the question at entry, the teams suggested from the names given, and the first-team mark.
+  describe('teams named at entry', () => {
+    const expectSaved = (fields: object) =>
+      expect(putEvent).toHaveBeenLastCalledWith(expect.objectContaining(fields), TEST_ID_TOKEN, undefined, undefined)
+    const named = (registration: Registration, name: string, primary?: true): Registration => ({
+      ...registration,
+      teamEntry: { name, ...(primary ? { primary } : {}) },
+    })
+    const namedEntries = [
+      named(registrations[0], 'Kultaiset'),
+      named(registrations[1], ' kultaiset ', true),
+      ...registrations.slice(2),
+    ]
+    const primaryBox = (team: HTMLElement) => within(team).getByRole('checkbox', { name: 'teams.primary' })
+
+    it('asks for the team at entry once the secretary says so, before any team is made', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const { user } = await renderPage()
+      await flushPromises()
+
+      await user.click(screen.getByRole('checkbox', { name: 'teams.askAtEntry' }))
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+
+      expectSaved({ teamCompetition: { askAtEntry: true } })
+    })
+
+    it('stores no question once it is taken back', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const { user } = await renderPage({
+        ...eventWithStations,
+        teamCompetition: { askAtEntry: true },
+      })
+      await flushPromises()
+
+      await user.click(screen.getByRole('checkbox', { name: 'teams.askAtEntry' }))
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+
+      expect(putEvent).toHaveBeenLastCalledWith(
+        expect.not.objectContaining({ teamCompetition: expect.anything() }),
+        TEST_ID_TOKEN,
+        undefined,
+        undefined
+      )
+    })
+
+    it('suggests a team from the names given at entry, and makes it the team it suggests', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const { user } = await renderPage({ ...eventWithStations, teamCompetition: { askAtEntry: true } }, namedEntries)
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'teams.takeSuggestion name' }))
+      await flushPromises()
+
+      const [team] = teamSections()
+      expect(within(team).getByRole('textbox', { name: 'teams.name' })).toHaveValue('Kultaiset')
+      expect(members(team)).toEqual(['1A Ensimmainen', '1B Toinen'])
+      expect(primaryBox(team)).toBeChecked()
+      // The dogs are in a team now, so nothing is left to suggest.
+      expect(screen.queryByRole('button', { name: 'teams.takeSuggestion name' })).not.toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+      expectSaved({ teams: [{ name: 'Kultaiset', primary: true, registrationIds: ['run-1', 'run-2'] }] })
+    })
+
+    it('fills the first empty team with a suggestion before adding one', async () => {
+      const { user } = await renderPage(
+        { ...eventWithStations, teams: [{ registrationIds: ['reserve-1'] }, { registrationIds: [] }] },
+        namedEntries
+      )
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'teams.takeSuggestion name' }))
+      await flushPromises()
+
+      expect(teamSections()).toHaveLength(2)
+      expect(members(teamSections()[1])).toEqual(['2A Ensimmainen', '2B Toinen'])
+    })
+
+    it('counts a first-team mark alone as a change to save, and stores none once it is cleared', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const { user } = await renderPage({ ...eventWithStations, teams: [{ primary: true, registrationIds: ['run-1'] }] })
+      await flushPromises()
+      expect(screen.getByRole('button', { name: 'save' })).toBeDisabled()
+
+      await user.click(primaryBox(teamSections()[0]))
+      expect(screen.getByRole('button', { name: 'save' })).toBeEnabled()
+
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+      expectSaved({ teams: [{ registrationIds: ['run-1'] }] })
+    })
+  })
+
   it('saves an empty list once the count is back at nought, so a whole-event save clears them too', async () => {
     vi.mocked(putEvent).mockResolvedValue(eventWithStations)
     const { user } = await renderPage({ ...eventWithStations, teams: [{ registrationIds: ['run-1'] }] })

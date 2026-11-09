@@ -45,6 +45,20 @@ describe('teamSuggestions', () => {
     ])
   })
 
+  // KOE-1721, KOE-1722: a team a member named its club's or kennel's first team is suggested as one.
+  it('marks a suggestion the first team where a dog naming it marked it so', () => {
+    const entries = [
+      entry('a', { teamEntry: { name: 'Golden Ring' } }),
+      entry('b', { teamEntry: { name: 'golden ring', primary: true } }),
+      entry('c', { teamEntry: { name: 'Pirkan Damit' } }),
+    ]
+
+    expect(teamSuggestions(event(), entries)).toEqual([
+      { kind: 'name', name: 'Golden Ring', primary: true, registrationIds: ['a', 'b'] },
+      { kind: 'name', name: 'Pirkan Damit', registrationIds: ['c'] },
+    ])
+  })
+
   it('reads an event without teams as one whose dogs are in none', () => {
     const { teams: _teams, ...noTeams } = event()
 
