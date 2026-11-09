@@ -74,10 +74,10 @@ describe('registrationBodySchema', () => {
     expect(errorsOf(registrationBodySchema, body)).toEqual([{ field, message: 'must be an array' }])
   })
 
-  it('rejects a class outside the three', () => {
-    expect(errorsOf(registrationBodySchema, { class: 'KVA' })).toEqual([
-      { field: 'class', message: 'must be one of: ALO, AVO, VOI' },
-    ])
+  // KOE-674: an own class is a class too; whether the event runs it is the handler's (`assertEntryClass`).
+  it('takes any class key, and refuses a class that is not text', () => {
+    expect(errorsOf(registrationBodySchema, { class: 'DERBY' })).toEqual([])
+    expect(errorsOf(registrationBodySchema, { class: 1 })).toEqual([{ field: 'class', message: 'must be a string' }])
   })
 })
 

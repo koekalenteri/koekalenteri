@@ -8,14 +8,15 @@ import { API_URL, FRONTEND_URL } from '../env.mjs'
 
 type Person = Pick<JsonUser, 'email' | 'location' | 'name'>
 
-export const registerThroughApi = async (
+/** A registration as the form sends it, for `registerThroughApi` and for a request a test sends itself. */
+export const registrationBody = (
   event: Pick<JsonConfirmedEvent, 'dates' | 'eventType' | 'id'>,
   dog: JsonDog,
   owner: Person
-): Promise<JsonRegistration> => {
+) => {
   const person = { ...owner, membership: false, phone: '+358 40 1234567' }
   const now = new Date().toISOString()
-  const body = {
+  return {
     agreeToTerms: true,
     breeder: { name: 'Kennel E2E' },
     createdAt: now,
@@ -42,11 +43,22 @@ export const registerThroughApi = async (
     results: [],
     state: 'creating',
   }
-  const response = await fetch(`${API_URL}/registration`, {
+}
+
+/** Sends a registration body to the public API, as the form does. */
+export const postRegistration = (body: object) =>
+  fetch(`${API_URL}/registration`, {
     body: JSON.stringify(body),
     headers: { 'Content-Type': 'application/json', Origin: FRONTEND_URL },
     method: 'POST',
   })
+
+export const registerThroughApi = async (
+  event: Pick<JsonConfirmedEvent, 'dates' | 'eventType' | 'id'>,
+  dog: JsonDog,
+  owner: Person
+): Promise<JsonRegistration> => {
+  const response = await postRegistration(registrationBody(event, dog, owner))
   if (!response.ok) throw new Error(`registration failed: ${response.status} ${await response.text()}`)
   return (await response.json()) as JsonRegistration
 }

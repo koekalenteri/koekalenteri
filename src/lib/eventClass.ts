@@ -109,3 +109,10 @@ export const classLabel = (event: Partial<ClassOwner>, key: ClassKey, language: 
 
 /** A name that says something: not missing, and not blank. */
 const written = (name: string | undefined) => (name?.trim() ? name : undefined)
+
+/**
+ * Whether a key is a class the event runs (KOE-674): one of its classes (`isEventClass`) with a class
+ * day. What a writer holds an entry's class, or a running order's, to.
+ */
+export const isRunClass = (event: Partial<ClassOwner>, key: string | null | undefined): key is ClassKey =>
+  isEventClass(event, key) && !!event.classes?.some((eventClass) => eventClass.class === key)

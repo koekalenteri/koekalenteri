@@ -292,6 +292,7 @@ describe('putResultsPublishedLambda', () => {
         resultsPublished: { DERBY: false },
       })
     )
+    mockReadEventRegistrations.mockResolvedValue([dog('DERBY', '2026-09-12')])
 
     await putResultsPublishedLambda(apiEvent({ date: '2026-09-12', eventClass: 'DERBY', published: true }))
 

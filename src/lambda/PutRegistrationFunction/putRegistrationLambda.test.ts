@@ -1922,7 +1922,7 @@ describe('putRegistrationLabmda', () => {
   it.each([
     [{ dates: { 0: { date: '2026-05-16' as const } } }, 'dates must be an array'],
     [{ dog: { regNo: 42 } }, 'dog.regNo must be a string'],
-    [{ class: 'KVA' }, 'class must be one of: ALO, AVO, VOI'],
+    [{ class: 1 }, 'class must be a string'],
     [{ language: 'sv' }, 'language must be one of: fi, en'],
     [{ agreeToTerms: 'yes' }, 'agreeToTerms must be a boolean'],
     [{ optionalCosts: { 0: 1 } }, 'optionalCosts must be an array'],

@@ -38,6 +38,7 @@ import { httpError, isPatchRequest, lambda, response } from '../lib/lambda'
 import { participantResponse } from '../lib/payment'
 import {
   applyOwnerOverrides,
+  assertEntryClass,
   authorizeRegistrationEdit,
   getRegistration,
   getRegistrationEditToken,
@@ -288,6 +289,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   assertCancellationOpen(existing, flags.cancel, confirmedEvent)
   const locks = existing ? getParticipantFieldLocks(confirmedEvent, existing) : NO_PARTICIPANT_FIELD_LOCKS
   assertParticipantFieldsUnlocked(existing, data, locks)
+  assertEntryClass(data, existing, confirmedEvent)
   await assertTypedRegNo(data, existing)
   await assertTypedMicrochip(data, existing)
 

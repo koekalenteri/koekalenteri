@@ -88,7 +88,10 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   orders them, and `classes` holds their days. `src/lib/eventClass.ts` holds the rules:
   `ownClassErrors` (PutEvent refuses with `invalidOwnClasses`), `isEventClass` for whether a key is
   one of the event's classes (never a classless trial's format), `classOrder` and `classLabel`. A
-  check that a key is a class of the event takes `isEventClass`, not `isRegistrationClass`.
+  check that a key is a class of the event takes `isEventClass`, not `isRegistrationClass`. A writer
+  holds a class to the classes the event runs (`isRunClass`): an entry's class (`assertEntryClass`
+  in PutRegistration and PutAdminRegistration) and a running order's group (`unknownClass`). A
+  per-class write refuses a key the event does not run, never reading it as the whole event.
 - These stay on the trial's own `eventType`: who may enter (`qualification.ts`, `rules.ts`), everything
   official (`isOfficialEventType`, Kennelliitto, Omakoira, the kcId), the statistics, the event's
   name and labels, and the B-trial's game-or-dummies and the NOWT's Mock trial choices.

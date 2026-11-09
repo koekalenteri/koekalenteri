@@ -3,13 +3,9 @@ import type { StartNumberEntry } from '../lib/startNumbers'
 import { startNumbersEnteredAudit, startNumbersPublishedAudit } from '../../lib/audit'
 import { isDayKey } from '../../lib/day'
 import { formatTypeOf, getStartNumbersDayTimes, isStartNumbersTime } from '../../lib/event'
+import { isRunClass } from '../../lib/eventClass'
 import { getStartNumbersBlocker } from '../../lib/publishing'
-import {
-  getRegistrationClass,
-  groupParticipantsByClass,
-  isRegistrationClass,
-  isScorableRegistration,
-} from '../../lib/registration'
+import { getRegistrationClass, groupParticipantsByClass, isScorableRegistration } from '../../lib/registration'
 import { audit, eventAuditKey } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { lockRegistrationGroups } from '../lib/event'
@@ -49,7 +45,6 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
 
   const eventId = getParam(event, 'eventId')
   const body = parseJSONWithFallback<StartNumbersRequest>(event.body, {})
-  const eventClass: ClassKey | undefined = isRegistrationClass(body.eventClass) ? body.eventClass : undefined
   const numbers = parseStartNumberEntries(body.numbers)
 
   if (typeof body.published !== 'boolean' && numbers.length === 0) {
@@ -65,6 +60,12 @@ const putStartNumbersLambda = lambda('putStartNumbers', async (event) => {
   const time = isStartNumbersTime(body.time) ? body.time : undefined
 
   const confirmedEvent = await getAuthorizedEvent<JsonConfirmedEvent>(user, memberOf, eventId)
+  // A class the event runs, an own class among them (KOE-674); none is the classless trial's whole list.
+  // A key it does not run is refused, never read as the whole event.
+  if (body.eventClass !== undefined && !isRunClass(confirmedEvent, body.eventClass)) {
+    return response(422, 'invalid class', event)
+  }
+  const eventClass: ClassKey | undefined = body.eventClass
 
   const releaseGroupsLock = await lockRegistrationGroups(eventId, 8)
   const patches: Patch<JsonRegistration>[] = []
