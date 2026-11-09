@@ -34,6 +34,7 @@ import { nanoid } from 'nanoid'
 import { emptyBreeder, emptyDog, emptyPerson } from './data'
 import { addDays, calendarDayOf, dayOf, TIME_ZONE } from './day'
 import {
+  classLabel,
   formatTypeOf,
   getEventStateForClass,
   groupKeyOf,
@@ -1113,7 +1114,12 @@ export const getRegistrationEmailTemplateData = (
     paymentLink,
     paymentPaid: paymentBalance ? formatMoney(paymentBalance.paid) : '',
     qualifyingResults,
-    reg: registration,
+    // `reg.class` is the class as the registrant reads it (KOE-674): an own class by its name in their
+    // language, an official one by its code. The stored templates print `{{reg.class}}`, so the name
+    // reaches every template without rewriting one; the registration itself keeps the code.
+    reg: registration.class
+      ? { ...registration, class: classLabel(confirmedEvent, registration.class, registration.language) }
+      : registration,
     regDates,
     reserveText,
     selectedServices,

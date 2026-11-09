@@ -14,7 +14,9 @@ sivulla lukee *{t:error.startListNotAvailable}*.
 
 ## Mitä listalla on
 
-Lista etenee päivä ja luokka kerrallaan. Luokan otsikossa ovat luokan tuomarit, ja jos päivä on
+Lista etenee päivä ja luokka kerrallaan. Epävirallisen kokeen omat luokat ovat järjestäjän
+antamassa järjestyksessä ja näkyvät nimillään myös kopioidussa ja ladatussa listassa. Luokan
+otsikossa ovat luokan tuomarit, ja jos päivä on
 jaettu aamu- ja iltapäivään, kumpikin ryhmä on omana osanaan. Jokaisesta koirakosta kerrotaan
 starttinumero, rotu, tittelit, nimi, rekisterinumero ja syntymäaika, vanhemmat, omistaja ja
 ohjaaja sekä kasvattaja. Perunut koirakko näkyy paikallaan merkinnällä *{t:startList.absent}*,

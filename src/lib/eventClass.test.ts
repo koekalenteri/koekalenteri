@@ -1,14 +1,7 @@
 import type { DayKey, OwnClass } from '../types'
 import type { SortableRegistration } from './registration'
 import { classOrder } from './event'
-import {
-  classLabel,
-  inRegistrationOrder,
-  isEventClass,
-  isRunClass,
-  ownClassErrors,
-  registrationOrder,
-} from './eventClass'
+import { inRegistrationOrder, isEventClass, isRunClass, ownClassErrors, registrationOrder } from './eventClass'
 
 // KOE-674: an unofficial event may run classes of its own, named and ordered by the secretary.
 const derby: OwnClass = { code: 'DERBY', name: { en: 'Derby', fi: 'Derby' } }
@@ -241,16 +234,6 @@ describe('inRegistrationOrder (KOE-1652)', () => {
 
   it('answers nothing for nothing', () => {
     expect(inRegistrationOrder([], [placed('a', 'ALO', 1)], {})).toEqual([])
-  })
-})
-
-describe('classLabel', () => {
-  it("names an own class in the reader's language, in Finnish without one, and an official class by its code", () => {
-    expect(classLabel(unofficial, 'DERBY', 'en')).toBe('Derby')
-    expect(classLabel(unofficial, 'VET10', 'en')).toBe('Veteraanit')
-    expect(classLabel(unofficial, 'ALO', 'fi')).toBe('ALO')
-    expect(classLabel({}, 'AVO', 'en')).toBe('AVO')
-    expect(classLabel({ ownClasses: [{ code: 'YKS', name: { en: ' ' } }] }, 'YKS', 'en')).toBe('YKS')
   })
 })
 
