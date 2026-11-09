@@ -1812,6 +1812,7 @@ describe('putEventLambda', () => {
       ['without a list of dogs', [{ name: 'Joukkue' }]],
       ['with a name that is not text', [{ name: 1, registrationIds: [] }]],
       ['with a run-off mark that is not a boolean', [{ registrationIds: [], runOffWon: 'yes' }]],
+      ['with a first-team mark that is not true (KOE-1722)', [{ primary: false, registrationIds: [] }]],
     ])('refuses a team %s', async (_name, teams) => {
       const res = await putTeams(teams)
 
