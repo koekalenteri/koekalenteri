@@ -26,7 +26,7 @@
 const { execFileSync } = require('node:child_process')
 const fs = require('node:fs')
 const path = require('node:path')
-const ts = require('typescript')
+const { parseSync } = require('oxc-parser')
 
 const ROOT = path.resolve(__dirname, '..')
 const SOURCE_DIR = 'src'
@@ -37,8 +37,17 @@ const isTestSupport = (file) =>
   /(^|\/)(__mocks__|global-mocks|test-utils)\//.test(file) ||
   /(^|\/)setupTests\.tsx?$/.test(file)
 
+// The parser's syntax tree is ESTree with the TypeScript nodes of typescript-eslint.
+const isIdentifier = (node) => node?.type === 'Identifier'
+
+// `a.b`: a member read by a written-out name, not `a[b]`.
+const isPropertyAccess = (node) => node?.type === 'MemberExpression' && !node.computed && isIdentifier(node.property)
+
+// The name of an import or export specifier, written as an identifier or a string.
+const nameOf = (node) => node.name ?? node.value
+
 const isConstAssertion = (node) =>
-  ts.isTypeReferenceNode(node.type) && ts.isIdentifier(node.type.typeName) && node.type.typeName.text === 'const'
+  node.typeAnnotation.type === 'TSTypeReference' && isIdentifier(node.typeAnnotation.typeName) && node.typeAnnotation.typeName.name === 'const'
 
 // The CONFIG key of the one table a repository file may open a client on: `<x>Table` for
 // repositories/<x>Repository.ts, wsConnectionsTable for the WebSocket connection repository only,
@@ -66,41 +75,37 @@ const CLIENT_EXPORTS = [
 // Local name -> 'custom' | 'sdk' for every import of a client constructor, namespace name -> the
 // exports above it holds, and the names CONFIG is imported under. `import type` imports build
 // nothing and are left out.
-function clientBindings(source, file) {
+const valueImports = (program) =>
+  program.body.filter((statement) => statement.type === 'ImportDeclaration' && statement.importKind !== 'type')
+
+function clientBindings(program, file) {
   const names = new Map()
   const namespaces = new Map()
-  for (const statement of source.statements) {
-    const clause = ts.isImportDeclaration(statement) ? statement.importClause : undefined
-    if (!clause || clause.isTypeOnly || !ts.isStringLiteral(statement.moduleSpecifier)) continue
-    const exports = CLIENT_EXPORTS.filter((entry) => entry.module.test(statement.moduleSpecifier.text))
+  for (const statement of valueImports(program)) {
+    const exports = CLIENT_EXPORTS.filter((entry) => entry.module.test(statement.source.value))
     if (!exports.length) continue
     const kindOf = (name) => exports.find((entry) => entry.name === name)?.kind
-    if (clause.name && kindOf('default')) names.set(clause.name.text, kindOf('default'))
-    const bindings = clause.namedBindings
-    if (bindings && ts.isNamespaceImport(bindings)) namespaces.set(bindings.name.text, exports)
-    if (bindings && ts.isNamedImports(bindings)) {
-      for (const element of bindings.elements) {
-        const kind = !element.isTypeOnly && kindOf((element.propertyName ?? element.name).text)
-        if (kind) names.set(element.name.text, kind)
+    for (const specifier of statement.specifiers) {
+      if (specifier.type === 'ImportDefaultSpecifier' && kindOf('default')) names.set(specifier.local.name, kindOf('default'))
+      if (specifier.type === 'ImportNamespaceSpecifier') namespaces.set(specifier.local.name, exports)
+      if (specifier.type === 'ImportSpecifier') {
+        const kind = specifier.importKind !== 'type' && kindOf(nameOf(specifier.imported))
+        if (kind) names.set(specifier.local.name, kind)
       }
     }
   }
-  return { configs: configBindings(source, file), names, namespaces }
+  return { configs: configBindings(program, file), names, namespaces }
 }
 
 const LAMBDA_CONFIG = 'src/lambda/config'
 
 // The local names the file imports the CONFIG of src/lambda/config.ts under.
-function configBindings(source, file) {
+function configBindings(program, file) {
   const configs = new Set()
-  for (const statement of source.statements) {
-    const clause = ts.isImportDeclaration(statement) ? statement.importClause : undefined
-    const bindings = clause && !clause.isTypeOnly ? clause.namedBindings : undefined
-    const specifier = statement.moduleSpecifier?.text ?? ''
-    if (!bindings || !ts.isNamedImports(bindings)) continue
-    if (path.posix.join(path.posix.dirname(file), specifier) !== LAMBDA_CONFIG) continue
-    for (const element of bindings.elements) {
-      if ((element.propertyName ?? element.name).text === 'CONFIG') configs.add(element.name.text)
+  for (const statement of valueImports(program)) {
+    if (path.posix.join(path.posix.dirname(file), statement.source.value) !== LAMBDA_CONFIG) continue
+    for (const specifier of statement.specifiers) {
+      if (specifier.type === 'ImportSpecifier' && nameOf(specifier.imported) === 'CONFIG') configs.add(specifier.local.name)
     }
   }
   return configs
@@ -109,13 +114,13 @@ function configBindings(source, file) {
 // The first `new CustomDynamoClient(CONFIG.<table>)` of a repository file on its own table, the
 // one client the file may open. Any other argument, or a second construction, is no such client.
 function isOwnClient(node, scope) {
-  if (scope.ownClientOpened || !ts.isNewExpression(node) || node.arguments?.length !== 1) return false
+  if (scope.ownClientOpened || node.type !== 'NewExpression' || node.arguments.length !== 1) return false
   const [table] = node.arguments
   const own =
-    ts.isPropertyAccessExpression(table) &&
-    ts.isIdentifier(table.expression) &&
-    scope.bindings.configs.has(table.expression.text) &&
-    table.name.text === ownTable(scope.file)
+    isPropertyAccess(table) &&
+    isIdentifier(table.object) &&
+    scope.bindings.configs.has(table.object.name) &&
+    table.property.name === ownTable(scope.file)
   scope.ownClientOpened = own
   return own
 }
@@ -123,10 +128,10 @@ function isOwnClient(node, scope) {
 // The kind of client constructor an expression names: the name it was imported under, or
 // `sdk.DynamoDBClient` through a namespace import.
 function clientKind(expression, bindings) {
-  if (ts.isIdentifier(expression)) return bindings.names.get(expression.text)
-  if (ts.isPropertyAccessExpression(expression) && ts.isIdentifier(expression.expression)) {
-    const exports = bindings.namespaces.get(expression.expression.text) ?? []
-    return exports.find((entry) => entry.name === expression.name.text)?.kind
+  if (isIdentifier(expression)) return bindings.names.get(expression.name)
+  if (isPropertyAccess(expression) && isIdentifier(expression.object)) {
+    const exports = bindings.namespaces.get(expression.object.name) ?? []
+    return exports.find((entry) => entry.name === expression.property.name)?.kind
   }
   return undefined
 }
@@ -135,24 +140,22 @@ function clientKind(expression, bindings) {
 // imported a constructor under, `export * from` a client module, or a named export of one of its
 // constructors. `export type` hands on none.
 function exportKind(node, bindings) {
-  if (node.isTypeOnly) return undefined
-  if (!node.moduleSpecifier) {
-    const elements = node.exportClause && ts.isNamedExports(node.exportClause) ? node.exportClause.elements : []
-    return elements
-      .filter((element) => !element.isTypeOnly)
-      .map((element) => bindings.names.get((element.propertyName ?? element.name).text))
-      .find(Boolean)
-  }
-  if (!ts.isStringLiteral(node.moduleSpecifier)) return undefined
-  const exports = CLIENT_EXPORTS.filter((entry) => entry.module.test(node.moduleSpecifier.text))
-  const clause = node.exportClause
+  if (node.exportKind === 'type') return undefined
+  const specifiers = (node.specifiers ?? []).filter((specifier) => specifier.exportKind !== 'type')
+  if (!node.source) return specifiers.map((specifier) => bindings.names.get(nameOf(specifier.local))).find(Boolean)
+  const exports = CLIENT_EXPORTS.filter((entry) => entry.module.test(node.source.value))
   const named =
-    clause && ts.isNamedExports(clause)
-      ? exports.filter((entry) =>
-          clause.elements.some((element) => !element.isTypeOnly && (element.propertyName ?? element.name).text === entry.name)
-        )
+    node.type === 'ExportNamedDeclaration'
+      ? exports.filter((entry) => specifiers.some((specifier) => nameOf(specifier.local) === entry.name))
       : exports
   return named[0]?.kind
+}
+
+// The class a class extends, or the classes and interfaces an interface extends.
+const extendedClasses = (node) => {
+  if (node.type === 'ClassDeclaration' || node.type === 'ClassExpression') return node.superClass ? [node.superClass] : []
+  if (node.type === 'TSInterfaceDeclaration') return node.extends.map((heritage) => heritage.expression)
+  return []
 }
 
 // A DynamoDB client opened where it should not be: a CustomDynamoClient built, extended or
@@ -161,20 +164,27 @@ function exportKind(node, bindings) {
 function opensClient(node, scope) {
   const { bindings, file } = scope
   let kind
-  if (ts.isNewExpression(node) || ts.isExportAssignment(node)) kind = clientKind(node.expression, bindings)
-  else if (ts.isExportDeclaration(node)) kind = exportKind(node, bindings)
-  else if (ts.isHeritageClause(node) && node.token === ts.SyntaxKind.ExtendsKeyword) {
-    kind = node.types.map((type) => clientKind(type.expression, bindings)).find(Boolean)
+  let at = node
+  if (node.type === 'NewExpression') kind = clientKind(node.callee, bindings)
+  else if (node.type === 'ExportDefaultDeclaration') kind = clientKind(node.declaration, bindings)
+  else if (node.type === 'TSExportAssignment') kind = clientKind(node.expression, bindings)
+  else if ((node.type === 'ExportNamedDeclaration' && !node.declaration) || node.type === 'ExportAllDeclaration') {
+    kind = exportKind(node, bindings)
+  } else if (extendedClasses(node).length) {
+    at = extendedClasses(node)[0]
+    kind = extendedClasses(node)
+      .map((expression) => clientKind(expression, bindings))
+      .find(Boolean)
   } else if (
-    ts.isCallExpression(node) &&
-    ts.isPropertyAccessExpression(node.expression) &&
-    node.expression.name.text === 'from' &&
-    clientKind(node.expression.expression, bindings) === 'sdk'
+    node.type === 'CallExpression' &&
+    isPropertyAccess(node.callee) &&
+    node.callee.property.name === 'from' &&
+    clientKind(node.callee.object, bindings) === 'sdk'
   ) {
     kind = 'sdk'
   }
-  if (kind === 'custom') return !isOwnClient(node, scope)
-  return kind === 'sdk' && file.startsWith('src/lambda/') && file !== CLIENT_FILE
+  if (kind === 'custom') return !isOwnClient(node, scope) && at
+  return kind === 'sdk' && file.startsWith('src/lambda/') && file !== CLIENT_FILE && at
 }
 
 const ASSERTION_HINT = 'AGENTS.md forbids new type assertions and explicit any; model or narrow the value instead.'
@@ -184,13 +194,13 @@ const METRICS = {
     countsIn: (file) => !isTestSupport(file),
     hint: ASSERTION_HINT,
     label: 'type assertions outside tests',
-    matches: (node) => (ts.isAsExpression(node) && !isConstAssertion(node)) || ts.isTypeAssertionExpression(node),
+    matches: (node) => (node.type === 'TSAsExpression' && !isConstAssertion(node)) || node.type === 'TSTypeAssertion',
   },
   explicitAny: {
     countsIn: () => true,
     hint: ASSERTION_HINT,
     label: 'explicit any types',
-    matches: (node) => node.kind === ts.SyntaxKind.AnyKeyword,
+    matches: (node) => node.type === 'TSAnyKeyword',
   },
   dynamoClientsOutsideRepositories: {
     countsIn: (file) => !isTestSupport(file),
@@ -210,23 +220,46 @@ function sourceFiles(dir) {
   return files.sort()
 }
 
-// Returns `${file}:${line}` for every match of every metric in the given text of the file.
+// The 1-based line of each offset into the text.
+const lineOf = (text) => {
+  const starts = [0]
+  for (let at = text.indexOf('\n'); at !== -1; at = text.indexOf('\n', at + 1)) starts.push(at + 1)
+  return (offset) => {
+    let low = 0
+    let high = starts.length - 1
+    while (low < high) {
+      const middle = (low + high + 1) >> 1
+      if (starts[middle] <= offset) low = middle
+      else high = middle - 1
+    }
+    return low + 1
+  }
+}
+
+// The syntax nodes under a node, in source order.
+const children = (node) =>
+  Object.values(node)
+    .flatMap((value) => (Array.isArray(value) ? value : [value]))
+    .filter((value) => typeof value?.type === 'string')
+
+// Returns `${file}:${line}` for every match of every metric in the given text of the file. A match
+// is located at the node a metric returns, or at the node it matched. A file that does not parse
+// fails: counting a part of it would let a match through.
 function locate(file, text) {
-  const kind = file.endsWith('x') ? ts.ScriptKind.TSX : ts.ScriptKind.TS
-  const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, false, kind)
+  const { errors, program } = parseSync(file, text)
+  if (errors.length) throw new Error(`ratchet: ${file} does not parse: ${errors[0].message}`)
+  const line = lineOf(text)
   const metrics = Object.entries(METRICS).filter(([, metric]) => metric.countsIn(file))
   const found = Object.fromEntries(Object.keys(METRICS).map((name) => [name, []]))
-  const scope = { bindings: clientBindings(source, file), file, ownClientOpened: false }
+  const scope = { bindings: clientBindings(program, file), file, ownClientOpened: false }
   const visit = (node) => {
     for (const [name, metric] of metrics) {
-      if (metric.matches(node, scope)) {
-        const { line } = source.getLineAndCharacterOfPosition(node.getStart(source))
-        found[name].push(`${file}:${line + 1}`)
-      }
+      const match = metric.matches(node, scope)
+      if (match) found[name].push(`${file}:${line((match === true ? node : match).start)}`)
     }
-    ts.forEachChild(node, visit)
+    for (const child of children(node)) visit(child)
   }
-  visit(source)
+  visit(program)
   return found
 }
 
