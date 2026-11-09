@@ -60,7 +60,8 @@ const sameTeam = (a: EventTeam, b: EventTeam) =>
  * team's dogs, since each changes a heading or a code there (KOE-1715), a run-off won, which changes
  * a placing (KOE-1717), or a team's series, which its rows name and its placing is counted in
  * (KOE-1720). No teams and an empty list are the same, and so are no name and an empty one, and no
- * run-off mark and a false one.
+ * run-off mark and a false one. The comparison decides only whether the public start list is published
+ * anew, so the first-team mark (`primary`, KOE-1722) is left out: no row shows it.
  */
 export const teamsDiffer = (
   before: readonly EventTeam[] | null | undefined,

@@ -559,6 +559,11 @@ export interface EventTeam {
    */
   runOffWon?: boolean
   /**
+   * The first team of its club or kennel (KOE-1722, "ykkösjoukkue"): drawn for the places before the
+   * other teams (`teamDraw`) when more teams enter than the trial holds.
+   */
+  primary?: true
+  /**
    * The series the team competes in (KOE-1720), one of the event's `teamCompetition.series`. Teams are
    * ranked within their series, and the teams in none among themselves.
    */
