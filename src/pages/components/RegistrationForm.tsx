@@ -269,7 +269,8 @@ export default function RegistrationForm({
   const handleTeamEntry = useCallback(
     (teamEntry: TeamEntry | undefined) => {
       if (disabled) return
-      if (teamEntry) return handleChange({ teamEntry })
+      // The team replaces the one before it: a merge would keep a first-team mark taken off.
+      if (teamEntry) return handleChange({ teamEntry }, true)
       const { teamEntry: _cleared, ...rest } = registration
       onChange?.(rest)
     },
