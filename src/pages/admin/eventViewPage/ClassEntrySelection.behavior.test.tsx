@@ -469,31 +469,43 @@ describe('ClassEntrySelection behavior coverage', () => {
     const reserveAndParticipant: Registration[] = [
       {
         ...registrationWithStaticDates,
+        class: 'ALO',
         dates: bothDays,
         group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 1, time: 'ap' as const },
         id: 'participant-1',
       },
       {
         ...registrationWithStaticDates,
+        class: 'ALO',
         dates: bothDays,
         group: { date: mockedGroups[1].date, key: '2021-02-10-ip', number: 2, time: 'ip' as const },
         id: 'participant-2',
       },
       {
         ...registrationWithStaticDates,
+        class: 'ALO',
         dates: bothDays,
         group: { key: GROUP_KEY_RESERVE, number: 1 },
         id: 'reserve-1',
       },
     ]
 
-    const openReserveMove = async (action: 'moveToParticipants' | 'moveToPosition') => {
+    // The ALO class is picked; the event is not, as on a trial whose classes are picked one by one.
+    const aloPicked: ConfirmedEvent = {
+      ...activeEvent,
+      classes: activeEvent.classes.map((c) => (c.class === 'ALO' ? { ...c, state: 'picked' } : c)),
+    }
+
+    const openReserveMove = async (
+      action: 'moveToParticipants' | 'moveToPosition',
+      tab: { eventClass?: string; state?: ConfirmedEvent['state'] } = { eventClass: 'ALO', state: 'picked' }
+    ) => {
       const rendered = renderWithUserEvents(
         <ClassEntrySelection
-          event={activeEvent}
-          eventClass="ALO"
+          event={aloPicked}
+          eventClass={tab.eventClass}
           registrations={reserveAndParticipant}
-          state="picked"
+          state={tab.state}
         />,
         { wrapper: Wrapper },
         { advanceTimers: vi.advanceTimersByTime }
@@ -524,6 +536,16 @@ describe('ClassEntrySelection behavior coverage', () => {
         expect(mockSaveGroups).not.toHaveBeenCalled()
       }
     )
+
+    // KOE-1722: the dog's own class decides, also on the all-classes tab, whose state is the event's.
+    it("warns on the all-classes tab where the dog's class is picked though the event is not", async () => {
+      await openReserveMove('moveToParticipants', { state: aloPicked.state })
+
+      expect(
+        screen.getByRole('button', { name: 'eventManagement.participantSelection.moveToParticipants.confirm' })
+      ).toBeInTheDocument()
+      expect(mockSaveGroups).not.toHaveBeenCalled()
+    })
 
     it('leaves the dog on the reserve list when the secretary backs out', async () => {
       const user = await openReserveMove('moveToParticipants')

@@ -24,7 +24,13 @@ import { useAdminEventRegistrationDates } from '@/hooks/useAdminEventRegistratio
 import { useAdminEventRegistrationGroups } from '@/hooks/useAdminEventRegistrationGroups'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { rowSelectionModel } from '@/lib/datagrid'
-import { eventRegistrationDateKey, formatTypeOf, isEntryEditingClosed, isPaymentWindowOpen } from '@/lib/event'
+import {
+  eventRegistrationDateKey,
+  formatTypeOf,
+  getEventStateForClass,
+  isEntryEditingClosed,
+  isPaymentWindowOpen,
+} from '@/lib/event'
 import { isEventClass } from '@/lib/eventClass'
 import {
   GROUP_KEY_CANCELLED,
@@ -322,11 +328,12 @@ const ClassEntrySelection = ({
         event,
         fromGroupKey: getRegistrationGroupKey(registration),
         registration,
-        state,
+        // The dog's own class, as the server mails by it (KOE-1722): on the all-classes tab `state` is the event's.
+        state: getEventStateForClass(event, getRegistrationClass(registration, event)),
         t,
         toGroupKey,
       }),
-    [confirm, event, state, t]
+    [confirm, event, t]
   )
 
   const handleMoveToGroup = useCallback(
