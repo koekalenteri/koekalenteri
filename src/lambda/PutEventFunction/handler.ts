@@ -221,10 +221,9 @@ const pruneDaysOutOfTrial = (data: JsonConfirmedEvent, item: Patch<JsonConfirmed
 }
 
 /**
- * Any event type may run a team competition (KOE-1714). Only the shape is checked: the series the teams
- * are in and the settings themselves (KOE-1720), each dog in one team and a letter for each. The page
- * offers the event's own entries, and the readers skip an id the registrations do not hold, so the
- * registrations are not read.
+ * Any event type may run a team competition (KOE-1714). The shape is checked here, on the merged event:
+ * the series the teams are in and the settings themselves (KOE-1720), each dog in one team and a letter
+ * for each. Which dogs may join a team is read from the registrations after it (`checkTeamCandidates`).
  */
 const checkTeams = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>) => {
   if (!restsOnTeamGround(item)) return
@@ -279,6 +278,26 @@ const checkOwnClassEntries = async (existing: JsonConfirmedEvent | undefined, da
   const registered = (await readEventRegistrations(existing.id)).map((reg) => reg.class)
   const errors = ownClassErrors(data, registered).filter(({ kind }) => kind === 'registered')
   if (errors.length) throw invalidOwnClasses(errors)
+}
+
+/**
+ * A dog joining a team is one that may (KOE-1725): once its class is picked, one of the dogs picked into
+ * it (`isTeamCandidate`, the rule the teams page offers its dogs by). A dog in a team before stays. The
+ * registrations are read only when a save brings a dog into a team.
+ */
+const checkTeamCandidates = async (
+  existing: JsonConfirmedEvent | undefined,
+  data: JsonConfirmedEvent,
+  item: Patch<JsonConfirmedEvent>
+) => {
+  if (!item.teams) return
+  const before = new Set(existing?.teams?.flatMap((team) => team.registrationIds))
+  if (data.teams?.every((team) => team.registrationIds.every((id) => before.has(id)))) return
+
+  const errors = teamErrors(data, await readEventRegistrations(data.id), existing?.teams)
+  if (errors.length) {
+    throw httpError(400, { error: 'invalidTeams', errors, message: 'Bad request: the teams do not fit together' })
+  }
 }
 
 /**
@@ -583,6 +602,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   // admin payload, including when the stored event currently has no lock.
   restoreServerOwnedLocks(data, existing)
   await checkOrganizerExists(existing, data)
+  await checkTeamCandidates(existing, data, item)
   await checkOwnClassEntries(existing, data)
   await checkPaymentLock(existing, data)
   const { renumber } = await checkOfficialFormatChange(existing, data)

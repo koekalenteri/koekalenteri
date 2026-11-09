@@ -38,7 +38,7 @@ const rotationGroup = objectOf({
 /**
  * A team of a team competition (KOE-1714). That a dog is in one team only, that a team has a letter for
  * every dog and that its series is one of the competition's (KOE-1720) is checked on the merged event
- * (`teamErrors`). A run-off mark is read only while the team is tied for first in its series
+ * (`teamErrors`), and whether a dog joining it may (`isTeamCandidate`, KOE-1725). A run-off mark is read only while the team is tied for first in its series
  * (`teamStandings`, KOE-1717), so no other check is made of it.
  */
 const team = objectOf({
