@@ -81,6 +81,7 @@ messages by the same clock (KOE-1516).
 The page (`usePublicStartList` in `src/hooks`) keeps the highest version it has accepted and turns
 away anything older (`isStartListUpToDate` in `src/lib/startList.ts`). The highest version was read
 after every write that has a broadcast behind it, so an open page always ends on what is stored.
+
 - A message the page cannot use as it is, `stale`, or unversioned once a version has been accepted
   (a Lambda from before versions, during a deploy), is answered with a fetch on a request of its own:
   it never joins a fetch already in flight, so it reads after the message that asked for it.
@@ -99,6 +100,7 @@ after every write that has a broadcast behind it, so an open page always ends on
 - Leaving the event cancels its fetches; a fetch for an event the page has left is never shown.
 
 Accepted risks:
+
 - **Same millisecond.** Equal versions are accepted, so of two reads stamped in the same millisecond
   the later arrival wins, whichever read first.
 - **A replayed write among three overlapping saves.** The stamp is taken before the reads, so a slow
@@ -150,6 +152,7 @@ a read started on it sees everything sent before, and anything later arrives on 
 Connections are stored in the configured WebSocket connections DynamoDB table. The table is queried by the `audience-index` GSI using `audience` values `public` and `admin`.
 
 Important fields:
+
 - `connectionId`: API Gateway connection ID and table key.
 - `audience`: coarse routing group. New and authenticated connections start as `public`; admin subscriptions and event subscriptions move the connection to `admin`.
 - `userId`: authenticated application user ID.
