@@ -231,7 +231,66 @@ it("shows each team's points and placing once the results are out (KOE-1717)", a
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-team-standings')
 })
 
+// A team competition in two series (KOE-1720): each series has its own first place, and the team in no
+// series is listed first. The rows name the series by id; the page names it from the public event.
+const seriesTrial: PublicConfirmedEvent = {
+  ...standingsTrial,
+  id: 'event-team-series',
+  teamCompetition: {
+    series: [
+      { id: 'open', name: { en: 'Open series', fi: 'Avoin sarja' } },
+      { id: 'breed', name: { en: 'Breed series', fi: 'Rotusarja' } },
+    ],
+  },
+}
+const seriesDogs = [
+  scoredDog(EVENT_DAY, 'WATERFOWLER OAKLEAF', 'FI10724/23', 1, 90, {
+    code: '1A',
+    number: 1,
+    placement: 1,
+    points: 90,
+    seriesId: 'breed',
+  }),
+  scoredDog(EVENT_DAY, 'WATERFOWLER ODIN', 'FI10716/23', 2, 85, {
+    code: '2A',
+    number: 2,
+    placement: 1,
+    points: 85,
+    seriesId: 'open',
+  }),
+  scoredDog(EVENT_DAY, 'WATERFOWLER OTSO', 'FI10720/23', 3, 80, {
+    code: '3A',
+    number: 3,
+    placement: 2,
+    points: 80,
+    seriesId: 'open',
+  }),
+  scoredDog(EVENT_DAY, 'WATERFOWLER OLIVIA', 'FI10722/23', 4, 75, { code: '4A', number: 4, placement: 1, points: 75 }),
+]
+
+it('lists a team competition series by series (KOE-1720)', async () => {
+  const screen = await render(
+    <Frame>
+      <ParticipantList event={seriesTrial} participants={seriesDogs} />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('Avoin sarja')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-team-series')
+})
+
 describeInLanguage('en', () => {
+  it('lists a team competition series by series (KOE-1720)', async () => {
+    const screen = await render(
+      <Frame>
+        <ParticipantList event={seriesTrial} participants={seriesDogs} />
+      </Frame>
+    )
+
+    await expect.element(screen.getByText('Open series')).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('start-list-team-series-en')
+  })
+
   it("shows each team's points and placing once the results are out (KOE-1717)", async () => {
     // Taller than the default viewport, which would leave the last rows blank.
     await page.viewport(1000, 1200)
