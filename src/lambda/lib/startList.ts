@@ -117,6 +117,7 @@ const withTeams = (
         code,
         ...(team.name ? { name: team.name } : {}),
         number,
+        ...(team.seriesId ? { seriesId: team.seriesId } : {}),
         ...standings.get(index),
       })
     }
@@ -131,7 +132,8 @@ const withTeams = (
 type PublishedStanding = Pick<PublicTeamPlace, 'placement' | 'points' | 'runOff'>
 
 /**
- * Each team's standing over the trial, by the team's place in the list (KOE-1717). It is worked out once
+ * Each team's standing over the trial in its series, by the team's place in the list (KOE-1717,
+ * KOE-1720). It is worked out once
  * per team and given to every row of it, so whichever row a reader takes it from says the same. The
  * standings are public only when every dog any team counts is on the published list with its result:
  * a total holds its dogs' points, and a placing compares it with every other team's, so one dog still

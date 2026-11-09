@@ -1844,7 +1844,11 @@ describe('putEventLambda', () => {
         { id: 'open', name: { fi: 'Avoin' } },
         { id: 'breed', name: { fi: 'Rotu' } },
       ]
-      const inSeries = { ...mockEvent, teamCompetition: { series }, teams: [{ registrationIds: ['a'], seriesId: 'open' }] }
+      const inSeries = {
+        ...mockEvent,
+        teamCompetition: { series },
+        teams: [{ registrationIds: ['a'], seriesId: 'open' }],
+      }
       const patch = async (stored: JsonDogEvent, body: Record<string, unknown>) => {
         signIn(mockSecretary)
         getEventMock.mockResolvedValueOnce(stored)
@@ -1905,6 +1909,7 @@ describe('putEventLambda', () => {
 
       it.each([
         ['a series without an id', { series: [{ name: { fi: 'Avoin' } }] }],
+        ['a series with an empty id', { series: [{ id: '', name: { fi: 'Avoin' } }] }],
         ['a series name that is not text', { series: [{ id: 'open', name: { fi: 1 } }] }],
         ['a question at entry that is not a boolean', { askAtEntry: 'yes' }],
         ['counted days that are not a list', { days: '2025-06-01' }],

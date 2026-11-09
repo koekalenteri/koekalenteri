@@ -148,7 +148,11 @@ describe('teamCompetitionDiffers (KOE-1720)', () => {
 
   it.each<[string, TeamCompetition | undefined, TeamCompetition]>([
     ['no settings and empty ones', undefined, {}],
-    ['a renamed series, since a row names its series by id', { series }, { series: [{ id: 'open', name: { fi: 'Uusi' } }] }],
+    [
+      'a renamed series, since a row names its series by id',
+      { series },
+      { series: [{ id: 'open', name: { fi: 'Uusi' } }] },
+    ],
     ['an added series no team is in', { series }, { series: [...series, { id: 'breed', name: { fi: 'Rotu' } }] }],
     ['the question at entry', {}, { askAtEntry: true }],
     ['the litter suggestions', {}, { litters: true }],

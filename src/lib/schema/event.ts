@@ -1,4 +1,4 @@
-import { integer, literal, maxValue, minValue, optional, pipe, union } from 'valibot'
+import { integer, literal, maxValue, minValue, nonEmpty, optional, pipe, union } from 'valibot'
 import { OFFICIAL_FORMATS } from '../../types'
 import { MAX_DOGS_AT_ONCE } from '../liveFormat'
 import { arrayOf, bool, maybe, num, objectOf, oneOf, str } from './common'
@@ -35,14 +35,34 @@ const rotationGroup = objectOf({
 })
 
 /**
- * A team of a team competition (KOE-1714). That a dog is in one team only, and that a team has a letter
- * for every dog, is checked on the merged event (`teamErrors`). A run-off mark is read only while the
- * team is tied for first (`teamStandings`, KOE-1717), so no other check is made of it.
+ * A team of a team competition (KOE-1714). That a dog is in one team only, that a team has a letter for
+ * every dog and that its series is one of the competition's (KOE-1720) is checked on the merged event
+ * (`teamErrors`). A run-off mark is read only while the team is tied for first in its series
+ * (`teamStandings`, KOE-1717), so no other check is made of it.
  */
 const team = objectOf({
   name: optional(str),
   registrationIds: arrayOf(str),
   runOffWon: optional(bool),
+  seriesId: optional(str),
+})
+
+/** A series of a team competition (KOE-1720). Its own id and its Finnish name are `teamCompetitionErrors`'. */
+const teamSeries = objectOf({
+  id: pipe(str, nonEmpty('must not be empty')),
+  name: objectOf({ en: optional(str), fi: optional(str) }),
+})
+
+/**
+ * The settings of a team competition (KOE-1720). Each field may arrive as null, which a PATCH reads as
+ * removing that one setting (`patchMerge`). Which days count is not checked against the trial's days:
+ * a day the trial no longer has is left out of them (KOE-1726).
+ */
+const teamCompetition = objectOf({
+  askAtEntry: maybe(bool),
+  days: maybe(arrayOf(str)),
+  litters: maybe(bool),
+  series: maybe(arrayOf(teamSeries)),
 })
 
 /**
@@ -96,5 +116,6 @@ export const eventBodySchema = objectOf({
     oneOf(['draft', 'tentative', 'cancelled', 'confirmed', 'picked', 'invited', 'started', 'ended', 'completed'])
   ),
   stations: maybe(arrayOf(station)),
+  teamCompetition: maybe(teamCompetition),
   teams: maybe(arrayOf(team)),
 })
