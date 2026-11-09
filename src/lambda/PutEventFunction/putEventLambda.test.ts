@@ -1820,6 +1820,15 @@ describe('putEventLambda', () => {
       expect(patchEventMock).not.toHaveBeenCalled()
     })
 
+    it('stores a first-team mark (KOE-1722)', async () => {
+      const teams = [{ primary: true, registrationIds: ['a'] }, { registrationIds: ['b'] }]
+
+      const res = await putTeams(teams)
+
+      expect(res.statusCode).toEqual(200)
+      expect(patchEventMock).toHaveBeenCalledWith('existing', mockEvent, expect.objectContaining({ teams }))
+    })
+
     it('stores named teams, a full one and an empty one among them, without reading the entries', async () => {
       const teams = [{ name: 'Team Finland 1', registrationIds: members(26) }, { registrationIds: [] }]
 

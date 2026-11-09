@@ -1,6 +1,6 @@
-import type { EventTeam } from '../../types'
-import type { AssemblyEntry } from './teamAssembly'
-import { teamDraw, teamGroupMoves, teamSelection } from './teamAssembly'
+import type { EventTeam } from '../types'
+import type { AssemblyEntry } from './teamSelection'
+import { teamDraw, teamGroupMoves, teamSelection } from './teamSelection'
 
 // KOE-1722: the secretary selects a team competition's dogs team by team.
 const DAY = '2026-08-01' as const
@@ -77,6 +77,18 @@ describe('teamGroupMoves', () => {
     ])
   })
 
+  it('leaves a member with no class where it is: no class, no group to move it to', () => {
+    const noClass = { ...reserve('b'), class: null }
+
+    expect(teamGroupMoves({ registrationIds: ['a', 'b'] }, [reserve('a'), noClass], 'participants', groups)).toEqual([
+      { eventClass: 'ALO', moves: [{ group: { date: DAY, key: morning.key, time: 'ap' }, id: 'a' }] },
+    ])
+  })
+
+  it('leaves a reserve member where it is when its class has no group to take it, for the secretary to place', () => {
+    expect(teamGroupMoves({ registrationIds: ['v'] }, [reserve('v', 'VOI')], 'participants', groups)).toEqual([])
+  })
+
   it('has no moves for a team already where it is sent', () => {
     expect(teamGroupMoves({ registrationIds: ['a'] }, [running('a')], 'participants', groups)).toEqual([])
   })
@@ -110,6 +122,15 @@ describe('teamDraw', () => {
     }
 
     expect(teamDraw(teams, mixed, free, inOrder)).toEqual([1, 0])
+  })
+
+  it('counts no place for a member with no class, so a team of such members waits for none', () => {
+    const noClass: AssemblyEntry[] = entries.map((entry) =>
+      entry.id.startsWith('b') || entry.id === 'a2' ? { ...entry, class: undefined } : entry
+    )
+    const free = { byClass: new Map([['ALO', 1]]), trial: 1 }
+
+    expect(teamDraw(teams, noClass, free, inOrder)).toEqual([0])
   })
 
   it('holds to the places of the whole trial too', () => {

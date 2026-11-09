@@ -1,13 +1,6 @@
-import type {
-  ClassKey,
-  DayKey,
-  EventTeam,
-  JsonRegistration,
-  RegistrationGroupMove,
-  RegistrationTime,
-} from '../../types'
-import { compareRegistrationClasses } from '../event'
-import { GROUP_KEY_RESERVE, getRegistrationGroupKey, isParticipantGroup } from '../registration'
+import type { ClassKey, DayKey, EventTeam, JsonRegistration, RegistrationGroupMove, RegistrationTime } from '../types'
+import { compareRegistrationClasses } from './event'
+import { GROUP_KEY_RESERVE, getRegistrationGroupKey, isParticipantGroup } from './registration'
 
 /** What the selection reads of an entry: its class, the days it entered, and where it is now. */
 export type AssemblyEntry = Pick<JsonRegistration, 'id' | 'cancelled' | 'group'> & {
