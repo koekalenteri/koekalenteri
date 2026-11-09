@@ -1,10 +1,10 @@
 import type { EventTeam, TeamCompetition } from '../types'
 import {
+  isTeamCountedDay,
   MAX_TEAM_MEMBERS,
   pruneTeamDays,
   teamCompetitionDiffers,
   teamCompetitionErrors,
-  teamCountedDays,
   teamErrors,
   teamMembers,
   teamsDiffer,
@@ -181,21 +181,32 @@ describe('the counted days (KOE-1726)', () => {
     startDate: '2026-08-01' as const,
   }
 
-  describe('teamCountedDays', () => {
-    it.each<[string, TeamCompetition | undefined, string[]]>([
-      ['every day of the trial without a choice', undefined, ['2026-08-01', '2026-08-02']],
-      ['every day of the trial for an empty choice', { days: [] }, ['2026-08-01', '2026-08-02']],
-      ['the chosen days', { days: ['2026-08-01'] }, ['2026-08-01']],
-      ['the chosen days the trial still has', { days: ['2026-07-31', '2026-08-02'] }, ['2026-08-02']],
-      ['every day when the trial has none of the chosen', { days: ['2026-07-31'] }, ['2026-08-01', '2026-08-02']],
-    ])('gives %s', (_name, teamCompetition, expected) => {
-      expect(teamCountedDays({ ...trial, teamCompetition })).toEqual(expected)
+  describe('isTeamCountedDay', () => {
+    const days = ['2026-07-31', '2026-08-01', '2026-08-02', undefined] as const
+
+    it.each<[string, TeamCompetition | undefined, boolean[]]>([
+      ['every dog without a choice, also one on no day', undefined, [true, true, true, true]],
+      ['every dog for an empty choice', { days: [] }, [true, true, true, true]],
+      ['the dogs of the chosen days', { days: ['2026-08-01'] }, [false, true, false, false]],
+      [
+        'the dogs of the chosen days the trial still has',
+        { days: ['2026-07-31', '2026-08-02'] },
+        [false, false, true, false],
+      ],
+      ['every dog when the trial has none of the chosen', { days: ['2026-07-31'] }, [true, true, true, true]],
+    ])('counts %s', (_name, teamCompetition, expected) => {
+      expect(days.map(isTeamCountedDay({ ...trial, teamCompetition }))).toEqual(expected)
     })
 
     it('reads the days of a trial without classes from its dates', () => {
-      expect(
-        teamCountedDays({ classes: [], endDate: '2026-08-03', startDate: '2026-08-01', teamCompetition: {} })
-      ).toEqual(['2026-08-01', '2026-08-02', '2026-08-03'])
+      const counts = isTeamCountedDay({
+        classes: [],
+        endDate: '2026-08-03',
+        startDate: '2026-08-01',
+        teamCompetition: { days: ['2026-08-03'] },
+      })
+
+      expect([counts('2026-08-02'), counts('2026-08-03')]).toEqual([false, true])
     })
   })
 

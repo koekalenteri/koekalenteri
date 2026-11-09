@@ -574,7 +574,7 @@ export interface TeamCompetition {
   series?: TeamSeries[]
   /**
    * The days whose results a team counts (KOE-1726), such as a derby's qualifying day. None, or none the
-   * trial still has, counts every day (`teamCountedDays`); an event save leaves out a day the trial no
+   * trial still has, counts every day (`isTeamCountedDay`); an event save leaves out a day the trial no
    * longer has, and a copy moves them with the trial's days.
    */
   days?: DayKey[]

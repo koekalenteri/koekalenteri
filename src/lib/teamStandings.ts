@@ -75,12 +75,12 @@ const bySeries = (teams: readonly EventTeam[]): number[][] => {
 /**
  * The teams' points and placings over the trial (KOE-1717): a team's dogs run in different classes
  * and on different days, and the competition is settled over all of them on the days it counts
- * (KOE-1726), their points summed whatever their class. Each series is ranked on its own, with its own first place and run-off, and the
- * teams in no series among themselves (KOE-1720). A team with no dog running is not ranked. Before any
- * counted dog of a series has a result the series has no standings, rather than every team first on
- * nought. Only a format scored at posts has points; any other has no standings. The one rule for the
- * teams page and the public start list, so the two never disagree; the start list publishes them only
- * once every result they read is out.
+ * (KOE-1726), their points summed whatever their class. Each series is ranked on its own, with its own
+ * first place and run-off, and the teams in no series among themselves (KOE-1720). A team with no dog
+ * running is not ranked. Before any counted dog of a series has a result the series has no standings,
+ * rather than every team first on nought. Only a format scored at posts has points; any other has no
+ * standings. The one rule for the teams page and the public start list, so the two never disagree; the
+ * start list publishes them only once every result they read is out.
  */
 export const teamStandings = (
   event: FormatOwner & TeamDaysOwner,
@@ -118,7 +118,7 @@ export const withRunOffWinner = (teams: readonly EventTeam[], index: number, won
 
 /**
  * The dogs each team counts, by the team's place in the list: every member that runs, in whichever
- * class (KOE-1717), on a day the competition counts (`teamCountedDays`, KOE-1726). A cancelled dog
+ * class (KOE-1717), on a day the competition counts (`isTeamCountedDay`, KOE-1726). A cancelled dog
  * and a reserve run none, and a dog's result is of the day it runs, its group's. What `teamStandings`
  * sums, and what the start list checks is published before it shows the standings.
  */

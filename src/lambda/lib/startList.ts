@@ -138,10 +138,11 @@ type PublishedStanding = Pick<PublicTeamPlace, 'placement' | 'points' | 'runOff'
  * counts is on the published list with its result: a total holds its dogs' points, and a placing
  * compares it with the other teams of the series, so one dog still withheld would leak through either.
  * Another series' dogs are in neither, so each series is released on its own; the teams in no series
- * are one. A dog on a day the competition does not count is in neither either (KOE-1726). A dog withheld is one whose class or day has no results out yet, and one whose row is not
- * published at all (`publicRow` answers none: its list is not out, or it was added after the numbers
- * went out and has none entered, KOE-1272). The release is read from the dog's `group` as `publicRow`
- * reads it. The preview shows them as they stand.
+ * are one. A dog on a day the competition does not count is in neither either (KOE-1726). A dog
+ * withheld is one whose class or day has no results out yet, and one whose row is not published at all
+ * (`publicRow` answers none: its list is not out, or it was added after the numbers went out and has
+ * none entered, KOE-1272). The release is read from the dog's `group` as `publicRow` reads it. The
+ * preview shows them as they stand.
  */
 const publishedStandings = (
   confirmedEvent: JsonDogEvent,

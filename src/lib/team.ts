@@ -142,18 +142,9 @@ const chosenTeamDays = (event: TeamDaysOwner): DayKey[] => {
 }
 
 /**
- * The days whose results the teams count (KOE-1726): the chosen days the trial still has, such as a
- * derby's qualifying day without its final. No choice, or none of its days left in the trial, counts
- * every day of the trial, as a competition did before the choice.
- */
-export const teamCountedDays = (event: TeamDaysOwner): DayKey[] => {
-  const chosen = chosenTeamDays(event)
-  return chosen.length ? chosen : eventDates(event)
-}
-
-/**
- * Whether a dog's day counts for its team (KOE-1726): with no day chosen every dog counts, also one
- * not yet placed on a day, as before the choice.
+ * Whether a dog's day counts for its team (KOE-1726): one of the chosen days the trial still has, such
+ * as a derby's qualifying day without its final. With no choice, or none of its days left in the trial,
+ * every dog counts, also one not yet placed on a day, as before the choice.
  */
 export const isTeamCountedDay = (event: TeamDaysOwner): ((day: DayKey | undefined) => boolean) => {
   const chosen = chosenTeamDays(event)
