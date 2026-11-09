@@ -676,9 +676,14 @@ export interface PublicTeamPlace {
   code: string
   name?: string
   number: number
+  /**
+   * The team's series (KOE-1720), by id: the page names it in the viewer's language from the public
+   * event's `teamCompetition.series`, so a renamed series needs no new list. Absent on a team in none.
+   */
+  seriesId?: string
   /** The team's points over the trial. */
   points?: number
-  /** The team's placing over the trial; teams level on points share one. */
+  /** The team's placing over the trial in its series; teams level on points share one. */
   placement?: number
   /** The team was tied for first, so a run-off task decides (or decided) first place. */
   runOff?: true

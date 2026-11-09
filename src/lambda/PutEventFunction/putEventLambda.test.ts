@@ -9,6 +9,7 @@ import type {
   JsonRegistration,
   JsonUser,
   Patch,
+  TeamCompetition,
 } from '../../types'
 import { vi } from 'vitest'
 import { jsonRegistrationsToEventWithParticipantsInvited } from '../../__mockData__/registrations'
@@ -1828,13 +1829,138 @@ describe('putEventLambda', () => {
       expect(mockReadEventRegistrations).not.toHaveBeenCalled()
     })
 
-    it('leaves the stored teams unchecked by a save that does not carry them', async () => {
+    it('leaves the stored teams unchecked by a save that carries nothing they rest on (KOE-1720)', async () => {
       signIn(mockSecretary)
       getEventMock.mockResolvedValueOnce({ ...mockEvent, teams: [{ registrationIds: ['a', 'a'] }] })
 
       const res = await putEventLambda(constructAPIGwEvent({ id: 'existing', name: 'Uusi nimi' }, { method: 'PATCH' }))
 
       expect(res.statusCode).toEqual(200)
+    })
+
+    // KOE-1720: the teams are checked on the merged event whenever a save changes what they rest on.
+    describe('in series and on the merged event (KOE-1720)', () => {
+      const series = [
+        { id: 'open', name: { fi: 'Avoin' } },
+        { id: 'breed', name: { fi: 'Rotu' } },
+      ]
+      const inSeries = {
+        ...mockEvent,
+        teamCompetition: { series },
+        teams: [{ registrationIds: ['a'], seriesId: 'open' }],
+      }
+      const patch = async (stored: JsonDogEvent, body: Record<string, unknown>) => {
+        signIn(mockSecretary)
+        getEventMock.mockResolvedValueOnce(stored)
+        return putEventLambda(constructAPIGwEvent({ id: 'existing', ...body }, { method: 'PATCH' }))
+      }
+
+      it('stores a team in a series of the competition, without reading the entries', async () => {
+        const teams = [{ registrationIds: ['a'], seriesId: 'breed' }]
+
+        const res = await patch(inSeries, { teams })
+
+        expect(res.statusCode).toEqual(200)
+        expect(patchEventMock).toHaveBeenCalledWith('existing', inSeries, expect.objectContaining({ teams }))
+        expect(mockReadEventRegistrations).not.toHaveBeenCalled()
+      })
+
+      it('refuses a team in a series the competition does not have', async () => {
+        const res = await patch(inSeries, { teams: [{ registrationIds: ['a'], seriesId: 'gone' }] })
+
+        expect(res.statusCode).toEqual(400)
+        expect(JSON.parse(res.body)).toMatchObject({
+          error: 'invalidTeams',
+          errors: [{ kind: 'unknownSeries', seriesId: 'gone', team: 0 }],
+        })
+        expect(patchEventMock).not.toHaveBeenCalled()
+      })
+
+      it('refuses removing a series a team is in, through the competition alone', async () => {
+        const res = await patch(inSeries, { teamCompetition: { series: [series[1]] } })
+
+        expect(res.statusCode).toEqual(400)
+        expect(JSON.parse(res.body)).toMatchObject({
+          error: 'invalidTeams',
+          errors: [{ kind: 'unknownSeries', seriesId: 'open', team: 0 }],
+        })
+        expect(patchEventMock).not.toHaveBeenCalled()
+      })
+
+      it('stores a series removed together with moving its team out of it', async () => {
+        const teams = [{ registrationIds: ['a'], seriesId: 'breed' }]
+
+        const res = await patch(inSeries, { teamCompetition: { series: [series[1]] }, teams })
+
+        expect(res.statusCode).toEqual(200)
+        expect(patchEventMock).toHaveBeenCalledWith(
+          'existing',
+          inSeries,
+          expect.objectContaining({ teamCompetition: { series: [series[1]] }, teams })
+        )
+      })
+
+      it('refuses removing the competition settings while a team is in a series', async () => {
+        const res = await patch(inSeries, { teamCompetition: null })
+
+        expect(res.statusCode).toEqual(400)
+        expect(patchEventMock).not.toHaveBeenCalled()
+      })
+
+      it('refuses series that do not fit together', async () => {
+        const res = await patch(mockEvent, {
+          teamCompetition: { series: [series[0], { id: 'open', name: { fi: 'Toinen' } }] },
+        })
+
+        expect(res.statusCode).toEqual(400)
+        expect(JSON.parse(res.body)).toMatchObject({
+          error: 'invalidTeamCompetition',
+          errors: [{ kind: 'seriesTwice', seriesId: 'open' }],
+        })
+        expect(patchEventMock).not.toHaveBeenCalled()
+      })
+
+      it.each([
+        ['a series without an id', { series: [{ name: { fi: 'Avoin' } }] }],
+        ['a series with an empty id', { series: [{ id: '', name: { fi: 'Avoin' } }] }],
+        ['a series name that is not text', { series: [{ id: 'open', name: { fi: 1 } }] }],
+        ['a question at entry that is not a boolean', { askAtEntry: 'yes' }],
+        ['counted days that are not a list', { days: '2025-06-01' }],
+        ['a counted day that is not a day', { days: ['1.6.2025'] }],
+      ])('refuses competition settings with %s', async (_name, teamCompetition) => {
+        const res = await patch(mockEvent, { teamCompetition })
+
+        expect(res.statusCode).toEqual(400)
+        expect(patchEventMock).not.toHaveBeenCalled()
+      })
+
+      it('removes one setting of the competition on a PATCH that sends it as null', async () => {
+        const stored = { ...mockEvent, teamCompetition: { askAtEntry: true, series } }
+
+        const res = await patch(stored, { teamCompetition: { askAtEntry: null } })
+
+        expect(res.statusCode).toEqual(200)
+        expect(patchEventMock).toHaveBeenCalledWith(
+          'existing',
+          stored,
+          expect.objectContaining({ teamCompetition: { series } })
+        )
+      })
+
+      // A stored row whose teams break a rule: the save that changes what they rest on reads them again.
+      const broken = { ...mockEvent, teams: [{ registrationIds: ['a', 'a'] }] }
+
+      it.each([
+        ['the classes', { classes: [{ class: 'ALO', date: '2025-06-01' }] }],
+        ['the first day', { startDate: '2025-05-31' }],
+        ['the last day', { endDate: '2025-06-03' }],
+      ])('checks the stored teams on a save of %s that does not carry them', async (_name, body) => {
+        const res = await patch(broken, body)
+
+        expect(res.statusCode).toEqual(400)
+        expect(JSON.parse(res.body)).toMatchObject({ error: 'invalidTeams' })
+        expect(patchEventMock).not.toHaveBeenCalled()
+      })
     })
 
     it('removes the stored teams on a PATCH that sends them as null', async () => {
@@ -1856,9 +1982,13 @@ describe('putEventLambda', () => {
     // KOE-1715: the public start list shows each dog's team, so a teams save has to reach open pages.
     describe('republishing the start list (KOE-1715)', () => {
       const team = { name: 'Team Finland 1', registrationIds: ['a', 'b'] }
-      const putOver = async (storedTeams: EventTeam[] | undefined, teams: EventTeam[] | null) => {
+      const putOver = async (
+        storedTeams: EventTeam[] | undefined,
+        teams: EventTeam[] | null,
+        teamCompetition?: TeamCompetition
+      ) => {
         signIn(mockSecretary)
-        getEventMock.mockResolvedValueOnce({ ...mockEvent, teams: storedTeams })
+        getEventMock.mockResolvedValueOnce({ ...mockEvent, teamCompetition, teams: storedTeams })
         return putEventLambda(constructAPIGwEvent({ id: 'existing', teams }, { method: 'PATCH' }))
       }
 
@@ -1884,6 +2014,44 @@ describe('putEventLambda', () => {
 
         expect(res.statusCode).toEqual(200)
         expect(mockPublishPublicStartList).not.toHaveBeenCalled()
+      })
+
+      it('publishes a team moved to another series (KOE-1720)', async () => {
+        const res = await putOver([{ ...team, seriesId: 'open' }], [{ ...team, seriesId: 'breed' }], {
+          series: [
+            { id: 'open', name: { fi: 'Avoin' } },
+            { id: 'breed', name: { fi: 'Rotu' } },
+          ],
+        })
+
+        expect(res.statusCode).toEqual(200)
+        expect(mockPublishPublicStartList).toHaveBeenCalledWith('existing')
+      })
+
+      it('publishes a change of the counted days, and nothing for a renamed series (KOE-1720)', async () => {
+        const series = [{ id: 'open', name: { fi: 'Avoin' } }]
+        signIn(mockSecretary)
+        getEventMock.mockResolvedValueOnce({ ...mockEvent, teamCompetition: { series }, teams: [team] })
+
+        const renamed = await putEventLambda(
+          constructAPIGwEvent(
+            { id: 'existing', teamCompetition: { series: [{ id: 'open', name: { fi: 'Uusi' } }] } },
+            { method: 'PATCH' }
+          )
+        )
+
+        expect(renamed.statusCode).toEqual(200)
+        expect(mockPublishPublicStartList).not.toHaveBeenCalled()
+
+        signIn(mockSecretary)
+        getEventMock.mockResolvedValueOnce({ ...mockEvent, teamCompetition: { series }, teams: [team] })
+
+        const days = await putEventLambda(
+          constructAPIGwEvent({ id: 'existing', teamCompetition: { days: ['2025-06-01'] } }, { method: 'PATCH' })
+        )
+
+        expect(days.statusCode).toEqual(200)
+        expect(mockPublishPublicStartList).toHaveBeenCalledWith('existing')
       })
 
       it('publishes nothing for a save that does not carry the teams', async () => {
