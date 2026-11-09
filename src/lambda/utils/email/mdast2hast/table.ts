@@ -1,6 +1,6 @@
 import type { Element, ElementContent } from 'hast'
 import type { Parents, Table } from 'mdast'
-import type { Handler, State } from 'mdast-util-to-hast/lib/state'
+import type { Handler, State } from 'mdast-util-to-hast'
 import { u } from 'unist-builder'
 
 const own = {}.hasOwnProperty

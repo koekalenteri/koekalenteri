@@ -1,6 +1,6 @@
 import type { Element, Properties } from 'hast'
 import type { Link } from 'mdast'
-import type { Handler } from 'mdast-util-to-hast/lib/state'
+import type { Handler } from 'mdast-util-to-hast'
 
 export const linkHandler: Handler = (state, node: Link) => {
   const props: Properties = { href: node.url }

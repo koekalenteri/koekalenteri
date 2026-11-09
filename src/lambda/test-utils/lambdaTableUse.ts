@@ -62,7 +62,7 @@
  */
 import type { Action } from './dynamoActions'
 import path from 'node:path'
-import ts from 'typescript'
+import ts from 'typescript6'
 import { indexKey } from './dynamoActions'
 
 /**
