@@ -1,4 +1,4 @@
-import type { TeamStanding } from '@/lib/team'
+import type { TeamStanding } from '@/lib/teamStandings'
 import type { EventTeam, Registration } from '@/types'
 import ArrowDownward from '@mui/icons-material/ArrowDownward'
 import ArrowUpward from '@mui/icons-material/ArrowUpward'
