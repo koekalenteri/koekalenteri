@@ -306,6 +306,63 @@ describe('EventTeamsPage', () => {
     })
   })
 
+  // KOE-1726: the secretary chooses the days whose results the teams count; every day without a choice.
+  describe('the counted days', () => {
+    const SECOND_DAY = '2021-02-11' as const
+    const twoDays: ConfirmedEvent = {
+      ...eventWithStations,
+      classes: [...eventWithStations.classes, ...eventWithStations.classes.map((c) => ({ ...c, date: SECOND_DAY }))],
+      endDate: SECOND_DAY,
+      teams: [{ registrationIds: ['run-1'] }],
+    }
+    const dayBoxes = () => within(screen.getByRole('group', { name: 'teams.countedDays' })).getAllByRole('checkbox')
+    const save = async (user: User) => {
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+    }
+
+    it('counts every day until the secretary leaves one out, and saves the days left', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const { user } = await renderPage(twoDays)
+      await flushPromises()
+
+      expect(dayBoxes().map((box) => (box as HTMLInputElement).checked)).toEqual([true, true])
+      await user.click(dayBoxes()[1])
+      await save(user)
+
+      expect(putEvent).toHaveBeenLastCalledWith(
+        expect.objectContaining({ teamCompetition: { days: [eventWithStations.startDate] } }),
+        TEST_ID_TOKEN,
+        undefined,
+        undefined
+      )
+    })
+
+    it('stores no choice once every day is counted again, and keeps the last day counted', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const { user } = await renderPage({ ...twoDays, teamCompetition: { days: [eventWithStations.startDate] } })
+      await flushPromises()
+
+      expect(dayBoxes()[0]).toBeDisabled()
+      await user.click(dayBoxes()[1])
+      await save(user)
+
+      expect(putEvent).toHaveBeenLastCalledWith(
+        expect.not.objectContaining({ teamCompetition: expect.anything() }),
+        TEST_ID_TOKEN,
+        undefined,
+        undefined
+      )
+    })
+
+    it('offers no choice for a trial of one day', async () => {
+      await renderPage({ ...eventWithStations, teams: [{ registrationIds: ['run-1'] }] })
+      await flushPromises()
+
+      expect(screen.queryByRole('group', { name: 'teams.countedDays' })).not.toBeInTheDocument()
+    })
+  })
+
   // KOE-1720: a competition in series, each team in one or in none, each series ranked on its own.
   describe('series', () => {
     const series = [

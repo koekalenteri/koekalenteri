@@ -8,6 +8,7 @@ import {
   pruneTeamDays,
   teamCompetitionDiffers,
   teamCompetitionErrors,
+  teamCountedDays,
   teamErrors,
   teamMembers,
   teamsDiffer,
@@ -322,6 +323,18 @@ describe('the counted days (KOE-1726)', () => {
       })
 
       expect([counts('2026-08-02'), counts('2026-08-03')]).toEqual([false, true])
+    })
+  })
+
+  // The days a team's points come from, for the mark beside them: only where the choice leaves a day out.
+  describe('teamCountedDays', () => {
+    it.each<[string, TeamCompetition | undefined, string[]]>([
+      ['none without a choice', undefined, []],
+      ['the chosen days the trial still has, in its order', { days: ['2026-07-31', '2026-08-01'] }, ['2026-08-01']],
+      ['none when the choice is every day', { days: ['2026-08-02', '2026-08-01'] }, []],
+      ['none when the trial has none of the chosen', { days: ['2026-07-31'] }, []],
+    ])('names %s', (_name, teamCompetition, expected) => {
+      expect(teamCountedDays({ ...trial, teamCompetition })).toEqual(expected)
     })
   })
 

@@ -232,6 +232,14 @@ describe('formatTeamStanding (KOE-1717)', () => {
   ])('writes %s', (_what, standing, expected) => {
     expect(formatTeamStanding(standing, t)).toBe(expected)
   })
+
+  // KOE-1726: where the competition counts only some days, the standing says which.
+  it('names the days the points come from where the competition counts only some', () => {
+    expect(formatTeamStanding({ placement: 1, points: 170 }, t, ['2026-08-01'])).toBe(
+      '1. sija, 170 pistettä, la 1.8. tuloksista'
+    )
+    expect(formatTeamStanding({}, t, ['2026-08-01'])).toBeUndefined()
+  })
 })
 
 describe('teamSeriesName (KOE-1720)', () => {
