@@ -29,7 +29,13 @@ import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { getPaymentBalance } from '@/lib/cost'
 import { rowSelectionModel } from '@/lib/datagrid'
 import { formatMoney } from '@/lib/money'
-import { getPaymentPicture, isPaytrailRefusal, paytrailErrorText } from '@/lib/payment'
+import {
+  getPaymentPicture,
+  getRefundableAmount,
+  getRefundableBalance,
+  isPaytrailRefusal,
+  paytrailErrorText,
+} from '@/lib/payment'
 import { GROUP_KEY_RESERVE, isDuplicatePayment } from '@/lib/registration'
 import { isObject } from '@/lib/utils'
 import { NullComponent } from '../../components/NullComponent'
@@ -67,7 +73,10 @@ interface Props {
  */
 type RefundMode = 'excess' | 'payment'
 
-const transactionAmount = (t: Transaction) => (t.type === 'refund' ? -1 * (t.amount + (t.handlingCost ?? 0)) : t.amount)
+/** How much the server says is left, when it refused the refund as too large (KOE-1614). */
+const remainingOfRefusal = (body: unknown): number | undefined =>
+  isObject(body) && typeof body.remaining === 'number' ? body.remaining : undefined
+
 const DEFAULT_HANDLING_COST = 500
 /** A payment charged twice keeps nothing by default, whatever its group: the app let it through (KOE-1693). */
 const defaultHandlingCost = (registration: RefundRegistration) =>
@@ -112,19 +121,13 @@ export const RefundDailog = ({ event, open, registration, onClose }: Props) => {
     [selection, okTransactions]
   )
 
-  const total = useMemo(
-    () => okTransactions.reduce((total, transaction) => total + transactionAmount(transaction), 0),
-    [okTransactions]
-  )
-  const refundAmount = useMemo(
-    () => selectedTransactions.reduce((total, transaction) => total + transactionAmount(transaction), 0),
-    [selectedTransactions]
-  )
+  const total = useMemo(() => getRefundableBalance(transactions), [transactions])
 
   const canHaveHandlingCosts = selectedTransactions.some((t) => !!t.items)
-  // What goes back: the excess of what was paid over the fee, capped by the payment it comes out of,
-  // or the selected payment less the handling fee.
-  const refundBase = Math.min(total, refundAmount)
+  // One payment is selected at a time. What goes back: the excess of what was paid over the fee,
+  // capped by what the payment can give, or that less the handling fee. The server refuses by the same rule.
+  const [selectedTransaction] = selectedTransactions
+  const refundBase = selectedTransaction ? getRefundableAmount(selectedTransaction, transactions) : 0
   const refundTotal = excessOnly ? Math.min(excessCents, refundBase) : refundBase - handlingCost
   // openPayments/openRefunds are part of the key: a pending refund no longer bumps refundStatus or
   // updatedAt on its own (KOE-1529), so without them the dialog would not reload its transaction
@@ -304,6 +307,19 @@ export const RefundDailog = ({ event, open, registration, onClose }: Props) => {
           }
           break
         }
+
+        case 422: {
+          // Refused before Paytrail: another refund got there first, and the list here is behind.
+          const remaining = remainingOfRefusal(error.body)
+          if (remaining !== undefined) {
+            enqueueSnackbar(
+              t('registration.refundDialog.error.balance', { remaining: formatMoney(remaining / 100) }),
+              errorSnackbarOptions
+            )
+            return
+          }
+          break
+        }
       }
 
       const message = extractRefundErrorMessage(error)
@@ -419,8 +435,8 @@ export const RefundDailog = ({ event, open, registration, onClose }: Props) => {
               canHaveHandlingCosts: canHaveHandlingCosts && !excessOnly,
               handlingCost: excessOnly ? 0 : handlingCost,
               onHandlingCostChange: handleCostChange,
+              refundBase,
               refundTotal,
-              selectedTotal: refundAmount,
               total,
             },
           }}

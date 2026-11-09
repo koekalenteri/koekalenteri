@@ -1,7 +1,10 @@
-import { nonEmpty, object, pipe } from 'valibot'
-import { str } from './common'
+import { integer, minValue, nonEmpty, object, optional, pipe } from 'valibot'
+import { num, str } from './common'
 
 const required = pipe(str, nonEmpty('is required'))
+
+const cents = (minimum: number) =>
+  pipe(num, integer('must be a whole number of cents'), minValue(minimum, `must be at least ${minimum}`))
 
 /**
  * Starting a payment names exactly one registration, and nothing else in the body is used. Both ids
@@ -11,4 +14,15 @@ const required = pipe(str, nonEmpty('is required'))
 export const paymentCreateSchema = object({
   eventId: required,
   registrationId: required,
+})
+
+/**
+ * A refund names the payment it comes from and the amounts in whole cents: what goes back, at least a
+ * cent, and the handling fee kept from it, none when left out. Whether the payment holds that much is
+ * `getRefundableAmount`, which needs the transactions (KOE-1614).
+ */
+export const refundCreateSchema = object({
+  amount: cents(1),
+  handlingCost: optional(cents(0), 0),
+  transactionId: required,
 })

@@ -60,7 +60,9 @@ export const useRefundColumns = (): readonly GridColDef<Transaction>[] => {
         field: 'amount',
         headerName: t('registration.refundDialog.columns.amount'),
         valueGetter: (value, row) => {
-          if (row.status !== 'ok') return ''
+          // A refund on its way counts in the total below, so it shows here too; the dialog lists no
+          // failed or new transaction. A payment counts only once it is settled.
+          if (row.type === 'payment' && row.status !== 'ok') return ''
 
           const divider = row.type === 'refund' ? -100 : 100
 

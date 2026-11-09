@@ -21,7 +21,8 @@ interface RefundFooterProps {
   /** What the dialog has worked out to go back, in cents. */
   refundTotal: number
   total: number
-  selectedTotal: number
+  /** What can be refunded from the selected payment, the handling cost included, in cents (`getRefundableAmount`). */
+  refundBase: number
 }
 
 declare module '@mui/x-data-grid' {
@@ -37,7 +38,7 @@ const ValueCell = styled(TableCell)(() => ({
 export const RefundFooter = ({
   canHaveHandlingCosts,
   total,
-  selectedTotal,
+  refundBase,
   handlingCost,
   onHandlingCostChange,
   refundTotal,
@@ -48,7 +49,8 @@ export const RefundFooter = ({
   }, [])
   const formatAmount = useCallback((amount: number | undefined) => formatMoneyWithoutCurrency((amount ?? 0) / 100), [])
 
-  const refundBase = Math.min(total, selectedTotal)
+  // With nothing to refund the row has no amount to show, whatever the handling cost field says.
+  const showsAmount = refundBase > 0 && refundTotal !== 0
 
   return (
     <GridFooterContainer>
@@ -94,10 +96,10 @@ export const RefundFooter = ({
               <ValueCell
                 align="right"
                 sx={{
-                  color: refundTotal !== 0 && handlingCost > refundBase ? 'error.main' : undefined,
+                  color: showsAmount && handlingCost > refundBase ? 'error.main' : undefined,
                 }}
               >
-                <strong>{selectedTotal > 0 && refundTotal !== 0 ? formatMoney(refundTotal / 100) : '-'}</strong>
+                <strong>{showsAmount ? formatMoney(refundTotal / 100) : '-'}</strong>
               </ValueCell>
             </TableRow>
           </TableBody>

@@ -289,6 +289,41 @@ export const getDuplicatePaymentRemainder = (
     return transaction.duplicatePaymentAt ? cents + transaction.amount : cents
   }, 0) / 100
 
+/** What the refund rule reads of a transaction: amounts in cents, and where it stands. */
+type RefundableTransaction = Pick<JsonTransaction, 'amount' | 'status' | 'type'> & { handlingCost?: number }
+
+/** Refund states the money may still leave in, or has left in. `new` has not started, `fail` never will. */
+const COUNTED_REFUND_STATUSES: ReadonlySet<JsonTransaction['status']> = new Set(['ok', 'pending', 'delayed'])
+
+const countsTowardsRefundable = ({ status, type }: RefundableTransaction) =>
+  type === 'payment' ? status === 'ok' : COUNTED_REFUND_STATUSES.has(status)
+
+/**
+ * What of a registration's payments has not gone back, in cents: the money paid less every refund not
+ * known to have failed, the handling fee kept from it with it. A refund on its way counts, so a second
+ * one cannot be started on the same money; when it fails it stops counting. The transactions are the
+ * source and not the row, which records no amount for a payment charged twice (KOE-1614, KOE-1693).
+ */
+export const getRefundableBalance = (transactions: readonly RefundableTransaction[]): number =>
+  transactions.filter(countsTowardsRefundable).reduce((cents, transaction) => {
+    if (transaction.type === 'payment') return cents + transaction.amount
+    return cents - transaction.amount - (transaction.handlingCost ?? 0)
+  }, 0)
+
+/**
+ * The most a refund of the selected transaction and the handling fee kept from it may add up to, in
+ * cents: the payment's own amount, or what is left of the registration's money when that is less.
+ * Only a settled payment has anything to refund. RefundCreate refuses a request over this, and the
+ * refund dialog offers this much (KOE-1614).
+ */
+export const getRefundableAmount = (
+  selected: RefundableTransaction,
+  transactions: readonly RefundableTransaction[]
+): number => {
+  if (selected.type !== 'payment' || selected.status !== 'ok') return 0
+  return Math.max(0, Math.min(selected.amount, getRefundableBalance(transactions)))
+}
+
 /** How long a payment may stay unfinished at Paytrail before it no longer counts as in progress. */
 export const STALE_PENDING_PAYMENT_AGE_MS = 5 * 60 * 1000
 
