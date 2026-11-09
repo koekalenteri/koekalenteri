@@ -290,6 +290,34 @@ describe('validation', () => {
     })
   })
 
+  // KOE-674: the form holds the own classes to the rule the save does (`ownClassErrors`).
+  describe('ownClasses', () => {
+    const derby: PartialEvent = {
+      ...emptyEvent,
+      classes: [{ class: 'DERBY', date: '2099-06-06' }],
+      eventType: 'Derby',
+      ownClasses: [{ code: 'DERBY', name: { fi: 'Derby' } }],
+    }
+
+    it('takes own classes the save takes', () => {
+      expect(validateEventField(derby, 'ownClasses', false)).toBe(false)
+    })
+
+    it('names the own classes the save would refuse', () => {
+      const event: PartialEvent = {
+        ...derby,
+        ownClasses: [
+          { code: 'DERBY', name: { fi: '' } },
+          { code: 'VET', name: { fi: 'Veteraanit' } },
+        ],
+      }
+      expect(validateEventField(event, 'ownClasses', false)).toEqual({
+        key: 'ownClasses',
+        opts: { field: 'ownClasses', length: 2, list: 'DERBY, VET', state: 'draft', type: 'Derby' },
+      })
+    })
+  })
+
   describe('validateEventField()', () => {
     it('returns validationError for unknown fields when required and empty', () => {
       const event: PartialEvent = { ...emptyEvent, name: '', state: 'draft' }

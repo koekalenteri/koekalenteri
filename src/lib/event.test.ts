@@ -984,6 +984,18 @@ describe('lib/event', () => {
       expect(getUniqueEventClasses({ classes })).toEqual(expected)
     })
 
+    // KOE-674: the form lists an event's own classes in the secretary's order, as every other view does.
+    it("lists an event's own classes in their order, not by name", () => {
+      const ownClasses = [
+        { code: 'YKS', name: { fi: 'Yksilö' } },
+        { code: 'VET', name: { fi: 'Veteraanit' } },
+      ]
+      expect(getUniqueEventClasses({ classes: [{ class: 'VET' }, { class: 'YKS' }], ownClasses })).toEqual([
+        'YKS',
+        'VET',
+      ])
+    })
+
     it('should return empty array when there are no classes', () => {
       // Legacy data can lack classes even though the type requires them
       expect(getUniqueEventClasses({} as Pick<DogEvent, 'classes'>)).toEqual([])
