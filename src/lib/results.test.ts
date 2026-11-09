@@ -18,6 +18,7 @@ import {
   formatShownResult,
   formatTaskName,
   hasJudgeStop,
+  isOfficialFormatLocked,
   kcFormatOfEventType,
   nowtTotals,
   nowtZeroFaults,
@@ -647,6 +648,7 @@ describe('sameEventResult', () => {
 })
 
 describe('placementsFor', () => {
+  const NOWT_EVENT = { eventType: 'NOWT' }
   const day1 = '2026-08-01'
   const day2 = '2026-08-02'
 
@@ -661,7 +663,6 @@ describe('placementsFor', () => {
     return {
       class: 'ALO',
       eventResult: { maxPoints: points === undefined ? undefined : maxPoints, points, result },
-      eventType: 'NOWT',
       group: { date: day1, key: 'participants', number: 1 },
       id,
       ...rest,
@@ -669,57 +670,64 @@ describe('placementsFor', () => {
   }
 
   it('ranks ties together and skips the next rank: 1, 2, 2, 4', () => {
-    const placements = placementsFor([
-      dog('a', 'ALO1', 90),
-      dog('b', 'ALO2', 85),
-      dog('c', 'ALO2', 85),
-      dog('d', 'ALO3', 60),
-    ])
+    const placements = placementsFor(
+      [dog('a', 'ALO1', 90), dog('b', 'ALO2', 85), dog('c', 'ALO2', 85), dog('d', 'ALO3', 60)],
+      NOWT_EVENT
+    )
     expect(Object.fromEntries(placements)).toEqual({ a: 1, b: 2, c: 2, d: 4 })
   })
 
   it('gives no placement and takes no rank for a prize 0, a dash, an unscored dog or an awarded dog without points', () => {
-    const placements = placementsFor([
-      dog('zero', 'ALO0', 95),
-      dog('dash', 'ALO-', 95),
-      dog('none', undefined, undefined),
-      dog('voided', 'ALO1', undefined),
-      dog('a', 'ALO1', 81),
-    ])
+    const placements = placementsFor(
+      [
+        dog('zero', 'ALO0', 95),
+        dog('dash', 'ALO-', 95),
+        dog('none', undefined, undefined),
+        dog('voided', 'ALO1', undefined),
+        dog('a', 'ALO1', 81),
+      ],
+      NOWT_EVENT
+    )
     expect(Object.fromEntries(placements)).toEqual({ a: 1 })
   })
 
   it('ranks each class and each day apart', () => {
-    const placements = placementsFor([
-      dog('a', 'ALO1', 90),
-      dog('b', 'ALO1', 85, { group: { date: day2, key: 'participants', number: 1 } }),
-      dog('c', 'AVO1', 82, { class: 'AVO' }),
-    ])
+    const placements = placementsFor(
+      [
+        dog('a', 'ALO1', 90),
+        dog('b', 'ALO1', 85, { group: { date: day2, key: 'participants', number: 1 } }),
+        dog('c', 'AVO1', 82, { class: 'AVO' }),
+      ],
+      NOWT_EVENT
+    )
     expect(Object.fromEntries(placements)).toEqual({ a: 1, b: 1, c: 1 })
   })
 
   it("ranks a dog on the day of its frozen start group, not the working order's, as the sending keys the day", () => {
-    const placements = placementsFor([
-      dog('a', 'ALO1', 90, { startGroup: { date: day2, key: 'participants', number: 1 } }),
-      dog('b', 'ALO1', 85, { group: { date: day2, key: 'participants', number: 2 } }),
-      dog('c', 'ALO1', 80),
-    ])
+    const placements = placementsFor(
+      [
+        dog('a', 'ALO1', 90, { startGroup: { date: day2, key: 'participants', number: 1 } }),
+        dog('b', 'ALO1', 85, { group: { date: day2, key: 'participants', number: 2 } }),
+        dog('c', 'ALO1', 80),
+      ],
+      NOWT_EVENT
+    )
     expect(Object.fromEntries(placements)).toEqual({ a: 1, b: 2, c: 1 })
   })
 
   it('compares the share of the maximum when a class has rounds of different size', () => {
-    const placements = placementsFor([
-      dog('five', 'ALO2', 70, { maxPoints: 100 }),
-      dog('four', 'ALO1', 60, { maxPoints: 80 }),
-    ])
+    const placements = placementsFor(
+      [dog('five', 'ALO2', 70, { maxPoints: 100 }), dog('four', 'ALO1', 60, { maxPoints: 80 })],
+      NOWT_EVENT
+    )
     expect(Object.fromEntries(placements)).toEqual({ five: 2, four: 1 })
   })
 
   it('ranks a time of day on the same date together', () => {
-    const placements = placementsFor([
-      dog('a', 'ALO1', 90),
-      dog('b', 'ALO1', 85, { group: { date: '2026-08-01', key: 'participants', number: 2 } }),
-    ])
+    const placements = placementsFor(
+      [dog('a', 'ALO1', 90), dog('b', 'ALO1', 85, { group: { date: '2026-08-01', key: 'participants', number: 2 } })],
+      NOWT_EVENT
+    )
     expect(Object.fromEntries(placements)).toEqual({ a: 1, b: 2 })
   })
 
@@ -737,63 +745,89 @@ describe('placementsFor', () => {
     })
 
     it('keeps a bare day string on the day it names, with an instant of that day', () => {
-      const placements = placementsFor([
-        dog('a', 'ALO1', 90, { group: { date: '2026-08-01', key: 'participants', number: 1 } }),
-        dog('b', 'ALO1', 85, { group: { date: '2026-08-01', key: 'participants', number: 2 } }),
-      ])
+      const placements = placementsFor(
+        [
+          dog('a', 'ALO1', 90, { group: { date: '2026-08-01', key: 'participants', number: 1 } }),
+          dog('b', 'ALO1', 85, { group: { date: '2026-08-01', key: 'participants', number: 2 } }),
+        ],
+        NOWT_EVENT
+      )
       expect(Object.fromEntries(placements)).toEqual({ a: 1, b: 2 })
     })
   })
 
   it('ranks a bare date string and an ISO instant of the same day together', () => {
-    const placements = placementsFor([
-      dog('a', 'ALO1', 90, { group: { date: '2026-08-01', key: 'participants', number: 1 } }),
-      dog('b', 'ALO1', 85, { group: { date: '2026-08-01', key: 'participants', number: 2 } }),
-    ])
+    const placements = placementsFor(
+      [
+        dog('a', 'ALO1', 90, { group: { date: '2026-08-01', key: 'participants', number: 1 } }),
+        dog('b', 'ALO1', 85, { group: { date: '2026-08-01', key: 'participants', number: 2 } }),
+      ],
+      NOWT_EVENT
+    )
     expect(Object.fromEntries(placements)).toEqual({ a: 1, b: 2 })
   })
 
   it('shares a rank between different round sizes that score the same share', () => {
-    const placements = placementsFor([
-      dog('a', 'ALO1', 90, { maxPoints: 100 }),
-      dog('five', 'ALO2', 70, { maxPoints: 100 }),
-      dog('four', 'ALO2', 56, { maxPoints: 80 }),
-    ])
+    const placements = placementsFor(
+      [
+        dog('a', 'ALO1', 90, { maxPoints: 100 }),
+        dog('five', 'ALO2', 70, { maxPoints: 100 }),
+        dog('four', 'ALO2', 56, { maxPoints: 80 }),
+      ],
+      NOWT_EVENT
+    )
     expect(Object.fromEntries(placements)).toEqual({ a: 1, five: 2, four: 2 })
   })
 
   it('gives no rank without a usable maximum', () => {
-    const placements = placementsFor([
-      dog('zero', 'ALO1', 90, { maxPoints: 0 }),
-      { ...dog('unset', 'ALO1', 90), eventResult: { points: 90, result: 'ALO1' } },
-      dog('a', 'ALO1', 80),
-    ])
+    const placements = placementsFor(
+      [
+        dog('zero', 'ALO1', 90, { maxPoints: 0 }),
+        { ...dog('unset', 'ALO1', 90), eventResult: { points: 90, result: 'ALO1' } },
+        dog('a', 'ALO1', 80),
+      ],
+      NOWT_EVENT
+    )
     expect(Object.fromEntries(placements)).toEqual({ a: 1 })
   })
 
   it('reads the code with the event type as the prefix of a classless entry', () => {
-    const placements = placementsFor([dog('a', 'NOWT1', 90, { class: undefined })])
+    const placements = placementsFor([dog('a', 'NOWT1', 90, { class: undefined })], NOWT_EVENT)
     expect(Object.fromEntries(placements)).toEqual({ a: 1 })
   })
 
   it('leaves out a dog whose group is the cancelled one', () => {
-    const placements = placementsFor([
-      dog('gone', 'ALO1', 95, { group: { date: day1, key: 'cancelled', number: 1 } }),
-      dog('b', 'ALO1', 90),
-    ])
+    const placements = placementsFor(
+      [dog('gone', 'ALO1', 95, { group: { date: day1, key: 'cancelled', number: 1 } }), dog('b', 'ALO1', 90)],
+      NOWT_EVENT
+    )
     expect(Object.fromEntries(placements)).toEqual({ b: 1 })
   })
 
   it('leaves a qualitative event type unranked', () => {
-    expect(placementsFor([dog('a', 'NOU1', 90, { class: undefined, eventType: 'NOU' })]).size).toBe(0)
+    expect(placementsFor([dog('a', 'NOU1', 90, { class: undefined })], { eventType: 'NOU' }).size).toBe(0)
+  })
+
+  // KOE-1718: the ranking is the format's: an unofficial trial that follows NOWT ranks as NOWT does.
+  it('ranks an unofficial trial by the official type it follows', () => {
+    const rows = [dog('a', 'ALO1', 90), dog('b', 'ALO1', 95)]
+
+    expect(Object.fromEntries(placementsFor(rows, { eventType: 'WT-harjoitus', officialFormat: 'NOWT' }))).toEqual({
+      a: 2,
+      b: 1,
+    })
+    expect(placementsFor(rows, { eventType: 'WT-harjoitus' }).size).toBe(0)
   })
 
   it('leaves out a cancelled or reserve dog, and the rest close up', () => {
-    const placements = placementsFor([
-      dog('a', 'ALO1', 95, { cancelled: true }),
-      dog('r', 'ALO1', 94, { group: { date: day1, key: 'reserve', number: 1 } }),
-      dog('b', 'ALO1', 90),
-    ])
+    const placements = placementsFor(
+      [
+        dog('a', 'ALO1', 95, { cancelled: true }),
+        dog('r', 'ALO1', 94, { group: { date: day1, key: 'reserve', number: 1 } }),
+        dog('b', 'ALO1', 90),
+      ],
+      NOWT_EVENT
+    )
     expect(Object.fromEntries(placements)).toEqual({ b: 1 })
   })
 })
@@ -860,12 +894,15 @@ describe('withEffectiveJudges (KOE-1665)', () => {
 
 describe('withStoredTotals (KOE-1669)', () => {
   const day = '2026-09-12' as const
-  const event = { stations: [1, 2].map((number) => ({ date: day, id: `post-${number}`, number })) }
+  const event = {
+    eventType: 'NOWT',
+    stations: [1, 2].map((number) => ({ date: day, id: `post-${number}`, number })),
+  }
   const at = { updatedAt: '2026-09-12T09:00:00.000Z', updatedBy: 'Sihteeri' }
-  const dog = (eventResult: JsonEventResult, eventType = 'NOWT') => ({
+  const dog = (eventResult: JsonEventResult) => ({
     class: 'ALO',
     eventResult,
-    eventType,
+    eventType: 'NOWT',
     group: { date: day, key: `${day}-ap`, number: 1 },
   })
   const retired: JsonEventResult = {
@@ -885,10 +922,32 @@ describe('withStoredTotals (KOE-1669)', () => {
   })
 
   it.each([
-    ['a result with its totals', dog({ ...retired, maxPoints: 40, percentage: 25, points: 10 })],
-    ['a result without tasks', dog({ ...at, result: 'ALO1' })],
-    ['a type not scored at posts', dog(retired, 'NOME-B')],
-  ])('leaves %s as it is', (_name, registration) => {
-    expect(withStoredTotals(event, registration)).toBe(registration)
+    ['a result with its totals', event, dog({ ...retired, maxPoints: 40, percentage: 25, points: 10 })],
+    ['a result without tasks', event, dog({ ...at, result: 'ALO1' })],
+    ['a type not scored at posts', { ...event, eventType: 'NOME-B' }, dog(retired)],
+  ])('leaves %s as it is', (_name, owner, registration) => {
+    expect(withStoredTotals(owner, registration)).toBe(registration)
+  })
+
+  // KOE-1718: an unofficial trial that follows NOWT is scored at posts, whatever its dogs' own type says.
+  it('works out the totals of an unofficial trial that follows NOWT', () => {
+    const followed = { ...event, eventType: 'WT-harjoitus', officialFormat: 'NOWT' as const }
+
+    expect(withStoredTotals(followed, dog(retired)).eventResult).toMatchObject({ maxPoints: 40, points: 12 })
+    expect(withStoredTotals({ ...followed, officialFormat: undefined }, dog(retired))).toEqual(dog(retired))
+  })
+})
+
+describe('isOfficialFormatLocked (KOE-1718)', () => {
+  const result = { result: 'NOU1', updatedAt: '2026-09-12T09:00:00.000Z', updatedBy: 'Sihteeri' }
+  const turn = { dogs: [], id: 'turn-1', registrationIds: ['a'], startedAt: '2026-09-12T08:00:00.000Z', stationId: '1' }
+
+  it.each([
+    ['open while nothing is recorded', {}, [{}], false],
+    ['open for a trial with no entries', { turns: [] }, [], false],
+    ['locked once a dog has a result', {}, [{}, { eventResult: result }], true],
+    ['locked once a post has run a turn', { turns: [turn] }, [], true],
+  ])('is %s', (_name, event, registrations, expected) => {
+    expect(isOfficialFormatLocked(event, registrations)).toBe(expected)
   })
 })

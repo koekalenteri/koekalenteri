@@ -5,6 +5,7 @@ import { Provider } from 'jotai'
 import { eventWithStaticDates, eventWithStaticDatesAndClass } from '@/__mockData__/events'
 import { eventWithStations, registrationsToEventWithStations } from '@/__mockData__/resultsEvent'
 import { eventRegistrationDateKey } from '@/lib/event'
+import { Path } from '@/routeConfig'
 import { renderWithUserEvents, TEST_ID_TOKEN } from '@/test-utils/utils'
 import InfoPanel from '../InfoPanel'
 
@@ -116,6 +117,22 @@ describe('InfoPanel>', () => {
     expect(
       within(actionsSection).getByRole('link', { name: 'eventManagement.startList.secretary' })
     ).toBeInTheDocument()
+  })
+
+  // Any event can run a team competition, so the teams are among the general actions of every event.
+  it.each([
+    ['a trial scored at posts', eventWithStations],
+    ['a trial of another type', activeEventWithStaticDates],
+  ])('opens the teams page of %s (KOE-1714)', async (_name, event) => {
+    const { user } = renderWithUserEvents(
+      <InfoPanel onRefreshResultsState={noStateRead} event={event} registrations={[]} />,
+      { wrapper: Provider }
+    )
+    await openInfoPanel(user)
+
+    expect(
+      within(sectionOf('eventManagement.actions')).getByRole('link', { name: 'eventManagement.teams' })
+    ).toHaveAttribute('href', Path.admin.teams(event.id))
   })
 
   it('sends a message to a chosen group of recipients (KOE-1073)', async () => {

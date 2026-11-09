@@ -961,6 +961,7 @@ describe('lib/event', () => {
 
   // fixRegistrationGroups
   describe('fixRegistrationGroups', () => {
+    const NOME_B = { eventType: 'NOME-B' }
     beforeEach(() => {
       mockWriteRegistrationFields.mockReset()
       mockAudit.mockReset()
@@ -973,7 +974,7 @@ describe('lib/event', () => {
         { class: 'ALO', group: { key: 'A', number: 1 } },
       ] as JsonRegistration[]
 
-      const result = await fixRegistrationGroups(regs, user, true)
+      const result = await fixRegistrationGroups(regs, NOME_B, user, true)
       expect(result[0].group?.number).toBe(1)
       expect(result[1].group?.number).toBe(2)
       expect(mockAudit).toHaveBeenCalled()
@@ -985,7 +986,7 @@ describe('lib/event', () => {
         { class: 'ALO', group: { key: 'A', number: 3 } },
         { class: 'ALO', group: { key: 'A', number: 1 } },
       ] as JsonRegistration[]
-      const result = await fixRegistrationGroups(regs, user, false)
+      const result = await fixRegistrationGroups(regs, NOME_B, user, false)
       expect(result[0].group?.number).toBe(1)
       expect(result[1].group?.number).toBe(2)
       expect(mockAudit).not.toHaveBeenCalled()
@@ -1002,7 +1003,7 @@ describe('lib/event', () => {
         { class: 'AVO', group: { key: 'B', number: 3 } },
       ] as JsonRegistration[]
 
-      const result = await fixRegistrationGroups(regs, user, false)
+      const result = await fixRegistrationGroups(regs, NOME_B, user, false)
 
       // ALO class should be numbered 1, 2
       expect(result[0].group?.number).toBe(1)
@@ -1025,7 +1026,7 @@ describe('lib/event', () => {
         },
       ] as JsonRegistration[]
 
-      const result = await fixRegistrationGroups(regs, user, true)
+      const result = await fixRegistrationGroups(regs, NOME_B, user, true)
 
       expect(result[0].group?.key).toBe('cancelled')
       expect(mockAudit).toHaveBeenCalled()
@@ -1045,7 +1046,7 @@ describe('lib/event', () => {
         }),
       ]
 
-      const result = await fixRegistrationGroups(regs, user, false)
+      const result = await fixRegistrationGroups(regs, NOME_B, user, false)
 
       expect(result[0].group?.number).toBe(1)
       expect(result[0].group?.date).toBe('2024-08-03')
@@ -1056,7 +1057,7 @@ describe('lib/event', () => {
       const user = { name: 'user' }
       const regs: JsonRegistration[] = []
 
-      const result = await fixRegistrationGroups(regs, user, true)
+      const result = await fixRegistrationGroups(regs, NOME_B, user, true)
 
       expect(result).toEqual([])
       expect(mockAudit).not.toHaveBeenCalled()
@@ -1066,7 +1067,7 @@ describe('lib/event', () => {
       const user = { name: 'user' }
       const regs = [{ class: 'ALO', group: { key: 'A', number: 5 } }] as JsonRegistration[]
 
-      const result = await fixRegistrationGroups(regs, user, true)
+      const result = await fixRegistrationGroups(regs, NOME_B, user, true)
 
       expect(result[0].group?.number).toBe(1)
       expect(mockAudit).toHaveBeenCalled()
@@ -1076,7 +1077,7 @@ describe('lib/event', () => {
       const user = { name: 'user' }
       const regs = [{ class: 'ALO', group: { key: 'A', number: 1 } }] as JsonRegistration[]
 
-      const result = await fixRegistrationGroups(regs, user, true)
+      const result = await fixRegistrationGroups(regs, NOME_B, user, true)
 
       expect(result[0].group?.number).toBe(1)
       expect(mockAudit).not.toHaveBeenCalled() // saveGroup should not be called
@@ -1089,7 +1090,7 @@ describe('lib/event', () => {
         { class: 'ALO', group: { key: 'A', number: 1000 }, id: 'numbered' },
       ] as JsonRegistration[]
 
-      const result = await fixRegistrationGroups(regs, user, false)
+      const result = await fixRegistrationGroups(regs, NOME_B, user, false)
 
       expect(result.map((registration) => registration.id)).toEqual(['numbered', 'unassigned'])
     })
@@ -1100,7 +1101,7 @@ describe('lib/event', () => {
         { class: 'ALO', eventId: 'event1', id: 'reg1' }, // No group property
       ] as JsonRegistration[]
 
-      const result = await fixRegistrationGroups(regs, user, true)
+      const result = await fixRegistrationGroups(regs, NOME_B, user, true)
 
       expect(result[0].group).toBeDefined()
       expect(result[0].group?.key).toBe('reserve')
@@ -1127,7 +1128,7 @@ describe('lib/event', () => {
         },
       ])
 
-      const result = await fixRegistrationGroups(regs, user, false)
+      const result = await fixRegistrationGroups(regs, NOME_B, user, false)
 
       // Morning group should be numbered 1, 2
       expect(result[0].group?.key).toBe('2024-08-02-ap')
@@ -1149,7 +1150,7 @@ describe('lib/event', () => {
         { class: 'ALO', group: { key: 'reserve', number: 2 }, state: 'ready' },
       ])
 
-      const result = await fixRegistrationGroups(regs, user, true)
+      const result = await fixRegistrationGroups(regs, NOME_B, user, true)
 
       const cancelled = result.find((registration) => registration.cancelled)
       const reserve = result.find((registration) => !registration.cancelled)

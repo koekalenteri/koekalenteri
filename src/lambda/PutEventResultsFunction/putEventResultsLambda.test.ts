@@ -1043,6 +1043,33 @@ describe('putEventResultsLambda', () => {
 
       expect(mockWrittenResult).not.toHaveBeenCalled()
     })
+
+    // KOE-1718: an unofficial trial that follows NOU is judged pass or fail, and its result is spelled NOU1.
+    describe('an unofficial trial that follows NOU', () => {
+      beforeEach(() => {
+        mockGetAuthorizedEvent.mockResolvedValue({
+          classes: [],
+          eventType: 'NOU-harjoitus',
+          officialFormat: 'NOU',
+          organizer: { id: 'org-1', name: 'Org' },
+        })
+        storeRows([{ ...registration('reg-1'), class: undefined, eventType: 'NOU-harjoitus' }])
+      })
+
+      it('stores the pass spelled by the type it follows', async () => {
+        await putEventResultsLambda(apiEvent([{ eventResult: { resultCode: '1' }, id: 'reg-1' }]))
+
+        expect(mockWrittenResult).toHaveBeenCalledWith('event-1', 'reg-1', expect.objectContaining({ result: 'NOU1' }))
+      })
+
+      it('refuses a prize the type it follows cannot award', async () => {
+        await expect(
+          putEventResultsLambda(apiEvent([{ eventResult: { resultCode: '2' }, id: 'reg-1' }]))
+        ).rejects.toThrow("Result code '2' is not valid for NOU")
+
+        expect(mockWrittenResult).not.toHaveBeenCalled()
+      })
+    })
   })
 
   it('keeps the exercise an elimination happened at (KOE-1665)', async () => {

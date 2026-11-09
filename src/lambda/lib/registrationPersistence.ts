@@ -1,4 +1,5 @@
 import type { AuditActor } from '../../lib/audit'
+import type { FormatOwner } from '../../lib/event'
 import type { JsonRegistration, Patch } from '../../types'
 import { fixRegistrationGroups, lockRegistrationGroups, lockRegistrationPayments } from './event'
 import {
@@ -20,6 +21,7 @@ type RegistrationPersistenceResult =
 
 const reconcileRegistrationGroups = async (
   registration: JsonRegistration,
+  event: FormatOwner,
   user: AuditActor
 ): Promise<PersistedRegistration> => {
   if (registration.state !== 'ready') return { groupPatches: [], savedData: registration }
@@ -33,7 +35,7 @@ const reconcileRegistrationGroups = async (
     ...item,
     ...(item.group ? { group: { ...item.group } } : {}),
   }))
-  const reconciled = await fixRegistrationGroups(reconciliationRegistrations, user)
+  const reconciled = await fixRegistrationGroups(reconciliationRegistrations, event, user)
   return {
     groupPatches: createRegistrationPatches(reconciled, beforeReconciliation),
     savedData: {
@@ -57,6 +59,7 @@ const saveRegistrationData = async (
 export const persistRegistrationWithGroups = async (
   data: JsonRegistration,
   existing: JsonRegistration | undefined,
+  event: FormatOwner,
   user: AuditActor
 ): Promise<RegistrationPersistenceResult> => {
   const releasePaymentLock =
@@ -81,7 +84,7 @@ export const persistRegistrationWithGroups = async (
 
     releaseGroupsLock = data.state === 'ready' ? await lockRegistrationGroups(data.eventId, 8) : undefined
     savedData = await saveRegistrationData(data, existing, savedData)
-    return { ...(await reconcileRegistrationGroups(savedData, user)), kind: 'saved' }
+    return { ...(await reconcileRegistrationGroups(savedData, event, user)), kind: 'saved' }
   } finally {
     if (releaseGroupsLock) await releaseGroupsLock()
     if (releasePaymentLock) await releasePaymentLock()

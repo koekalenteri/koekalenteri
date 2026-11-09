@@ -3,7 +3,7 @@ import { APIError } from '@/api/http'
 import * as userAPI from '@/api/user'
 import * as error from '@/lib/client/error'
 import { idTokenAtom, tokenValidityRevisionAtom, userRefreshAtom } from './atoms'
-import { userAtom, validIdTokenAtom } from './derivedAtoms'
+import { adminAccessAtom, hasAdminAccessAtom, userAtom, validIdTokenAtom } from './derivedAtoms'
 
 const encodeBase64Url = (value: string) => btoa(value).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '')
 const makeToken = (payload: object) => `header.${encodeBase64Url(JSON.stringify(payload))}.signature`
@@ -59,6 +59,28 @@ describe('state/user', () => {
         expect.objectContaining({ error: lookupError, refresh, requestId: expect.any(Number) })
       )
       expect(reportErrorSpy).toHaveBeenCalledWith(lookupError)
+    })
+  })
+
+  describe('adminAccessAtom', () => {
+    // A user still loading must suspend the admin page: read as signed out, it would go to login.
+    it('waits for the user before it answers, and the header reads the same answer', async () => {
+      const store = createStore()
+      store.set(idTokenAtom, makeToken({ exp: 4_102_444_800 }))
+      vi.spyOn(userAPI, 'getUser').mockResolvedValueOnce({ email: 'n@r.vi', id: 'norole', name: 'No Role', roles: {} })
+
+      const access = store.get(adminAccessAtom)
+      expect(access).toBeInstanceOf(Promise)
+      await expect(access).resolves.toBe('denied')
+      expect(store.get(hasAdminAccessAtom)).toBe(false)
+    })
+
+    it('is signedOut without a valid token', async () => {
+      const store = createStore()
+      // The token atom is kept in localStorage, which outlives a store.
+      store.set(idTokenAtom, undefined)
+
+      await expect(store.get(adminAccessAtom)).resolves.toBe('signedOut')
     })
   })
 })

@@ -50,7 +50,7 @@ rasteittain. Rasti on yksi 20 pisteen suoritus, ja kokeessa on tavallisesti nelj
 Suorituspaikat määritellään omalla sivullaan, jonka paneelin painike
 **{t:eventManagement.stations}** avaa; painike näkyy vain niissä koemuodoissa, joissa pisteet
 kirjataan rasteilla. Rata rakennetaan yleensä vasta koepaikalla, joten sivu on erillään kokeen
-tiedoista.
+tiedoista. Epävirallinen koe, joka noudattelee NOWT-koetta, saa samat suorituspaikat ja rastit.
 
 Jokaiselle koepäivälle lisätään omat suorituspaikkansa painikkeella **{t:event.stationAdd}**, ja ne
 numeroidaan päivän sisällä yhdestä alkaen. Suorituspaikalle kirjataan *{t:event.stationParts}*,
@@ -151,6 +151,7 @@ Paneelin painike **{t:eventManagement.enterResults}** aktivoituu, kun koe on alk
 sivun **{t:results.title}**. Otsikon alla näkyvät kokeen päivä, tyyppi, paikka ja nimi, kuten
 suorituspaikkojen ja starttinumeroiden sivuillakin. Monipäiväisessä kokeessa
 valitaan ensin päivä, ja luokat ovat omilla välilehdillään. Sivulla ovat vain osallistujiksi nostetut koirakot starttijärjestyksessä.
+Epävirallisen kokeen, joka noudattelee virallista koetta, tulokset syötetään kuten siinä kokeessa.
 
 **Rasteilla pisteytettävä koe (NOWT).** Jokaisella rastilla on oma sarakkeensa rastin numerolla,
 "Rasti 1", "Rasti 2" ja niin edelleen, riippumatta siitä, missä suorituspaikassa ryhmä rastin teki.

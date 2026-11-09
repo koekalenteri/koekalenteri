@@ -8,7 +8,6 @@ import {
   checkFrontPage,
   expectations,
   gitVersionAt,
-  isGitDescendant,
   readStamp,
   scriptSources,
   stampProblems,
@@ -156,14 +155,6 @@ describe('stampProblems', () => {
 })
 
 describe('the local clone', () => {
-  it('counts a commit as following itself', () => {
-    expect(isGitDescendant('HEAD', 'HEAD')).toBe(true)
-  })
-
-  it('does not count a commit the clone does not have', () => {
-    expect(isGitDescendant('HEAD', 'deadbeef'.repeat(5))).toBe(false)
-  })
-
   it('reads the package.json version of a commit', () => {
     // Against the committed file, not the working tree: a release bump may be staged but not yet in.
     const committed = JSON.parse(execFileSync('git', ['show', 'HEAD:package.json'], { encoding: 'utf8' })).version

@@ -8,7 +8,7 @@
  */
 const CONTEXT: readonly (readonly [RegExp, string])[] = [
   [/^\/admin\/event\/(view)\//, 'secretary/while-entry-is-open'],
-  [/^\/admin\/event\/(startnumbers|startlist|startlist-preview)\//, 'secretary/after-entry-closes'],
+  [/^\/admin\/event\/(startnumbers|startlist|startlist-preview|teams)\//, 'secretary/after-entry-closes'],
   [/^\/admin\/event\/(results|stations)\//, 'secretary/trial-day'],
   [/^\/admin\/event(\/(edit|create)|$)/, 'secretary/before-entry-opens'],
   [/^\/admin\/(judge|officials)$/, 'secretary/directories'],

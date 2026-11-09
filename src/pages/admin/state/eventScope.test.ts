@@ -6,7 +6,11 @@ import {
   adminDuplicatePaymentsRefreshAtom,
   adminEventRegistrationsAtom,
 } from './registrations/atoms'
-import { adminEventRegistrationAtom } from './registrations/derivedAtoms'
+import {
+  adminEventOfficialFormatLockedAtom,
+  adminEventPaymentLockedAtom,
+  adminEventRegistrationAtom,
+} from './registrations/derivedAtoms'
 
 const paramsOf = <P>(family: { getParams(): Iterable<P> }) => [...family.getParams()]
 
@@ -19,6 +23,8 @@ describe('releaseAdminEventAtoms', () => {
     adminDuplicatePaymentsRefreshAtom('event-1')
     adminEventRegistrationAtom({ eventId: 'event-1', id: 'reg-1' })
     adminEventRegistrationAtom({ eventId: 'event-2', id: 'reg-2' })
+    adminEventPaymentLockedAtom('event-1')
+    adminEventOfficialFormatLockedAtom('event-1')
 
     releaseAdminEventAtoms('event-1')
 
@@ -29,6 +35,9 @@ describe('releaseAdminEventAtoms', () => {
     expect(paramsOf(adminDuplicatePaymentsAtom)).not.toContain('event-1')
     expect(paramsOf(adminDuplicatePaymentsRefreshAtom)).not.toContain('event-1')
     expect(paramsOf(adminEventRegistrationAtom)).toEqual([{ eventId: 'event-2', id: 'reg-2' }])
+    // The locks read the event's registrations, and go with them (KOE-1718).
+    expect(paramsOf(adminEventPaymentLockedAtom)).not.toContain('event-1')
+    expect(paramsOf(adminEventOfficialFormatLockedAtom)).not.toContain('event-1')
   })
 })
 

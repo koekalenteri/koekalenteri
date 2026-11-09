@@ -145,7 +145,7 @@ export function EntryInfo({
   const error = errorStates.class ?? errorStates.dates ?? errorStates.reserve
   const datesText = eventIsMultiDay ? reg.dates?.map(getRegDateSummaryLabel).join(' / ') : ''
   const reserveText = reg.reserve ? t(`registration.reserveChoises.${reg.reserve}`) : ''
-  const infoText = [getRegistrationClass(reg), datesText, reserveText].filter(Boolean).join(', ')
+  const infoText = [getRegistrationClass(reg, event), datesText, reserveText].filter(Boolean).join(', ')
   const helperText = error ? t('validation.registration.required', { field: 'classesDetails' }) : infoText
 
   // Update filter dates when dates change

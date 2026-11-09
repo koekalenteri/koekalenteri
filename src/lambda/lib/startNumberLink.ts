@@ -1,4 +1,5 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
+import type { FormatOwner } from '../../lib/event'
 import type {
   JsonClassStartNumberDog,
   JsonClassStartNumbers,
@@ -7,7 +8,7 @@ import type {
   ReservedStartNumber,
 } from '../../types'
 import type { StartNumberEntry } from './startNumbers'
-import { uniqueClasses } from '../../lib/event'
+import { formatTypeOf, uniqueClasses } from '../../lib/event'
 import {
   getRegistrationClass,
   isScorableRegistration,
@@ -20,10 +21,12 @@ import { getRegistrationEditTokenSecret } from './secrets'
 
 type LinkVersionFields = Pick<JsonConfirmedEvent, 'startNumberLinkVersions'>
 
-/** The classes a link can be issued for: the trial's own, or its event type where it runs none. */
-export const startNumberLinkClasses = (confirmedEvent: Pick<JsonConfirmedEvent, 'classes' | 'eventType'>): string[] => {
+/** The classes a link can be issued for: the trial's own, or its format where it runs none (KOE-1718). */
+export const startNumberLinkClasses = (
+  confirmedEvent: Pick<JsonConfirmedEvent, 'classes' | 'eventType' | 'officialFormat'>
+): string[] => {
   const classes = uniqueClasses(confirmedEvent)
-  return classes.length ? classes : [confirmedEvent.eventType]
+  return classes.length ? classes : [formatTypeOf(confirmedEvent)]
 }
 
 const startNumberLinkVersion = (event: LinkVersionFields, eventClass: string): number =>
@@ -70,8 +73,8 @@ export const authorizeStartNumberLink = (
   return eventClass
 }
 
-const runsInClass = (registration: JsonRegistration, eventClass: string) =>
-  isScorableRegistration(registration) && getRegistrationClass(registration) === eventClass
+const runsInClass = (event: FormatOwner, registration: JsonRegistration, eventClass: string) =>
+  isScorableRegistration(registration) && getRegistrationClass(registration, event) === eventClass
 
 /**
  * The numbers the class holds in the working order — the space its draw redistributes (KOE-1267).
@@ -81,9 +84,9 @@ const runsInClass = (registration: JsonRegistration, eventClass: string) =>
  * within the numbers their own class holds: which dog holds which changes, the set does not, and two
  * classes drawing at the same time can then never reach for the same number.
  */
-export const classNumberSpace = (registrations: JsonRegistration[], eventClass: string): number[] =>
+export const classNumberSpace = (event: FormatOwner, registrations: JsonRegistration[], eventClass: string): number[] =>
   registrations
-    .filter((registration) => runsInClass(registration, eventClass))
+    .filter((registration) => runsInClass(event, registration, eventClass))
     .map((registration) => registration.group?.number)
     .filter((number): number is number => number !== undefined)
     .sort((a, b) => a - b)
@@ -94,12 +97,13 @@ export const classNumberSpace = (registrations: JsonRegistration[], eventClass: 
  * nor hand out a number that belongs to another class.
  */
 export const assertEntriesInClassSpace = (
+  event: FormatOwner,
   registrations: JsonRegistration[],
   eventClass: string,
   entries: StartNumberEntry[]
 ): void => {
-  const own = new Set(registrations.filter((reg) => runsInClass(reg, eventClass)).map((reg) => reg.id))
-  const space = new Set(classNumberSpace(registrations, eventClass))
+  const own = new Set(registrations.filter((reg) => runsInClass(event, reg, eventClass)).map((reg) => reg.id))
+  const space = new Set(classNumberSpace(event, registrations, eventClass))
 
   for (const entry of entries) {
     if (!own.has(entry.id)) {
@@ -129,14 +133,19 @@ export const assertEntriesInClassSpace = (
  * What is left is a dog that will start under the number, in another class than this sheet. The
  * class is named because "taken", with no place to look, was the message that did not help.
  */
-export const reservedStartNumbers = (registrations: JsonRegistration[], eventClass: string): ReservedStartNumber[] => {
+export const reservedStartNumbers = (
+  event: FormatOwner,
+  registrations: JsonRegistration[],
+  eventClass: string
+): ReservedStartNumber[] => {
   const reserved: ReservedStartNumber[] = []
 
   for (const registration of registrations) {
     const number = registration.startGroup?.number
-    if (number === undefined || !isScorableRegistration(registration) || runsInClass(registration, eventClass)) continue
+    if (number === undefined || !isScorableRegistration(registration) || runsInClass(event, registration, eventClass))
+      continue
 
-    const holder = getRegistrationClass(registration)
+    const holder = getRegistrationClass(registration, event)
     reserved.push({ ...(holder ? { eventClass: holder } : {}), number })
   }
 
@@ -162,8 +171,8 @@ export const classStartNumbersResponse = (
   event: linkedEventProjection(confirmedEvent),
   eventClass,
   registrations: registrations
-    .filter((registration) => runsInClass(registration, eventClass))
+    .filter((registration) => runsInClass(confirmedEvent, registration, eventClass))
     .sort(sortRegistrationsByDateClassTimeAndNumber)
     .map(classStartNumberDog),
-  reserved: reservedStartNumbers(registrations, eventClass),
+  reserved: reservedStartNumbers(confirmedEvent, registrations, eventClass),
 })

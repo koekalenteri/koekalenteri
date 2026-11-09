@@ -98,3 +98,95 @@ same run checks a local build: `E2E_BASE_URL=http://localhost:3000`,
 `E2E_API_URL=http://localhost:8080/dev`, `E2E_EVENT_TABLE=event-table`,
 `AWS_ENDPOINT_URL_DYNAMODB` at the DynamoDB-local and `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`
 set to `local`, the key the servers' database is kept under.
+
+## Claude's browser on dev
+
+`.mcp.json` gives Claude Code sessions in this repository a browser of their own: the Playwright
+MCP server (`@playwright/mcp`, pinned in `package.json`), named `playwright`, run from
+`node_modules` by `scripts/playwright-mcp.mjs` with the settings in `.claude/playwright-mcp.json`
+(KOE-1731). It is for checking a change on dev (https://dev.koekalenteri.snj.fi) the way a
+tester would, signed in through the dev login form. Claude Code asks once, at the first session
+after the file appears, whether to approve the project server; `claude mcp get playwright` shows
+whether it is approved. The server runs from `node_modules`, so a fresh checkout or worktree
+needs `npm ci` first, or Claude Code shows the server as failed.
+
+- The browser is headless and isolated: its profile lives in memory and nothing is kept between
+  sessions. To change account, close the browser (`browser_close`) and sign in again through
+  the form.
+- It uses Playwright's Chromium when that is installed for the server's Playwright version, and
+  Google Chrome otherwise.
+- Snapshots and console logs land in `.playwright-mcp/` at the repository root, which git ignores:
+  `outputDir` in `.claude/playwright-mcp.json`, resolved against the server's working directory,
+  the repository root where Claude Code starts it. A file name the session gives, such as a
+  screenshot's `filename`, is resolved against the repository root instead, and a path outside
+  the repository is refused. `/verify-dev` names its screenshots
+  `.playwright-mcp/<KEY>/<what-it-shows>.png`.
+
+The test accounts are in `.env` as `E2E_DEV_<KEY>_EMAIL` and `E2E_DEV_<KEY>_PASSWORD`
+(`.env.sample` lists the names), each meant for one role on dev. A worktree without a `.env` of
+its own uses the main checkout's, the first entry of `git worktree list`.
+
+| KEY              | Role                        |
+| ---------------- | --------------------------- |
+| `PAAKAYTTAJA`    | global admin                |
+| `YHDISTYS_ADMIN` | admin of the organizer J1   |
+| `SIHTEERI`       | secretary of J1             |
+| `SIHTEERI_2`     | secretary of J2             |
+| `ILMOITTAJA`     | no role, a plain registrant |
+
+`/verify-dev` checks these roles at the start of every run (`.claude/skills/verify-dev/SKILL.md`, step 0).
+
+### The credentials
+
+A session never reads the credentials, because whatever it reads lands in its transcript. The
+browser holds them instead: `scripts/playwright-mcp.mjs` hands the `E2E_DEV_*` keys of that
+`.env` to the server as its secrets (`--secrets`), and the session types a key's name where the
+value goes. `browser_type` and `browser_fill_form` fill in the value when the text is exactly the
+name of a secret, the tool response shows the action as
+`process.env['E2E_DEV_SIHTEERI_PASSWORD']`, and a value that shows up in a later response, an
+email in the user list say, is replaced with `<secret>E2E_DEV_SIHTEERI_EMAIL</secret>`.
+
+- Only the `E2E_DEV_*` keys are handed over, not the whole `.env`. The server would replace every
+  other value too wherever it appears (`REACT_APP_REGION=eu-north-1` from `.env.sample` in every
+  Cognito URL), and fill `JIRA_API_TOKEN` into a dev form field as readily as a password when its
+  name is typed.
+- The server takes secrets only as a dotenv file. The launcher writes it under `.playwright-mcp/`
+  and removes it as soon as the server has read it, before the server answers its first request.
+  A value it cannot write so that it reads back the same (a carriage return in it) stops the
+  launcher with the key named, and the server does not start.
+- Upstream calls this a convenience, not a security feature: it keeps the values out of the tool
+  responses, and nothing stops a page from showing them some other way, in a screenshot for one.
+- The server gets its secrets once, when the session starts it. A session started before this
+  launcher was in its checkout, or while there was no `.env` or no `E2E_DEV_*` keys in it, has a
+  browser without secrets: a typed name lands in the field literally (the snapshot shows
+  `E2E_DEV_SIHTEERI_EMAIL` in the field, and the action as `fill('E2E_DEV_SIHTEERI_EMAIL')`
+  rather than `process.env[...]`) and the sign-in fails. The launcher names the cause on its
+  standard error. Fill in `.env` if that is what is missing, and start a new session from the
+  main checkout with main pulled.
+
+### The allowlist
+
+The browser may request only the origins listed under `network.allowedOrigins`; every other
+request, a page load included, is aborted with `net::ERR_BLOCKED_BY_CLIENT`. The list holds what
+loading dev, signing in and opening the admin page request (the front end, the dev API, Cognito,
+STS and CloudWatch RUM) and Paytrail's payment page. When a run needs another origin (a bank's
+test page behind Paytrail, say), the blocked request shows in `browser_network_requests` as
+`ERR_BLOCKED_BY_CLIENT`: add that origin, a scheme and a host with no path, port or wildcard, to
+the list in the same change that needs it.
+
+- The two `execute-api` hosts are the dev stack's: `h1tkq96ib3` its API, `b98joqlym3` its
+  WebSocket. A recreated stack gets new ones; take them from the stack's outputs, or from
+  `REACT_APP_API_BASE_URL` and `REACT_APP_WS_API_URL` of the dev Amplify app, which
+  `template/amplify.yaml` builds from the stack. Its CSP `connect-src` allows any `execute-api`
+  host of the region and does not name them.
+- The filter is Playwright's request routing, which does not route WebSockets: the `wss://` entry
+  records what the page opens and enforces nothing.
+- Nor does it see the hops of an HTTP redirect, so it keeps the browser off production by default
+  and is not a security boundary.
+
+Production (https://koekalenteri.snj.fi and its API) is not on the list, so the browser cannot
+open it, a navigation from a dev page included. `scripts/playwright-mcp-config.test.mjs` refuses
+an entry that is not a bare origin, and any host under `koekalenteri.snj.fi` other than
+`dev.koekalenteri.snj.fi`, which keeps out the production front end and the auth domains. The
+production API's `execute-api` host cannot be told from dev's by its name, so keeping it off the
+list is up to review.

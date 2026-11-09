@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next'
 import { refusalCode } from '@/api/http'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { dayStart, TIME_ZONE } from '@/lib/day'
-import { getClassDays, isResultsPublishedForDay, uniqueClasses } from '@/lib/event'
+import { formatTypeOf, getClassDays, isResultsPublishedForDay, uniqueClasses } from '@/lib/event'
 import { scoresAtPosts } from '@/lib/liveFormat'
 import { getResultsBlocker } from '@/lib/publishing'
 import { Path } from '@/routeConfig'
@@ -55,13 +55,14 @@ interface ResultsRow {
 const getResultsRows = (event: ConfirmedEvent): ResultsRow[] => {
   const classes = uniqueClasses(event)
   const multiDay = getClassDays(event).length > 1
+  // A classless trial's row is named by its format, the key its participants are grouped under (KOE-1718).
   const rows = classes.length
     ? classes.map((eventClass) => ({ eventClass, name: eventClass }))
-    : [{ eventClass: undefined, name: event.eventType }]
+    : [{ eventClass: undefined, name: formatTypeOf(event) }]
   return rows.flatMap((row) => getClassDays(event, row.eventClass).map((day) => ({ ...row, day, multiDay })))
 }
 
-/** A row's own key: its class, or the event type, and its day. */
+/** A row's own key: its class, or the trial's format, and its day. */
 const rowKey = ({ day, name }: ResultsRow) => `${name}/${day}`
 
 type ResultsMessage = 'confirm' | 'hidden' | 'publishedSnack'
@@ -148,7 +149,7 @@ const ResultsPublishing = ({ event, eventStarted, onSetResultsPublished, selecte
       action={
         <Stack spacing={1}>
           {/* Where the scoring happens at posts, defining them is the first half of entering results. */}
-          {scoresAtPosts(event.eventType) && (
+          {scoresAtPosts(formatTypeOf(event)) && (
             <Button
               fullWidth
               href={Path.admin.stations(event.id)}

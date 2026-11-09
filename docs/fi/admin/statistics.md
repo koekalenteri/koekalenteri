@@ -68,7 +68,8 @@ lataa saman taulukon Excel-tiedostona.
 Samalla sivulla **{t:stats.admin.eventClassStatsExport}** lataa valitun kauden kokeet Excel-tiedostona
 luokka kerrallaan, kaikkien yhdistysten kokeista. Kausi on vuosi, jona koe alkaa. Tiedosto lasketaan
 latauksen hetkellä, joten siinä ovat myös tulevat ja alustavat kokeet. Luonnokset, perutut ja
-poistetut kokeet jäävät pois.
+poistetut kokeet jäävät pois. Laskeminen voi kestää hetken, ja sen ajan painikkeessa pyörii
+latausmerkki. Jos lataus epäonnistuu, sivu kertoo siitä ilmoituksella.
 
 Jokainen rivi on yhden kokeen yksi luokka: yhdistys, paikkakunta, kokeen päivät, koemuoto, tila,
 ilmoittautumisaika, etusijat, osallistumismaksu ja jäsenten osallistumismaksu, luokka ja sen päivät,
@@ -81,7 +82,8 @@ muita henkilötietoja, vain lukumääriä ja summia.
 
 Ilmoittautuneisiin lasketaan myös myöhemmin peruneet, ja heidän määränsä on lisäksi omassa
 sarakkeessaan. Maksu on kokeen perushinta; varhaisen ilmoittautumisen, rodun ja muut hinnat eivät
-ole tiedostossa.
+ole tiedostossa. Alustavalla kokeella, jolle ei ole vielä annettu maksua, maksusarakkeet ovat
+tyhjiä.
 
 Varasijalta nostetuksi lasketaan koira, joka oli varasijalla, kun varasijailmoitus lähetettiin, ja
 joka nyt osallistuu tai sai sen jälkeen koepaikkailmoituksen. Kaksi tapausta jää luvusta pois:

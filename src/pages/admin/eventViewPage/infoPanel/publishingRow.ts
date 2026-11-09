@@ -1,7 +1,12 @@
 import type useAdminEventRegistrationInfo from '@/hooks/useAdminEventRegistrationsInfo'
 import type { PublishBlocker } from '@/lib/publishing'
 import type { ConfirmedEvent, RegistrationClass } from '@/types'
-import { isStartListAvailable, isStartListAvailableForClass, isStartNumbersPublishedForClass } from '@/lib/event'
+import {
+  formatTypeOf,
+  isStartListAvailable,
+  isStartListAvailableForClass,
+  isStartNumbersPublishedForClass,
+} from '@/lib/event'
 import { getStartListBlocker, getStartNumbersBlocker, isStartListPublished } from '@/lib/publishing'
 import { isRegistrationClass } from '@/lib/registration'
 
@@ -49,7 +54,8 @@ const getPublishingRow = (
 ): PublishingRow => {
   const selected = selectedByClass[className] ?? []
   const eventClass = event.classes.find((item) => item.class === className)
-  const classlessEventRow = event.classes.length === 0 && className === event.eventType
+  // A classless trial's row is keyed by its format, as its dogs are (`getRegistrationClass`, KOE-1718).
+  const classlessEventRow = event.classes.length === 0 && className === formatTypeOf(event)
   const startListEventClass = isRegistrationClass(className) ? className : undefined
   const publishable = classlessEventRow || startListEventClass !== undefined
 

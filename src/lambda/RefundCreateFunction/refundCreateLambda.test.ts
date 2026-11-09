@@ -17,6 +17,7 @@ const mockGetRegistration = vi.fn()
 const mockAudit = vi.fn()
 const mockRegistrationAuditKey = vi.fn()
 const mockRead = vi.fn()
+const mockReadTransactionsByReference = vi.fn()
 const mockCreatePendingRefundTransaction = vi.fn()
 const mockCreateSettledRefundTransaction = vi.fn()
 const mockNanoid = vi.fn()
@@ -90,6 +91,7 @@ vi.doMock('../lib/repositories/transactionRepository', () => ({
   createPendingRefundTransaction: mockCreatePendingRefundTransaction,
   createSettledRefundTransaction: mockCreateSettledRefundTransaction,
   readTransaction: async (transactionId: string) => mockRead({ transactionId }),
+  readTransactionsByReference: mockReadTransactionsByReference,
 }))
 
 vi.doMock('nanoid', () => ({
@@ -113,13 +115,16 @@ describe('refundCreateLambda', () => {
   })
 
   const mockPaymentTransaction = {
+    amount: 2000,
     items: [
       {
         stamp: 'item123',
       },
     ],
     reference: 'event123:reg456',
+    status: 'ok',
     transactionId: 'transaction123',
+    type: 'payment',
   }
 
   const mockConfirmedEvent = {
@@ -166,7 +171,6 @@ describe('refundCreateLambda', () => {
     mockGetApiHost.mockReturnValue('api.example.com')
 
     // Set up default behavior for DynamoDB read
-    // Set up default behavior for DynamoDB read
     mockRead.mockImplementation((params: any, table: any) => {
       if (table === 'organizer' || params.id === 'org123') {
         return Promise.resolve(mockOrganizer)
@@ -177,6 +181,7 @@ describe('refundCreateLambda', () => {
       return Promise.resolve(null)
     })
 
+    mockReadTransactionsByReference.mockResolvedValue([mockPaymentTransaction])
     mockGetEvent.mockResolvedValue(mockConfirmedEvent)
     mockGetRegistration.mockResolvedValue(mockRegistration)
 
@@ -208,16 +213,6 @@ describe('refundCreateLambda', () => {
     expect(mockRefundPayment).not.toHaveBeenCalled()
     expect(mockCreatePendingRefundTransaction).not.toHaveBeenCalled()
     expect(mockCreateSettledRefundTransaction).not.toHaveBeenCalled()
-  })
-
-  it('throws error if amount is invalid', async () => {
-    setEventBody(event, {
-      amount: 0,
-      transactionId: 'transaction123',
-    })
-
-    await expect(refundCreateLambda(event)).rejects.toThrow("Invalid amount: '0'")
-    expect(mockRead).not.toHaveBeenCalled()
   })
 
   it('throws error if transaction is not found', async () => {
@@ -381,15 +376,20 @@ describe('refundCreateLambda', () => {
     vi.clearAllMocks()
 
     // Mock a payment transaction without items
+    const paymentWithoutItems = {
+      amount: 2000,
+      reference: 'event123:reg456',
+      status: 'ok',
+      transactionId: 'transaction123',
+      type: 'payment',
+    }
+    mockReadTransactionsByReference.mockResolvedValue([paymentWithoutItems])
     mockRead.mockImplementation((params: any, table: any) => {
       if (table === 'organizer' || params.id === 'org123') {
         return Promise.resolve(mockOrganizer)
       }
       if (params.transactionId === 'transaction123' || !table || table === 'transaction') {
-        return Promise.resolve({
-          reference: 'event123:reg456',
-          transactionId: 'transaction123',
-        })
+        return Promise.resolve(paymentWithoutItems)
       }
       return Promise.resolve(null)
     })
@@ -556,5 +556,191 @@ describe('refundCreateLambda', () => {
       expect.any(String)
     )
     expect(mockCreatePendingRefundTransaction).not.toHaveBeenCalled()
+  })
+
+  // KOE-1614: the body is the secretary's browser's word, and the handling fee ends on the row, in the
+  // mail and in the balance.
+  describe('what may be refunded', () => {
+    const refundRow = (status: string, amount: number, handlingCost = 0) => ({
+      amount,
+      handlingCost,
+      reference: 'event123:reg456',
+      status,
+      transactionId: `refund-${status}`,
+      type: 'refund',
+      user: 'Test User',
+    })
+
+    const selectPayment = (payment: object, transactions: object[] = [payment]) => {
+      mockRead.mockImplementation((_params: unknown, table?: string) =>
+        Promise.resolve(table === 'organizer' ? mockOrganizer : payment)
+      )
+      mockReadTransactionsByReference.mockResolvedValue(transactions)
+    }
+
+    const expectNothingStarted = () => {
+      expect(mockClaimTransactionCreation).not.toHaveBeenCalled()
+      expect(mockRefundPayment).not.toHaveBeenCalled()
+      expect(mockCreatePendingRefundTransaction).not.toHaveBeenCalled()
+      expect(mockCreateSettledRefundTransaction).not.toHaveBeenCalled()
+    }
+
+    const expectRefused = (remaining: number) => {
+      expect(mockResponse).toHaveBeenCalledWith(422, { remaining }, event)
+      expectNothingStarted()
+    }
+
+    it.each([
+      ['a zero amount', { amount: 0, transactionId: 'transaction123' }, 'amount'],
+      ['a negative amount', { amount: -100, transactionId: 'transaction123' }, 'amount'],
+      ['an amount in decimals', { amount: 10.5, transactionId: 'transaction123' }, 'amount'],
+      ['an amount that came through JSON as null', { amount: null, transactionId: 'transaction123' }, 'amount'],
+      [
+        'a negative handling cost',
+        { amount: 1000, handlingCost: -500, transactionId: 'transaction123' },
+        'handlingCost',
+      ],
+      [
+        'a handling cost in decimals',
+        { amount: 1000, handlingCost: 0.5, transactionId: 'transaction123' },
+        'handlingCost',
+      ],
+      [
+        'a handling cost that came through JSON as null',
+        { amount: 1000, handlingCost: null, transactionId: 'transaction123' },
+        'handlingCost',
+      ],
+      ['an empty transaction id', { amount: 1000, transactionId: '' }, 'transactionId'],
+      ['no transaction id', { amount: 1000 }, 'transactionId'],
+    ])('answers 400 naming the field for %s, before reading anything', async (_case, body, field) => {
+      setEventBody(event, body)
+
+      await refundCreateLambda(event)
+
+      expect(mockResponse).toHaveBeenCalledWith(
+        400,
+        expect.objectContaining({ errors: [expect.objectContaining({ field })] }),
+        event
+      )
+      expect(mockRead).not.toHaveBeenCalled()
+      expectNothingStarted()
+    })
+
+    it('reads a missing handling cost as none', async () => {
+      setEventBody(event, { amount: 2000, transactionId: 'transaction123' })
+
+      await refundCreateLambda(event)
+
+      expect(mockCreateSettledRefundTransaction).toHaveBeenCalledWith(
+        expect.objectContaining({ amount: 2000, handlingCost: 0 }),
+        'event123',
+        'reg456',
+        expect.any(String)
+      )
+    })
+
+    it('refuses an amount over the selected payment', async () => {
+      setEventBody(event, { amount: 2001, transactionId: 'transaction123' })
+
+      await refundCreateLambda(event)
+
+      expectRefused(2000)
+    })
+
+    it('refuses a handling cost that takes the sum over the payment', async () => {
+      setEventBody(event, { amount: 1600, handlingCost: 500, transactionId: 'transaction123' })
+
+      await refundCreateLambda(event)
+
+      expectRefused(2000)
+    })
+
+    it('has nothing to refund when the query finds no transactions', async () => {
+      mockReadTransactionsByReference.mockResolvedValue(undefined)
+
+      await refundCreateLambda(event)
+
+      expectRefused(0)
+    })
+
+    // The browser allows it, and it is the secretary's call: 8,00 € paid, 3,00 € back, 5,00 € kept.
+    it('lets a handling cost above the refund through while the sum is within the payment', async () => {
+      selectPayment({ ...mockPaymentTransaction, amount: 800 })
+      setEventBody(event, { amount: 300, handlingCost: 500, transactionId: 'transaction123' })
+
+      await refundCreateLambda(event)
+
+      expect(mockRefundPayment).toHaveBeenCalledTimes(1)
+      expect(mockResponse).toHaveBeenCalledWith(200, mockRefundResult, event)
+    })
+
+    it.each([['ok'], ['pending'], ['delayed']])(
+      'counts a refund that is %s, its handling cost with it',
+      async (status) => {
+        selectPayment(mockPaymentTransaction, [mockPaymentTransaction, refundRow(status, 1500, 200)])
+        setEventBody(event, { amount: 301, transactionId: 'transaction123' })
+
+        await refundCreateLambda(event)
+
+        expectRefused(300)
+      }
+    )
+
+    it.each([['fail'], ['new']])('leaves out a refund that is %s', async (status) => {
+      selectPayment(mockPaymentTransaction, [mockPaymentTransaction, refundRow(status, 1500, 200)])
+      setEventBody(event, { amount: 2000, transactionId: 'transaction123' })
+
+      await refundCreateLambda(event)
+
+      expect(mockRefundPayment).toHaveBeenCalledTimes(1)
+    })
+
+    // An email refund answers `ok` while it waits for the entrant's account number, not applied yet,
+    // and its money has not stopped being spoken for (KOE-1529).
+    it('counts an email refund still waiting for the entrant', async () => {
+      const emailRefund = { ...refundRow('ok', 1500, 200), provider: 'email refund' }
+      selectPayment(mockPaymentTransaction, [mockPaymentTransaction, emailRefund])
+      setEventBody(event, { amount: 301, transactionId: 'transaction123' })
+
+      await refundCreateLambda(event)
+
+      expectRefused(300)
+    })
+
+    // A payment charged twice has its money in the transaction alone: the row's paidAmount is empty,
+    // so hasRefundableBalance would turn a lawful refund away (KOE-1693).
+    it('refunds a payment charged twice, which the row records no amount for', async () => {
+      mockGetRegistration.mockResolvedValue({ ...mockRegistration, paymentStatus: 'DUPLICATE' })
+      selectPayment({ ...mockPaymentTransaction, duplicatePaymentAt: '2026-08-01T10:00:00.000Z' })
+      setEventBody(event, { amount: 2000, transactionId: 'transaction123' })
+
+      await refundCreateLambda(event)
+
+      expect(mockRefundPayment).toHaveBeenCalledTimes(1)
+    })
+
+    it('caps a refund by the selected payment when the registration holds more', async () => {
+      const other = { ...mockPaymentTransaction, amount: 3000, transactionId: 'other' }
+      selectPayment(mockPaymentTransaction, [mockPaymentTransaction, other])
+      setEventBody(event, { amount: 2001, transactionId: 'transaction123' })
+
+      await refundCreateLambda(event)
+
+      expectRefused(2000)
+    })
+
+    it.each([
+      ['a refund', { type: 'refund' }],
+      ['a payment still pending', { status: 'pending' }],
+      ['a failed payment', { status: 'fail' }],
+    ])('has nothing to refund from %s', async (_case, overrides) => {
+      const selected = { ...mockPaymentTransaction, ...overrides }
+      selectPayment(selected, [mockPaymentTransaction, selected])
+      setEventBody(event, { amount: 100, transactionId: 'transaction123' })
+
+      await refundCreateLambda(event)
+
+      expectRefused(0)
+    })
   })
 })

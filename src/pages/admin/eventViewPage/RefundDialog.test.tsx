@@ -780,4 +780,162 @@ describe('RefundDialog', () => {
       expect(screen.queryByRole('radio')).not.toBeInTheDocument()
     })
   })
+
+  // KOE-1614: a refund on its way counts, on the server and here by the same rule, so a second one
+  // cannot be started on the same money.
+  describe('a refund already on its way', () => {
+    const reserve = { ...registrationWithStaticDates, group: { key: 'reserve', number: 1 } }
+
+    it('leaves only what is left to refund', async () => {
+      mockTransactions = [
+        defaultMockTransactions[0],
+        { ...defaultMockTransactions[1], amount: 3000, handlingCost: 500, status: 'pending' },
+      ]
+      mockRefundImplementation = vi.fn().mockResolvedValue({ status: 'ok' })
+      render(<RefundDialog event={eventWithStaticDates} registration={reserve} open={true} />, { wrapper: Wrapper })
+      await flushPromises()
+
+      expect(
+        within(screen.getByRole('row', { name: /registration.refundDialog.total/ })).getByText('15,00 €')
+      ).toBeInTheDocument()
+
+      fireEvent.click(screen.getByText('refund'))
+      await flushPromises()
+
+      expect(mockRefundImplementation).toHaveBeenCalledWith(reserve, 'payment-123', 1500, 0)
+    })
+
+    it('has nothing to offer once it covers the payment', async () => {
+      mockTransactions = [
+        defaultMockTransactions[0],
+        { ...defaultMockTransactions[1], amount: 4500, handlingCost: 500, status: 'pending' },
+      ]
+      render(<RefundDialog event={eventWithStaticDates} registration={reserve} open={true} />, { wrapper: Wrapper })
+      await flushPromises()
+
+      expect(screen.getByRole('button', { name: 'refund' })).toBeDisabled()
+    })
+
+    it('shows its amount on its row, since the total counts it', async () => {
+      mockTransactions = [
+        defaultMockTransactions[0],
+        { ...defaultMockTransactions[1], amount: 3000, handlingCost: 500, status: 'pending' },
+      ]
+      render(<RefundDialog event={eventWithStaticDates} registration={reserve} open={true} />, { wrapper: Wrapper })
+      await flushPromises()
+
+      const row = screen.getByRole('row', { name: /registration.refundDialog.transactionType.refund/ })
+      expect(within(row).getByText(/30,00/)).toBeInTheDocument()
+    })
+
+    it('shows no amount on a payment that has not settled, which the total does not count', async () => {
+      mockTransactions = [
+        defaultMockTransactions[0],
+        { ...defaultMockTransactions[0], amount: 7700, status: 'pending', transactionId: 'payment-456' },
+      ]
+      render(<RefundDialog event={eventWithStaticDates} registration={reserve} open={true} />, { wrapper: Wrapper })
+      await flushPromises()
+
+      expect(screen.queryByText(/77,00/)).not.toBeInTheDocument()
+      expect(
+        within(screen.getByRole('row', { name: /registration.refundDialog.total/ })).getByText('50,00 €')
+      ).toBeInTheDocument()
+    })
+
+    // An email refund answers `ok` while it waits for the entrant's account number (KOE-1529).
+    it('counts an email refund still waiting for the entrant', async () => {
+      mockTransactions = [
+        defaultMockTransactions[0],
+        { ...defaultMockTransactions[1], amount: 3000, handlingCost: 500, provider: 'email refund' },
+      ]
+      mockRefundImplementation = vi.fn().mockResolvedValue({ status: 'ok' })
+      render(<RefundDialog event={eventWithStaticDates} registration={reserve} open={true} />, { wrapper: Wrapper })
+      await flushPromises()
+
+      fireEvent.click(screen.getByText('refund'))
+      await flushPromises()
+
+      expect(mockRefundImplementation).toHaveBeenCalledWith(reserve, 'payment-123', 1500, 0)
+    })
+
+    it('frees the money again once it has failed', async () => {
+      mockTransactions = [
+        defaultMockTransactions[0],
+        { ...defaultMockTransactions[1], amount: 3000, handlingCost: 500, status: 'fail' },
+      ]
+      mockRefundImplementation = vi.fn().mockResolvedValue({ status: 'ok' })
+      render(<RefundDialog event={eventWithStaticDates} registration={reserve} open={true} />, { wrapper: Wrapper })
+      await flushPromises()
+
+      fireEvent.click(screen.getByText('refund'))
+      await flushPromises()
+
+      expect(mockRefundImplementation).toHaveBeenCalledWith(reserve, 'payment-123', 5000, 0)
+    })
+  })
+
+  // The server turned it away before Paytrail, as someone else's refund got there first.
+  describeWithTranslations('fi', () => {
+    it('says how much is left when the server refuses the refund as too large', async () => {
+      mockRefundImplementation = vi.fn().mockRejectedValue(
+        new APIError(new Response(null, { status: 422, statusText: 'Unprocessable Entity' }), {
+          remaining: 1500,
+        })
+      )
+      render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={true} />, {
+        wrapper: Wrapper,
+      })
+      await flushPromises()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Palauta maksu' }))
+      await flushPromises()
+
+      expect(enqueueSnackbarMock).toHaveBeenCalledWith(expect.stringMatching(/Palauttamatta: 15,00/), {
+        persist: true,
+        variant: 'error',
+      })
+    })
+
+    it('says nothing is left when nothing is', async () => {
+      mockRefundImplementation = vi
+        .fn()
+        .mockRejectedValue(
+          new APIError(new Response(null, { status: 422, statusText: 'Unprocessable Entity' }), { remaining: 0 })
+        )
+      render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={true} />, {
+        wrapper: Wrapper,
+      })
+      await flushPromises()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Palauta maksu' }))
+      await flushPromises()
+
+      expect(enqueueSnackbarMock).toHaveBeenCalledWith(expect.stringMatching(/Palauttamatta: 0,00/), {
+        persist: true,
+        variant: 'error',
+      })
+    })
+
+    it.each([
+      ['another shape', { remaining: '15' }],
+      ['no fields it knows', { error: 'Refused' }],
+      ['no object at all', 'Refused'],
+    ])('falls back to the general message on a 422 with %s', async (_case, body) => {
+      mockRefundImplementation = vi
+        .fn()
+        .mockRejectedValue(new APIError(new Response(null, { status: 422, statusText: 'Unprocessable Entity' }), body))
+      render(<RefundDialog event={eventWithStaticDates} registration={registrationWithStaticDates} open={true} />, {
+        wrapper: Wrapper,
+      })
+      await flushPromises()
+
+      fireEvent.click(screen.getByRole('button', { name: 'Palauta maksu' }))
+      await flushPromises()
+
+      expect(enqueueSnackbarMock).toHaveBeenCalledWith(expect.stringMatching(/^Maksun palautus epäonnistui/), {
+        persist: true,
+        variant: 'error',
+      })
+    })
+  })
 })

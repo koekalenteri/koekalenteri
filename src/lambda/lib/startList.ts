@@ -6,8 +6,10 @@ import type {
   JsonPublicRegistration,
   JsonPublicRegistrationGroup,
   JsonRegistration,
+  PublicTeamPlace,
 } from '../../types'
 import {
+  formatTypeOf,
   isResultsAvailableForRegistration,
   isStartListAvailable,
   isStartListAvailableForRegistration,
@@ -22,6 +24,7 @@ import {
   withDefaultOwnerSelection,
 } from '../../lib/registration'
 import { placementsFor, resultMarks, shownEventResult, withStoredTotals } from '../../lib/results'
+import { countedTeamMembers, teamMembers, teamStandings } from '../../lib/team'
 import { getLiveEvent } from './event'
 import { readEventRegistrations } from './repositories/registrationRepository'
 
@@ -64,16 +67,16 @@ const buildPublicStartList = (
   const withTotals = registrations.map((reg) => withStoredTotals(confirmedEvent, reg))
 
   // Derived over everyone who ran, so a withheld row still takes its rank; published only with the result.
-  const placements = placementsFor(withTotals)
+  const placements = placementsFor(withTotals, confirmedEvent)
 
-  const publicRegs = withTotals
-    .filter((reg) => isInEventClasses(confirmedEvent, reg))
-    .map((reg) =>
-      reg.cancelled
-        ? cancelledPublicRow(confirmedEvent, reg, preview)
-        : publicRow(confirmedEvent, reg, preview, drawn, placements.get(reg.id))
-    )
-    .filter((row) => row !== undefined)
+  const rows = withTotals.flatMap((reg): PublishedRow[] => {
+    if (!isInEventClasses(confirmedEvent, reg)) return []
+    const row = reg.cancelled
+      ? cancelledPublicRow(confirmedEvent, reg, preview)
+      : publicRow(confirmedEvent, reg, preview, drawn, placements.get(reg.id))
+    return row ? [{ id: reg.id, row }] : []
+  })
+  const publicRegs = withTeams(confirmedEvent, withTotals, rows, preview)
 
   // Groups keep their day/class/time order either way; within a group a withheld number falls
   // back to the dog's name, so the unconfirmed list reads alphabetically rather than leaking
@@ -84,6 +87,84 @@ const buildPublicStartList = (
   )
 
   return publicRegs
+}
+
+/**
+ * The rows, each published member of a team with its team (KOE-1715). The teams name their dogs by
+ * registration id, so they never leave the server: a row learns only its own team, and a team none of
+ * whose dogs is on the list is named nowhere. The codes come from `teamMembers`, read over the rows
+ * that are published, so a reserve's or an unpublished dog's letter stays taken without its row
+ * existing. A cancelled dog's row stays its frozen number alone (KOE-1017): a team beside it would tie
+ * the absent dog back to a named team. The team's standing over the trial comes beside its place once
+ * it is public (`publishedStandings`, KOE-1717); it is worked out over all the registrations, not the
+ * rows, since a row withholds its result until its class's results are out.
+ */
+const withTeams = (
+  confirmedEvent: JsonDogEvent,
+  registrations: readonly JsonRegistration[],
+  rows: readonly PublishedRow[],
+  preview: boolean
+): JsonPublicRegistration[] => {
+  const { teams } = confirmedEvent
+  const running = new Map(rows.filter(({ row }) => !row.cancelled).map((published) => [published.id, published]))
+  const standings = publishedStandings(confirmedEvent, registrations, running, preview)
+  const places = new Map<JsonPublicRegistration, PublicTeamPlace>()
+  teams?.forEach((team, index) => {
+    const number = index + 1
+    for (const { code, registration } of teamMembers(team, number, running)) {
+      places.set(registration.row, {
+        code,
+        ...(team.name ? { name: team.name } : {}),
+        number,
+        ...standings.get(index),
+      })
+    }
+  })
+
+  return rows.map(({ row }) => {
+    const team = places.get(row)
+    return team ? { ...row, team } : row
+  })
+}
+
+type PublishedStanding = Pick<PublicTeamPlace, 'placement' | 'points' | 'runOff'>
+
+/**
+ * Each team's standing over the trial, by the team's place in the list (KOE-1717). It is worked out once
+ * per team and given to every row of it, so whichever row a reader takes it from says the same. The
+ * standings are public only when every dog any team counts is on the published list with its result:
+ * a total holds its dogs' points, and a placing compares it with every other team's, so one dog still
+ * withheld would leak through either. A dog withheld is one whose class or day has no results out yet,
+ * and one whose row is not published at all (`publicRow` answers none: its list is not out, or it was
+ * added after the numbers went out and has none entered, KOE-1272). The release is read from the dog's
+ * `group` as `publicRow` reads it. The preview shows them as they stand.
+ */
+const publishedStandings = (
+  confirmedEvent: JsonDogEvent,
+  registrations: readonly JsonRegistration[],
+  published: ReadonlyMap<string, unknown>,
+  preview: boolean
+): Map<number, PublishedStanding> => {
+  const { teams } = confirmedEvent
+  const released = (reg: JsonRegistration) =>
+    published.has(reg.id) &&
+    !!reg.group &&
+    isResultsAvailableForRegistration(confirmedEvent, { class: reg.class, group: reg.group })
+  const isPublic = preview || countedTeamMembers(teams, registrations).every((dogs) => dogs.every(released))
+  if (!isPublic) return new Map()
+
+  return new Map(
+    teamStandings(confirmedEvent, teams, registrations).map(({ placement, points, runOff, team }) => [
+      team,
+      { placement, points, ...(runOff ? { runOff } : {}) },
+    ])
+  )
+}
+
+/** A published row with the id of its registration, which the row itself never carries. */
+interface PublishedRow {
+  id: string
+  row: JsonPublicRegistration
 }
 
 /** Keep preview limited to event classes even though it bypasses publication checks. */
@@ -183,7 +264,7 @@ const publishedResult = (confirmedEvent: JsonDogEvent, reg: JsonRegistration, pl
   const stored = reg.eventResult
   const marks = resultMarks(stored)
   // Kennelliitto's spelling, as KoiraNet lists it; the stored result keeps its prefix (KOE-1592).
-  const result = shownEventResult(stored?.result, confirmedEvent.eventType, reg.class ?? undefined)
+  const result = shownEventResult(stored?.result, formatTypeOf(confirmedEvent), reg.class ?? undefined)
 
   return {
     ...(marks.length ? { marks } : {}),

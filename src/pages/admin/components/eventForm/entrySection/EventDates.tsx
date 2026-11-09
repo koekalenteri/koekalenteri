@@ -2,13 +2,13 @@ import type { RegistrationClass } from '@/types'
 import type { EntryEvent, SectionProps } from '../types'
 import Stack from '@mui/material/Stack'
 import { useMemo } from 'react'
-import { getUniqueEventClasses, OFFICIAL_EVENT_TYPES } from '@/lib/event'
+import { formatTypeOf, getUniqueEventClasses, OFFICIAL_EVENT_TYPES } from '@/lib/event'
 import { ClassGroups } from './eventDates/ClassGroups'
 import { EventGroups } from './eventDates/EventGroups'
 
 interface Props extends Pick<SectionProps, 'disabled' | 'onChange'> {
   readonly event: EntryEvent
-  readonly eventTypeClasses?: RegistrationClass[]
+  readonly eventTypeClasses?: readonly RegistrationClass[]
   readonly invalidClasses?: string[]
   readonly invalidClassesHelperText?: string
 }
@@ -22,7 +22,8 @@ export const EventDates = ({
   onChange,
 }: Readonly<Props>) => {
   const classes = useMemo(() => getUniqueEventClasses(event), [event])
-  const isOfficial = useMemo(() => OFFICIAL_EVENT_TYPES.includes(event.eventType ?? ''), [event.eventType])
+  // An official format fixes its classes; an unofficial trial following one runs that format's (KOE-1718).
+  const isOfficial = useMemo(() => OFFICIAL_EVENT_TYPES.includes(formatTypeOf(event) ?? ''), [event])
 
   if (isOfficial ? eventTypeClasses?.length === 0 : event.classes.length === 0) {
     return <EventGroups disabled={disabled} event={event} onChange={onChange} />

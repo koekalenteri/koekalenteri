@@ -49,7 +49,11 @@ vi.doMock('../lib/ws/connectionRepository', () => ({
   queryPublicConnections: vi.fn().mockResolvedValue([]),
   removeConnection: vi.fn(),
 }))
-vi.doMock('../lib/ws/actions', () => ({ publishRegistrationPatches: mockPublishRegistrationPatches }))
+const mockPublishPublicStartList = vi.fn()
+vi.doMock('../lib/ws/actions', () => ({
+  publishPublicStartList: mockPublishPublicStartList,
+  publishRegistrationPatches: mockPublishRegistrationPatches,
+}))
 
 const { default: putStationEntryLambda } = await import('./handler')
 // Imported after the mocks: its own imports reach the publishers, which must load on the mocked scan.
@@ -108,6 +112,34 @@ describe('putStationEntryLambda', () => {
     expect(loggedLines(errorSpy)).toEqual([
       expect.objectContaining({ message: 'live push failed', publication: 'registration patches' }),
     ])
+  })
+
+  // A post stays open after the results are published: a correction there reaches the public list,
+  // the dog's own result and its team's standing (KOE-1717).
+  it('republishes the start list after a save that changed a result', async () => {
+    await putStationEntryLambda(apiEvent([{ eventResult: { tasks: [{ exercise: 1, points: 17 }] }, id: 'reg-1' }]))
+
+    expect(mockPublishPublicStartList).toHaveBeenCalledWith('event-1')
+  })
+
+  it('publishes nothing when the save changed nothing', async () => {
+    const at = '2026-09-12T08:00:00.000Z'
+    storeRows([
+      asJsonRegistration({
+        ...registration('reg-1'),
+        eventResult: {
+          tasks: [{ exercise: 1, part: 0, points: 17, updatedAt: at, updatedBy: 'x' }],
+          updatedAt: at,
+          updatedBy: 'x',
+        },
+        eventType: 'NOWT',
+      }),
+    ])
+
+    await putStationEntryLambda(apiEvent([{ eventResult: { tasks: [{ exercise: 1, points: 17 }] }, id: 'reg-1' }]))
+
+    expect(mockResponse).toHaveBeenCalledWith(200, expect.objectContaining({ saved: [] }), expect.anything())
+    expect(mockPublishPublicStartList).not.toHaveBeenCalled()
   })
 
   describe("another post's scores (KOE-1665)", () => {

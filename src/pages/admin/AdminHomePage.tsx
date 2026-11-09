@@ -1,17 +1,23 @@
 import Box from '@mui/material/Box'
-import { useAtomValue } from 'jotai'
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useState } from 'react'
 import { Outlet, useLocation } from 'react-router'
 import { HEADER_HEIGHT } from '../../assets/Theme'
 import { useAdminSubscription } from '../../hooks/useAdminSubscription'
+import { AdminAccessGuard } from '../components/AdminAccessGuard'
 import Header from '../components/Header'
 import LoadingIndicator from '../components/LoadingIndicator'
 import { SideMenu } from '../components/SideMenu'
-import { hasAdminAccessAtom, useUserActions } from '../state'
 
 export default function AdminHomePage() {
-  const actions = useUserActions()
-  const hasAccess = useAtomValue(hasAdminAccessAtom)
+  return (
+    <AdminAccessGuard>
+      <AdminShell />
+    </AdminAccessGuard>
+  )
+}
+
+/** The header, the menu and the admin page; opens the admin subscription only for a user with access. */
+function AdminShell() {
   const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -19,12 +25,6 @@ export default function AdminHomePage() {
   const toggleMenu = () => setMenuOpen(!menuOpen)
 
   useAdminSubscription()
-
-  useEffect(() => {
-    if (!hasAccess) actions.login()
-  }, [actions, hasAccess])
-
-  if (!hasAccess) return null
 
   return (
     <>

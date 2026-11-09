@@ -7,7 +7,7 @@ import Stack from '@mui/material/Stack'
 import { useAtomValue } from 'jotai'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { applyNewGroupsToDogEventClass } from '@/lib/event'
+import { applyNewGroupsToDogEventClass, formatTypeOf } from '@/lib/event'
 import { adminEventTypeGroupsAtom } from '@/pages/admin/state'
 import AutocompleteMulti from '@/pages/components/AutocompleteMulti'
 
@@ -20,7 +20,7 @@ interface Props extends Pick<SectionProps, 'disabled' | 'onChange'> {
 
 export const ClassGroups = ({ disabled, error, event, eventClass, helperText, onChange }: Readonly<Props>) => {
   const { t } = useTranslation()
-  const typeGroups = useAtomValue(adminEventTypeGroupsAtom(event.eventType))
+  const typeGroups = useAtomValue(adminEventTypeGroupsAtom(formatTypeOf(event)))
   const defaultGroups = useMemo(() => typeGroups.filter((g) => g !== 'kp'), [typeGroups])
   const classes = useMemo(() => event.classes.filter((c) => c.class === eventClass), [event.classes, eventClass])
   const options = useMemo(

@@ -1,6 +1,7 @@
 import AddCircleOutline from '@mui/icons-material/AddCircleOutlined'
 import FormatListBulleted from '@mui/icons-material/FormatListBulleted'
 import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
+import GroupsOutlined from '@mui/icons-material/GroupsOutlined'
 import MailOutline from '@mui/icons-material/MailOutlined'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -77,6 +78,16 @@ const EventActions = ({ eventFinished, eventId, hasRegistrations }: Props) => {
           variant="outlined"
         >
           {t('eventManagement.startList.secretary')}
+        </Button>
+        {/* Any event can run a team competition, so the teams are always there to define (KOE-1714). */}
+        <Button
+          fullWidth
+          href={Path.admin.teams(eventId)}
+          startIcon={<GroupsOutlined />}
+          sx={actionButtonSx}
+          variant="outlined"
+        >
+          {t('eventManagement.teams')}
         </Button>
       </Stack>
     </Box>

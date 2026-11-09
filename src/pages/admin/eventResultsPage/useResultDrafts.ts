@@ -1,7 +1,9 @@
+import type { FormatOwner } from '@/lib/event'
 import type { EventResult, Registration } from '@/types'
 import type { ResultEdit } from '../../components/stationScoring/types'
 import type { RebasedEdit, ResultDraft } from './resultDraft'
 import { useCallback, useMemo, useState } from 'react'
+import { formatTypeOf } from '@/lib/event'
 import { getRegistrationClass } from '@/lib/registration'
 import { heldTasks } from '@/lib/resultTasks'
 import { seededResultEdit } from '../../components/stationScoring/types'
@@ -17,7 +19,7 @@ type RebasedDraft = RebasedEdit & Pick<ResultDraft, 'version'>
  */
 export const useResultDrafts = (
   registrations: readonly Registration[],
-  eventType: string | undefined,
+  event: FormatOwner,
   exercisesOnView: ((registration: Registration) => number[]) | undefined
 ) => {
   const [drafts, setDrafts] = useState<Record<string, ResultDraft>>({})
@@ -29,9 +31,9 @@ export const useResultDrafts = (
   const readingOf = useCallback(
     (id: string) => {
       const registration = registrationOf(id)
-      return { eventClass: registration && getRegistrationClass(registration), eventType: eventType ?? '' }
+      return { eventClass: registration && getRegistrationClass(registration, event), eventType: formatTypeOf(event) }
     },
-    [eventType, registrationOf]
+    [event, registrationOf]
   )
 
   const rebase = useCallback(

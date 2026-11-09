@@ -160,7 +160,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
           }
           if (
             registration.invitationAttachment &&
-            getEventStateForClass(event, getRegistrationClass(registration)) === 'invited'
+            getEventStateForClass(event, getRegistrationClass(registration, event)) === 'invited'
           ) {
             redirectTo(Path.invitationAttachment(registration))
           } else {
@@ -321,7 +321,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Registrati
         </Grid>
         <RegistrationEventInfo
           event={event}
-          eventClass={getRegistrationClass(registration)}
+          eventClass={getRegistrationClass(registration, event)}
           invitationAttachment={registration.invitationAttachment}
           invitationAttachmentUpdatedAt={registration.invitationAttachmentUpdatedAt}
           hideCostInfo

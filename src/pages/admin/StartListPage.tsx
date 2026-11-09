@@ -8,18 +8,18 @@ import TableContainer from '@mui/material/TableContainer'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { useAtomValue } from 'jotai'
-import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
-import { eventTypeLabel, hasSharedReserveList, localizedEventName } from '../../lib/event'
+import { eventTypeLabel, formatTypeOf, hasSharedReserveList, localizedEventName } from '../../lib/event'
 import {
   getRegistrationClass,
   getRegistrationGroupTime,
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
 import { keysOf } from '../../lib/typeGuards'
+import { AdminAccessGuard } from '../components/AdminAccessGuard'
 import { HiddenPageTitle } from '../components/HiddenPageTitle'
-import { hasAdminAccessAtom, languageAtom, useUserActions } from '../state'
+import { languageAtom } from '../state'
 import StartListGroup from './startListPage/StartListGroup'
 import { adminEventAtom, adminEventRegistrationsAtom } from './state'
 import { useAdminEventScope } from './state/eventScope'
@@ -41,9 +41,15 @@ const eventTitle = (event: DogEvent, language: Language) => {
 }
 
 export default function StartListPage() {
+  return (
+    <AdminAccessGuard>
+      <StartList />
+    </AdminAccessGuard>
+  )
+}
+
+function StartList() {
   const { t } = useTranslation()
-  const actions = useUserActions()
-  const hasAccess = useAtomValue(hasAdminAccessAtom)
   const params = useParams()
   const eventId = params.id ?? ''
   useAdminEventScope(eventId)
@@ -54,8 +60,8 @@ export default function StartListPage() {
   const nameLen = regsToPrint.reduce((acc, reg) => Math.min(38, Math.max(acc, reg.dog.name?.length ?? 0)), 0)
   const grouped = regsToPrint.reduce<GroupedRegs>((acc, reg) => {
     const date = reg.group?.date ?? RESERVE_KEY
-    const shared = date === RESERVE_KEY && hasSharedReserveList(reg.eventType)
-    const eventClass = shared ? SHARED_RESERVE_CLASS : getRegistrationClass(reg)
+    const shared = date === RESERVE_KEY && hasSharedReserveList(formatTypeOf(event))
+    const eventClass = shared ? SHARED_RESERVE_CLASS : getRegistrationClass(reg, event)
     const time = getRegistrationGroupTime(reg)
     acc[date] = acc[date] ?? {}
     acc[date][eventClass] = acc[date][eventClass] ?? {}
@@ -73,12 +79,6 @@ export default function StartListPage() {
     if (b === RESERVE_KEY) return -1
     return a.localeCompare(b)
   })
-
-  useEffect(() => {
-    if (!hasAccess) actions.login()
-  }, [actions, hasAccess])
-
-  if (!hasAccess) return null
 
   return (
     <Box

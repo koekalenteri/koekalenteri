@@ -1,5 +1,5 @@
 import type { User } from '../types'
-import { scoreUser, userHasAdminAccess } from './user'
+import { adminAccessOf, scoreUser, userHasAdminAccess } from './user'
 
 describe('lib/user', () => {
   describe('userHasAdminAccess', () => {
@@ -16,6 +16,19 @@ describe('lib/user', () => {
 
     it('grants access to a user with an organizer role', () => {
       expect(userHasAdminAccess({ roles: { org1: 'secretary' } })).toBe(true)
+    })
+  })
+
+  describe('adminAccessOf', () => {
+    it.each([
+      ['signedOut', 'there is no valid token', undefined, null],
+      ['signedOut', 'there is no valid token, whatever user is left', undefined, { admin: true }],
+      ['unavailable', 'the token has no user (the /user fetch failed)', 'token', null],
+      ['denied', 'the user has no admin flag and no role', 'token', { roles: {} }],
+      ['granted', 'the user is a system administrator', 'token', { admin: true }],
+      ['granted', 'the user has an organizer role', 'token', { roles: { org1: 'secretary' } }],
+    ])('is %s when %s', (expected, _description, token, user) => {
+      expect(adminAccessOf(token, user)).toBe(expected)
     })
   })
 

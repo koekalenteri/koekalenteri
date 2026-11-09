@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography'
 import { nanoid } from 'nanoid'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { getEventDays } from '@/lib/event'
+import { formatTypeOf, getEventDays } from '@/lib/event'
 import { scoresAtPosts } from '@/lib/liveFormat'
 import { groupExercises, rotationGroupDay, stationParts } from '@/lib/rotation'
 import { RotationEditor } from './RotationEditor'
@@ -133,7 +133,7 @@ function StationsEditor({ event, disabled, onChange }: Props) {
     [setStations, stations]
   )
 
-  const rotates = scoresAtPosts(event.eventType)
+  const rotates = scoresAtPosts(formatTypeOf(event))
 
   return (
     <Grid

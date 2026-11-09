@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import type { EventResultSubmission } from '@/api/registration'
+import type { FormatOwner } from '@/lib/event'
 import type {
   EventResultVersion,
   EventStation,
@@ -32,7 +33,7 @@ import { APIError } from '@/api/http'
 import { reportError } from '@/lib/client/error'
 import { resultConflictResponse } from '@/lib/client/resultConflict'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
-import { compareRegistrationClasses } from '@/lib/event'
+import { compareRegistrationClasses, formatTypeOf } from '@/lib/event'
 import { makeArray } from '@/lib/judge'
 import { scoresAtPosts } from '@/lib/liveFormat'
 import { getRegistrationClass } from '@/lib/registration'
@@ -65,7 +66,6 @@ import { emptyEdit, seededResultEdit } from './types'
 interface StationScoringDog {
   id: string
   class?: RegistrationClass | null
-  eventType: string
   group?: RegistrationGroup & { time?: RegistrationTime }
   dog: { name?: string }
   handler?: { name?: string }
@@ -80,7 +80,8 @@ interface StationScoringDog {
 
 interface Props {
   readonly station: Pick<EventStation, 'id' | 'number' | 'judges' | 'dogsAtOnce'>
-  readonly eventType: string
+  /** The trial, whose format (`formatTypeOf`) decides what the post enters and how a result is spelled. */
+  readonly event: FormatOwner
   /** The head of the sheet: which post of which trial, and a way back where the caller has one. */
   readonly header?: ReactNode
   /** For the class judges where the post names none. */
@@ -130,8 +131,9 @@ const exercisesHere = (dog: StationScoringDog, stationId: string): number[] =>
  * What this post already recorded for a dog, as the edit starts from: the shared seed, of this post's
  * exercises where a round is scored at posts.
  */
-const seededEdit = (dog: StationScoringDog, stationId: string, eventType: string): ResultEdit => {
-  const seeded = seededResultEdit(dog.eventResult, eventType, getRegistrationClass(dog))
+const seededEdit = (dog: StationScoringDog, stationId: string, event: FormatOwner): ResultEdit => {
+  const eventType = formatTypeOf(event)
+  const seeded = seededResultEdit(dog.eventResult, eventType, getRegistrationClass(dog, event))
   const here = exercisesHere(dog, stationId)
   return scoresAtPosts(eventType)
     ? { ...seeded, tasks: seeded.tasks.filter((task) => here.includes(task.exercise)) }
@@ -189,7 +191,7 @@ const dogAtPost = (
  */
 export function StationScoring({
   station,
-  eventType,
+  event,
   header,
   classes,
   registrations,
@@ -206,21 +208,21 @@ export function StationScoring({
   const { t } = useTranslation()
 
   // A qualitative type has no tasks to score; the judge's decision is the result, entered as such.
-  const qualitative = !scoresAtPosts(eventType)
+  const qualitative = !scoresAtPosts(formatTypeOf(event))
 
   // Where the rotation says who comes when, the classes are in the order they reach the post, as the dogs
   // came; elsewhere in the class order (KOE-1596).
   const eventClasses = useMemo(() => {
-    const classes = [...new Set(registrations.map(getRegistrationClass))]
+    const classes = [...new Set(registrations.map((dog) => getRegistrationClass(dog, event)))]
     return registrations.some((dog) => dog.visit) ? classes : classes.sort(compareRegistrationClasses)
-  }, [registrations])
+  }, [event, registrations])
   // Read once, on opening: the dog already at the post is where the screen starts, class tab included.
   const [initial] = useState(() => dogAtPost(registrations, turns, station.id))
   const [selectedClass, setSelectedClass] = useState<string | undefined>(
-    initial ? getRegistrationClass(initial) : eventClasses[0]
+    initial ? getRegistrationClass(initial, event) : eventClasses[0]
   )
   const [selectedKey, setSelectedKey] = useState<string | undefined>(initial && entryKey(initial))
-  const [edit, setEdit] = useState<ResultEdit>(initial ? seededEdit(initial, station.id, eventType) : emptyEdit)
+  const [edit, setEdit] = useState<ResultEdit>(initial ? seededEdit(initial, station.id, event) : emptyEdit)
   // What the edit was seeded from, whose version its save is based on: a row the socket or a read moves while
   // the form is open must not make the save look current, or it overwrites what the post never saw (KOE-1701).
   const [editBase, setEditBase] = useState(initial?.eventResult)
@@ -232,8 +234,8 @@ export function StationScoring({
   const eventClass = selectedClass && eventClasses.includes(selectedClass) ? selectedClass : eventClasses[0]
 
   const dogs = useMemo(
-    () => registrations.filter((reg) => getRegistrationClass(reg) === eventClass),
-    [eventClass, registrations]
+    () => registrations.filter((reg) => getRegistrationClass(reg, event) === eventClass),
+    [event, eventClass, registrations]
   )
 
   const judges = useMemo(() => {
@@ -301,10 +303,10 @@ export function StationScoring({
   const select = useCallback(
     (dog: StationScoringDog) => {
       setSelectedKey(entryKey(dog))
-      setEdit(seededEdit(dog, station.id, eventType))
+      setEdit(seededEdit(dog, station.id, event))
       setEditBase(dog.eventResult)
     },
-    [eventType, station.id]
+    [event, station.id]
   )
 
   /**
@@ -414,12 +416,12 @@ export function StationScoring({
         return
       }
 
-      setEdit(seededEdit({ ...dog, eventResult: conflict.stored }, station.id, eventType))
+      setEdit(seededEdit({ ...dog, eventResult: conflict.stored }, station.id, event))
       setEditBase(conflict.stored)
       onStored?.({ eventResult: conflict.stored, id: conflict.id })
       setPending(undefined)
     },
-    [choices, eventType, onStored, station.id, submit, versionExercises]
+    [choices, event, onStored, station.id, submit, versionExercises]
   )
 
   const chipLabel = (dog: StationScoringDog) => {
@@ -451,7 +453,7 @@ export function StationScoring({
       {turns && onTurn && (
         <StationTurnControls
           dogs={turnDogs}
-          eventType={eventType}
+          event={event}
           onTurn={onTurn}
           selectedDog={selected && turnDogs[dogs.indexOf(selected)]}
           station={station}
@@ -496,7 +498,7 @@ export function StationScoring({
           >
             {qualitative && (
               <>
-                <ResultSummary edit={edit} eventClass={eventClass} eventType={eventType} onChange={setEdit} />
+                <ResultSummary edit={edit} event={event} eventClass={eventClass} onChange={setEdit} />
                 <JudgeSelect
                   judges={judges}
                   onChange={(judge) => {
@@ -550,7 +552,7 @@ export function StationScoring({
 
           <RoundOutcome
             disabled={ownOutcomeOnly && !qualitative && outcomeHeldElsewhere(edit, exercisesHere(selected, station.id))}
-            eventType={eventType}
+            event={event}
             onChange={setEdit}
             places={visit ? [{ exercise: visit.exercise, stationId: station.id }] : undefined}
             stationId={station.id}
@@ -584,7 +586,7 @@ export function StationScoring({
         <ConflictDialog
           choices={choices}
           conflicts={pending.conflicts}
-          eventType={eventType}
+          event={event}
           exercisesOf={qualitative ? undefined : () => exercisesHere(pending.dog, station.id)}
           onChoose={(id, choice) => setChoices((prev) => ({ ...prev, [id]: choice }))}
           onClose={() => setPending(undefined)}

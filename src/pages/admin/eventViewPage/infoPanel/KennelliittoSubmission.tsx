@@ -16,7 +16,7 @@ import { enqueueSnackbar } from 'notistack'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { reportError } from '@/lib/client/error'
-import { getEventProgress, uniqueClasses } from '@/lib/event'
+import { formatTypeOf, getEventProgress, uniqueClasses } from '@/lib/event'
 import { countSentResults, defaultKcRegNoChoice, isResultsLocked } from '@/lib/kennelliittoResults'
 import { getRegistrationClass, inRegistrationOrder, isScorableRegistration } from '@/lib/registration'
 import { KcIdLookupButton } from '../../components/KcIdLookupButton'
@@ -48,12 +48,13 @@ interface SentRow {
 const getSentRows = (event: ConfirmedEvent, registrations: Registration[]): SentRow[] => {
   const scorable = registrations.filter(isScorableRegistration)
   const classes = uniqueClasses(event)
+  // The classless row is named as the panel's other rows are, by the trial's format (KOE-1718).
   const groups = classes.length
     ? classes.map((eventClass) => ({
         name: eventClass,
-        rows: scorable.filter((registration) => getRegistrationClass(registration) === eventClass),
+        rows: scorable.filter((registration) => getRegistrationClass(registration, event) === eventClass),
       }))
-    : [{ name: event.eventType, rows: scorable }]
+    : [{ name: formatTypeOf(event), rows: scorable }]
   return groups.map(({ name, rows }) => ({
     name,
     sent: countSentResults(rows),

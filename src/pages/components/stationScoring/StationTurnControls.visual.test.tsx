@@ -43,7 +43,7 @@ it("marks the group that is out, in the format's own vocabulary (KOE-1259)", asy
     <Frame>
       <StationTurnControls
         dogs={[{ id: 'run-5', name: 'GLENBRIAR GRACE', number: 5 }]}
-        eventType="NOME-A"
+        event={{ eventType: 'NOME-A' }}
         onTurn={async () => {}}
         station={{ id: 'post-1', tasks: 1 }}
         turns={turns}
@@ -80,7 +80,7 @@ it("runs a taipumuskoe's day in phases (KOE-1259)", async () => {
     <Frame>
       <StationTurnControls
         dogs={[{ id: 'run-2', name: 'WATERFOWLER ODIN', number: 2 }]}
-        eventType="NOU"
+        event={{ eventType: 'NOU' }}
         onTurn={async () => {}}
         station={{ id: '1', tasks: 1 }}
         turns={day}
@@ -112,7 +112,12 @@ it('offers the next phase while a run is in one that has a next (KOE-1259)', asy
   ]
   const screen = await render(
     <Frame>
-      <StationTurnControls eventType="NOU" onTurn={async () => {}} station={{ id: '1', tasks: 1 }} turns={day} />
+      <StationTurnControls
+        event={{ eventType: 'NOU' }}
+        onTurn={async () => {}}
+        station={{ id: '1', tasks: 1 }}
+        turns={day}
+      />
     </Frame>
   )
 
@@ -126,7 +131,7 @@ it('opens the day on the briefing, with the first run ready to go (KOE-1259)', a
   const screen = await render(
     <Frame>
       <StationTurnControls
-        eventType="NOU"
+        event={{ eventType: 'NOU' }}
         onTurn={async () => {}}
         selectedDog={{ id: 'run-1', name: 'ANNALOUGHAN ACE', number: 1 }}
         station={{ id: '1', tasks: 1 }}

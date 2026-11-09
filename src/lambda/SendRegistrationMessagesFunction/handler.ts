@@ -63,7 +63,7 @@ const updateMessageState = async (
 
   if (!updatesParticipantState(template)) return confirmedEvent
 
-  const registrationsByClass = groupRegistrationsByClass(eventRegistrations)
+  const registrationsByClass = groupRegistrationsByClass(eventRegistrations, confirmedEvent)
   const registrationsByClassAndGroup = groupRegistrationsByClassAndGroup(registrationsByClass)
   const classesToMark = findClassesToMark(registrationsByClassAndGroup, template)
   return markClassesAsReceived(confirmedEvent, classesToMark, template)

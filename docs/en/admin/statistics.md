@@ -7,7 +7,7 @@ covers:
   - src/pages/admin/EventBreakdownPage.tsx
   - src/pages/StatsPage.tsx
   - src/pages/components/stats/**
-sourceHash: b2d36f
+sourceHash: 256d58
 ---
 
 The calendar works its statistics out from the trials that have ended. They are on three pages:
@@ -68,7 +68,8 @@ members' starts, by club and event type, with subtotals.
 On the same page, **{t:stats.admin.eventClassStatsExport}** downloads the chosen season's trials as
 an Excel file, one class at a time, from every club. The season is the year the trial starts in.
 The file is worked out when it is downloaded, so it also has the trials still ahead and the
-tentative ones. Drafts, cancelled and deleted trials are left out.
+tentative ones. Drafts, cancelled and deleted trials are left out. Working it out may take a moment,
+and meanwhile a spinner turns on the button. If the download fails, the page says so in a notice.
 
 Each row is one class of one trial: the club, the location, the trial's days, the event type, the
 state, the entry period, the priorities, the entry fee and the members' entry fee, the class and its
@@ -80,7 +81,8 @@ whole trial and it has several classes, the class's places are 0. The file has n
 registration numbers or other personal data, only counts and sums.
 
 The entries include those cancelled later, and their number is also in a column of its own. The fee
-is the trial's base price; early-bird, breed and other prices are not in the file.
+is the trial's base price; early-bird, breed and other prices are not in the file. A tentative trial
+that has no fee yet leaves the fee columns empty.
 
 A dog counts as picked from the reserve list when it was on the reserve list as the reserve notice
 was sent, and it now takes part or was sent a place notice after that. Two cases are left out of

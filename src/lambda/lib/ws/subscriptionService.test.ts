@@ -5,8 +5,6 @@ import { loggedLines } from '../../test-utils/logs'
 
 const mockGetEvent = vi.fn()
 const mockGetLiveEvent = vi.fn()
-const mockIsConnectionExpired = vi.fn()
-const mockCanReceiveAnyAdminEvent = vi.fn()
 const mockGetConnection = vi.fn()
 const mockSubscribeAdminChannel = vi.fn()
 const mockSubscribeConnection = vi.fn()
@@ -35,11 +33,6 @@ vi.doMock('../../lib/registration', () => ({
   verifyRegistrationEditToken: mockVerifyRegistrationEditToken,
 }))
 
-vi.doMock('./connectionPolicy', () => ({
-  canReceiveAnyAdminEvent: mockCanReceiveAnyAdminEvent,
-  isConnectionExpired: mockIsConnectionExpired,
-}))
-
 vi.doMock('./connectionRepository', () => ({
   getConnection: mockGetConnection,
   subscribeAdminChannel: mockSubscribeAdminChannel,
@@ -63,11 +56,15 @@ const {
   unsubscribeFromRegistration,
 } = await import('./subscriptionService')
 
+/** A connection whose token expired a minute ago. */
+const expired = () => Math.floor(Date.now() / 1000) - 60
+
+/** The connection a signed-in user without admin or club roles authenticates to (KOE-1735). */
+const roleless = { admin: false, connectionId: 'c1', userId: 'user-1' }
+
 describe('ws/subscriptionService', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockIsConnectionExpired.mockReturnValue(false)
-    mockCanReceiveAnyAdminEvent.mockReturnValue(true)
   })
 
   it('subscribeToPublicStartList stores the event without reading or authorizing it', async () => {
@@ -87,28 +84,34 @@ describe('ws/subscriptionService', () => {
   })
 
   it('subscribeToAdmin throws 401 when connection is expired', async () => {
-    mockIsConnectionExpired.mockReturnValueOnce(true)
-    await expect(subscribeToAdmin({ connectionId: 'c1' })).rejects.toEqual(new LambdaError(401, 'Connection expired'))
+    await expect(subscribeToAdmin({ admin: true, connectionId: 'c1', expiresAt: expired() })).rejects.toEqual(
+      new LambdaError(401, 'Connection expired')
+    )
+    expect(mockSubscribeAdminChannel).not.toHaveBeenCalled()
   })
 
-  it('subscribeToAdmin throws 403 for non-admin/non-member connection', async () => {
-    mockCanReceiveAnyAdminEvent.mockReturnValueOnce(false)
-    await expect(subscribeToAdmin({ connectionId: 'c1' })).rejects.toEqual(new LambdaError(403, 'Forbidden'))
+  it.each([
+    ['an unauthenticated connection', { connectionId: 'c1' }],
+    ['a signed-in user without any role', roleless],
+  ])('subscribeToAdmin refuses %s with 403', async (_, connection) => {
+    await expect(subscribeToAdmin(connection)).rejects.toEqual(new LambdaError(403, 'Forbidden'))
+    expect(mockSubscribeAdminChannel).not.toHaveBeenCalled()
   })
 
-  it('subscribeToAdmin sets adminSubscribed', async () => {
-    const result = await subscribeToAdmin({ connectionId: 'c1' })
+  it.each([
+    ['an admin', { admin: true, connectionId: 'c1' }],
+    ['a club member', { admin: false, connectionId: 'c1', memberOf: ['org-1'] }],
+  ])('subscribeToAdmin sets adminSubscribed for %s', async (_, connection) => {
+    const result = await subscribeToAdmin(connection)
     expect(mockSubscribeAdminChannel).toHaveBeenCalledWith('c1')
     expect(mockSubscribeConnection).not.toHaveBeenCalled()
     expect(result).toEqual({ adminSubscribed: true })
   })
 
   it('subscribeToEvent throws 401 when connection is expired', async () => {
-    mockIsConnectionExpired.mockReturnValueOnce(true)
-
-    await expect(subscribeToEvent({ connectionId: 'c1' }, 'e1', vi.fn())).rejects.toEqual(
-      new LambdaError(401, 'Connection expired')
-    )
+    await expect(
+      subscribeToEvent({ admin: true, connectionId: 'c1', expiresAt: expired() }, 'e1', vi.fn())
+    ).rejects.toEqual(new LambdaError(401, 'Connection expired'))
   })
 
   it('subscribeToEvent throws 403 for non-admin users outside organizer', async () => {
@@ -117,6 +120,17 @@ describe('ws/subscriptionService', () => {
     await expect(
       subscribeToEvent({ admin: false, connectionId: 'c1', memberOf: ['org-2'] }, 'e1', vi.fn())
     ).rejects.toEqual(new LambdaError(403, 'Forbidden'))
+  })
+
+  it('subscribeToEvent refuses a signed-in user without any role, before anything is stored', async () => {
+    mockGetEvent.mockResolvedValueOnce({ organizer: { id: 'org-1' } })
+    const publishEventViewers = vi.fn()
+
+    await expect(subscribeToEvent(roleless, 'e1', publishEventViewers)).rejects.toEqual(
+      new LambdaError(403, 'Forbidden')
+    )
+    expect(mockSubscribeConnection).not.toHaveBeenCalled()
+    expect(publishEventViewers).not.toHaveBeenCalled()
   })
 
   it('subscribeToEvent subscribes and publishes only current event when no previous event', async () => {

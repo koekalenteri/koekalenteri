@@ -76,7 +76,7 @@ npm start-frontned
 
 This command starts only the frontend.
 
-Note: You should configure .env (see .env_sample) to use backend in the cloud.
+Note: You should configure .env (see .env.sample) to use backend in the cloud.
 
 ### Visual tests
 
