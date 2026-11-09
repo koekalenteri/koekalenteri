@@ -22,6 +22,7 @@ bug is fixed. See [README.md](README.md) for how they run.
 
 | Test | Tags | Issues |
 | --- | --- | --- |
+| a secretary gives an unofficial trial classes of its own, and a dog enters one by its name | `@secretary` `@public` | [KOE-674](https://koekalenteri.atlassian.net/browse/KOE-674) |
 | an own class of an unofficial trial › an entry through the form is stored in the own class | `@public` | [KOE-674](https://koekalenteri.atlassian.net/browse/KOE-674) |
 | an own class of an unofficial trial › the server refuses an entry in a class the trial does not run | `@public` | [KOE-674](https://koekalenteri.atlassian.net/browse/KOE-674) |
 
@@ -79,4 +80,4 @@ bug is fixed. See [README.md](README.md) for how they run.
 | dev after a deploy › the front page lists the event and its registration form opens from the list | `@public` | [KOE-1559](https://koekalenteri.atlassian.net/browse/KOE-1559) |
 | dev after a deploy › the registration form lists what is missing and takes the terms off once accepted | `@public` | [KOE-1559](https://koekalenteri.atlassian.net/browse/KOE-1559) |
 
-28 tests.
+29 tests.

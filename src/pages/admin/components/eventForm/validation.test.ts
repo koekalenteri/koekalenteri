@@ -295,7 +295,7 @@ describe('validation', () => {
     const derby: PartialEvent = {
       ...emptyEvent,
       classes: [{ class: 'DERBY', date: '2099-06-06' }],
-      eventType: 'Derby',
+      eventType: 'Harjoitus',
       ownClasses: [{ code: 'DERBY', name: { fi: 'Derby' } }],
     }
 
@@ -313,7 +313,7 @@ describe('validation', () => {
       }
       expect(validateEventField(event, 'ownClasses', false)).toEqual({
         key: 'ownClasses',
-        opts: { field: 'ownClasses', length: 2, list: 'DERBY, VET', state: 'draft', type: 'Derby' },
+        opts: { field: 'ownClasses', length: 2, list: ['DERBY', 'VET'], state: 'confirmed', type: 'Harjoitus' },
       })
     })
   })

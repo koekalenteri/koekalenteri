@@ -212,6 +212,8 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       entryStartDate: event.entryStartDate,
       eventType: event.eventType,
       officialFormat: event.officialFormat,
+      // The places and the entry times list the classes in the event's order (KOE-674).
+      ownClasses: event.ownClasses,
       places: event.places,
       placesPerDay: event.placesPerDay,
       priority: event.priority,
@@ -227,6 +229,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       event.entryStartDate,
       event.eventType,
       event.officialFormat,
+      event.ownClasses,
       event.places,
       event.placesPerDay,
       event.priority,

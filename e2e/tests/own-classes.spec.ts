@@ -1,10 +1,38 @@
 import { expect, test } from '@playwright/test'
 import { postRegistration, registrationBody } from '../fixtures/api'
+import { signInAs } from '../fixtures/auth'
 import { helsinkiDay } from '../fixtures/dates'
-import { readRegistration, seedDog, seedEvent, seedOrganizer, seedStaffUser } from '../fixtures/db'
+import {
+  putItem,
+  readEventsOf,
+  readRegistration,
+  seedDog,
+  seedEvent,
+  seedOrganizer,
+  seedStaffUser,
+  TABLES,
+} from '../fixtures/db'
 import { issue } from '../fixtures/issue'
+import { EventFormPage } from '../pages/EventFormPage'
 import { PaymentPage } from '../pages/PaymentPage'
 import { RegistrationPage } from '../pages/RegistrationPage'
+
+/** An unofficial event type the form offers, as the Kennel Club's list never holds one. */
+const UNOFFICIAL_TYPE = 'E2E-harjoitus'
+
+const seedUnofficialType = () => {
+  const now = new Date().toISOString()
+  return putItem(TABLES.eventType, {
+    active: true,
+    createdAt: now,
+    createdBy: 'e2e',
+    description: { en: 'E2E training', fi: 'E2E-harjoitus', sv: 'E2E-övning' },
+    eventType: UNOFFICIAL_TYPE,
+    modifiedAt: now,
+    modifiedBy: 'e2e',
+    official: false,
+  })
+}
 
 /**
  * An unofficial trial that runs a class of its own (KOE-674): a derby's DERBY. The class is the event's
@@ -49,4 +77,60 @@ test.describe('an own class of an unofficial trial', { annotation: issue('KOE-67
     expect(response.status).toBe(400)
     expect(await response.json()).toMatchObject({ error: 'invalidClass' })
   })
+})
+
+test('a secretary gives an unofficial trial classes of its own, and a dog enters one by its name', {
+  annotation: issue('KOE-674'),
+  tag: ['@secretary', '@public'],
+}, async ({ browser, context, page }) => {
+  await seedUnofficialType()
+  const organizer = await seedOrganizer()
+  const secretary = await seedStaffUser({ roles: { [organizer.id]: 'secretary' } })
+  const official = await seedStaffUser({ name: `Teemu Toimitsija ${organizer.id}`, officer: ['NOU'], roles: {} })
+  const name = `E2E-omat luokat ${organizer.id}`
+
+  await signInAs(context, secretary)
+  const form = new EventFormPage(page)
+  await form.gotoCreate()
+  await form.fillDraft({ eventType: UNOFFICIAL_TYPE, name, organizer, secretary })
+  // The second class first in the list: the order is the secretary's, not the codes'.
+  await form.addOwnClass('YKS', 'Yksilö')
+  await form.addOwnClass('VET', 'Veteraanit')
+  await page.getByRole('button', { name: 'Siirrä VET ylemmäs' }).click()
+  await form.fillForPublishing({ judgeField: 'Tuomari 1', official })
+  // Each class needs its judge; the choice lists them in the secretary's order.
+  await page.getByRole('combobox', { name: 'Arvostelee luokat' }).click()
+  await page.getByRole('option', { name: 'VET' }).click()
+  await page.getByRole('option', { name: 'YKS' }).click()
+  await page.keyboard.press('Escape')
+  await form.save.click()
+  await expect(page.getByText('Tapahtuma on julkaistu')).toBeVisible()
+
+  const [event] = await readEventsOf(organizer.id)
+  expect(event).toMatchObject({
+    classes: [{ class: 'YKS' }, { class: 'VET' }],
+    ownClasses: [
+      { code: 'VET', name: { fi: 'Veteraanit' } },
+      { code: 'YKS', name: { fi: 'Yksilö' } },
+    ],
+    state: 'confirmed',
+  })
+
+  // The form puts the entry weeks ahead of today; it opens now, as the test cannot wait for it.
+  await putItem(TABLES.event, { ...event, entryStartDate: helsinkiDay(-1) })
+
+  // A participant, not signed in, picks the class by its name.
+  const dog = await seedDog()
+  const owner = await seedStaffUser()
+  const entry = new RegistrationPage(await (await browser.newContext()).newPage())
+  await entry.goto(event)
+  await entry.fetchDog(dog)
+  await entry.pickClass('Veteraanit')
+  await entry.fillBreeder('Kennel E2E')
+  await entry.fillOwner(owner, '401234567')
+  await entry.acceptTerms()
+  await entry.submit.click()
+
+  const key = await new PaymentPage(entry.page).registrationKey()
+  expect(await readRegistration(key.eventId, key.id)).toMatchObject({ class: 'VET' })
 })

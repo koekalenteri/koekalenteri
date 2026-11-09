@@ -27,17 +27,18 @@ const client = DynamoDBDocumentClient.from(
 )
 
 /** The table names CustomDynamoClient derives from the template's logical ids. */
-const TABLES = {
+export const TABLES = {
   audit: 'audit-table',
   dog: 'dog-table',
   event: 'event-table',
+  eventType: 'event-type-table',
   organizer: 'organizer-table',
   registration: 'event-registration-table',
   user: 'user-table',
   userLink: 'user-link-table',
 } as const
 
-const putItem = (table: string, item: object) => client.send(new PutCommand({ Item: item, TableName: table }))
+export const putItem = (table: string, item: object) => client.send(new PutCommand({ Item: item, TableName: table }))
 
 /** A confirmed NOME-B trial whose entry is open today (`buildEvent`), stored for the test. */
 export const seedEvent = async (overrides: Partial<JsonConfirmedEvent> = {}): Promise<JsonConfirmedEvent> => {

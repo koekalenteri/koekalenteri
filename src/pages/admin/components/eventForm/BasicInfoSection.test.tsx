@@ -221,16 +221,30 @@ describe('BasicInfoSection', () => {
         expect(screen.queryByRole('button', { name: 'event.ownClasses.add' })).not.toBeInTheDocument()
       })
 
-      it('adds an own class with its code in capitals, and leaves the official class days', async () => {
+      // A one-day trial has only the one day to run the class on, so the class gets it at once.
+      it('adds an own class with its code in capitals on the day of a one-day trial, and leaves the official class days', async () => {
         const { changed, user } = renderEditing(unofficial)
 
         await user.click(screen.getByRole('button', { name: 'event.ownClasses.add' }))
         await user.type(codeField(), 'derby')
-        await user.type(screen.getByRole('textbox', { name: 'event.ownClasses.name language' }), 'Derby')
+        await user.type(screen.getAllByRole('textbox', { name: 'event.ownClasses.name language' })[0], 'Derby')
 
         expect(changed).toHaveBeenLastCalledWith(
-          expect.objectContaining({ classes: [], ownClasses: [{ code: 'DERBY', name: { fi: 'Derby' } }] })
+          expect.objectContaining({
+            classes: [{ class: 'DERBY', date: newEventStartDate }],
+            ownClasses: [{ code: 'DERBY', name: { fi: 'Derby' } }],
+          })
         )
+      })
+
+      it('leaves the day of a class on a longer trial to be chosen, and says so', async () => {
+        const { changed, user } = renderEditing({ ...unofficial, endDate: addDays(newEventStartDate, 1) })
+
+        await user.click(screen.getByRole('button', { name: 'event.ownClasses.add' }))
+        await user.type(codeField(), 'DERBY')
+
+        expect(changed).toHaveBeenLastCalledWith(expect.objectContaining({ classes: [] }))
+        expect(screen.getByText('event.ownClasses.errors.noClassDay')).toBeInTheDocument()
       })
 
       it('offers the own classes in the class choice', async () => {

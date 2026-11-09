@@ -1572,11 +1572,16 @@ export const isDetaultEntryEndDate = (date: DayKey | undefined, eventStartDate: 
 export const getEventDays = ({ startDate, endDate }: Pick<DogEvent, 'startDate' | 'endDate'>) =>
   eachDay(startDate, endDate)
 
-/** The form's classes, each once, as ALO, AVO, VOI; a half-filled class has none yet. */
-export const getUniqueEventClasses = ({ classes }: Pick<DogEvent, 'classes'>) =>
-  unique(classes?.map((c) => c?.class) ?? [])
-    .filter(Boolean)
-    .sort(compareRegistrationClasses)
+/**
+ * The form's classes, each once, in the event's order (`classOrder`, KOE-674): its own classes as the
+ * secretary listed them, else ALO, AVO, VOI. A half-filled class has none yet.
+ */
+export const getUniqueEventClasses = (
+  event: { classes?: readonly (Partial<Pick<EventClass, 'class'>> | null | undefined)[] | null } & ClassOrderOwner
+) =>
+  unique(event.classes?.map((c) => c?.class) ?? [])
+    .filter((key): key is ClassKey => !!key)
+    .sort(classOrder(event))
 
 export const applySingleDayNowtGroups = <T extends object>(
   eventType: string | undefined,

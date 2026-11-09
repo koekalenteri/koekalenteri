@@ -78,6 +78,7 @@ export type EntryEvent = Pick<
   | 'entryStartDate'
   | 'eventType'
   | 'officialFormat'
+  | 'ownClasses'
   | 'places'
   | 'placesPerDay'
   | 'priority'

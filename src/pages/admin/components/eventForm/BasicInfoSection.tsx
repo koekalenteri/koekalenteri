@@ -2,6 +2,7 @@ import type { TFunction } from 'i18next'
 import type { ChangeEvent, SyntheticEvent } from 'react'
 import type { DayValue } from '@/pages/components/DateRange'
 import type {
+  ClassKey,
   DayKey,
   DeepPartial,
   DogEvent,
@@ -52,6 +53,7 @@ import { getRuleDate } from '@/rules'
 import { OFFICIAL_FORMATS } from '@/types'
 import EventClasses from './components/EventClasses'
 import EventProperty from './components/EventProperty'
+import OwnClassesEditor from './components/OwnClassesEditor'
 
 export interface Props extends Readonly<Omit<SectionProps, 'event'>> {
   readonly event: BasicInfoEvent
@@ -108,7 +110,11 @@ function BasicInfoSection({
   const { t } = useTranslation()
   // The classes on offer are the format's: an unofficial trial following NOWT runs NOWT's (KOE-1718).
   const formatType = formatTypeOf(event)
-  const typeOptions = eventClassOptions(event, getTypeClasses(formatType, eventTypeClasses, event.mockTrial))
+  // An unofficial trial with classes of its own runs those, on any of its days (KOE-674).
+  const classKeys = event.ownClasses?.length
+    ? ownClassCodes(event).filter((code): code is string => !!code)
+    : getTypeClasses(formatType, eventTypeClasses, event.mockTrial)
+  const typeOptions = eventClassOptions(event, classKeys)
   const error =
     (errorStates &&
       (errorStates.startDate ||
@@ -202,7 +208,8 @@ function BasicInfoSection({
     },
     [event, eventTypeClasses, onChange]
   )
-  // An unofficial trial may follow an official type (KOE-1718), and then runs by its format. Its classes
+  // An unofficial trial may follow an official type (KOE-1718), and then runs by its format. Any
+  // unofficial trial may also run classes of its own (KOE-674), whatever format it follows. Its classes
   // follow the format; an entry keeps the class it was made in, so the choice cannot add or take away the
   // classes once there are entries (`isClassShapeChange`), and a result or a turn locks it altogether.
   const followsOfficialFormat = !!event.eventType && !isOfficialEventType(event.eventType, selectedEventType?.official)
@@ -328,6 +335,7 @@ function BasicInfoSection({
               requiredState={fields?.state.classes}
               value={event.classes}
               classes={typeOptions}
+              ownClasses={event.ownClasses}
               label={t('event.classes')}
               showCount
               onChange={handleClassesChange}
@@ -350,6 +358,13 @@ function BasicInfoSection({
             </Grid>
           </Grid>
         ) : null}
+        {followsOfficialFormat && (
+          <Grid container spacing={1}>
+            <Grid sx={{ width: 900 }}>
+              <OwnClassesEditor disabled={disabled} event={event} onChange={onChange ?? noChange} />
+            </Grid>
+          </Grid>
+        )}
         {hasMockTrialChoice(event.eventType) ? (
           <Grid container spacing={1}>
             <Grid sx={{ width: 600 }}>
@@ -511,6 +526,8 @@ function keptClasses(event: Pick<BasicInfoEvent, 'classes' | 'ownClasses'>, type
   return event.classes.filter((c) => isRegistrationClass(c.class) && typeClasses.includes(c.class))
 }
 
+const noChange = () => undefined
+
 /** What the official type choice says under it: why it is locked, or which types it still offers. */
 function officialFormatGuidance(locked: boolean, hasEntries: boolean, t: TFunction): string | undefined {
   if (locked) return t('event.officialFormatLocked')
@@ -518,7 +535,7 @@ function officialFormatGuidance(locked: boolean, hasEntries: boolean, t: TFuncti
   return undefined
 }
 
-function eventClassOptions(event: PartialEvent | undefined, typeClasses: readonly RegistrationClass[]) {
+function eventClassOptions(event: PartialEvent | undefined, typeClasses: readonly ClassKey[]) {
   if (!event?.startDate || !event?.endDate) {
     return []
   }

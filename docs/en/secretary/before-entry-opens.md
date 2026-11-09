@@ -10,7 +10,7 @@ covers:
   - src/pages/admin/EventCreatePage.tsx
   - src/pages/admin/EventEditPage.tsx
   - src/pages/admin/OrganizerListPage.tsx
-sourceHash: 40d9f4
+sourceHash: f8d027
 ---
 
 Once a trial has been created in the calendar, the secretary's job before entry opens is to make
@@ -53,9 +53,21 @@ required is in place. Go through the sections and check in particular:
   first result or post turn is saved. Once the trial has entries, the choice cannot give the trial
   classes or take them away. If it is changed after entries, the post and start number links must be
   sent again, and the entry times the entrants chose stay as they are,
+- **{t:event.ownClasses.title}**: an unofficial trial can have classes of its own, for example YKS
+  and VET. **{t:event.ownClasses.add}** adds a class, which gets a code and a name in Finnish and,
+  if wanted, in English. The code is written in capitals, starts with a letter, has at most 10
+  letters or digits, and cannot be the name of an event type. The code shows in links and in the
+  administration, the name to entrants, on the start list and in emails. The classes show everywhere
+  in the order the arrows put them in. When the first own class is added, the trial's ALO, AVO and
+  VOI classes go, as the trial runs only its own classes. On a one-day trial a class gets the trial's
+  day as soon as it has a code; on a longer trial its days are chosen under **{t:event.classes}**.
+  A class's row says what to correct before saving. Once a class has entries, its code cannot be
+  changed and the class cannot be removed,
 - **the judges and the classes each of them judges**,
 - **{t:event.kcIdSectionTitle}**: the trial is linked to the Kennel Club event so that the results can be saved,
 - **contact details** — which of the chief officer's and the secretary's details entrants may see.
+
+!shot[BasicInfoSection/basic-info-section-own-classes] Two own classes: VET still lacks its Finnish name and its day
 
 If you leave the form with unsaved changes, it asks first: **{t:unsavedChanges.stay}** keeps you on
 the form, and **{t:unsavedChanges.leave}** discards the changes. Closing or reloading the tab gets the
