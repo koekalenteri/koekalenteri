@@ -27,7 +27,10 @@ const cancelled: Registration = {
   dog: { ...registrationsToEventWithStations[0].dog, name: 'Peruja' },
   id: 'gone-1',
 }
-const registrations = [...registrationsToEventWithStations, cancelled]
+// The admin list holds finished entries only, as the page receives them.
+const registrations = [...registrationsToEventWithStations, cancelled].map(
+  (registration): Registration => ({ ...registration, state: 'ready' })
+)
 
 const renderPage = (event: ConfirmedEvent = eventWithStations, entries: Registration[] = registrations) =>
   renderSuspendedWithUserEvents(
@@ -121,7 +124,7 @@ describe('EventTeamsPage', () => {
 
   // KOE-1725: once a class is picked, a team takes only the dogs picked into it, as the save holds to.
   it('offers only the picked dogs of a picked class, and keeps a reserve dog already in a team', async () => {
-    const [, , waiting] = registrationsToEventWithStations
+    const [, , waiting] = registrations
     const secondReserve = { ...waiting, dog: { ...waiting.dog, name: 'Toinen varalla' }, id: 'reserve-2' }
     const { user } = await renderPage(
       {

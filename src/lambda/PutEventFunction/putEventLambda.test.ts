@@ -1795,7 +1795,8 @@ describe('putEventLambda', () => {
     }
     const members = (count: number) => Array.from({ length: count }, (_, index) => `dog-${index}`)
     /** Entries that run, under the ids the teams name: before their class is picked every one may join. */
-    const entriesOf = (ids: readonly string[]) => ids.map((id) => ({ ...invitedParticipant('ALO'), id }))
+    const entriesOf = (ids: readonly string[]) =>
+      ids.map((id) => ({ ...invitedParticipant('ALO'), id, state: 'ready' }))
 
     beforeEach(() => {
       mockReadEventRegistrations.mockResolvedValue(entriesOf([...'abcdefgh', ...members(26)]))
@@ -1845,7 +1846,7 @@ describe('putEventLambda', () => {
         getEventMock.mockResolvedValueOnce(stored)
         return putEventLambda(constructAPIGwEvent({ id: 'existing', teams }, { method: 'PATCH' }))
       }
-      const reserve = { ...invitedParticipant('ALO'), group: { key: 'reserve', number: 1 }, id: 'wait' }
+      const reserve = { ...invitedParticipant('ALO'), group: { key: 'reserve', number: 1 }, id: 'wait', state: 'ready' }
 
       beforeEach(() => {
         mockReadEventRegistrations.mockResolvedValue([...entriesOf(['a']), reserve])
@@ -1863,6 +1864,18 @@ describe('putEventLambda', () => {
           errors: [{ kind: 'notCandidate', registrationId: id }],
         })
         expect(patchEventMock).not.toHaveBeenCalled()
+      })
+
+      it('refuses an entry that is not finished, though its class is not picked yet', async () => {
+        mockReadEventRegistrations.mockResolvedValue([
+          ...entriesOf(['a']),
+          { ...invitedParticipant('ALO'), id: 'unpaid', state: 'creating' },
+        ])
+
+        const res = await putOver(mockEvent, [{ registrationIds: ['a', 'unpaid'] }])
+
+        expect(res.statusCode).toEqual(400)
+        expect(JSON.parse(res.body)).toMatchObject({ errors: [{ kind: 'notCandidate', registrationId: 'unpaid' }] })
       })
 
       it('lets a reserve dog join while its class is not picked yet', async () => {

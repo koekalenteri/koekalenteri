@@ -208,10 +208,9 @@ const invalidEventDateField = (data: JsonConfirmedEvent, item: Patch<JsonConfirm
 const TEAM_GROUND = ['teams', 'teamCompetition', 'classes', 'startDate', 'endDate', 'officialFormat'] as const
 
 /**
- * Any event type may run a team competition (KOE-1714). Only the shape is checked: the series the teams
- * are in and the settings themselves (KOE-1720), each dog in one team and a letter for each. The page
- * offers the event's own entries, and the readers skip an id the registrations do not hold, so the
- * registrations are not read.
+ * Any event type may run a team competition (KOE-1714). The shape is checked here, on the merged event:
+ * the series the teams are in and the settings themselves (KOE-1720), each dog in one team and a letter
+ * for each. Which dogs may join a team is read from the registrations after it (`checkTeamCandidates`).
  */
 const checkTeams = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>) => {
   if (!TEAM_GROUND.some((field) => Object.hasOwn(item, field))) return

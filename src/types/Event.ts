@@ -538,8 +538,9 @@ export interface EventRotationGroup {
  * through `teamMembers` (src/lib/team.ts), which also skips an id that is not among the event's
  * registrations.
  *
- * A dog is in one team at most, which the event save holds to (`teamErrors`). A member who cancels
- * stays where the secretary put it until the secretary removes it, and its letter with it.
+ * A dog is in one team at most, which the event save holds to (`teamErrors`), and joins one only as a
+ * candidate (`isTeamCandidate`, KOE-1725). A member who cancels stays where the secretary put it until
+ * the secretary removes it, and its letter with it.
  */
 export interface EventTeam {
   /** The team's own name beside its number, such as "Team Finland 1". */

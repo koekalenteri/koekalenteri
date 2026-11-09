@@ -171,9 +171,14 @@ describe('teamCompetitionDiffers (KOE-1720)', () => {
 
 // KOE-1725: once a dog's class is picked, only the dogs picked into it may join a team.
 describe('team candidates (KOE-1725)', () => {
-  const participant = { class: 'ALO', group: { key: 'ALO-2026-08-01-ap', number: 1 }, id: 'run' }
-  const reserve = { class: 'ALO', group: { key: 'reserve', number: 1 }, id: 'wait' }
-  const unplaced = { class: 'ALO', id: 'new' }
+  const participant = {
+    class: 'ALO',
+    group: { key: 'ALO-2026-08-01-ap', number: 1 },
+    id: 'run',
+    state: 'ready' as const,
+  }
+  const reserve = { class: 'ALO', group: { key: 'reserve', number: 1 }, id: 'wait', state: 'ready' as const }
+  const unplaced = { class: 'ALO', id: 'new', state: 'ready' as const }
   const cancelled = { ...participant, cancelled: true, id: 'gone' }
   const event = (state?: 'picked' | 'invited' | 'started') => ({
     classes: [{ class: 'ALO', ...(state ? { state } : {}) }],
@@ -198,6 +203,11 @@ describe('team candidates (KOE-1725)', () => {
         false,
         false,
       ])
+    })
+
+    it('takes no entry that is not finished, whatever its class', () => {
+      expect(isTeamCandidate(event(), { ...unplaced, state: 'creating' })).toBe(false)
+      expect(isTeamCandidate(event('picked'), { ...participant, state: 'creating' })).toBe(false)
     })
 
     it("reads a classless trial's own state", () => {

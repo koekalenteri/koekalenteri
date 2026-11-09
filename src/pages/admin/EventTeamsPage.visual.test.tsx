@@ -26,6 +26,8 @@ const entry = (id: string, dog: string, handler: string, overrides: Partial<Regi
   group: { date: RESULTS_EVENT_DAY, key: 'ALO-AP', number: 1, time: 'ap' },
   handler: { ...base.handler, name: handler },
   id,
+  // The admin list holds finished entries only.
+  state: 'ready',
   ...overrides,
 })
 

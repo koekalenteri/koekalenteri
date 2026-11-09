@@ -42,7 +42,7 @@ interface CandidateEvent {
 }
 
 /** What the candidate rule reads of an entry: its class, where it is, and whether it was cancelled. */
-type CandidateEntry = Pick<JsonRegistration, 'id' | 'cancelled' | 'group'> & { class?: string | null }
+type CandidateEntry = Pick<JsonRegistration, 'id' | 'cancelled' | 'group' | 'state'> & { class?: string | null }
 
 /** The states of a class whose dogs are picked: from then on its reserve list is the reserve list. */
 const PICKED_STATES: ReadonlySet<EventState> = new Set<EventState>([
@@ -54,12 +54,12 @@ const PICKED_STATES: ReadonlySet<EventState> = new Set<EventState>([
 ])
 
 /**
- * Whether a dog may join a team (KOE-1725): it has not cancelled, and once its class is picked it is one
- * of the dogs picked into it, not a reserve. Before the picking every entry may, as the secretary may
+ * Whether a dog may join a team (KOE-1725): its entry is finished (`ready`) and not cancelled, and once
+ * its class is picked it is one of the dogs picked into it, not a reserve. Before the picking every entry may, as the secretary may
  * assemble the teams early. A classless trial is read by its own state.
  */
 export const isTeamCandidate = (event: CandidateEvent, entry: CandidateEntry): boolean => {
-  if (entry.cancelled) return false
+  if (entry.cancelled || entry.state !== 'ready') return false
   const state = getEventStateForClass(
     { classes: [...(event.classes ?? [])], state: event.state ?? 'draft' },
     entry.class ?? undefined
@@ -115,8 +115,10 @@ export const teamsDiffer = (
 
 /**
  * Every reason the event save refuses the teams, read on the event as it would be saved, since a change
- * of the series is checked against the teams in them. Only the shape is checked: which dogs can be
- * picked is the teams page's business, and the readers skip an id the event's registrations do not hold.
+ * of the series is checked against the teams in them: the shape (each dog once, a letter for each, a
+ * series the competition has), and with the event's `entries` whether each dog joining a team may
+ * (`isTeamCandidate`, KOE-1725). A dog in a team `before` stays; without the entries, only the shape is
+ * read.
  */
 export const teamErrors = (
   event: TeamOwner,
