@@ -9,7 +9,7 @@ import type {
   RegistrationGroupMove,
 } from '../../types'
 import { invitationAwaitingPaymentAudit } from '../../lib/audit'
-import { formatTypeOf, hasSharedReserveList } from '../../lib/event'
+import { formatTypeOf, getEventStateForClass, hasSharedReserveList } from '../../lib/event'
 import { getPaymentPicture } from '../../lib/payment'
 import {
   GROUP_KEY_CANCELLED,
@@ -20,7 +20,7 @@ import {
   REGISTRATION_WRITE_CONCURRENCY,
   shouldSendInvitationAfterPayment,
 } from '../../lib/registration'
-import { applyRegistrationGroupMoves } from '../../lib/registrationGroups'
+import { applyRegistrationGroupMoves, groupMoveError } from '../../lib/registrationGroups'
 import { requestDay } from '../../lib/storedDays'
 import { mapWithConcurrency } from '../../lib/utils'
 import { getOrigin } from '../lib/api-gw'
@@ -162,6 +162,31 @@ const parseMoves = (json: string | null): RegistrationGroupMove[] => {
   return filtered
 }
 
+/**
+ * Refuses a move the class's state does not allow (`groupMoveError`, KOE-1722): any move once the
+ * class's entries are closed, and a participant sent back to the reserve list once the class is picked
+ * or invited. The class view and the teams page hold their moves to the same rule.
+ */
+const assertGroupMovesAllowed = (
+  event: Parameters<typeof getEventStateForClass>[0] & Parameters<typeof groupMoveError>[0],
+  registrations: readonly JsonRegistration[],
+  moves: readonly RegistrationGroupMove[]
+) => {
+  for (const move of moves) {
+    const registration = registrations.find((item) => item.id === move.id)
+    if (!registration) continue
+    const reason = groupMoveError(
+      event,
+      getEventStateForClass(event, registration.class ?? undefined),
+      getRegistrationGroupKey(registration),
+      move.group.key
+    )
+    if (reason) {
+      throw httpError(409, { error: 'groupMoveRefused', message: 'The class does not allow this move', reason })
+    }
+  }
+}
+
 const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event) => {
   const { user, memberOf } = await authorizeWithMemberOf(event)
 
@@ -203,6 +228,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
     if (affectedClasses.size > 1) {
       throw new LambdaError(422, 'Registration group moves must belong to one class.')
     }
+    assertGroupMovesAllowed(authorizedEvent, oldItems, moves)
 
     // create a new copy of oldItems, so we can update without touching the original ones
     updatedItems = await updateItems(authorizedEvent, oldItems, moves, user)

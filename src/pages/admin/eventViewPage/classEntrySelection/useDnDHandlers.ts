@@ -15,6 +15,7 @@ import { recordEvent } from '@/lib/client/rum'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { eventRegistrationDateKey } from '@/lib/event'
 import { GROUP_KEY_RESERVE, getRegistrationGroupKey } from '@/lib/registration'
+import { groupMoveError } from '@/lib/registrationGroups'
 import { determineChangesFromDrop } from './dnd'
 import { confirmMoveToParticipants } from './moveConfirmation'
 
@@ -117,7 +118,8 @@ export const useDnDHandlers = ({
       return
     }
 
-    if ((state === 'picked' || state === 'invited') && group.key === GROUP_KEY_RESERVE) {
+    // The rule the server holds every move to (`groupMoveError`, KOE-1722).
+    if (groupMoveError(event, state, getRegistrationGroupKey(reg), group.key) === 'reserveAfterPicking') {
       enqueueSnackbar({
         message: t('eventManagement.participantSelection.cannotMoveToReserve'),
         variant: 'warning',

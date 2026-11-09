@@ -1,5 +1,7 @@
 import type { TeamStanding } from '@/lib/teamStandings'
 import type { DogEvent, EventTeam, TeamCompetition } from '@/types'
+import type { TeamMoveOption } from './eventTeamsPage/TeamCard'
+import type { TeamMoveTarget } from './eventTeamsPage/useMoveTeam'
 import Cancel from '@mui/icons-material/Cancel'
 import Save from '@mui/icons-material/Save'
 import Box from '@mui/material/Box'
@@ -113,8 +115,19 @@ export default function EventTeamsPage() {
   // Where each team's dogs stand in the selection, and the move of a whole team (KOE-1722). A team moves
   // as saved: while the page holds changes the moves wait, so no dog moves for a team then cancelled.
   const selections = useMemo(() => teamSelection(teams, registrations), [teams, registrations])
-  const moveTeam = useMoveTeam(event, registrations)
-  const moveBlocked = canSave ? t('teams.moveSaveFirst') : undefined
+  const { moveTeam, pending: movePending, plan: planMove } = useMoveTeam(event, registrations)
+  const moveOptions = (team: EventTeam): Partial<Record<TeamMoveTarget, TeamMoveOption>> => {
+    const options: Partial<Record<TeamMoveTarget, TeamMoveOption>> = {}
+    for (const to of ['participants', 'reserve'] as const) {
+      const { moves, refused } = planMove(team, to)
+      if (!moves.length && !refused) continue
+      let reason: string | undefined
+      if (canSave) reason = t('teams.moveSaveFirst')
+      else if (!moves.length) reason = t('teams.moveRefused', { context: refused })
+      options[to] = { disabled: canSave || movePending || !moves.length, reason }
+    }
+    return options
+  }
 
   // A team is its number, its place in the list: only the last ones come and go (KOE-1714).
   const numbered = useMemo(() => teams.map((team, index) => ({ number: index + 1, team })), [teams])
@@ -211,7 +224,7 @@ export default function EventTeamsPage() {
               series={series}
               selection={selections[number - 1]}
               onMove={(to) => void moveTeam(number, team, to)}
-              moveBlocked={moveBlocked}
+              moveOptions={moveOptions(team)}
               countedDays={countedDays}
               standing={standings.get(number - 1)}
               team={team}

@@ -46,7 +46,7 @@ export const teamSelection = (teams: readonly EventTeam[], entries: readonly Ass
 }
 
 /** One request's worth of moves: PutRegistrationGroups moves the dogs of one class at a time. */
-interface ClassMoves {
+export interface ClassMoves {
   eventClass: ClassKey
   moves: RegistrationGroupMove[]
 }

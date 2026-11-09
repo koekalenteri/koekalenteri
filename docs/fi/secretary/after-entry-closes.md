@@ -226,8 +226,14 @@ Koekalenteri kysyy ensin ja kertoo, mille koirille viesti lähtee. Koirat siirre
 kerrallaan. Jos jonkin luokan siirto epäonnistuu, muiden luokkien koirat siirtyvät silti, ja
 Koekalenteri kertoo, mitkä koirat jäivät siirtämättä.
 
+Siirrot noudattavat samoja sääntöjä kuin luokan osallistujanäkymä. Kun luokan osallistujat on
+valittu, sen osallistujia ei voi siirtää varasijalle, ja kun luokan ilmoittautumiset on suljettu
+(koe on päättynyt tai luokka arvosteltu), sen koiria ei voi siirtää lainkaan; painikkeen alla
+kerrotaan syy. Koira, jolla ei ole luokkaa tai jonka luokalla ei ole ryhmää, johon sen voisi
+siirtää, jää paikalleen, ja Koekalenteri nimeää sen siirron jälkeen.
+
 Joukkue siirretään sellaisena kuin se on tallennettu: kun sivulla on tallentamattomia muutoksia,
-siirtopainikkeet odottavat tallennusta.
+siirtopainikkeet odottavat tallennusta. Siirron aikana painikkeet odottavat sen valmistumista.
 
 !shot[EventTeamsPage/teams-move] Joukkueen koirista yksi on osallistujana ja yksi varasijalla, joten joukkueen voi siirtää kumpaan suuntaan tahansa
 

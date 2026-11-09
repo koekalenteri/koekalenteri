@@ -1614,6 +1614,8 @@
     "moveDown": "Move {{code}} down",
     "moved": "Team {{number}} moved",
     "movePartlyFailed": "Not every dog of team {{number}} was moved. Not moved:",
+    "moveRefused_closed": "The class's entries are closed, so its dogs can no longer be moved.",
+    "moveRefused_reserveAfterPicking": "The class's participants are already picked, so a participant cannot be moved to the reserve list.",
     "moveSaveFirst": "Save the teams before you move a team.",
     "moveUp": "Move {{code}} up",
     "name": "Team name",

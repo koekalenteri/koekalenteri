@@ -161,8 +161,16 @@ it("shows each team's points and placing, and the run-off of a tie for first (KO
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-standings')
 })
 
-// KOE-1722: a team with a dog among the participants and one on the reserve list can go either way.
-const partlySelected: ConfirmedEvent = { ...eventWithStations, teams: [{ registrationIds: ['dog-1', 'dog-4'] }] }
+// KOE-1722: a team with a dog among the participants and one on the reserve list can go either way,
+// while the trial is ahead (the page's day is 8.11.2026) and its class not yet picked.
+const AHEAD = '2026-11-21' as const
+const partlySelected: ConfirmedEvent = {
+  ...eventWithStations,
+  classes: eventWithStations.classes.map((eventClass) => ({ ...eventClass, date: AHEAD })),
+  endDate: AHEAD,
+  startDate: AHEAD,
+  teams: [{ registrationIds: ['dog-1', 'dog-4'] }],
+}
 
 it('tells where a team stands, and moves it whole either way (KOE-1722)', async () => {
   await page.viewport(900, 900)

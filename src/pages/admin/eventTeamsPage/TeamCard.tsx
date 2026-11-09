@@ -45,45 +45,53 @@ interface Props {
   readonly selection?: TeamSelectionState
   /** Moves the whole team to the participants or to the reserve list (KOE-1722). */
   readonly onMove?: (to: TeamMoveTarget) => void
-  /** Why the team cannot be moved now, if it cannot: the page holds changes not saved. */
-  readonly moveBlocked?: string
+  /** The ways the team can be moved now, and why not where it cannot (KOE-1722). */
+  readonly moveOptions?: Partial<Record<TeamMoveTarget, TeamMoveOption>>
   /** The days the points come from where the competition counts only some (`teamCountedDays`, KOE-1726). */
   readonly countedDays?: readonly DayKey[]
 }
 
+/** A way the whole team can be moved, and why it cannot be now, where it cannot. */
+export interface TeamMoveOption {
+  readonly disabled: boolean
+  readonly reason?: string
+}
+
 interface TeamMoveProps {
   readonly selection: TeamSelectionState
+  readonly options: Partial<Record<TeamMoveTarget, TeamMoveOption>>
   readonly onMove: (to: TeamMoveTarget) => void
-  readonly moveBlocked?: string
+}
+
+const MOVE_LABELS: Record<TeamMoveTarget, 'teams.toParticipants' | 'teams.toReserve'> = {
+  participants: 'teams.toParticipants',
+  reserve: 'teams.toReserve',
 }
 
 /**
- * Where the team's dogs stand in the selection, and the moves of the whole team (KOE-1722): to the
- * participants while a dog is on the reserve list, to the reserve list while a dog is a participant.
- * The moves wait for the teams to be saved, so no dog moves for a team the secretary then cancels.
+ * Where the team's dogs stand in the selection, and the moves of the whole team (KOE-1722), each
+ * offered where some dog of the team would move that way, and off, with the reason, while the teams
+ * are not saved, a move is running or the class does not allow it.
  */
-const TeamMove = ({ selection, onMove, moveBlocked }: TeamMoveProps) => {
+const TeamMove = ({ selection, options, onMove }: TeamMoveProps) => {
   const { t } = useTranslation()
+  const targets = (['participants', 'reserve'] as const).filter((to) => options[to])
+  const reasons = [...new Set(targets.map((to) => options[to]?.reason).filter(Boolean))]
   return (
     <Stack spacing={0.5}>
       <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
         <Typography variant="body2">{t('teams.selection', { context: selection })}</Typography>
-        {selection !== 'selected' && (
-          <Button disabled={!!moveBlocked} onClick={() => onMove('participants')} size="small" variant="outlined">
-            {t('teams.toParticipants')}
+        {targets.map((to) => (
+          <Button key={to} disabled={options[to]?.disabled} onClick={() => onMove(to)} size="small" variant="outlined">
+            {t(MOVE_LABELS[to])}
           </Button>
-        )}
-        {selection !== 'reserve' && (
-          <Button disabled={!!moveBlocked} onClick={() => onMove('reserve')} size="small" variant="outlined">
-            {t('teams.toReserve')}
-          </Button>
-        )}
+        ))}
       </Stack>
-      {moveBlocked && (
-        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-          {moveBlocked}
+      {reasons.map((reason) => (
+        <Typography key={reason} variant="caption" sx={{ color: 'text.secondary' }}>
+          {reason}
         </Typography>
-      )}
+      ))}
     </Stack>
   )
 }
@@ -144,7 +152,7 @@ export default function TeamCard({
   series = [],
   selection,
   onMove,
-  moveBlocked,
+  moveOptions = {},
   countedDays,
 }: Props) {
   const { t } = useTranslation()
@@ -219,7 +227,7 @@ export default function TeamCard({
           onRunOffChange={onRunOffChange}
         />
         {selection && onMove && selection !== 'empty' && (
-          <TeamMove selection={selection} onMove={onMove} moveBlocked={moveBlocked} />
+          <TeamMove selection={selection} options={moveOptions} onMove={onMove} />
         )}
         {ids.length === 0 && (
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>

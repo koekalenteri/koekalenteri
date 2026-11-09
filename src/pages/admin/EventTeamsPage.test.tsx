@@ -314,6 +314,10 @@ describe('EventTeamsPage', () => {
   // KOE-1722: a whole team goes to the participants or to the reserve list at once, one request per
   // class, as the group endpoint takes the dogs of one class; a class that fails is named by its dogs.
   describe('moving a whole team', () => {
+    // Before the trial, while its classes still take moves.
+    beforeEach(() => vi.setSystemTime(new Date('2021-02-01T10:00:00+02:00')))
+    afterEach(() => vi.setSystemTime(vi.getRealSystemTime()))
+
     const onReserve = (id: string, name: string, eventClass: string): Registration => ({
       ...registrations[0],
       class: eventClass,
@@ -410,6 +414,65 @@ describe('EventTeamsPage', () => {
         ],
         TEST_ID_TOKEN
       )
+    })
+
+    it('keeps a picked class from sending participants back to the reserve list, and says why', async () => {
+      const picked = {
+        ...eventWithStations,
+        classes: eventWithStations.classes.map((c) => ({ ...c, state: 'picked' as const })),
+        teams: [{ registrationIds: ['run-1', 'run-2'] }],
+      }
+      await renderPage(picked)
+      await flushPromises()
+
+      expect(within(teamSections()[0]).getByRole('button', { name: 'teams.toReserve' })).toBeDisabled()
+      expect(within(teamSections()[0]).getByText(/^teams\.moveRefused/)).toBeInTheDocument()
+    })
+
+    it('moves nothing in a class whose entries are closed, and says why', async () => {
+      // The trial is over.
+      vi.setSystemTime(vi.getRealSystemTime())
+      await renderPage(teamEvent, teamEntries)
+      await flushPromises()
+
+      expect(within(teamSections()[0]).getByRole('button', { name: 'teams.toParticipants' })).toBeDisabled()
+      expect(within(teamSections()[0]).getByText(/^teams\.moveRefused/)).toBeInTheDocument()
+    })
+
+    it('names a dog that has no group to go to, and offers no move where none can move', async () => {
+      vi.mocked(putRegistrationGroups).mockResolvedValueOnce(moved(teamEntries))
+      const noGroup = onReserve('voi-1', 'Voittaja', 'VOI')
+      const { user } = await renderPage(
+        { ...eventWithStations, teams: [{ registrationIds: ['alo-1', 'voi-1'] }, { registrationIds: ['voi-1'] }] },
+        [...teamEntries, noGroup]
+      )
+      await flushPromises()
+
+      expect(within(teamSections()[1]).queryByRole('button', { name: 'teams.toParticipants' })).not.toBeInTheDocument()
+
+      await user.click(within(teamSections()[0]).getByRole('button', { name: 'teams.toParticipants' }))
+      await flushPromises()
+
+      expect(putRegistrationGroups).toHaveBeenCalledTimes(1)
+      expect(screen.getByText(/teams\.movePartlyFailed/)).toHaveTextContent('Voittaja')
+    })
+
+    it('sends the team once, though the button is clicked again while it moves', async () => {
+      let land: (value: ReturnType<typeof moved>) => void = () => undefined
+      vi.mocked(putRegistrationGroups)
+        .mockImplementationOnce(() => new Promise((resolve) => (land = resolve)))
+        .mockResolvedValueOnce(moved(teamEntries))
+      const { user } = await renderPage(teamEvent, teamEntries)
+      await flushPromises()
+      const button = () => within(teamSections()[0]).getByRole('button', { name: 'teams.toParticipants' })
+
+      await user.click(button())
+      await flushPromises()
+      expect(button()).toBeDisabled()
+
+      land(moved(teamEntries))
+      await flushPromises()
+      expect(putRegistrationGroups).toHaveBeenCalledTimes(2)
     })
 
     it('moves the classes it can, and names the dogs of a class that did not move', async () => {

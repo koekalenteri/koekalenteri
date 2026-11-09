@@ -1614,6 +1614,8 @@
     "moveDown": "Siirrä {{code}} alemmas",
     "moved": "Joukkue {{number}} siirretty",
     "movePartlyFailed": "Joukkueen {{number}} kaikkia koiria ei siirretty. Siirtämättä jäivät:",
+    "moveRefused_closed": "Luokan ilmoittautumiset on suljettu, joten koiria ei voi enää siirtää.",
+    "moveRefused_reserveAfterPicking": "Luokan osallistujat on jo valittu, joten osallistujia ei voi siirtää varasijalle.",
     "moveSaveFirst": "Tallenna joukkueet ennen kuin siirrät joukkueen.",
     "moveUp": "Siirrä {{code}} ylemmäs",
     "name": "Joukkueen nimi",

@@ -2,7 +2,7 @@ import type { DogEvent, JsonRegistration, OwnClass } from '../types'
 import type { FormatOwner } from './event'
 import { legacyDayValue } from '../test-utils/finnishDays'
 import { GROUP_KEY_CANCELLED } from './registration'
-import { applyRegistrationGroupMoves, normalizeRegistrationGroups } from './registrationGroups'
+import { applyRegistrationGroupMoves, groupMoveError, normalizeRegistrationGroups } from './registrationGroups'
 
 /** The event the snapshots belong to: its format decides how the reserves are numbered. */
 const NOME_B = { eventType: 'NOME-B' }
@@ -475,5 +475,29 @@ describe('a start stored with the UTC day key', () => {
 
     expect(normalized.find((item) => item.id === 'n')?.group?.key).toBe('x-key')
     expect(normalized.find((item) => item.id === 'k')?.group?.key).toBe(GROUP_KEY_CANCELLED)
+  })
+})
+
+// KOE-1722: the one rule the class view, the teams page and PutRegistrationGroups hold a move to.
+describe('groupMoveError', () => {
+  const now = new Date('2026-08-01T10:00:00+03:00')
+  const ahead = { endDate: '2026-08-10' as const, startDate: '2026-08-10' as const }
+  const over = { endDate: '2026-07-01' as const, startDate: '2026-07-01' as const }
+  const participants = '2026-08-10-ap'
+
+  it('lets a dog move either way before the picking', () => {
+    expect(groupMoveError(ahead, 'confirmed', participants, 'reserve', now)).toBeUndefined()
+    expect(groupMoveError(ahead, 'confirmed', 'reserve', participants, now)).toBeUndefined()
+  })
+
+  it.each(['picked', 'invited'] as const)('keeps a participant from the reserve list once the class is %s', (state) => {
+    expect(groupMoveError(ahead, state, participants, 'reserve', now)).toBe('reserveAfterPicking')
+    expect(groupMoveError(ahead, state, 'reserve', participants, now)).toBeUndefined()
+    expect(groupMoveError(ahead, state, 'cancelled', 'reserve', now)).toBeUndefined()
+  })
+
+  it('moves nothing once the trial is over or the class is judged', () => {
+    expect(groupMoveError(over, 'confirmed', 'reserve', participants, now)).toBe('closed')
+    expect(groupMoveError(ahead, 'ended', 'reserve', participants, now)).toBe('closed')
   })
 })

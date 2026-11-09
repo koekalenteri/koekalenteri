@@ -20,7 +20,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 4fce10
+sourceHash: 0ba9dd
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -229,8 +229,14 @@ picked, Koekalenteri asks first and names the dogs the message goes to. The dogs
 at a time. If a class fails to move, the dogs of the other classes still move, and Koekalenteri
 names the dogs that were not moved.
 
+The moves follow the same rules as the class's participant view. Once the class's participants are
+picked, its participants cannot be moved to the reserve list, and once the class's entries are closed
+(the trial is over or the class judged), its dogs cannot be moved at all; the reason shows under the
+button. A dog with no class, or whose class has no group to move it to, stays where it is, and
+Koekalenteri names it after the move.
+
 A team is moved as it is saved: while the page has changes not saved, the move buttons wait for
-the save.
+the save. While a move runs, the buttons wait for it to finish.
 
 !shot[EventTeamsPage/teams-move] One of the team's dogs is a participant and one on the reserve list, so the team can be moved either way
 

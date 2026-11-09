@@ -1,5 +1,6 @@
-import type { JsonRegistration, Registration, RegistrationGroupMove } from '../types'
-import type { FormatOwner } from './event'
+import type { EventClassState, EventState, JsonRegistration, Registration, RegistrationGroupMove } from '../types'
+import type { EventVitals, FormatOwner } from './event'
+import { isEntryEditingClosed } from './event'
 import {
   deriveParticipantGroupKey,
   GROUP_KEY_CANCELLED,
@@ -7,6 +8,7 @@ import {
   getRegistrationGroupDay,
   getRegistrationGroupKey,
   getRegistrationNumberingGroupKey,
+  isParticipantGroup,
 } from './registration'
 
 type GroupedRegistration = Pick<
@@ -147,4 +149,30 @@ export const applyRegistrationGroupMoves = <T extends GroupedRegistration>(
     invalid,
     items,
   }
+}
+
+/**
+ * Why a dog cannot be moved between the groups of its class (KOE-1722), by the rules the class view
+ * has always held its moves to: nothing moves once the class's entries are closed (a trial that is
+ * over, or a class judged, `isEntryEditingClosed`), and once the class is picked or invited a
+ * participant does not go back to the reserve list, as the places and their messages are out. The class
+ * view, the teams page and PutRegistrationGroups read this one rule.
+ */
+export type GroupMoveError = 'closed' | 'reserveAfterPicking'
+
+export const groupMoveError = (
+  event: EventVitals,
+  state: EventClassState | EventState | undefined,
+  fromGroupKey: string | undefined,
+  toGroupKey: string | undefined,
+  now = new Date()
+): GroupMoveError | undefined => {
+  if (
+    (state === 'picked' || state === 'invited') &&
+    toGroupKey === GROUP_KEY_RESERVE &&
+    isParticipantGroup(fromGroupKey)
+  )
+    return 'reserveAfterPicking'
+  if (isEntryEditingClosed(event, state, now)) return 'closed'
+  return undefined
 }
