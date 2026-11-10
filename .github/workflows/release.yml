@@ -30,6 +30,11 @@ on:
         required: false
         default: ''
         type: string
+      backend_run_id:
+        description: Run that uploaded backend_artifact, when it is not the calling run
+        required: false
+        default: ''
+        type: string
 
 permissions:
   actions: read
@@ -126,16 +131,20 @@ jobs:
           node-version: 24
           cache: ${{ !inputs.backend_artifact && 'npm' || '' }}
           cache-dependency-path: package-lock.json
-      # ci.yml's build-backend job has built dist for its e2e shards already, and an artifact of the
-      # calling run is downloadable here by name: dev deploys those bundles. A release builds its own.
-      # `sam build` below only copies dist/lambda/<Function> (no package.json, nothing to install), so
-      # the deploy needs no node_modules either way.
+      # ci.yml's build-backend job has built dist for its e2e shards already: dev deploys those
+      # bundles, from the calling run or, on a push the merge queue tested, from that merge_group run
+      # (backend_run_id). A missing artifact fails the job; it is never rebuilt here, so dev only gets
+      # bundles the browser tests ran. A release builds its own. `sam build` below only copies
+      # dist/lambda/<Function> (no package.json, nothing to install), so the deploy needs no
+      # node_modules either way.
       - name: Download the backend build
         if: ${{ inputs.backend_artifact }}
         uses: actions/download-artifact@v8
         with:
           name: ${{ inputs.backend_artifact }}
           path: dist
+          run-id: ${{ inputs.backend_run_id }}
+          github-token: ${{ inputs.backend_run_id && github.token || '' }}
       - name: Cache node_modules
         if: ${{ !inputs.backend_artifact }}
         id: cache
