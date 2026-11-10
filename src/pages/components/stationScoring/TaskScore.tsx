@@ -113,6 +113,8 @@ interface Props {
    * stored here anyway stays an input, since it counts and may need clearing.
    */
   readonly notReached?: boolean
+  /** The step a score moves by (`pointStep`, KOE-1736): the ceiling of a recall is rounded down to it. */
+  readonly step?: number
 }
 
 export const TaskScore = ({
@@ -127,13 +129,14 @@ export const TaskScore = ({
   onChange,
   onJudgeChange,
   notReached = false,
+  step = 1,
 }: Props) => {
   const { t } = useTranslation()
   // A stored judge stands while it judges at the exercise's post; one from before the exercise moved to
   // another post gives way to the post's own (`effectiveJudge`, KOE-1665).
   const judge = effectiveJudge(value, judges, defaultJudge)
   const points = value?.points ?? null
-  const ceiling = taskEntryCeiling({ maxPoints: task.maxPoints, recalled: value?.recalled })
+  const ceiling = taskEntryCeiling({ maxPoints: task.maxPoints, recalled: value?.recalled }, step)
   const ceilingText = `/ ${ceiling}`
   const width = scoreFieldWidth(inline, showName, task.parts)
 

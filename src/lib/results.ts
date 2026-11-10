@@ -20,6 +20,7 @@ import type { RotationEvent } from './rotation'
 import { objectsDiffer } from './diff'
 import { formatTypeOf } from './event'
 import { registrationOrder } from './eventClass'
+import { recallCeiling } from './exerciseScoring'
 import { scoresAtPosts } from './liveFormat'
 import {
   getRegistrationClass,
@@ -257,8 +258,10 @@ interface NowtResultInput {
  * nominal maximum, so the forfeited points are the penalty. Scoring against this reduced ceiling instead
  * would erase the penalty entirely and hand out first prizes the rules disallow.
  */
-export const taskEntryCeiling = (task: Pick<JsonEventResultTask, 'recalled'> & { maxPoints: number }): number =>
-  task.recalled ? Math.floor(task.maxPoints / 2) : task.maxPoints
+export const taskEntryCeiling = (
+  task: Pick<JsonEventResultTask, 'recalled'> & { maxPoints: number },
+  step = 1
+): number => (task.recalled ? recallCeiling(task.maxPoints, step) : task.maxPoints)
 
 /** A slot as the secretary reads it: "Rasti 2", or "Rasti 2, osa 1/2" for a part of a split exercise. */
 export const formatTaskName = (slot: ExerciseSlot, t: TFunction<'translation'>): string =>
@@ -297,9 +300,9 @@ export const nowtTotals = (tasks: readonly ScoredTask[]) => {
 
 /**
  * The thresholds of §5.4.1 read as written: at least this share of the maximum, compared exactly rather
- * than through a rounded percentage. Today the two agree, since points are whole and every exercise is
- * worth 20 (§5.3.1), so 80, 65 and 50 % of the maximum all fall on whole points. The exact form needs no
- * such reasoning to be right, and orders dogs as `placementsFor` does (KOE-1678).
+ * than through a rounded percentage, which a trial's own maximum or half points (KOE-1736) can put
+ * between two points. The exact form is right for any maximum and step, and orders dogs as
+ * `placementsFor` does (KOE-1678).
  */
 const atLeastPercent = (points: number, maxPoints: number, percent: number) => points * 100 >= percent * maxPoints
 

@@ -14,6 +14,7 @@ import { createHash } from 'node:crypto'
 import { resultRecomputedAudit, resultSavedAudit } from '../../lib/audit'
 import { objectsDiffer } from '../../lib/diff'
 import { formatTypeOf } from '../../lib/event'
+import { isOnPointStep, pointStep } from '../../lib/exerciseScoring'
 import { makeArray } from '../../lib/judge'
 import { isResultsLocked } from '../../lib/kennelliittoResults'
 import { scoresAtPosts } from '../../lib/liveFormat'
@@ -518,6 +519,12 @@ const classifySubmission = (
   return { eventResult: resolve({ ...submitted, tasks }), hadStored: Boolean(stored), kind: 'save' }
 }
 
+/** Whether a task sends back the points stored at its address, unchanged. */
+const keepsStoredPoints = (
+  task: Pick<JsonEventResultTask, 'exercise' | 'part' | 'points'>,
+  stored: readonly JsonEventResultTask[]
+) => stored.some((item) => holdsScore(item, task) && item.points === task.points)
+
 /** What a post's save or the event save is told when the layout it was made against has changed. */
 const LAYOUT_CHANGED_MESSAGE = 'The results changed while the stations were saved; save again'
 
@@ -533,7 +540,8 @@ const LAYOUT_CHANGED_MESSAGE = 'The results changed while the stations were save
 const validateSubmittedTasks = (
   round: readonly ExerciseSlot[],
   submission: ResultSubmission,
-  exercises: readonly number[] | undefined
+  exercises: readonly number[] | undefined,
+  { step, stored }: { step: number; stored: readonly JsonEventResultTask[] }
 ): void => {
   const tasks = submission.eventResult.tasks
   if (!tasks?.length) return
@@ -547,9 +555,14 @@ const validateSubmittedTasks = (
       throw httpError(409, { error: 'staleData', message: LAYOUT_CHANGED_MESSAGE })
     }
 
-    const ceiling = taskEntryCeiling({ maxPoints: slot.maxPoints, ...(task.recalled ? { recalled: true } : {}) })
+    const ceiling = taskEntryCeiling({ maxPoints: slot.maxPoints, ...(task.recalled ? { recalled: true } : {}) }, step)
     if (task.points !== null && (task.points < 0 || task.points > ceiling)) {
       throw new LambdaError(422, `Task points ${task.points} out of range for ${taskName(task)}`)
+    }
+    // The trial's step, by the browser's rule (KOE-1736). A score stored before the step was held to
+    // stands while it is sent back unchanged, so an older half point is refused only once it is edited.
+    if (task.points !== null && !isOnPointStep(task.points, step) && !keepsStoredPoints(task, stored)) {
+      throw new LambdaError(422, `Task points ${task.points} not on the step of ${step} for ${taskName(task)}`)
     }
   }
 }
@@ -604,7 +617,8 @@ const planSubmission = (
     validateSubmittedTasks(
       dogRound(confirmedEvent, rotationDogOf(registration)),
       submission,
-      stationId ? stationExercises(confirmedEvent, registration, stationId) : undefined
+      stationId ? stationExercises(confirmedEvent, registration, stationId) : undefined,
+      { step: pointStep(confirmedEvent), stored: registration.eventResult?.tasks ?? [] }
     )
   }
 

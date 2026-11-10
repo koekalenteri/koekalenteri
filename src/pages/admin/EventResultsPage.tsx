@@ -137,8 +137,16 @@ export default function EventResultsPage() {
   // Each dog's round is its rotation group's (KOE-1665): the dogs of one class may differ when it splits
   // by start number, so the round is asked per dog, and the columns are what any of them has.
   const roundEvent = useMemo(
-    () => ({ classes: event?.classes, rotations: event?.rotations, stations }),
-    [event?.classes, event?.rotations, stations]
+    () => ({
+      classes: event?.classes,
+      eventType: event?.eventType,
+      // An exercise's maximum is the trial's own where it may set one (KOE-1736).
+      exerciseScoring: event?.exerciseScoring,
+      officialFormat: event?.officialFormat,
+      rotations: event?.rotations,
+      stations,
+    }),
+    [event?.classes, event?.eventType, event?.exerciseScoring, event?.officialFormat, event?.rotations, stations]
   )
   const fullRoundFor = useCallback(
     (registration: Registration) => dogRound(roundEvent, rotationDogOf(registration)),

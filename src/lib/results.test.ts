@@ -45,7 +45,7 @@ const postSlots = (
   { parts, tasks, tasksBefore }: { parts: 1 | 2; tasks: number; tasksBefore: number }
 ) =>
   Array.from({ length: tasks }, (_unused, at) =>
-    visitSlots(stationId, { exercise: tasksBefore + at + 1, parts })
+    visitSlots(stationId, { exercise: tasksBefore + at + 1, parts }, 20)
   ).flat()
 
 /** A scored exercise, or a part of one where its maximum is 10. */
@@ -919,6 +919,24 @@ describe('withStoredTotals (KOE-1669)', () => {
       percentage: 30,
       points: 12,
     })
+  })
+
+  // KOE-1736: no stored result is recomputed on deploy. A trial without its own scoring, which is every
+  // trial stored before it, works its totals out of 20 an exercise as before.
+  it('works out an older result of an unofficial trial without its own scoring at 20 an exercise', () => {
+    const following = { ...event, eventType: 'Harjoitus', officialFormat: 'NOWT' as const }
+    expect(withStoredTotals(following, dog(retired)).eventResult).toMatchObject({ maxPoints: 40, points: 12 })
+  })
+
+  it('works out a result of a trial with its own scoring against its maximum', () => {
+    const hankinome = {
+      ...event,
+      eventType: 'Hankinome',
+      exerciseScoring: { halfPoints: true, maxPoints: 30 },
+      officialFormat: 'NOWT' as const,
+    }
+    const halves: JsonEventResult = { ...retired, tasks: [{ ...at, exercise: 1, part: 0, points: 12.5 }] }
+    expect(withStoredTotals(hankinome, dog(halves)).eventResult).toMatchObject({ maxPoints: 60, points: 12.5 })
   })
 
   it.each([

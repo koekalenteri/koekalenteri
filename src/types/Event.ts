@@ -219,6 +219,13 @@ export interface JsonDogEvent extends JsonDbRecord {
    */
   teamCompetition?: TeamCompetition
   /**
+   * How an exercise is scored (KOE-1736): its maximum and whether points come in halves. Only an
+   * unofficial trial that follows NOWT may set it (`exerciseScoringErrors`); every other trial scores 20
+   * an exercise in whole points (`exerciseMaxPoints`, `pointStep`). Locked once a result or a turn is
+   * saved.
+   */
+  exerciseScoring?: ExerciseScoring
+  /**
    * The live timeline of the trial day (KOE-1259): every span a post has run, turns and breaks alike,
    * appended as the day goes. Server-owned — written only through the turn endpoint, never by an
    * event save — and stripped from the public event, which carries the derived `liveTurns` instead.
@@ -430,6 +437,7 @@ export type JsonLinkedEvent = Pick<
   | 'classes'
   | 'officialFormat'
   | 'ownClasses'
+  | 'exerciseScoring'
 >
 export type LinkedEvent = Pick<
   PublicDogEvent,
@@ -443,6 +451,7 @@ export type LinkedEvent = Pick<
   | 'classes'
   | 'officialFormat'
   | 'ownClasses'
+  | 'exerciseScoring'
 >
 
 /** The results are handed to the chief judge: the post's link can read them but no longer write them. */
@@ -589,6 +598,18 @@ export interface EventTeam {
    * ranked within their series, and the teams in none among themselves.
    */
   seriesId?: string
+}
+
+/**
+ * How an exercise is scored (KOE-1736). An unofficial trial that follows NOWT may set an exercise's
+ * maximum and score in half points, as the Hankinome does (0-30 by halves); every other trial scores
+ * NOWT's way: 20 points an exercise, whole points.
+ */
+export interface ExerciseScoring {
+  /** The points an exercise is worth, a whole number from 1 to 100. */
+  maxPoints?: number
+  /** Points are given in halves. */
+  halfPoints?: boolean
 }
 
 /** A series of a team competition (KOE-1720), such as a breed's own beside the open one. */

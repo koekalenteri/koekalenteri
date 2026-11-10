@@ -349,6 +349,51 @@ describe('putEventResultsLambda', () => {
     expect(mockWrittenResult).not.toHaveBeenCalled()
   })
 
+  // KOE-1736: the step is the server's to hold to as well, by the browser's rule (isOnPointStep).
+  it('refuses half points where the trial scores whole ones', async () => {
+    await expect(
+      putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(10.5, 10, 10, 10) }, id: 'reg-1' }]))
+    ).rejects.toThrow('not on the step')
+
+    expect(mockWrittenResult).not.toHaveBeenCalled()
+  })
+
+  // A score stored before the step was held to stands while it is sent back unchanged.
+  it('lets a half point stored before the step was held to stand until it is edited', async () => {
+    storeRows([
+      {
+        ...registration('reg-1'),
+        eventResult: { tasks: [{ exercise: 1, part: 0, points: 10.5 }] },
+      },
+    ])
+
+    await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(10.5, 10, 10, 10) }, id: 'reg-1' }]))
+    expect(mockWrittenResult).toHaveBeenCalled()
+
+    await expect(
+      putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(11.5, 10, 10, 10) }, id: 'reg-1' }]))
+    ).rejects.toThrow('not on the step')
+  })
+
+  it("takes half points up to an unofficial trial's own maximum", async () => {
+    const hankinome = {
+      ...nowtEvent,
+      eventType: 'Hankinome',
+      exerciseScoring: { halfPoints: true, maxPoints: 30 },
+      officialFormat: 'NOWT' as const,
+    }
+    mockGetAuthorizedEvent.mockResolvedValue(hankinome)
+    mockGetEvent.mockResolvedValue(hankinome)
+
+    await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(29.5, 30, 15, 0.5) }, id: 'reg-1' }]))
+
+    expect(mockWrittenResult).toHaveBeenCalledWith(
+      'event-1',
+      'reg-1',
+      expect.objectContaining({ maxPoints: 120, points: 75 })
+    )
+  })
+
   it.each([0, 1.5, '3'])('refuses a retirement exercise of %j', async (exercise) => {
     await expect(
       putEventResultsLambda(

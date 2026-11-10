@@ -1,6 +1,7 @@
 import type { ClassKey, JsonConfirmedEvent, JsonDogEvent, JsonUser, Patch } from '../../types'
 import type { EventChange } from '../lib/event'
 import { nanoid } from 'nanoid'
+import { objectsDiffer } from '../../lib/diff'
 import {
   formatTypeOf,
   getEventSeason,
@@ -19,6 +20,7 @@ import {
   uniqueClasses,
 } from '../../lib/event'
 import { isEventClass, ownClassErrors } from '../../lib/eventClass'
+import { exerciseScoringErrors } from '../../lib/exerciseScoring'
 import { scoresAtPosts } from '../../lib/liveFormat'
 import { hasPaymentLockingRegistrations, paymentTermsDiffer } from '../../lib/payment'
 import { getStartListBlocker, isStartListFlagPublished } from '../../lib/publishing'
@@ -243,6 +245,38 @@ const checkTeams = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>) =
   }
 }
 
+/**
+ * An exercise's own maximum and half points (KOE-1736), only for an unofficial trial that follows NOWT
+ * (`exerciseScoringErrors`), checked on the merged event when the save sets them. A setting a later type
+ * change leaves behind is not refused: the readers ignore it (`exerciseMaxPoints`, `pointStep`).
+ */
+const checkExerciseScoring = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>) => {
+  if (!item.exerciseScoring) return
+  const errors = exerciseScoringErrors(data)
+  if (errors.length) {
+    throw httpError(400, {
+      error: 'invalidExerciseScoring',
+      errors,
+      message: 'Bad request: only an unofficial trial following NOWT scores its own way',
+    })
+  }
+}
+
+/**
+ * A change of the exercise scoring (KOE-1736) once the trial has run by it: a post has run a turn or a
+ * dog has a result, so the scores stand on it and it stays (`isOfficialFormatLocked`).
+ */
+const checkExerciseScoringLock = async (existing: JsonConfirmedEvent | undefined, data: JsonConfirmedEvent) => {
+  if (!existing || !objectsDiffer(existing.exerciseScoring ?? {}, data.exerciseScoring ?? {})) return
+  const registrations = existing.turns?.length ? [] : await readEventRegistrations(existing.id)
+  if (isOfficialFormatLocked(existing, registrations)) {
+    throw httpError(409, {
+      error: 'exerciseScoringLocked',
+      message: 'Results or turns are saved; the scoring of the exercises is locked',
+    })
+  }
+}
+
 /** The fields of a save an event's own classes rest on (KOE-674): the list, the class days and the type. */
 const OWN_CLASS_GROUND = ['ownClasses', 'classes', 'eventType', 'officialFormat'] as const
 
@@ -336,6 +370,7 @@ const checkMergedEvent = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEve
   }
   checkTeams(data, item)
   checkOwnClasses(data, item)
+  checkExerciseScoring(data, item)
 }
 
 const updateEventDerivedFields = async (data: JsonConfirmedEvent) => {
@@ -604,6 +639,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   await checkOwnClassEntries(existing, data)
   await checkPaymentLock(existing, data)
   const { renumber } = await checkOfficialFormatChange(existing, data)
+  await checkExerciseScoringLock(existing, data)
   freezeAbsentStartNumbersState(data, existing, item)
   await checkPublishing(existing, item, data)
   await updateEventDerivedFields(data)
