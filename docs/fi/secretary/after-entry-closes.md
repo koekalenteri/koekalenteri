@@ -277,8 +277,8 @@ vanhempien mukaan (Isä x Emä), jos kasvattajaa ei ole kerrottu. Ilmoittautumis
 nimi menee pentueen edelle: sen kertonut koira on nimen ehdotuksessa.
 
 Pentuejoukkueen koiralla on merkintä *{t:teams.otherLitter}*, jos se on eri pentueesta kuin useimmat
-joukkueen koirat (tasatilanteessa joukkueen ensimmäinen koira ratkaisee), ja *{t:teams.unknownLitter}*,
-jos sen isää, emää tai syntymäpäivää ei tiedetä. Merkintä on vain muistutus: joukkueen voi tallentaa
+joukkueen koirat (tasatilanteessa ratkaisee joukkueen ensimmäinen koira, jonka pentue tiedetään), ja
+*{t:teams.unknownLitter}*, jos sen isää, emää tai syntymäpäivää ei tiedetä. Merkintä on vain muistutus: joukkueen voi tallentaa
 siitä huolimatta.
 
 !shot[EventTeamsPage/teams-litters] Pentuejoukkue, jossa yksi koira on eri pentueesta ja yhden pentuetta ei tiedetä

@@ -20,7 +20,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 0692b5
+sourceHash: 993dca
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -277,8 +277,8 @@ of the first dog entered, or after the parents (Sire x Dam) where no breeder was
 at entry comes before the litter: the dog that gave it is in the name's suggestion.
 
 A dog of a litter team is marked *{t:teams.otherLitter}* when it is of another litter than most of the
-team's dogs (on a tie the team's first dog decides), and *{t:teams.unknownLitter}* when its sire, dam or
-birth day is not known. The mark is a reminder only: the team can be saved all the same.
+team's dogs (on a tie the team's first dog whose litter is known decides), and
+*{t:teams.unknownLitter}* when its sire, dam or birth day is not known. The mark is a reminder only: the team can be saved all the same.
 
 !shot[EventTeamsPage/teams-litters] A litter team with one dog of another litter and one whose litter is not known
 
