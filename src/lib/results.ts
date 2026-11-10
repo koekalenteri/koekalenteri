@@ -20,6 +20,7 @@ import type { RotationEvent } from './rotation'
 import { objectsDiffer } from './diff'
 import { formatTypeOf } from './event'
 import { registrationOrder } from './eventClass'
+import { recallCeiling } from './exerciseScoring'
 import { scoresAtPosts } from './liveFormat'
 import {
   getRegistrationClass,
@@ -257,8 +258,10 @@ interface NowtResultInput {
  * nominal maximum, so the forfeited points are the penalty. Scoring against this reduced ceiling instead
  * would erase the penalty entirely and hand out first prizes the rules disallow.
  */
-export const taskEntryCeiling = (task: Pick<JsonEventResultTask, 'recalled'> & { maxPoints: number }): number =>
-  task.recalled ? Math.floor(task.maxPoints / 2) : task.maxPoints
+export const taskEntryCeiling = (
+  task: Pick<JsonEventResultTask, 'recalled'> & { maxPoints: number },
+  step = 1
+): number => (task.recalled ? recallCeiling(task.maxPoints, step) : task.maxPoints)
 
 /** A slot as the secretary reads it: "Rasti 2", or "Rasti 2, osa 1/2" for a part of a split exercise. */
 export const formatTaskName = (slot: ExerciseSlot, t: TFunction<'translation'>): string =>

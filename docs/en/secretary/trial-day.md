@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: d1b429
+sourceHash: aee5b9
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -49,7 +49,8 @@ if a number already belongs to another dog or is not one of the class's.
 
 In a NOWT trial the dogs do their exercises at the judges' posts, and the points are recorded
 exercise by exercise. An exercise is one performance worth 20 points, and a trial usually has four or
-five. The posts are defined on their own page, opened with the panel's
+five. An unofficial trial that follows NOWT may set another maximum for an exercise and give points in
+halves, as the Hankinome does, 0-30 by halves. Points off the trial's step are refused on saving. The posts are defined on their own page, opened with the panel's
 **{t:eventManagement.stations}** button; the button shows only for the event types scored by
 exercise. A course is usually laid out at the venue, so the page is separate from the event's details.
 An unofficial trial that follows NOWT gets the same posts and exercises.

@@ -14,7 +14,6 @@ import {
   outcomeDiffers,
   outcomeExercises,
   outcomeHeldElsewhere,
-  partMaxPoints,
   rebaseTasks,
   reconcileRoundTasks,
   repeatedAddress,
@@ -37,29 +36,18 @@ const postSlots = (
   { parts, tasks, tasksBefore }: { parts: 1 | 2; tasks: number; tasksBefore: number }
 ) =>
   Array.from({ length: tasks }, (_unused, at) =>
-    visitSlots(stationId, { exercise: tasksBefore + at + 1, parts })
+    visitSlots(stationId, { exercise: tasksBefore + at + 1, parts }, 20)
   ).flat()
-
-describe('partMaxPoints', () => {
-  it('gives a whole task 20 points', () => {
-    expect(partMaxPoints(1)).toBe(20)
-  })
-
-  it('splits a task evenly between two parts, so the parts cannot fail to add up', () => {
-    expect(partMaxPoints(2) * 2).toBe(partMaxPoints(1))
-    expect(partMaxPoints(2)).toBe(10)
-  })
-})
 
 describe('visitSlots', () => {
   it('gives a whole exercise one slot of 20 at its post', () => {
-    expect(visitSlots('post-2', { exercise: 4, parts: 1 })).toEqual([
+    expect(visitSlots('post-2', { exercise: 4, parts: 1 }, 20)).toEqual([
       { exercise: 4, maxPoints: 20, part: 0, parts: 1, stationId: 'post-2' },
     ])
   })
 
-  it('gives each part of a split exercise a slot of its own', () => {
-    expect(visitSlots('post-1', { exercise: 1, parts: 2 })).toEqual([
+  it('gives each part of a split exercise a slot of its own, the parts adding up to the whole', () => {
+    expect(visitSlots('post-1', { exercise: 1, parts: 2 }, 20)).toEqual([
       { exercise: 1, maxPoints: 10, part: 0, parts: 2, stationId: 'post-1' },
       { exercise: 1, maxPoints: 10, part: 1, parts: 2, stationId: 'post-1' },
     ])

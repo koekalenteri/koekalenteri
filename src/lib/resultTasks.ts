@@ -10,18 +10,17 @@ import type {
 import type { SortableRegistration } from './registration'
 import type { RotationDog, RotationEvent, RotationStation } from './rotation'
 import { objectsDiffer } from './diff'
+import { exerciseMaxPoints } from './exerciseScoring'
 import { dogVisits, rotationDogOf } from './rotation'
 import { isObject } from './utils'
 
 /**
- * An exercise (the rules' rasti; a `task` in this module's older names) is always worth 20, whether it is
- * scored whole or in two parts of 10: §5.3.1, "Jokaisen rastin enimmäispistemäärä on 20 pistettä". A
- * group may do two exercises in a row at one post, each of 20 (KOE-1665).
+ * An exercise (the rules' rasti; a `task` in this module's older names) is worth the trial's maximum
+ * (`exerciseMaxPoints`: 20 by §5.3.1, or an unofficial trial's own, KOE-1736), whether it is scored whole
+ * or in two parts. A group may do two exercises in a row at one post, each worth the whole (KOE-1665).
+ * A task's points are split evenly between its parts, so the parts always add up to the task.
  */
-const TASK_MAX_POINTS = 20
-
-/** A task's points split evenly between its parts, so the parts always add up to the task. */
-export const partMaxPoints = (parts: 1 | 2): number => TASK_MAX_POINTS / parts
+const partMaxPoints = (maxPoints: number, parts: 1 | 2): number => maxPoints / parts
 
 /** One part of an exercise as scored for one dog, joined to its definition in the dog's round. */
 export interface ScoredTask {
@@ -56,11 +55,12 @@ export interface ExerciseSlot {
  */
 export const visitSlots = (
   stationId: string,
-  { exercise, parts }: Pick<StationVisitLayout, 'exercise' | 'parts'>
+  { exercise, parts }: Pick<StationVisitLayout, 'exercise' | 'parts'>,
+  maxPoints: number
 ): ExerciseSlot[] =>
   Array.from({ length: parts }, (_unused, part) => ({
     exercise,
-    maxPoints: partMaxPoints(parts),
+    maxPoints: partMaxPoints(maxPoints, parts),
     part,
     parts,
     stationId,
@@ -166,8 +166,10 @@ export const endedBefore = (
  * post of its day in number order where the day has no running order of its own. A day without posts
  * has an empty round.
  */
-export const dogRound = (event: RotationEvent, dog: RotationDog): ExerciseSlot[] =>
-  dogVisits(event, dog).flatMap((visit) => visitSlots(visit.station.id, visit))
+export const dogRound = (event: RotationEvent, dog: RotationDog): ExerciseSlot[] => {
+  const maxPoints = exerciseMaxPoints(event)
+  return dogVisits(event, dog).flatMap((visit) => visitSlots(visit.station.id, visit, maxPoints))
+}
 
 /** A column of the results table: an exercise number, split the same way, and a part of it. */
 export const columnKey = (slot: Pick<ExerciseSlot, 'exercise' | 'part' | 'parts'>): string =>

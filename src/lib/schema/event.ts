@@ -107,6 +107,8 @@ export const eventBodySchema = objectOf({
   entryEndDate: maybe(str),
   entryStartDate: maybe(str),
   eventType: maybe(str),
+  /** An exercise's maximum and half points (KOE-1736); who may set them is `exerciseScoringErrors`'. */
+  exerciseScoring: maybe(objectOf({ halfPoints: maybe(bool), maxPoints: maybe(num) })),
   headquarters: maybe(objectOf({})),
   id: maybe(str),
   judges: maybe(arrayOf(objectOf({ id: maybe(num), name: maybe(str) }))),

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import type { FormatOwner } from '@/lib/event'
+import type { ExerciseScoringOwner } from '@/lib/exerciseScoring'
 import type { KcBadge } from '@/lib/kennelliittoResults'
 import type { ExerciseSlot } from '@/lib/resultTasks'
 import type { EventStation, NowtZeroFault, PublicJudge, Registration } from '@/types'
@@ -17,6 +18,7 @@ import Typography from '@mui/material/Typography'
 import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatTypeOf } from '@/lib/event'
+import { pointStep } from '@/lib/exerciseScoring'
 import { scoresAtPosts } from '@/lib/liveFormat'
 import { getRegistrationPlacement } from '@/lib/registration'
 import { formatTaskName } from '@/lib/results'
@@ -45,7 +47,7 @@ interface Props {
    */
   readonly wholeRoundFor: (registration: Registration) => ExerciseSlot[]
   /** The trial, whose format (`formatTypeOf`) decides what is entered and how a result is spelled. */
-  readonly event: FormatOwner
+  readonly event: FormatOwner & ExerciseScoringOwner
   readonly eventClass?: string
   readonly stations: EventStation[]
   /** Set when the view covers one post only. */
@@ -250,6 +252,7 @@ function ResultsTable({
             key={taskKey(task)}
             name={formatTaskName(task, t)}
             notReached={notReached(task)}
+            step={pointStep(event)}
             inline={!compact}
             showName={compact}
             onChange={setTask}

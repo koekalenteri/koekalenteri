@@ -358,6 +358,23 @@ describe('putEventResultsLambda', () => {
     expect(mockWrittenResult).not.toHaveBeenCalled()
   })
 
+  // A score stored before the step was held to stands while it is sent back unchanged.
+  it('lets a half point stored before the step was held to stand until it is edited', async () => {
+    storeRows([
+      {
+        ...registration('reg-1'),
+        eventResult: { tasks: [{ exercise: 1, part: 0, points: 10.5 }] },
+      },
+    ])
+
+    await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(10.5, 10, 10, 10) }, id: 'reg-1' }]))
+    expect(mockWrittenResult).toHaveBeenCalled()
+
+    await expect(
+      putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(11.5, 10, 10, 10) }, id: 'reg-1' }]))
+    ).rejects.toThrow('not on the step')
+  })
+
   it("takes half points up to an unofficial trial's own maximum", async () => {
     const hankinome = {
       ...nowtEvent,
@@ -371,8 +388,9 @@ describe('putEventResultsLambda', () => {
     await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(29.5, 30, 15, 0.5) }, id: 'reg-1' }]))
 
     expect(mockWrittenResult).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.objectContaining({ eventResult: expect.objectContaining({ maxPoints: 120, points: 75 }) })
+      'event-1',
+      'reg-1',
+      expect.objectContaining({ maxPoints: 120, points: 75 })
     )
   })
 

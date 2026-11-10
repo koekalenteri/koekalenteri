@@ -1801,7 +1801,11 @@ describe('putEventLambda', () => {
       const res = await patch(hankinome, { exerciseScoring })
 
       expect(res.statusCode).toEqual(200)
-      expect(patchEventMock).toHaveBeenCalledWith('existing', expect.anything(), expect.objectContaining({ exerciseScoring }))
+      expect(patchEventMock).toHaveBeenCalledWith(
+        'existing',
+        expect.anything(),
+        expect.objectContaining({ exerciseScoring })
+      )
     })
 
     it.each([

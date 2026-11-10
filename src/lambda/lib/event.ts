@@ -454,6 +454,8 @@ export const linkedEventProjection = (confirmedEvent: JsonConfirmedEvent): JsonL
   ...(confirmedEvent.officialFormat ? { officialFormat: confirmedEvent.officialFormat } : {}),
   // The link's class tabs follow the event's class order, which its own classes set (KOE-674).
   ...(confirmedEvent.ownClasses?.length ? { ownClasses: confirmedEvent.ownClasses } : {}),
+  // A post link scores the exercises out of the trial's own maximum, in its step (KOE-1736).
+  ...(confirmedEvent.exerciseScoring ? { exerciseScoring: confirmedEvent.exerciseScoring } : {}),
   startDate: confirmedEvent.startDate,
 })
 

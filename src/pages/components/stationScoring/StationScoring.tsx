@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import type { EventResultSubmission } from '@/api/registration'
 import type { ClassOrderOwner, FormatOwner } from '@/lib/event'
+import type { ExerciseScoringOwner } from '@/lib/exerciseScoring'
 import type {
   ClassKey,
   EventResultVersion,
@@ -34,6 +35,7 @@ import { reportError } from '@/lib/client/error'
 import { resultConflictResponse } from '@/lib/client/resultConflict'
 import { errorSnackbarOptions } from '@/lib/client/snackbar'
 import { classOrder, formatTypeOf } from '@/lib/event'
+import { exerciseMaxPoints, pointStep } from '@/lib/exerciseScoring'
 import { makeArray } from '@/lib/judge'
 import { scoresAtPosts } from '@/lib/liveFormat'
 import { getRegistrationClass } from '@/lib/registration'
@@ -82,7 +84,7 @@ interface Props {
   readonly station: Pick<EventStation, 'id' | 'number' | 'judges' | 'dogsAtOnce'>
   /** The trial, whose format (`formatTypeOf`) decides what the post enters and how a result is spelled. */
   /** The trial's format, and its own classes, whose order the class tabs follow (KOE-674). */
-  readonly event: FormatOwner & ClassOrderOwner
+  readonly event: FormatOwner & ClassOrderOwner & ExerciseScoringOwner
   /** The head of the sheet: which post of which trial, and a way back where the caller has one. */
   readonly header?: ReactNode
   /** For the class judges where the post names none. */
@@ -260,9 +262,12 @@ export function StationScoring({
   // This post's slots for the dog in front of the judge: the exercise of its group it does here, whole or
   // in parts, and none at all where nothing is scored.
   const visit = selected?.visit
+  // The exercise's maximum is the trial's (KOE-1736): 20, or an unofficial trial's own.
+  const maxPoints = exerciseMaxPoints(event)
+  const step = pointStep(event)
   const round = useMemo(
-    () => (qualitative || !visit ? [] : visitSlots(station.id, visit)),
-    [qualitative, station.id, visit]
+    () => (qualitative || !visit ? [] : visitSlots(station.id, visit, maxPoints)),
+    [maxPoints, qualitative, station.id, visit]
   )
   // The dog's round ended at an exercise before this one, so it never came to it (KOE-1669).
   const ended = visit ? endedBefore(edit.retirement, visit.exercise, visit.exercisePosts) : false
@@ -282,10 +287,10 @@ export function StationScoring({
       if (!place) return false
       const endedAt = endedAtExercise(retirement, place.exercisePosts)
       if (endedAt !== undefined && place.exercise >= endedAt) return true
-      const slots = visitSlots(station.id, place)
+      const slots = visitSlots(station.id, place, maxPoints)
       return stored?.tasks?.some((task) => slots.some((slot) => holdsScore(slot, task))) ?? false
     },
-    [qualitative, station.id]
+    [maxPoints, qualitative, station.id]
   )
 
   /** The queue as the turn controls need it, for picking a walk-up out of the class on show. */
@@ -517,6 +522,7 @@ export function StationScoring({
                 name={formatTaskName(task, t)}
                 key={`${task.exercise}#${task.part}`}
                 notReached={ended}
+                step={step}
                 onChange={(item, points, zeroFault) =>
                   setEdit((prev) => {
                     const existing = prev.tasks.find((entry) => holdsScore(item, entry))

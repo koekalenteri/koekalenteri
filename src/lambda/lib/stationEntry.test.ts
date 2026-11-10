@@ -138,6 +138,22 @@ describe('stationEntry', () => {
       expect(linkedEventProjection(confirmedEvent)).not.toHaveProperty('ownClasses')
     })
 
+    // KOE-1736: the post scores the exercises out of the trial's own maximum, in its step.
+    it("tells the post the trial's own exercise scoring", () => {
+      const exerciseScoring = { halfPoints: true, maxPoints: 30 }
+      const hankinome = asJsonConfirmedEvent({
+        ...confirmedEvent,
+        eventType: 'Hankinome',
+        exerciseScoring,
+        officialFormat: 'NOWT',
+      })
+
+      expect(stationEntryResponse(hankinome, station, [registration('run-1')]).event.exerciseScoring).toEqual(
+        exerciseScoring
+      )
+      expect(linkedEventProjection(confirmedEvent)).not.toHaveProperty('exerciseScoring')
+    })
+
     it('tells the post when the trial is out of its hands, and says nothing of the state itself', () => {
       const locked = { ...confirmedEvent, kcState: { code: 1253, name: 'Ylituomarin hyväksyttäväksi', readAt: 'x' } }
 

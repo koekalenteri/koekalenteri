@@ -1,4 +1,3 @@
-import { dogRound } from './resultTasks'
 import {
   exerciseMaxPoints,
   exerciseScoringErrors,
@@ -7,6 +6,7 @@ import {
   pointStep,
   recallCeiling,
 } from './exerciseScoring'
+import { dogRound } from './resultTasks'
 
 // KOE-1736: an unofficial trial that follows NOWT may score its exercises out of another maximum, in
 // half points, as the Hankinome does (0-30 by halves). The official NOWT stays at 20 and whole points.
