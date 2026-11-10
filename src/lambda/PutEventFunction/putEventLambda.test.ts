@@ -515,6 +515,8 @@ describe('putEventLambda', () => {
         const res = await putEventLambda(
           constructAPIGwEvent({
             ...mockEvent,
+            // A whole event carries its classes, and a save of the classes keeps only the groups of the classes it runs.
+            classes: [{ class: 'ALO', date: '2026-09-12' }],
             eventType: 'NOWT',
             rotations: [{ class: 'ALO', exercises: [{ stationId: 'post-1' }], firstNumber: 9, lastNumber: 1 }],
             stations: posts,
@@ -2050,6 +2052,23 @@ describe('putEventLambda', () => {
         expect(res.statusCode).toEqual(400)
         expect(JSON.parse(res.body)).toMatchObject({ errors: [{ group: 1, kind: 'unknownClass' }] })
         expect(patchEventMock).not.toHaveBeenCalled()
+      })
+
+      // An event left without classes keys a group as a classless dog, never by a class code.
+      it('drops the group of the last class taken away', async () => {
+        mockReadEventRegistrations.mockResolvedValue([])
+
+        const res = await patch(
+          { ...following, ...withoutVeterans, rotations: [derbyGroup] },
+          { classes: [], ownClasses: null }
+        )
+
+        expect(res.statusCode).toEqual(200)
+        expect(patchEventMock).toHaveBeenCalledWith(
+          'existing',
+          expect.anything(),
+          expect.objectContaining({ rotations: [] })
+        )
       })
     })
   })

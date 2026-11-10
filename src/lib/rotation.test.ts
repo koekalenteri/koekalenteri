@@ -533,10 +533,21 @@ describe('pruneRotationClasses', () => {
     ])
   })
 
-  it('keeps the groups of a classless trial, keyed by its format', () => {
-    const groups: EventRotationGroup[] = [{ class: 'NOWT', exercises: order(1) }]
+  // A classless dog's key is its entry's type, which the trial's format or its own type names.
+  it.each([
+    ['its format', { eventType: 'WT-harjoitus', officialFormat: 'NOWT' as const }, 'NOWT'],
+    ['its own type', { eventType: 'WT-harjoitus', officialFormat: 'NOWT' as const }, 'WT-harjoitus'],
+    ['an official type', { eventType: 'NOWT' }, 'NOWT'],
+  ])('keeps the group of a classless trial keyed by %s', (_case, type, key) => {
+    const group: EventRotationGroup = { class: key, exercises: order(1) }
 
-    expect(pruneRotationClasses({ classes: [], rotations: groups })).toEqual(groups)
+    expect(pruneRotationClasses({ ...type, classes: [], rotations: [group] })).toEqual([group])
+  })
+
+  it('drops the group of the last class taken away', () => {
+    const event = { classes: [], eventType: 'WT-harjoitus', officialFormat: 'NOWT' as const, rotations: [derby] }
+
+    expect(pruneRotationClasses(event)).toEqual([])
   })
 
   it('gives an event without groups none', () => {
