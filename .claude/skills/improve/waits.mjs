@@ -59,11 +59,13 @@ export const waitTarget = (name, input = {}) => {
     .trim()
 }
 
-const timedOutText = (text) => /Command timed out after/.test(text)
+// A foreground command past its own timeout is killed ("timed out after") or, by newer harnesses,
+// moved to the background ("did not complete within its 120s timeout and was moved").
+const timedOutText = (text) => /Command timed out after|did not complete within its \d+s timeout/.test(text)
 /** The seconds a `timeout N` in the command allows; reaching them means it fired, whatever the exit code. */
 const timeoutLimit = (input) =>
   Number(/(?:^|[^-\w])timeout\s+(\d+)\s/.exec(String(input?.command ?? ''))?.[1] ?? Infinity)
-const movedId = (text) => /Command was moved to the background \(ID: (\w+)\)/.exec(text)?.[1]
+const movedId = (text) => /moved to the background \(ID: (\w+)\)/.exec(text)?.[1]
 const backgroundId = (text, toolUseResult) =>
   toolUseResult?.backgroundTaskId ??
   toolUseResult?.taskId ??
