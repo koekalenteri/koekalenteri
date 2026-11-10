@@ -47,7 +47,13 @@ commits on the same branch.
 - Before a workaround for a dependency, check whether a newer release already fixes it.
 - Run tests one at a time in the foreground through the npm scripts
   (`npm run test-frontend -- --run <paths>`, `npm run test-backend -- --run <paths>`); never in
-  the background, never `pkill vitest`.
+  the background, never `pkill vitest`. Run them yourself only for the test you are writing, to see
+  it fail and then pass.
+- Let the commit run the checks. The pre-commit hook (`scripts/precommit.js`) runs lint (both
+  typechecks and Biome), knip, ratchet, the docs and screenshot checks and the tests of the changed
+  files, all at once; running those yourself first does the same work twice. Commit, read what the
+  hook reports, fix it and commit again. `--no-verify` is only for the failing-test commit before
+  the plan, which cannot pass by design. The hook does not run the screenshot tests or e2e.
 - Changed UI gets a screenshot test and both baselines (`AGENTS.md`, Visual Test Convention).
   Look at every PNG you regenerate.
 - Before pushing, list each new branch you added and the test that takes it.

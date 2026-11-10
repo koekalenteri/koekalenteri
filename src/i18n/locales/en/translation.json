@@ -1613,6 +1613,9 @@
     "entryInfo": "When the question is on, the entry form asks for the name of the dog's team and whether it is the first team of its club or kennel. The names given are gathered into team suggestions on this page.",
     "handler": "handler {{name}}",
     "info": "The teams are numbered in order, and a dog's identifier in its team follows the order the dogs were added: 1A, 1B, 1C. To change a dog's identifier, move it up or down in the team.",
+    "litters": "The teams are litter teams",
+    "littersInfo": "A litter team is dogs of one litter. When this is on, the page suggests teams from the dogs with the same sire, dam and birth day, named after the breeder, and marks a dog in a team that is of another litter or whose litter is not known.",
+    "litterTeams": "Litter teams",
     "memberCancelled": "Cancelled",
     "memberReserve": "Reserve",
     "moveConfirm": "Move",
@@ -1628,6 +1631,7 @@
     "name": "Team name",
     "noDogs": "The team has no dogs yet.",
     "noSeries": "No series",
+    "otherLitter": "Another litter",
     "primary": "First team",
     "remove": "Remove {{code}} from the team",
     "removeSeries": "Remove series {{name}}",
@@ -1653,7 +1657,8 @@
     "title": "Teams",
     "tooMany": "A team can hold at most {{count}} dogs. Remove the extra dogs before saving.",
     "toParticipants": "Move to the participants",
-    "toReserve": "Move to the reserve list"
+    "toReserve": "Move to the reserve list",
+    "unknownLitter": "Litter not known"
   },
   "templateEditor": {
     "editor": {

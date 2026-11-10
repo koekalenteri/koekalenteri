@@ -20,7 +20,8 @@ otherwise. The unit of work is a piece, not an issue.
   - branch: `git branch -a --list '*-p<k>-*'` by the piece's id `P<k>`;
   - PR: `gh pr list --head <branch> --state all --json number,state,isDraft`;
   - status: `suunniteltu` (no branch), `työn alla` (branch, no PR), `katselmoinnissa` (open PR),
-    `mainissa` (merged).
+    `mainissa` (merged); `odottaa päätöstä` stays while the piece's question under **Avoimet
+    päätökset** in the document has no answer (step 5).
 - `ListAgents` and `git worktree list`: a peer session on a key or a branch holds that piece.
 - `.claude/skills/release-plan/candidates.sh 'fixVersion = "<version>"'` for the open PRs'
   files; a piece whose hard path an open PR outside the plan holds waits for it.
@@ -71,7 +72,29 @@ is merged into the piece's branch. When the predecessor lands, the implementer m
 `origin/main` (a merge commit, no force-push), the range becomes the whole diff, and the draft
 turns ready by `/ticket` step 6.
 
-## 5. Generated content on merge
+## 5. A question parks its piece, not the session
+
+`AskUserQuestion` holds the whole session until the user answers, and the user is often away for
+hours: after a question at 23:08 on 9.11.2026, the session started no piece and passed on no
+finished one until 04:22. So a decision only the
+user can make, which `/ticket` would ask at once, parks the piece it belongs to instead:
+
+- Write it under **Avoimet päätökset** in the plan document: the piece, the question, the options
+  with what each changes, and your recommendation. Set the piece's status to `odottaa päätöstä`.
+- Its implementer stops on that piece and its area waits; the other areas, reviews and CI
+  watchers go on, and every ready piece that does not wait on the parked one starts as usual.
+- Ask with `AskUserQuestion` when nothing else can advance (every running agent has reported and
+  no ready piece is left), or as soon as the user writes in the session. Ask every open question
+  in that one round, four to a call. Record each answer in the document, clear it from **Avoimet
+  päätökset**, and send it to the area's implementer through `SendMessage`.
+- A question about the product (a stored shape, a name, a behaviour the issues leave open) is one
+  `/design` should have asked. Correct the area's design section with the answer, so the next
+  release's design sees what was missed.
+
+What `/ticket` stops for regardless (a fourth feedback round, production access) waits the same
+way: parked, then asked in the round.
+
+## 6. Generated content on merge
 
 A file both pieces change by hand orders them (step 2). Generated docs content does not:
 `src/generated/docs/index.ts` and an English page's `sourceHash` line. When a PR conflicts only
@@ -81,9 +104,9 @@ once `npm run check-docs` passes. That update starts no review round: it goes to
 and the `ci-watcher`, not to the reviewers. When a guide page's own text conflicts, it is a
 by-hand change after all, and the `docs` reviewer looks at the merge.
 
-## 6. Report
+## 7. Report
 
 One row per piece: area, what it builds, PR, status, the issues it completes, and what is open.
 Then what waits on the user: the PRs ready to merge in the order the table needs them, and the
-decisions asked with `AskUserQuestion`. When every piece of the release is `mainissa`, say so,
+open decisions, asked with `AskUserQuestion` before the report (step 5). When every piece of the release is `mainissa`, say so,
 and list the issues whose status Jira has not moved. Nothing here merges.
