@@ -20,7 +20,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: d7a4fe
+sourceHash: 992ab6
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -201,7 +201,17 @@ dog's class have been picked, a dog on the reserve list can be added too; once t
 the list offers only its dogs picked as participants. A dog already in a team is not affected. A team
 can hold at most 26 dogs.
 
+In the list each dog's name is followed by its handler and, once the start numbers are published,
+preceded by its start number. To find a dog, type part of its name, registration number or handler's
+name, or its start number.
+
 !shot[EventTeamsPage/teams-candidates] In a picked class the list offers only the participants: the reserve dog and the cancelled one are missing
+
+The teams page works on a phone too, so the teams can be put together at the trial office during the
+day, even after the start list is published and some dogs have run. Points a dog already has count for
+its team like any others.
+
+!shot[EventTeamsPage/teams-phone-search] On a phone a dog is found by its handler's name
 
 A dog's identifier in its team follows the order the dogs were added: the dogs of team 1 are 1A, 1B,
 1C and so on. To change an identifier, move the dog up or down with the arrows on its row; the bin

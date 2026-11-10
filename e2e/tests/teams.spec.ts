@@ -69,6 +69,35 @@ test('a team named at entry is suggested on the teams page and made a team with 
   await expect(page.getByRole('region', { name: 'Joukkue 1' }).getByText(`1B ${second.name}`)).toBeVisible()
 })
 
+test('on a phone, a dog is found by its handler and added to a team', {
+  annotation: issue('KOE-1725'),
+  tag: '@secretary',
+}, async ({ context, page }) => {
+  await page.setViewportSize({ height: 844, width: 390 })
+  const organizer = await seedOrganizer()
+  const secretary = await seedStaffUser({ roles: { [organizer.id]: 'secretary' } })
+  const event = await seedEvent({
+    classes: [],
+    eventType: 'NOU',
+    organizer: { id: organizer.id, name: organizer.name },
+    paymentTime: 'confirmation',
+    teams: [{ registrationIds: [] }],
+  })
+  const owner = await seedStaffUser()
+  const entry = await registerThroughApi(event, await seedDog(), owner)
+
+  await signInAs(context, secretary)
+  await page.goto(teamsPage(event.id))
+  // The owner handles the dog; part of the handler's name is enough.
+  await page.getByRole('combobox', { name: 'Lisää koira' }).fill(owner.id)
+  await page.getByRole('option', { name: new RegExp(`ohj\\. ${owner.name}$`) }).click()
+  await page.getByRole('button', { name: 'Tallenna' }).click()
+  await expect(page.getByText('Joukkueet tallennettu')).toBeVisible()
+
+  const [saved] = await readEventsOf(organizer.id)
+  expect(saved.teams).toEqual([{ registrationIds: [entry.id] }])
+})
+
 // Every seeded dog is of the same sire, dam and birth day, and the entries name the same breeder.
 test('dogs of one litter are suggested as a team named after their breeder', {
   annotation: issue('KOE-1727'),

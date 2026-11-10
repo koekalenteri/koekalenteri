@@ -160,9 +160,9 @@ const litterEvent: ConfirmedEvent = {
   teams: [{ name: 'Kennel Kultakuono', registrationIds: ['dog-1', 'dog-2', 'dog-4', 'dog-5'] }],
 }
 
-const renderPage = (shown: ConfirmedEvent = event, entries: Registration[] = registrations) =>
+const renderPage = (shown: ConfirmedEvent = event, entries: Registration[] = registrations, width = 900) =>
   render(
-    <div data-testid="visual-root" style={{ background: '#fff', width: 900 }}>
+    <div data-testid="visual-root" style={{ background: '#fff', width }}>
       <ThemeProvider theme={theme}>
         <TestProvider
           initializeState={({ set }) => {
@@ -281,7 +281,7 @@ it('offers only the picked dogs once the class is picked (KOE-1725)', async () =
   const screen = await renderPage(pickedEvent)
 
   await screen.getByRole('combobox', { name: 'Lisää koira' }).click()
-  await expect.element(screen.getByRole('option', { name: 'Kultakuonon Kide' })).toBeVisible()
+  await expect.element(screen.getByRole('option', { name: 'Kultakuonon Kide, ohj. Sari Saarinen' })).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-candidates')
 })
 
@@ -309,7 +309,68 @@ it('marks the dogs of another litter in a litter team (KOE-1727)', async () => {
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-litters')
 })
 
+// KOE-1725: the teams are put together at the trial office on a phone, so the page fits one.
+const PHONE = { height: 3000, width: 390 }
+
+/**
+ * The elements that reach past the phone's screen, by class, the first few: the page's, and the option
+ * list's, which the autocomplete portals to the end of the document.
+ */
+const pastTheScreen = (root: Element) =>
+  [root, ...document.querySelectorAll('.MuiAutocomplete-popper')]
+    .flatMap((scope) => [scope, ...scope.querySelectorAll('*')])
+    .filter((element) => element.getBoundingClientRect().right > PHONE.width + 0.5)
+    .map((element) => element.className || element.tagName)
+    .slice(0, 5)
+
+// A dog found by its handler's name, with its published start number and its handler on the option.
+const numberedRegistrations = registrations.map((registration, at) => ({
+  ...registration,
+  startGroup: registration.group?.date ? { ...registration.group, number: 21 + at } : undefined,
+}))
+
+/** The page at a phone's width, in the series view, once its first team shows; nothing past the screen. */
+const renderPhone = async (teamHeading: string) => {
+  await page.viewport(PHONE.width, PHONE.height)
+  const screen = await renderPage(seriesEvent, standingsRegistrations, PHONE.width)
+  await expect.element(screen.getByRole('heading', { name: teamHeading })).toBeVisible()
+  expect(pastTheScreen(screen.getByTestId('visual-root').element())).toEqual([])
+  return screen
+}
+
+/** The add-a-dog list at a phone's width, the dog found by part of its handler's name. */
+const renderPhoneSearch = async (addDog: string) => {
+  await page.viewport(PHONE.width, 1400)
+  const screen = await renderPage(pickedEvent, numberedRegistrations, PHONE.width)
+  await screen.getByRole('combobox', { name: addDog }).fill('saari')
+  await expect.element(screen.getByRole('option')).toBeVisible()
+  // The option list is checked too: it is not inside the page.
+  expect(document.querySelectorAll('.MuiAutocomplete-popper')).toHaveLength(1)
+  expect(pastTheScreen(screen.getByTestId('visual-root').element())).toEqual([])
+  return screen
+}
+
+it('fits a phone, nothing reaching past the screen (KOE-1725)', async () => {
+  const screen = await renderPhone('Joukkue 1')
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-phone')
+})
+
+it('finds a dog to add by its handler on a phone (KOE-1725)', async () => {
+  const screen = await renderPhoneSearch('Lisää koira')
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-phone-search')
+})
+
 describeInLanguage('en', () => {
+  it('fits a phone, nothing reaching past the screen (KOE-1725)', async () => {
+    const screen = await renderPhone('Team 1')
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-phone-en')
+  })
+
+  it('finds a dog to add by its handler on a phone (KOE-1725)', async () => {
+    const screen = await renderPhoneSearch('Add a dog')
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-phone-search-en')
+  })
+
   it('marks the dogs of another litter in a litter team (KOE-1727)', async () => {
     await page.viewport(900, 1600)
     const screen = await renderPage(litterEvent, litterRegistrations)
@@ -347,7 +408,7 @@ describeInLanguage('en', () => {
     const screen = await renderPage(pickedEvent)
 
     await screen.getByRole('combobox', { name: 'Add a dog' }).click()
-    await expect.element(screen.getByRole('option', { name: 'Kultakuonon Kide' })).toBeVisible()
+    await expect.element(screen.getByRole('option', { name: 'Kultakuonon Kide, handler Sari Saarinen' })).toBeVisible()
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-candidates-en')
   })
 
