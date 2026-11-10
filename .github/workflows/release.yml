@@ -25,6 +25,16 @@ on:
         required: false
         default: true
         type: boolean
+      use_backend_build:
+        description: Deploy the backend-build artifact of ci.yml's build-backend instead of building here
+        required: false
+        default: false
+        type: boolean
+      backend_run_id:
+        description: Run that uploaded backend-build, when it is not the calling run
+        required: false
+        default: ''
+        type: string
 
 permissions:
   actions: read
@@ -60,13 +70,13 @@ jobs:
       - id: setEnv
         run: |
           if [[ -n "${{ inputs.env }}" ]]; then
-            echo "env=${{ inputs.env }}" >> $GITHUB_OUTPUT
+            echo "env=${{ inputs.env }}" >> "$GITHUB_OUTPUT"
           elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "env=test" >> $GITHUB_OUTPUT
+            echo "env=test" >> "$GITHUB_OUTPUT"
           elif [[ "${{ github.event.release.prerelease }}" == "true" ]]; then
-            echo "env=test" >> $GITHUB_OUTPUT
+            echo "env=test" >> "$GITHUB_OUTPUT"
           else
-            echo "env=prod" >> $GITHUB_OUTPUT
+            echo "env=prod" >> "$GITHUB_OUTPUT"
           fi
       - id: setScope
         run: |
@@ -121,16 +131,32 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
+      # ci.yml's build-backend job has built dist for its e2e shards already: dev deploys those
+      # bundles, from the calling run or, on a push the merge queue tested, from that merge_group run
+      # (backend_run_id). A missing artifact fails the job; it is never rebuilt here, so dev only gets
+      # bundles the browser tests ran. A release builds its own. `sam build` below only copies
+      # dist/lambda/<Function> (no package.json, nothing to install), so the deploy needs no
+      # node_modules either way.
+      - name: Download the backend build
+        if: ${{ inputs.use_backend_build }}
+        uses: actions/download-artifact@v8
+        with:
+          name: backend-build
+          path: dist
+          run-id: ${{ inputs.backend_run_id }}
+          github-token: ${{ inputs.backend_run_id && github.token || '' }}
       - name: Cache node_modules
+        if: ${{ !inputs.use_backend_build }}
         id: cache
         uses: actions/cache@v6
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - name: Install packages
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: ${{ !inputs.use_backend_build && steps.cache.outputs.cache-hit != 'true' }}
         run: npm ci
       - name: Build
+        if: ${{ !inputs.use_backend_build }}
         run: npm run build-backend
       - uses: aws-actions/setup-sam@v3
         with:
@@ -153,14 +179,14 @@ jobs:
         shell: bash
         run: |
           if [[ "${{ needs.setup.outputs.env }}" == "prod" ]]; then
-            echo "branch=release/prod" >> $GITHUB_ENV
+            echo "branch=release/prod" >> "$GITHUB_ENV"
           elif [[ "${{ needs.setup.outputs.env }}" == "dev" ]]; then
-            echo "branch=main" >> $GITHUB_ENV
+            echo "branch=main" >> "$GITHUB_ENV"
           else
-            echo "branch=release/test" >> $GITHUB_ENV
+            echo "branch=release/test" >> "$GITHUB_ENV"
           fi
-          echo "environment=koekalenteri-${{ needs.setup.outputs.env }}" >> $GITHUB_ENV
-          echo "stage=${{ needs.setup.outputs.env }}" >> $GITHUB_ENV
+          echo "environment=koekalenteri-${{ needs.setup.outputs.env }}" >> "$GITHUB_ENV"
+          echo "stage=${{ needs.setup.outputs.env }}" >> "$GITHUB_ENV"
       # Dev's and prod's alarms mail the AlarmEmail parameter (KOE-1602). SAM drops an override with an
       # empty value, so an unset secret would deploy without a subscription and the alarms would tell
       # nobody. Test has no alarms and needs no address.
@@ -314,20 +340,20 @@ jobs:
             TAG="${{ github.event.release.tag_name }}"
             TARGET_BRANCH="release/prod"
             echo "Creating and force-pushing branch $TARGET_BRANCH from release tag $TAG"
-            git checkout -B $TARGET_BRANCH $TAG
-            git push https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }} $TARGET_BRANCH --force
+            git checkout -B "$TARGET_BRANCH" "$TAG"
+            git push "https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }}" "$TARGET_BRANCH" --force
           elif [[ "$ENV" == "dev" ]]; then
             # Dev deploys from main directly.
             TARGET_BRANCH="main"
-            git fetch origin $TARGET_BRANCH
-            git checkout -B $TARGET_BRANCH origin/$TARGET_BRANCH
+            git fetch origin "$TARGET_BRANCH"
+            git checkout -B "$TARGET_BRANCH" "origin/$TARGET_BRANCH"
           else
             # Test release by manual dispatch from any branch to release/test
             SOURCE_BRANCH="${{ github.ref_name }}"
             TARGET_BRANCH="release/test"
             echo "Force-pushing source branch $SOURCE_BRANCH to $TARGET_BRANCH"
-            git checkout $SOURCE_BRANCH
-            git push https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }} $SOURCE_BRANCH:$TARGET_BRANCH --force
+            git checkout "$SOURCE_BRANCH"
+            git push "https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }}" "$SOURCE_BRANCH:$TARGET_BRANCH" --force
           fi
 
           {
@@ -336,12 +362,12 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
           echo "Starting Amplify job for branch $TARGET_BRANCH"
-          JOB_ID=$(aws amplify start-job --app-id $APP_ID --branch-name $TARGET_BRANCH --job-type RELEASE --output json | jq -r .jobSummary.jobId)
+          JOB_ID=$(aws amplify start-job --app-id "$APP_ID" --branch-name "$TARGET_BRANCH" --job-type RELEASE --output json | jq -r .jobSummary.jobId)
           echo "Job started with ID: $JOB_ID"
 
           echo "Waiting for job to complete..."
           while true; do
-            STATUS=$(aws amplify get-job --app-id $APP_ID --branch-name $TARGET_BRANCH --job-id $JOB_ID --output json | jq -r .job.summary.status)
+            STATUS=$(aws amplify get-job --app-id "$APP_ID" --branch-name "$TARGET_BRANCH" --job-id "$JOB_ID" --output json | jq -r .job.summary.status)
             echo "Current job status: $STATUS"
             if [[ "$STATUS" == "SUCCEED" ]]; then
               break
