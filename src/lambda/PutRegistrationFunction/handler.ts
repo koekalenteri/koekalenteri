@@ -4,7 +4,7 @@ import type { ParticipantFieldLocks } from '../../lib/registrationLocks'
 import type { JsonConfirmedEvent, JsonRegistration, JsonRegistrationPatchRequest, Patch } from '../../types'
 import { registrationCreatedAudit } from '../../lib/audit'
 import { isEntryOpen, isEventOver } from '../../lib/event'
-import { InvalidPatchError } from '../../lib/patch'
+import { InvalidPatchError, nullsAsRemovals } from '../../lib/patch'
 import { qualifyJsonRegistration } from '../../lib/qualification'
 import {
   isCompleteRegistration,
@@ -13,8 +13,10 @@ import {
   isRegistrationContentLocked,
   meetsRestrictions,
   registrationActor,
+  removedKeptRegistrationField,
   resolveInvitationRead,
   withoutParticipantResponses,
+  withoutPublicOperationFields,
 } from '../../lib/registration'
 import {
   getParticipantFieldLocks,
@@ -76,9 +78,9 @@ const getData = async (registration: Patch<JsonRegistration>) => {
 
 /**
  * The stored registration with the participant's operations applied, only to the fields a participant
- * may edit, as the row to save: what they removed stays removed (KOE-1721), and the workflow flags go
- * one way only (`withParticipantFlagsKept`). A removal that leaves a whole row without a field every
- * registration has is refused.
+ * may edit, as the row to save (KOE-1721): what they removed stays removed, a null stands for a removal
+ * (`nullsAsRemovals`), and the workflow flags go one way only (`withParticipantFlagsKept`). A removal of
+ * what an entry keeps (`removedKeptRegistrationField`) is refused.
  */
 const applyPublicPatchRequest = (
   existing: JsonRegistration,
@@ -86,31 +88,33 @@ const applyPublicPatchRequest = (
 ): JsonRegistration => {
   let patched: JsonRegistration
   try {
-    patched = applyRegistrationPatchRequest(existing, operationRequest, isPublicRegistrationOperationField)
+    patched = applyRegistrationPatchRequest(
+      existing,
+      { ...operationRequest, operations: nullsAsRemovals(operationRequest.operations) },
+      isPublicRegistrationOperationField
+    )
   } catch (error) {
     if (error instanceof InvalidPatchError) throw httpError(400, { message: `Bad request: ${error.message}` })
     throw error
   }
-  const row = withParticipantFlagsKept(patched, existing)
-  if (isCompleteRegistration(existing) && !isCompleteRegistration(row)) {
-    throw httpError(400, { message: 'Bad request: patch removes a required registration field' })
-  }
-  return row
+  const removed = removedKeptRegistrationField(existing, patched)
+  if (removed) throw httpError(400, { message: `Bad request: patch removes the registration field ${removed}` })
+  return withParticipantFlagsKept(patched, existing)
 }
 
 /**
  * The registration to store and what the participant's request did to it: an edit of the details,
  * a cancellation, a confirmation, or the reading of an invitation. The one-way flags only count on
- * the way up; `publicRegistrationPatch` has already dropped any attempt to clear them. Operations
- * arrive as the whole row to store (`applied`), which is not merged onto the stored one again: the
- * merge keeps a stored field the patch leaves out, and so would undo every removal. A body is a
- * patch, merged onto the stored row, where a null removes a field.
+ * the way up: `withParticipantFlagsKept` has already undone any attempt of the operations to clear
+ * them, and `publicRegistrationPatch` any attempt of a body. The operations' row (`whole`) names every
+ * field a participant writes, so one it leaves out was removed and is not merged back from the stored
+ * row; a body is merged onto the stored row, where a null removes a field.
  */
 const buildPublicRegistrationData = (
   registration: Patch<JsonRegistration>,
   existing: JsonRegistration | undefined,
   confirmedEvent: JsonConfirmedEvent,
-  applied: JsonRegistration | undefined
+  whole: boolean
 ) => {
   const cancel = !existing?.cancelled && Boolean(registration.cancelled)
   const confirm = !existing?.confirmed && Boolean(registration.confirmed) && !existing?.cancelled
@@ -119,8 +123,7 @@ const buildPublicRegistrationData = (
     : { read: false }
 
   let data: JsonRegistration
-  if (applied) data = applied
-  else if (existing) data = patchMerge(existing, registration)
+  if (existing) data = patchMerge(whole ? withoutPublicOperationFields(existing) : existing, registration)
   else {
     // Decided below from the dog's official results, once the body is known to be whole.
     registration.qualifies = false
@@ -272,7 +275,6 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   const linkOrigin = getFrontendOrigin(event)
   const { operationRequest, registration: requested } = parsePublicRegistrationBody(event)
   let registration = requested
-  let applied: JsonRegistration | undefined
 
   const { confirmedEvent, existing } = await getData(registration)
   if (!confirmedEvent || isEventOver(confirmedEvent)) {
@@ -281,10 +283,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
 
   if (existing) {
     authorizeRegistrationEdit(event, existing)
-    if (operationRequest) {
-      applied = applyPublicPatchRequest(existing, operationRequest)
-      registration = applied
-    }
+    if (operationRequest) registration = applyPublicPatchRequest(existing, operationRequest)
   }
 
   // On the logged-in route the authorizer names the participant (KOE-1418); on the public one the
@@ -305,7 +304,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   registration.modifiedBy = user.name
   registration.updatedAt = timestamp
 
-  const { data, flags } = buildPublicRegistrationData(registration, existing, confirmedEvent, applied)
+  const { data, flags } = buildPublicRegistrationData(registration, existing, confirmedEvent, Boolean(operationRequest))
   assertEntryContentEditable(existing, data, confirmedEvent)
   assertCancellationOpen(existing, flags.cancel, confirmedEvent)
   const locks = existing ? getParticipantFieldLocks(confirmedEvent, existing) : NO_PARTICIPANT_FIELD_LOCKS

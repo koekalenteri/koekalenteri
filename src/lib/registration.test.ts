@@ -67,6 +67,7 @@ import {
   REGISTRATION_MONEY_FIELDS,
   registrationActor,
   registrationSort,
+  removedKeptRegistrationField,
   resolveInvitationRead,
   resolveOwnerPerson,
   resolveOwnerSelection,
@@ -75,6 +76,7 @@ import {
   shouldSendInvitationToRegistration,
   withoutAdminProtectedFields,
   withoutParticipantResponses,
+  withoutPublicOperationFields,
   withoutRegistrationMoney,
   withRegistrationOverrides,
 } from './registration'
@@ -1928,6 +1930,34 @@ describe('isCompleteRegistration', () => {
     'reserve',
   ])('rejects a body without %s', (field) => {
     expect(isCompleteRegistration({ ...stamped, [field]: undefined })).toBe(false)
+  })
+})
+
+describe('removedKeptRegistrationField (KOE-1721)', () => {
+  const handler = { email: 'handler@example.com', location: '', membership: false, name: 'Handler', phone: '' }
+  const stored = { class: 'ALO' as const, handler, notes: '' }
+
+  it('names a kept field the edit takes away, or sets to null', () => {
+    expect(removedKeptRegistrationField(stored, { ...stored, handler: undefined })).toBe('handler')
+    expect(removedKeptRegistrationField(stored, { ...stored, class: null })).toBe('class')
+  })
+
+  it('names none for a change, an emptied text, a field the stored entry lacks, or one outside the list', () => {
+    expect(removedKeptRegistrationField(stored, { ...stored, class: 'AVO', notes: '' })).toBeUndefined()
+    expect(
+      removedKeptRegistrationField({ ...stored, class: null }, { handler: stored.handler, notes: '' })
+    ).toBeUndefined()
+    expect(removedKeptRegistrationField({ ...stored, teamEntry: { name: 'Kultaiset' } }, stored)).toBeUndefined()
+  })
+})
+
+describe('withoutPublicOperationFields (KOE-1721)', () => {
+  it('leaves only what a participant cannot write', () => {
+    expect(withoutPublicOperationFields({ class: 'ALO', eventId: 'e', id: 'r', notes: 'n', paidAt: 'x' })).toEqual({
+      eventId: 'e',
+      id: 'r',
+      paidAt: 'x',
+    })
   })
 })
 

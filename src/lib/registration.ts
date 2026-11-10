@@ -134,6 +134,37 @@ export const isCompleteRegistration = (registration: Patch<JsonRegistration>): r
   Array.isArray(registration.qualifyingResults) &&
   typeof registration.reserve === 'string'
 
+/**
+ * What an entry keeps once it has it (KOE-1721): the participant's part of what every registration has
+ * (`isCompleteRegistration`), and the class and the people the entry form requires
+ * (`registrationForm/validation.ts`). A participant's edit may change these, never take one away; the
+ * team, the costs and the manual results stay theirs to clear.
+ */
+const KEPT_REGISTRATION_FIELDS = [
+  'agreeToTerms',
+  'breeder',
+  'class',
+  'dates',
+  'dog',
+  'handler',
+  'language',
+  'notes',
+  'owner',
+  'ownerHandles',
+  'ownerPays',
+  'owners',
+  'payer',
+  'reserve',
+] as const satisfies ReadonlyArray<keyof JsonRegistration>
+
+const isPresent = (value: unknown) => value !== undefined && value !== null
+
+/** The field of `KEPT_REGISTRATION_FIELDS` the stored entry has and the edited one has not, if any. */
+export const removedKeptRegistrationField = (
+  stored: Partial<JsonRegistration>,
+  edited: Partial<JsonRegistration>
+): string | undefined => KEPT_REGISTRATION_FIELDS.find((field) => isPresent(stored[field]) && !isPresent(edited[field]))
+
 type PublicRegistrationField = keyof JsonRegistration
 
 /** What a participant's request may write; `PARTICIPANT_FIELD_SECTIONS` (`registrationLocks.ts`) says when each closes. */
@@ -294,6 +325,11 @@ const PUBLIC_REGISTRATION_OPERATION_FIELD_NAMES: ReadonlySet<string> = new Set(P
 
 export const isPublicRegistrationOperationField = (field: unknown): field is PublicRegistrationField =>
   typeof field === 'string' && PUBLIC_REGISTRATION_OPERATION_FIELD_NAMES.has(field)
+
+/** A copy of the registration without the fields a participant's operations write (`PUBLIC_REGISTRATION_OPERATION_FIELDS`). */
+export const withoutPublicOperationFields = <T extends Partial<Record<PublicRegistrationField, unknown>>>(
+  registration: T
+): T => withoutFields(registration, PUBLIC_REGISTRATION_OPERATION_FIELDS)
 
 const REGISTRATION_ARRAY_FIELDS = [
   { path: ['dates'], required: true },

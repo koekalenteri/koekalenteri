@@ -150,6 +150,18 @@ export const authorizeRegistrationRead = (
   return authorizeRegistrationEdit(event, registration)
 }
 
+/**
+ * The participant's workflow flags, each with the fields that go with it. A participant sets one, never
+ * clears it: clearing is the organizer's. A new registration sets none.
+ */
+const ONE_WAY_PARTICIPANT_FLAGS = [
+  { fields: ['cancelled', 'cancelReason'], flag: 'cancelled' },
+  { fields: ['confirmed'], flag: 'confirmed' },
+  { fields: ['invitationRead'], flag: 'invitationRead' },
+] as const satisfies ReadonlyArray<{ fields: ReadonlyArray<keyof JsonRegistration>; flag: keyof JsonRegistration }>
+
+const ONE_WAY_PARTICIPANT_FIELDS = ONE_WAY_PARTICIPANT_FLAGS.flatMap(({ fields }) => fields)
+
 export const publicRegistrationPatch = (input: Patch<JsonRegistration>, update: boolean): Patch<JsonRegistration> => {
   const result: Patch<JsonRegistration> = {}
   const fields = update ? PUBLIC_REGISTRATION_UPDATE_FIELDS : PUBLIC_REGISTRATION_FIELDS
@@ -157,25 +169,12 @@ export const publicRegistrationPatch = (input: Patch<JsonRegistration>, update: 
     if (Object.hasOwn(input, field)) Object.assign(result, { [field]: input[field] })
   }
 
-  if (!update) {
-    delete result.cancelReason
-    delete result.cancelled
-    delete result.confirmed
-    delete result.invitationRead
-  } else {
-    // Participant workflow flags are one-way transitions. Clearing them is organizer-only.
-    if (result.cancelled !== true) {
-      delete result.cancelled
-      delete result.cancelReason
-    }
-    if (result.confirmed !== true) delete result.confirmed
-    if (result.invitationRead !== true) delete result.invitationRead
+  for (const { fields: flagFields, flag } of ONE_WAY_PARTICIPANT_FLAGS) {
+    if (update && result[flag] === true) continue
+    for (const field of flagFields) delete result[field]
   }
   return result
 }
-
-/** The participant's workflow flags, which `publicRegistrationPatch` lets go one way only. */
-const ONE_WAY_PARTICIPANT_FIELDS = ['cancelled', 'cancelReason', 'confirmed', 'invitationRead'] as const
 
 /**
  * The stored registration with a participant's operations applied, as it is saved: what they removed
@@ -186,7 +185,7 @@ const ONE_WAY_PARTICIPANT_FIELDS = ['cancelled', 'cancelReason', 'confirmed', 'i
  */
 export const withParticipantFlagsKept = (patched: JsonRegistration, existing: JsonRegistration): JsonRegistration => {
   const allowed = publicRegistrationPatch(patched, true)
-  const row = structuredClone(patched)
+  const row: JsonRegistration = structuredClone(patched)
   for (const field of ONE_WAY_PARTICIPANT_FIELDS) {
     if (Object.hasOwn(allowed, field)) continue
     if (Object.hasOwn(existing, field)) Object.assign(row, { [field]: existing[field] })

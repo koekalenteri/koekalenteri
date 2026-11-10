@@ -2233,6 +2233,10 @@ describe('putRegistrationLabmda', () => {
 
     beforeEach(() => {
       vi.setSystemTime(eventWithStaticDatesAndClass.entryStartDate)
+      // A request refused before the event is read leaves its event queued, and `clearAllMocks` keeps
+      // the queue: each test here reads the event it asked for, not the one before.
+      mockGetLiveEvent.mockReset()
+      mockGetRegistration.mockReset()
     })
 
     it('stores the team of a new entry, its name tidied, where the event asks for one', async () => {
@@ -2287,8 +2291,6 @@ describe('putRegistrationLabmda', () => {
     })
 
     it('refuses a team that is not a named object', async () => {
-      asking(true)
-
       const res = await putRegistrationLabmda(constructAPIGwEvent({ ...entry, state: 'ready', teamEntry: 'Nuuskut' }))
 
       expect(res.statusCode).toBe(400)
@@ -2301,24 +2303,25 @@ describe('putRegistrationLabmda', () => {
         ...storedRegistrationJson(registrationWithStaticDatesAndClass),
         teamEntry: { name: 'Kultaiset', primary: true as const },
       }
-      const removing = (path: string[]) =>
-        constructAPIGwEvent(
-          { eventId: stored.eventId, id: stored.id, operations: [{ path, type: 'REMOVE' }] },
-          { method: 'PATCH' }
-        )
+      const removing = (path: string[]) => operating({ path, type: 'REMOVE' })
+      const nulling = (path: string[]) => operating({ path, type: 'CHANGE', value: null })
+      const operating = (operation: object) =>
+        constructAPIGwEvent({ eventId: stored.eventId, id: stored.id, operations: [operation] }, { method: 'PATCH' })
+      const withoutTeam = expect.not.objectContaining({ teamEntry: expect.anything() })
 
       it.each([
-        ['the team', ['teamEntry'], expect.not.objectContaining({ teamEntry: expect.anything() })],
+        ['the team', removing(['teamEntry']), withoutTeam],
+        ['the team sent as a null', nulling(['teamEntry']), withoutTeam],
         [
           'the first-team mark',
-          ['teamEntry', 'primary'],
+          removing(['teamEntry', 'primary']),
           expect.objectContaining({ teamEntry: { name: 'Kultaiset' } }),
         ],
-      ])('stores the entry without %s', async (_name, path, saved) => {
+      ])('stores the entry without %s', async (_name, request, saved) => {
         asking(true)
         mockGetRegistration.mockResolvedValueOnce(structuredClone(stored))
 
-        const res = await putRegistrationLabmda(removing(path))
+        const res = await putRegistrationLabmda(request)
 
         expect(res.statusCode).toBe(200)
         expect(mockPatchRegistration).toHaveBeenCalledWith(stored.eventId, stored.id, stored, saved)
@@ -2339,21 +2342,55 @@ describe('putRegistrationLabmda', () => {
         )
       })
 
-      // The dates are held by the array check (`hasInvalidRegistrationArrayFields`), the rest by the
-      // whole row's (`isCompleteRegistration`).
-      it.each([
-        ['dog', 'Bad request: patch removes a required registration field'],
-        ['breeder', 'Bad request: patch removes a required registration field'],
-        ['agreeToTerms', 'Bad request: patch removes a required registration field'],
-        ['notes', 'Bad request: patch removes a required registration field'],
-        ['reserve', 'Bad request: patch removes a required registration field'],
-        ['language', 'Bad request: patch removes a required registration field'],
-        ['dates', 'Bad request: registration array fields must be arrays'],
-      ])('refuses a removal of the %s every entry has, and saves nothing', async (field, message) => {
+      it('stores a null sent inside a value as the field left out', async () => {
         asking(true)
         mockGetRegistration.mockResolvedValueOnce(structuredClone(stored))
 
-        const res = await putRegistrationLabmda(removing([field]))
+        const res = await putRegistrationLabmda(
+          operating({ path: ['handler'], type: 'CHANGE', value: { ...stored.handler, location: null } })
+        )
+
+        const { location: _location, ...handler } = stored.handler ?? {}
+        expect(res.statusCode).toBe(200)
+        expect(mockPatchRegistration).toHaveBeenCalledWith(
+          stored.eventId,
+          stored.id,
+          stored,
+          expect.objectContaining({ handler })
+        )
+      })
+
+      // What an entry keeps (`removedKeptRegistrationField`), removed or sent as a null; the dates are
+      // held by the array check (`hasInvalidRegistrationArrayFields`) first.
+      const kept = (field: string) => `Bad request: patch removes the registration field ${field}`
+      it.each([
+        ...[
+          'agreeToTerms',
+          'breeder',
+          'class',
+          'dog',
+          'handler',
+          'language',
+          'notes',
+          'owner',
+          'ownerHandles',
+          'ownerPays',
+          'payer',
+          'reserve',
+        ].map((field) => [`a removal of the ${field}`, removing([field]), kept(field)] as const),
+        ...['class', 'handler', 'ownerHandles'].map(
+          (field) => [`the ${field} sent as a null`, nulling([field]), kept(field)] as const
+        ),
+        [
+          'a removal of the dates',
+          removing(['dates']),
+          'Bad request: registration array fields must be arrays',
+        ] as const,
+      ])('refuses %s, and saves nothing', async (_name, request, message) => {
+        asking(true)
+        mockGetRegistration.mockResolvedValueOnce(structuredClone(stored))
+
+        const res = await putRegistrationLabmda(request)
 
         expect(res.statusCode).toBe(400)
         expect(JSON.parse(res.body)).toMatchObject({ message })
