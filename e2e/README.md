@@ -35,10 +35,11 @@ and leaves it running for the next run; `docker stop koekalenteri-e2e-dynamodb` 
 tests run the builds, not the sources, so `--no-build` is only for a run where nothing changed.
 Arguments other than `--no-build` go to `playwright test`.
 
-CI runs the same steps one by one: `build-backend`, `build-e2e-frontend` and `test-e2e` with
-`DYNAMODB_ENDPOINT` pointing at a service container. The frontend build comes from the frontend
-job, which builds `build-e2e` for this; only when that job was skipped do the tests build it
-themselves. It splits the tests into two `--shard`s of one worker each.
+CI runs the same steps, with `test-e2e` and `DYNAMODB_ENDPOINT` pointing at a service container.
+The builds come from other jobs: `dist` from the build-backend job (artifact `backend-build`, the
+bundles deploy-dev ships too) and `build-e2e` from the frontend job; only when the frontend job was
+skipped do the tests build the frontend themselves. It splits the tests into two `--shard`s of one
+worker each.
 
 Each test writes its own rows under unique ids (`fixtures/db.ts`) and never empties a table.
 Dates are relative to today (`fixtures/dates.ts`), because the lambdas run on the real clock.

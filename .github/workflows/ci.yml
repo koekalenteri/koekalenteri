@@ -257,6 +257,53 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
 
+  # The lambda bundles and the template, built once per run: the e2e shards run against them, and
+  # deploy-dev's deploy-backend ships them, so dev gets the very bundles the browser tests ran. It runs
+  # for the e2e shards whenever they do, and on a push that deploys the backend, also when the merge
+  # queue's run already tested the commit; that run validated the template, so the push run skips it.
+  build-backend:
+    runs-on: ubuntu-latest
+    needs: setup
+    if: >-
+      ${{
+        needs.setup.outputs.backend == 'true' ||
+        (needs.setup.outputs.tested != 'true' && (needs.setup.outputs.frontend == 'true' || needs.setup.outputs.e2e == 'true'))
+      }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Restore node_modules
+        id: cache-restore
+        uses: actions/cache/restore@v6
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install packages
+        if: steps.cache-restore.outputs.cache-hit != 'true'
+        run: npm ci
+      - name: Build
+        run: npm run build-backend
+      - uses: aws-actions/setup-sam@v3
+        if: ${{ needs.setup.outputs.tested != 'true' }}
+        with:
+          use-installer: true
+      - name: Validate SAM template
+        if: ${{ needs.setup.outputs.tested != 'true' }}
+        run: sam validate --lint -t dist/template.yaml
+      - name: Upload the build
+        uses: actions/upload-artifact@v7
+        with:
+          name: backend-build
+          # template.yaml and lambda/<Function>/handler.mjs with its source map, which is most of the
+          # size (some 870 MB). Level 1 packs it in a third of the time level 6 takes, for a quarter
+          # more bytes.
+          path: dist
+          compression-level: 1
+          retention-days: 1
 
   backend:
     runs-on: ubuntu-latest
@@ -278,13 +325,7 @@ jobs:
       - name: Install packages
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
-      - name: Build
-        run: npm run build-backend
-      - uses: aws-actions/setup-sam@v3
-        with:
-          use-installer: true
-      - name: Validate SAM template
-        run: sam validate --lint -t dist/template.yaml
+      # No build: the one test that reads dist, src/lambda/template.test.ts, builds the template itself.
       - name: Test
         run: npm run test-backend -- --coverage
       - name: Rename coverage
@@ -451,11 +492,12 @@ jobs:
     # Browser tests of the main paths (KOE-396): the production frontend build against the built
     # lambda bundles, called in-process by e2e/server, with DynamoDB-local as the only container and
     # SES, SSM and Paytrail faked on localhost. Playwright starts and stops the servers itself.
-    # Sharded by test, one worker each. Off sonar's path, so it waits for the frontend job, whose
-    # build it uses, rather than take runners from the jobs on it at the start.
+    # Sharded by test, one worker each. Off sonar's path, so it waits for the frontend and
+    # build-backend jobs, whose builds it uses, rather than take runners from the jobs on it at the
+    # start.
     runs-on: ubuntu-latest
-    needs: [setup, frontend]
-    if: ${{ !cancelled() && needs.setup.result == 'success' && needs.setup.outputs.tested != 'true' && (needs.setup.outputs.frontend == 'true' || needs.setup.outputs.backend == 'true' || needs.setup.outputs.e2e == 'true') }}
+    needs: [setup, frontend, build-backend]
+    if: ${{ !cancelled() && needs.setup.result == 'success' && needs.build-backend.result == 'success' && needs.setup.outputs.tested != 'true' && (needs.setup.outputs.frontend == 'true' || needs.setup.outputs.backend == 'true' || needs.setup.outputs.e2e == 'true') }}
     timeout-minutes: 15
     strategy:
       fail-fast: false
@@ -486,8 +528,11 @@ jobs:
         run: npm ci
       - name: Runner CPU
         run: grep -m1 'model name' /proc/cpuinfo
-      - name: Build backend
-        run: npm run build-backend
+      - name: Download the backend build
+        uses: actions/download-artifact@v8
+        with:
+          name: backend-build
+          path: dist
       - name: Download the frontend build
         if: ${{ needs.frontend.result == 'success' }}
         uses: actions/download-artifact@v8
@@ -572,7 +617,7 @@ jobs:
   # for being out of the change's scope passes; one that failed, was cancelled or never ran fails it.
   tests:
     runs-on: ubuntu-latest
-    needs: [setup, lint, backend, frontend, frontend-test, visual-test, e2e-test, integration]
+    needs: [setup, lint, build-backend, backend, frontend, frontend-test, visual-test, e2e-test, integration]
     if: ${{ always() }}
     steps:
       - name: Check the jobs
@@ -635,7 +680,7 @@ jobs:
           key: ${{ github.ref_name }}-frontend-coverage-${{ github.run_id }}
 
   deploy-dev:
-    needs: [setup, lint, backend, frontend, frontend-test, integration]
+    needs: [setup, lint, build-backend, backend, frontend, frontend-test, integration]
     if: ${{ always() && !failure() && !cancelled() && github.event_name == 'push' && (needs.setup.outputs.backend == 'true' || needs.setup.outputs.frontend == 'true') }}
     permissions:
       actions: read
@@ -650,6 +695,8 @@ jobs:
       deploy_backend: ${{ needs.setup.outputs.backend == 'true' }}
       deploy_frontend: ${{ needs.setup.outputs.frontend == 'true' }}
       frontend_after_backend: ${{ needs.setup.outputs.stack != 'false' }}
+      # build-backend runs whenever the backend deploys, so deploy-backend ships its bundles.
+      backend_artifact: backend-build
     secrets: inherit
 
   # A pushed commit is only testable once it is deployed to dev, so this is where the named Jira
