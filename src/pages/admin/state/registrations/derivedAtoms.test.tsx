@@ -12,6 +12,7 @@ import { TEST_ID_TOKEN } from '@/test-utils/utils'
 import { adminEventsAtom } from '../events/atoms'
 import { adminEventRegistrationsAtom, adminPendingRegistrationGroupMovesAtom } from './atoms'
 import {
+  adminEventEnteredClassesAtom,
   adminEventOfficialFormatLockedAtom,
   adminEventPaymentLockedAtom,
   adminProjectedEventRegistrationsAtom,
@@ -116,6 +117,34 @@ describe('adminEventPaymentLockedAtom', () => {
     store.set(idTokenAtom, TEST_ID_TOKEN)
 
     expect(store.get(adminEventPaymentLockedAtom(''))).toBe(false)
+    expect(getRegistrations).not.toHaveBeenCalled()
+  })
+})
+
+// KOE-674: PutEvent keeps a class a registration holds, a cancelled one too.
+describe('adminEventEnteredClassesAtom', () => {
+  const stored = mockRegistrations[eventId]
+  afterEach(() => {
+    mockRegistrations[eventId] = stored
+  })
+
+  it("names each class the event's registrations are in once, a cancelled one's too", async () => {
+    mockRegistrations[eventId] = [
+      { ...registrationWithStaticDates, class: 'ALO', id: 'a' },
+      { ...registrationWithStaticDates, cancelled: true, class: 'AVO', id: 'b' },
+      { ...registrationWithStaticDates, class: 'ALO', id: 'c' },
+    ]
+    const store = createStore()
+    store.set(idTokenAtom, TEST_ID_TOKEN)
+
+    await expect(store.get(adminEventEnteredClassesAtom(eventId))).resolves.toEqual(['ALO', 'AVO'])
+  })
+
+  it('names none, and fetches nothing, for an event not yet saved', () => {
+    const store = createStore()
+    store.set(idTokenAtom, TEST_ID_TOKEN)
+
+    expect(store.get(adminEventEnteredClassesAtom(''))).toEqual([])
     expect(getRegistrations).not.toHaveBeenCalled()
   })
 })

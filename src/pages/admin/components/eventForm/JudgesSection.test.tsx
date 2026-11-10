@@ -120,6 +120,34 @@ describe('JudgeSection', () => {
     expect(screen.getByLabelText('event.judgesEditor.classes')).not.toBeVisible()
   })
 
+  // KOE-674: the classes a judge judges follow the secretary's order of the trial's own classes.
+  it("offers a judge an unofficial trial's own classes in the secretary's order", () => {
+    const judge = { id: 1, name: 'Test Judge 1' }
+    const testEvent: PartialEvent = {
+      // Picked YKS first; the secretary listed VET first.
+      classes: [
+        { class: 'YKS', date: '2022-06-01', judge },
+        { class: 'VET', date: '2022-06-01', judge },
+      ],
+      endDate: '2022-06-01',
+      eventType: 'Hankinome',
+      id: 'test',
+      judges: [judge],
+      ownClasses: [
+        { code: 'VET', name: { fi: 'Veteraanit' } },
+        { code: 'YKS', name: { fi: 'Yksilö' } },
+      ],
+      startDate: '2022-06-01',
+    }
+    const { container } = render(<JudgesSection event={testEvent} judges={JUDGES} />)
+
+    const chips = [...container.querySelectorAll('.MuiChip-label')].map((chip) => chip.textContent)
+    expect(chips).toEqual(['VET', 'YKS'])
+
+    fireEvent.mouseDown(screen.getByLabelText('event.judgesEditor.classes'))
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['VET', 'YKS'])
+  })
+
   it('should fire onChange', async () => {
     let testEvent: PartialEvent = {
       classes: [

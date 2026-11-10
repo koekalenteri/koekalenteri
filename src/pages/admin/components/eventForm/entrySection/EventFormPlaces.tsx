@@ -11,7 +11,7 @@ import { enqueueSnackbar } from 'notistack'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getEventDays } from '@/lib/event'
-import { compareEventClass } from '../components/EventClasses'
+import { sameEventClass } from '../components/EventClasses'
 import {
   calculateTotalFromClasses,
   calculateTotalFromDays,
@@ -56,7 +56,7 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
 
   const handleClassChange = (c: DeepPartial<EventClass>, value?: number) => {
     const newClasses = event.classes.map((ec) => structuredClone(ec))
-    const cls = newClasses.find((ec) => compareEventClass(ec, c) === 0)
+    const cls = newClasses.find((ec) => sameEventClass(ec, c))
     if (cls) {
       cls.places = Math.max(0, Math.min(value ?? 0, 200))
     }

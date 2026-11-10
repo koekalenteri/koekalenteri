@@ -1,4 +1,4 @@
-import type { ClassKey, JsonDogEvent } from '../types'
+import type { ClassKey, EventClass, JsonDogEvent } from '../types'
 import type { SortableRegistration } from './registration'
 import { classOrder, isOfficialEventType, OFFICIAL_EVENT_TYPES, ownClassCodes } from './event'
 import { isRegistrationClass, registrationSort } from './registration'
@@ -74,6 +74,15 @@ export const ownClassErrors = (
     ...outsideClasses(event, registeredClasses).map((code): OwnClassError => ({ code, kind: 'registered' })),
   ]
 }
+
+/**
+ * The classes entries were made in, as the event form knows them (KOE-674): those of the class days that
+ * count entries, each once. What the form gives `ownClassErrors` for the stored entries the save reads,
+ * so a code an entry holds is neither changed nor removed there either.
+ */
+export const enteredClassCodes = (classes: readonly Pick<EventClass, 'class' | 'entries'>[]): ClassKey[] => [
+  ...new Set(classes.filter((eventClass) => !!eventClass.entries).map((eventClass) => eventClass.class)),
+]
 
 /**
  * Whether a key names a class of the event (KOE-674): one of its own classes when it has them,

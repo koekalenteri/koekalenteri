@@ -8,6 +8,7 @@ import { locales } from '@/i18n'
 import { EVENT_TYPE_CLASSES } from '@/lib/event'
 import { idTokenAtom } from '@/pages/state'
 import { TestProvider } from '@/test-utils/AtomProvider'
+import { describeInLanguage } from '@/test-utils/language'
 import BasicInfoSection from './BasicInfoSection'
 import { requiredFields, validateEventField } from './validation'
 
@@ -228,5 +229,97 @@ describe('the official type an unofficial trial follows (KOE-1718)', () => {
     }
 
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot(shot)
+  })
+})
+
+// KOE-674: an unofficial trial's own classes, in the secretary's order, chosen by day among the classes.
+// The second class has no Finnish name or day yet, so its row says what the save would refuse.
+describe("an unofficial trial's own classes (KOE-674)", () => {
+  const event = {
+    classes: [
+      { class: 'YKS', date: '2026-06-01' as const },
+      { class: 'YKS', date: '2026-06-02' as const },
+    ],
+    description: '',
+    endDate: '2026-06-02' as const,
+    eventType: 'Hankinome',
+    id: 'test',
+    judges: [],
+    name: 'Hankinome',
+    ownClasses: [
+      { code: 'YKS', name: { en: 'Individual', fi: 'Yksilö' } },
+      { code: 'VET', name: { en: 'Veterans' } },
+    ],
+    startDate: '2026-06-01' as const,
+  }
+  const selectedEventType = {
+    active: true,
+    description: { en: 'Hankinome', fi: 'Hankinome', sv: 'Hankinome' },
+    eventType: 'Hankinome',
+    official: false,
+  }
+  const renderOwnClasses = () =>
+    render(
+      <TestProvider initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
+        <Frame>
+          <BasicInfoSection
+            event={event}
+            eventTypeClasses={EVENT_TYPE_CLASSES}
+            eventTypes={['Hankinome']}
+            open
+            selectedEventType={selectedEventType}
+          />
+        </Frame>
+      </TestProvider>
+    )
+
+  it('lists them with what to correct', async () => {
+    const screen = await renderOwnClasses()
+
+    await expect.element(screen.getByText('Valitse luokalle päivä kohdasta Luokat.')).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('basic-info-section-own-classes')
+  })
+
+  // Entries hold the official classes: the first own class would take them away, so none is offered.
+  const renderEntered = () =>
+    render(
+      <TestProvider initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
+        <Frame>
+          <BasicInfoSection
+            event={{
+              ...event,
+              classes: [{ class: 'ALO' as const, date: '2026-06-01' as const, entries: 3 }],
+              ownClasses: undefined,
+            }}
+            eventTypeClasses={EVENT_TYPE_CLASSES}
+            eventTypes={['Hankinome']}
+            open
+            selectedEventType={selectedEventType}
+          />
+        </Frame>
+      </TestProvider>
+    )
+
+  it('offers none while the official classes have entries', async () => {
+    const screen = await renderEntered()
+
+    await expect.element(screen.getByRole('button', { name: 'Lisää oma luokka' })).toBeDisabled()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('basic-info-section-own-classes-entered')
+  })
+
+  describeInLanguage('en', () => {
+    it('offers none while the official classes have entries', async () => {
+      const screen = await renderEntered()
+
+      await expect.element(screen.getByRole('button', { name: 'Add an own class' })).toBeDisabled()
+      await expect(screen.getByTestId('visual-root')).toMatchScreenshot('basic-info-section-own-classes-entered-en')
+    })
+
+    it('lists them with what to correct', async () => {
+      const screen = await renderOwnClasses()
+
+      await expect.element(screen.getByText('Choose a day for the class under Classes.')).toBeVisible()
+      await expect(screen.getByTestId('visual-root')).toMatchScreenshot('basic-info-section-own-classes-en')
+    })
   })
 })

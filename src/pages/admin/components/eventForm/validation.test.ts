@@ -290,6 +290,62 @@ describe('validation', () => {
     })
   })
 
+  // KOE-674: the form holds the own classes to the rule the save does (`ownClassErrors`).
+  describe('ownClasses', () => {
+    const derby: PartialEvent = {
+      ...emptyEvent,
+      classes: [{ class: 'DERBY', date: '2099-06-06' }],
+      eventType: 'Harjoitus',
+      ownClasses: [{ code: 'DERBY', name: { fi: 'Derby' } }],
+    }
+
+    it('takes own classes the save takes', () => {
+      expect(validateEventField(derby, 'ownClasses', false)).toBe(false)
+    })
+
+    it('names the own classes the save would refuse', () => {
+      const event: PartialEvent = {
+        ...derby,
+        ownClasses: [
+          { code: 'DERBY', name: { fi: '' } },
+          { code: 'VET', name: { fi: 'Veteraanit' } },
+        ],
+      }
+      expect(validateEventField(event, 'ownClasses', false)).toEqual({
+        key: 'ownClasses',
+        opts: { field: 'ownClasses', length: 2, list: ['DERBY', 'VET'], state: 'confirmed', type: 'Harjoitus' },
+      })
+    })
+  })
+
+  it('holds the own classes to the classes cancelled entries are in, as the save does', () => {
+    const event: PartialEvent = {
+      ...emptyEvent,
+      classes: [{ class: 'YKS', date: '2099-06-06' }],
+      eventType: 'Harjoitus',
+      ownClasses: [{ code: 'YKS', name: { fi: 'Yksilö' } }],
+    }
+    expect(validateEventField(event, 'ownClasses', false, { enteredClasses: ['VET'] })).toEqual({
+      key: 'ownClasses',
+      opts: { field: 'ownClasses', length: 1, list: ['VET'], state: 'confirmed', type: 'Harjoitus' },
+    })
+  })
+
+  describe('an own class without a code', () => {
+    it('keeps the form from saving, named by a placeholder', () => {
+      const event: PartialEvent = {
+        ...emptyEvent,
+        classes: [],
+        eventType: 'Harjoitus',
+        ownClasses: [{ code: '', name: {} }],
+      }
+      expect(validateEventField(event, 'ownClasses', false)).toEqual({
+        key: 'ownClasses',
+        opts: { field: 'ownClasses', length: 1, list: ['?'], state: 'confirmed', type: 'Harjoitus' },
+      })
+    })
+  })
+
   describe('validateEventField()', () => {
     it('returns validationError for unknown fields when required and empty', () => {
       const event: PartialEvent = { ...emptyEvent, name: '', state: 'draft' }

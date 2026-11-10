@@ -1,5 +1,6 @@
 import type { AutocompleteChangeReason } from '@mui/material'
 import type { SyntheticEvent } from 'react'
+import type { ClassOrderOwner } from '@/lib/event'
 import type { DayKey, DeepPartial, DogEvent, EventClass, EventState } from '@/types'
 import CheckBox from '@mui/icons-material/CheckBox'
 import CheckBoxOutlineBlank from '@mui/icons-material/CheckBoxOutlineBlank'
@@ -11,6 +12,7 @@ import TextField from '@mui/material/TextField'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { dayOf, TIME_ZONE } from '@/lib/day'
+import { classOrder } from '@/lib/event'
 
 interface Props {
   readonly id: string
@@ -25,6 +27,8 @@ interface Props {
   readonly errorStates?: { [Property in keyof DogEvent]?: boolean }
   readonly helperTexts?: { [Property in keyof DogEvent]?: string }
   readonly showCount?: boolean
+  /** The event's own classes, whose order the chosen classes keep within a day (KOE-674). */
+  readonly ownClasses?: NonNullable<ClassOrderOwner['ownClasses']>
   readonly onChange?: (
     event: SyntheticEvent,
     value: readonly DeepPartial<EventClass>[],
@@ -38,10 +42,19 @@ const sameClassDay = (a?: DayKey, b?: DayKey) => {
   return (a ?? today) === (b ?? today)
 }
 
-export const compareEventClass = (a: DeepPartial<EventClass>, b: DeepPartial<EventClass>) =>
-  sameClassDay(a.date, b.date)
-    ? (a.class?.localeCompare(b.class ?? '') ?? 0)
-    : (a.date ?? '').localeCompare(b.date ?? '')
+/** Whether two class days are the same class on the same day. */
+export const sameEventClass = (a: DeepPartial<EventClass>, b: DeepPartial<EventClass>) =>
+  sameClassDay(a.date, b.date) && (a.class ?? '') === (b.class ?? '')
+
+/**
+ * The order of the class days the form shows: by day, and within a day in the event's class order
+ * (`classOrder`, KOE-674), its own classes as the secretary listed them.
+ */
+const eventClassOrder = (event: ClassOrderOwner) => {
+  const byClass = classOrder(event)
+  return (a: DeepPartial<EventClass>, b: DeepPartial<EventClass>) =>
+    sameClassDay(a.date, b.date) ? byClass(a.class, b.class) : (a.date ?? '').localeCompare(b.date ?? '')
+}
 
 type EventClassValue = DeepPartial<EventClass>
 
@@ -60,17 +73,18 @@ export default function EventClasses(props: Props) {
     helperTexts,
     value,
     showCount,
+    ownClasses,
     ...rest
   } = props
   const error = errorStates?.classes
   const helperText = helperTexts?.classes ?? ''
-  const sortedValue = useMemo(() => value?.slice().sort(compareEventClass), [value])
+  // The chosen classes and the options alike in the event's order: a day's classes as the secretary
+  // listed the own ones, whatever order the class days were picked in.
+  const sortedValue = useMemo(() => value?.slice().sort(eventClassOrder({ ownClasses })), [ownClasses, value])
+  const sortedOptions = useMemo(() => classes.slice().sort(eventClassOrder({ ownClasses })), [classes, ownClasses])
   const groupByWeekday = useCallback((c: { date?: DayKey }) => t('dateFormat.wdshort', { date: c.date }), [t])
   const getLabel = useCallback((c: { class?: string }) => c.class ?? '', [])
-  const isEqual = useCallback(
-    (a: DeepPartial<EventClass>, b: DeepPartial<EventClass>) => compareEventClass(a, b) === 0,
-    []
-  )
+  const isEqual = useCallback((a: DeepPartial<EventClass>, b: DeepPartial<EventClass>) => sameEventClass(a, b), [])
   const groupBy = eventStartDate !== eventEndDate
   const hasJudge = useCallback(
     (option: DeepPartial<EventClass>) => (Array.isArray(option.judge) ? option.judge.length : option.judge?.id),
@@ -88,7 +102,7 @@ export default function EventClasses(props: Props) {
       disablePortal
       multiple
       groupBy={groupBy ? groupByWeekday : undefined}
-      options={classes}
+      options={sortedOptions}
       getOptionLabel={getLabel}
       isOptionEqualToValue={isEqual}
       renderOption={(optionProps, option, { selected }) => (

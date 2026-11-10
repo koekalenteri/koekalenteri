@@ -2,6 +2,7 @@ import type { TFunction } from 'i18next'
 import type { ChangeEvent, SyntheticEvent } from 'react'
 import type { DayValue } from '@/pages/components/DateRange'
 import type {
+  ClassKey,
   DayKey,
   DeepPartial,
   DogEvent,
@@ -45,6 +46,7 @@ import {
   OFFICIAL_EVENT_TYPES,
   ownClassCodes,
 } from '@/lib/event'
+import { enteredClassCodes } from '@/lib/eventClass'
 import { isRegistrationClass } from '@/lib/registration'
 import CollapsibleSection from '@/pages/components/CollapsibleSection'
 import DateRange from '@/pages/components/DateRange'
@@ -52,6 +54,7 @@ import { getRuleDate } from '@/rules'
 import { OFFICIAL_FORMATS } from '@/types'
 import EventClasses from './components/EventClasses'
 import EventProperty from './components/EventProperty'
+import OwnClassesEditor from './components/OwnClassesEditor'
 
 export interface Props extends Readonly<Omit<SectionProps, 'event'>> {
   readonly event: BasicInfoEvent
@@ -64,6 +67,11 @@ export interface Props extends Readonly<Omit<SectionProps, 'event'>> {
   readonly selectedEventType?: EventType
   /** A post has run a turn or a dog has a result: the official type followed stays (KOE-1718). */
   readonly officialFormatLocked?: boolean
+  /**
+   * The classes the event's registrations are in, cancelled ones too (KOE-674): the save refuses to take
+   * one away, and the class days' entry counts leave the cancelled out.
+   */
+  readonly enteredClasses?: readonly string[]
 }
 
 /** A stable default for `useLocalState`, so its initial-value effect does not fire on every render. */
@@ -104,11 +112,16 @@ function BasicInfoSection({
   secretaries,
   selectedEventType,
   officialFormatLocked = false,
+  enteredClasses,
 }: Props) {
   const { t } = useTranslation()
   // The classes on offer are the format's: an unofficial trial following NOWT runs NOWT's (KOE-1718).
   const formatType = formatTypeOf(event)
-  const typeOptions = eventClassOptions(event, getTypeClasses(formatType, eventTypeClasses, event.mockTrial))
+  // An unofficial trial with classes of its own runs those, on any of its days (KOE-674).
+  const classKeys = event.ownClasses?.length
+    ? ownClassCodes(event).filter((code): code is string => !!code)
+    : getTypeClasses(formatType, eventTypeClasses, event.mockTrial)
+  const typeOptions = eventClassOptions(event, classKeys)
   const error =
     (errorStates &&
       (errorStates.startDate ||
@@ -139,6 +152,11 @@ function BasicInfoSection({
   // instead of showing "required" or an empty list (KOE-1473).
   const secretaryGuidance = !event.organizer?.id && !disabled ? t('event.secretaryRequiresOrganizer') : undefined
   const hasEntries = eventHasEntries(event)
+  // The type is kept once there are entries, by the event's count or its class days' (KOE-674): an
+  // official type would take away the own classes the entries are in, which the save refuses.
+  const classDaysEntered = enteredClassCodes(event.classes).length > 0 || !!enteredClasses?.length
+  const typeLocked = hasEntries || classDaysEntered
+  const ownClassesEntered = typeLocked && !!event.ownClasses?.length
   // The event's days are day keys (KOE-1547), counted and moved as days whatever zone the browser is in.
   const eventStartDay = event.startDate
   const eventEndDay = event.endDate
@@ -202,7 +220,8 @@ function BasicInfoSection({
     },
     [event, eventTypeClasses, onChange]
   )
-  // An unofficial trial may follow an official type (KOE-1718), and then runs by its format. Its classes
+  // An unofficial trial may follow an official type (KOE-1718), and then runs by its format. Any
+  // unofficial trial may also run classes of its own (KOE-674), whatever format it follows. Its classes
   // follow the format; an entry keeps the class it was made in, so the choice cannot add or take away the
   // classes once there are entries (`isClassShapeChange`), and a result or a turn locks it altogether.
   const followsOfficialFormat = !!event.eventType && !isOfficialEventType(event.eventType, selectedEventType?.official)
@@ -309,7 +328,8 @@ function BasicInfoSection({
           <Grid sx={{ width: 300 }}>
             <EventProperty
               id="eventType"
-              disabled={hasEntries || disabled}
+              disabled={typeLocked || disabled}
+              helperText={ownClassesEntered ? t('event.ownClasses.entered') : undefined}
               event={event}
               fields={fields}
               options={eventTypes ?? []}
@@ -328,6 +348,7 @@ function BasicInfoSection({
               requiredState={fields?.state.classes}
               value={event.classes}
               classes={typeOptions}
+              ownClasses={event.ownClasses ?? undefined}
               label={t('event.classes')}
               showCount
               onChange={handleClassesChange}
@@ -350,6 +371,19 @@ function BasicInfoSection({
             </Grid>
           </Grid>
         ) : null}
+        {followsOfficialFormat && (
+          <Grid container spacing={1}>
+            <Grid sx={{ width: 900 }}>
+              <OwnClassesEditor
+                disabled={disabled}
+                event={event}
+                enteredClasses={enteredClasses}
+                hasEntries={hasEntries}
+                onChange={onChange ?? noChange}
+              />
+            </Grid>
+          </Grid>
+        )}
         {hasMockTrialChoice(event.eventType) ? (
           <Grid container spacing={1}>
             <Grid sx={{ width: 600 }}>
@@ -511,6 +545,8 @@ function keptClasses(event: Pick<BasicInfoEvent, 'classes' | 'ownClasses'>, type
   return event.classes.filter((c) => isRegistrationClass(c.class) && typeClasses.includes(c.class))
 }
 
+const noChange = () => undefined
+
 /** What the official type choice says under it: why it is locked, or which types it still offers. */
 function officialFormatGuidance(locked: boolean, hasEntries: boolean, t: TFunction): string | undefined {
   if (locked) return t('event.officialFormatLocked')
@@ -518,7 +554,7 @@ function officialFormatGuidance(locked: boolean, hasEntries: boolean, t: TFuncti
   return undefined
 }
 
-function eventClassOptions(event: PartialEvent | undefined, typeClasses: readonly RegistrationClass[]) {
+function eventClassOptions(event: PartialEvent | undefined, typeClasses: readonly ClassKey[]) {
   if (!event?.startDate || !event?.endDate) {
     return []
   }

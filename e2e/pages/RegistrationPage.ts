@@ -44,6 +44,12 @@ export class RegistrationPage {
     await this.page.getByText(`${dog.regNo} - ${dog.name}`).waitFor()
   }
 
+  /** The class the dog enters, by the name the form shows it under. */
+  async pickClass(name: string) {
+    await this.page.getByRole('combobox', { exact: true, name: 'Koeluokka' }).click()
+    await this.page.getByRole('option', { exact: true, name }).click()
+  }
+
   async fillBreeder(name: string) {
     const section = await this.openSection('Kasvattajan tiedot')
     await section.getByRole('textbox', { name: 'Nimi' }).fill(name)

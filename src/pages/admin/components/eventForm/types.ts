@@ -34,7 +34,7 @@ export type FieldRequirements = {
 }
 export type JudgesEvent = Pick<
   PartialEvent,
-  'classes' | 'endDate' | 'eventType' | 'judges' | 'mockTrial' | 'officialFormat' | 'startDate'
+  'classes' | 'endDate' | 'eventType' | 'judges' | 'mockTrial' | 'officialFormat' | 'ownClasses' | 'startDate'
 >
 
 export type BasicInfoEvent = Pick<
@@ -78,6 +78,7 @@ export type EntryEvent = Pick<
   | 'entryStartDate'
   | 'eventType'
   | 'officialFormat'
+  | 'ownClasses'
   | 'places'
   | 'placesPerDay'
   | 'priority'

@@ -6,6 +6,7 @@ import { getCostValue } from '@/lib/cost'
 import { dayOf, TIME_ZONE } from '@/lib/day'
 import { isDevEnv } from '@/lib/env'
 import { formatTypeOf, hasRetrieveTypeChoice, OFFICIAL_EVENT_TYPES, uniqueClasses } from '@/lib/event'
+import { enteredClassCodes, ownClassErrors } from '@/lib/eventClass'
 import { judgesMockTrialIndependently, MIN_INDEPENDENT_MOCK_TRIAL_JUDGES } from '@/lib/judge'
 import { keysOf } from '@/lib/typeGuards'
 import { unique } from '@/lib/utils'
@@ -17,6 +18,8 @@ import { requiresClassPlaces } from './places'
  */
 interface EventValidationContext {
   judges?: Judge[]
+  /** The classes the event's registrations are in, cancelled ones too, which the save keeps (KOE-674). */
+  enteredClasses?: readonly string[]
 }
 
 type EventValidationResult = WideValidationResult<PartialEvent, 'event'>
@@ -39,6 +42,9 @@ const STATE_INCLUSION: Record<EventState, EventState[]> = {
   started: ['confirmed'],
   tentative: ['tentative', 'draft'],
 }
+
+/** How the list of own classes to correct names one still without its code. */
+const NO_CODE = '?'
 
 /** The formats a confirmed trial must name its classes for. */
 const CLASSES_REQUIRED = new Set(['NOME-B', 'NOWT'])
@@ -237,6 +243,22 @@ export const VALIDATORS: EventValidators = {
       ownClasses: event.ownClasses,
     })
     return list.length ? { key: 'classesJudge', opts: { field: 'judges', length: list.length, list } } : false
+  },
+
+  // The own classes by the rule the save holds them to (KOE-674), the classes with entries read from the
+  // class days: each class with something to correct is named once, in the secretary's order, and one
+  // still without its code by a placeholder, as it keeps the save from going through too.
+  ownClasses: (event, _required, context) => {
+    const errors = ownClassErrors(
+      {
+        classes: event.classes,
+        eventType: event.eventType ?? '',
+        ownClasses: (event.ownClasses ?? []).map(({ code, name }) => ({ code: code ?? '', name: { ...name } })),
+      },
+      [...enteredClassCodes(event.classes), ...(context?.enteredClasses ?? [])]
+    )
+    const list = unique(errors.map((error) => ('code' in error && error.code ? error.code : NO_CODE)))
+    return list.length ? { key: 'ownClasses', opts: { field: 'ownClasses', length: list.length, list } } : false
   },
 
   places: (event, required) => {

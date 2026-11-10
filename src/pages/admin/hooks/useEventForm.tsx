@@ -80,6 +80,21 @@ const refusalNotice = (error: unknown): RefusalKey | 'event.saveFailed' => {
   return known ?? 'event.saveFailed'
 }
 
+/**
+ * The classes a refused save would have taken from under their registrations (KOE-674): PutEvent reads
+ * every registration, cancelled and unpaid ones too, which the form cannot all see. None for any other
+ * refusal.
+ */
+const enteredClassesRefused = (error: unknown): string[] | undefined => {
+  if (!(error instanceof APIError) || error.status !== 400 || !isObject(error.body)) return undefined
+  const { error: kind, errors } = error.body
+  if (kind !== 'invalidOwnClasses' || !Array.isArray(errors)) return undefined
+  const codes = errors.flatMap((item: unknown) =>
+    isObject(item) && item.kind === 'registered' && typeof item.code === 'string' ? [item.code] : []
+  )
+  return codes.length ? codes : undefined
+}
+
 /** The question a save answered with when the change would drop recorded scores (KOE-1666). */
 const droppedTasksOf = (error: unknown): ResultTasksDroppedBody | undefined =>
   error instanceof APIError && error.status === 409 && isResultTasksDroppedBody(error.body) ? error.body : undefined
@@ -169,6 +184,11 @@ export default function useEventForm(options: EventFormOptions = {}) {
         const dropped = droppedTasksOf(error)
         if (dropped) {
           setDroppedTasks(dropped)
+          return
+        }
+        const entered = enteredClassesRefused(error)
+        if (entered) {
+          enqueueSnackbar(t('event.ownClasses.refused', { list: entered.join(', ') }), errorSnackbarOptions)
           return
         }
         // A refused save must not pass in silence: the form stays as it was, and the secretary would
