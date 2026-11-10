@@ -1,5 +1,5 @@
 import type { DayKey, EventTeam, JsonRegistration } from '../../types'
-import { litterMismatches, teamSuggestions } from './teamAssembly'
+import { findTeamCandidates, litterMismatches, teamSuggestions } from './teamAssembly'
 
 const DOB: DayKey = '2024-03-01'
 
@@ -172,5 +172,38 @@ describe('litterMismatches', () => {
 
   it('finds nothing in a team of one litter, and skips an id the entries do not hold', () => {
     expect(litterMismatches({ registrationIds: ['a', 'b', 'gone'] }, byId(litterDog('a'), litterDog('b')))).toEqual([])
+  })
+})
+
+// KOE-1725: a dog is found at the trial office by its name, its handler or its start number.
+describe('findTeamCandidates', () => {
+  const kide = { dogName: 'Kultakuonon Kide', handler: 'Sari Saarinen', regNo: 'FI54321/24', startNumber: 12 }
+  const ruska = { dogName: 'Ruska 12', handler: 'Anna Aaltonen', regNo: 'FI11223/24', startNumber: 3 }
+  const myrsky = { dogName: 'Metsälän Myrsky', handler: 'Ville Virtanen', regNo: 'FI99999/24' }
+  const dogs = [kide, ruska, myrsky]
+  const find = (typed: string) => findTeamCandidates(dogs, typed, (dog) => dog).map((dog) => dog.dogName)
+
+  it.each([
+    ['nothing typed', '', ['Kultakuonon Kide', 'Ruska 12', 'Metsälän Myrsky']],
+    ['part of a name, in any case', 'kide', ['Kultakuonon Kide']],
+    ['part of a handler', 'aalto', ['Ruska 12']],
+    ['part of a registration number', '54321', ['Kultakuonon Kide']],
+  ])('finds the dogs by %s', (_name, typed, found) => {
+    expect(find(typed)).toEqual(found)
+  })
+
+  // A number a dog wears finds that dog alone, not the names and numbers that hold its digits.
+  it('finds only the dog wearing a start number typed, with spaces around or not', () => {
+    expect(find('12')).toEqual(['Kultakuonon Kide'])
+    expect(find(' 3 ')).toEqual(['Ruska 12'])
+  })
+
+  it('reads a number no dog wears as text: before publishing, or part of a registration number', () => {
+    expect(find('99')).toEqual(['Metsälän Myrsky'])
+    expect(find('112')).toEqual(['Ruska 12'])
+  })
+
+  it('finds nothing for text no dog holds', () => {
+    expect(find('pentti')).toEqual([])
   })
 })

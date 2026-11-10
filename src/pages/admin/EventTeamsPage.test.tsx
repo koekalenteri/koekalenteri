@@ -76,9 +76,12 @@ const setCount = async (user: User, count: string) => {
   await flushPromises()
 }
 
+/** A dog's option in the add-a-dog list: its name, then its handler (KOE-1725). */
+const dogOption = (name: string) => `${name}, teams.handler name`
+
 const addDog = async (user: User, team: HTMLElement, name: string) => {
   await user.click(within(team).getByRole('combobox', { name: 'teams.addDog' }))
-  await user.click(await screen.findByRole('option', { name }))
+  await user.click(await screen.findByRole('option', { name: dogOption(name) }))
   await flushPromises()
 }
 
@@ -125,7 +128,7 @@ describe('EventTeamsPage', () => {
     expect(members(first)).toEqual(['1A Ensimmainen', '1B Varalla' + 'teams.memberReserve'])
 
     await user.click(within(second).getByRole('combobox', { name: 'teams.addDog' }))
-    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Toinen'])
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual([dogOption('Toinen')])
   })
 
   // KOE-1725: once a class is picked, a team takes only the dogs picked into it, as the save holds to.
@@ -145,7 +148,10 @@ describe('EventTeamsPage', () => {
 
     expect(members(first)).toEqual(['1A Varalla' + 'teams.memberReserve'])
     await user.click(within(second).getByRole('combobox', { name: 'teams.addDog' }))
-    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Ensimmainen', 'Toinen'])
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual([
+      dogOption('Ensimmainen'),
+      dogOption('Toinen'),
+    ])
   })
 
   it('moves the letters with the dogs, and closes the gap a removed dog leaves', async () => {
@@ -178,6 +184,34 @@ describe('EventTeamsPage', () => {
     await user.click(firstDown)
     expect(members(team)).toEqual(['1A Toinen', '1B Ensimmainen'])
     expect(within(team).getAllByRole('button', { name: 'teams.moveDown code' })[1]).toBeDisabled()
+  })
+
+  // KOE-1725: at the trial office, on a phone, a dog is found by its handler or its start number too.
+  describe('finding a dog to add', () => {
+    const numbered = registrations.map(
+      (registration, at): Registration => ({
+        ...registration,
+        startGroup: registration.group ? { ...registration.group, number: 11 + at } : undefined,
+      })
+    )
+    const typeToFind = async (user: User, text: string) => {
+      await user.type(within(teamSections()[0]).getByRole('combobox', { name: 'teams.addDog' }), text)
+      return screen.queryAllByRole('option').map((option) => option.textContent)
+    }
+
+    it('finds a dog by its handler', async () => {
+      const { user } = await renderPage({ ...eventWithStations, teams: [{ registrationIds: [] }] }, numbered)
+      await flushPromises()
+
+      expect(await typeToFind(user, 'toinen ohjaaja')).toEqual(['12 Toinen, teams.handler name'])
+    })
+
+    it('finds a dog by its start number', async () => {
+      const { user } = await renderPage({ ...eventWithStations, teams: [{ registrationIds: [] }] }, numbered)
+      await flushPromises()
+
+      expect(await typeToFind(user, '11')).toEqual(['11 Ensimmainen, teams.handler name'])
+    })
   })
 
   it('takes no more dogs into a team of 26, and says why', async () => {
