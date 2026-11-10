@@ -498,6 +498,16 @@ describe('TranscriptStats', () => {
       stats.line(result(at('12:12:21'), 'w3', 'tests pass'))
       stats.line(assistant(at('12:12:30'), 'c4', [bash('w4', 'timeout 590 gh pr checks 1611 --watch')]))
       stats.line(result(at('12:13:30'), 'w4', 'tests pass'))
+      // A watch past its own 120 s timeout: moved to the background, so it runs to its notice.
+      stats.line(assistant(at('12:14:00'), 'c5', [bash('w5', 'gh pr checks 1613 --watch')]))
+      stats.line(
+        result(
+          at('12:16:00'),
+          'w5',
+          'Command did not complete within its 120s timeout and was moved to the background (ID: bto1). Output is being written to: /t/bto1.output.'
+        )
+      )
+      stats.line(notification('user', at('12:19:00'), done('bto1')))
       // Two background calls in one message, never matched to a notice: the message costs once.
       stats.line(
         assistant(at('12:03:00'), 'c2', [
@@ -549,7 +559,15 @@ describe('TranscriptStats', () => {
       expect(transcript()).toEqual([
         row('sleep', 'main', { wallSeconds: 5 }),
         row('poll-loop', 'main', { wallSeconds: 60, repeats: 1 }),
-        row('gh-pr-checks-watch', 'ci-watcher', { calls: 2, wallSeconds: 651, wallMeasured: 2, timedOut: 1, tokens: 12 }),
+        // 591 s to the `timeout 590`, 60 s, then 300 s to the moved copy's notice.
+        row('gh-pr-checks-watch', 'ci-watcher', {
+          calls: 3,
+          wallSeconds: 951,
+          wallMeasured: 3,
+          timedOut: 2,
+          movedToBackground: 1,
+          tokens: 18,
+        }),
         // 600 s to the timeout, then 225 s to the moved copy's completion notice.
         row('gh-pr-checks-watch', 'main', {
           calls: 2,
