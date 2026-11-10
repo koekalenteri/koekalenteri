@@ -61,11 +61,14 @@ findings as `/ticket` step 5 does, and send the agreed ones back to the same `Pl
 
 ## 3. Parallel and order across areas
 
-Pieces of one area run one after another, by one implementer (its context is the point). Areas
-run in parallel only when no hard path is shared: write `piece<TAB>path` for every piece and
+A piece waits on another only for a reason: it needs that piece's contract, or both change a hard
+path. Pieces of one area with neither run in parallel, like areas; a chain of pieces that wait on
+each other goes to one implementer, whose context is the point. Pieces and areas run in parallel
+only when no hard path is shared: write `piece<TAB>path` for every piece and
 `#pr<TAB>path` for the open PRs, and join with `sort -k2 | uniq -D -f1`. A shared hard path puts
 the later area's piece behind the earlier's; a path an open PR holds puts the piece behind that
-PR. Soft paths never order anything: `/build` settles them on merge.
+PR. Soft paths never order anything: `/build` settles them on merge. The table's "waits on" holds
+exactly these, so `/build` can start every piece that waits on nothing open.
 
 ## 4. Record and ask
 
