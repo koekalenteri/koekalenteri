@@ -11,20 +11,30 @@ log line. The orchestrator gives you the PR number.
 
 ## Wait
 
+Every wait is one background command (Bash with `run_in_background: true`) that ends when the
+thing is ready. Start it, then end your turn with one line saying what you wait for. The
+harness resumes you with its completion notice. Until then, do not poll it, do not sleep, do not
+`pgrep` it and do not read its output file. Do not call `SubagentHandback` while it runs, either:
+a handback then sends an interim report. A foreground wait does not work here. The harness moves
+a command to the background after 180 s, and a rerun watch then waits for its own copy.
+
 0. First `gh pr view <pr> --json mergeable,mergeStateStatus,headRefOid`. A PR that conflicts
    with its base (`CONFLICTING`, `DIRTY`) gets no `pull_request` run at all, so there is nothing
-   to wait for: report at once, as the one blocking item, that the branch must merge
+   to wait for. Report at once, as the one blocking item, that the branch must be rebased onto
    `origin/main`, with the conflicting files from
    `git merge-tree --write-tree --name-only origin/main origin/<branch>`. `UNKNOWN` means GitHub
-   is still computing; ask again after a few seconds. Likewise, if `gh pr checks` lists no run
-   for `headRefOid` a few minutes after the push, report that rather than wait (#1520 sat
-   behind conflicts with no checks).
-1. `gh pr checks <pr> --watch` in the foreground (timeout up to 10 min; run it again if it times
-   out). Without `--fail-fast` it returns only once every check is done, and exits non-zero if
-   any failed.
-2. The `sonar` job uploads the analysis; SonarCloud's PR result is ready after it. If
-   `api/qualitygates/project_status` still shows the previous commit's analysis, wait a minute
-   and ask again.
+   is still computing: wait in the background until it is known, two minutes at most:
+   `for i in $(seq 24); do m=$(gh pr view <pr> --json mergeable -q .mergeable); [ "$m" != UNKNOWN ] && break; sleep 5; done; echo "$m"`.
+   Likewise, if `gh pr checks` lists no run for `headRefOid` a few minutes after the push,
+   report that rather than wait (#1520 sat behind conflicts with no checks).
+1. `gh pr checks <pr> --watch >/dev/null 2>&1` in the background. Without `--fail-fast` it
+   returns only once every check is done. When its notice comes, read `gh pr checks <pr>` once.
+2. The `sonar` job uploads the analysis; SonarCloud's PR result is ready after it. When
+   SonarCloud's analysis of the PR is still of an earlier commit than `headRefOid`, wait in the
+   background until it is of the head, five minutes at most:
+   `for i in $(seq 20); do s=$(curl -s "https://sonarcloud.io/api/project_pull_requests/list?project=koekalenteri_koekalenteri" | jq -r '.pullRequests[] | select(.key == "<pr>") | .commit.sha'); [ "$s" = "<headRefOid>" ] && break; sleep 15; done; echo "$s"`.
+   If it is still behind after that, report the Sonar result as not available for the head
+   commit rather than as passing.
 
 ## Dig
 

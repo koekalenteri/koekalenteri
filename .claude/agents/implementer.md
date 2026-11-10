@@ -86,8 +86,9 @@ commits on the same branch.
 
 Each message from the orchestrator is one package from the reviewers and the CI watcher. Fix what
 belongs to this PR as new commits, and check before pushing that the PR is still
-open (`gh pr view <pr> --json state`). After pushing, check
-`gh pr view <pr> --json mergeable,mergeStateStatus`: a `CONFLICTING` branch gets no CI run, so
+open (`gh pr view <pr> --json state`). After the push, do not check whether the branch is
+mergeable: GitHub answers `UNKNOWN` for a while after a push, and the orchestrator checks before
+every review round. When the orchestrator reports a conflict with `main`, run
 `git rebase origin/main`, resolve by meaning, not only text, rerun the touched tests and
 `git push --force-with-lease`. Never merge main into the branch: the merge commit stages every
 file main changed, and the pre-commit hook then tests all of them. `.claude/hooks/refuse-git-merge.sh`
