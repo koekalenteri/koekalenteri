@@ -1,6 +1,6 @@
 import type { ClassKey, DayKey, EventTeam, JsonRegistration, RegistrationGroupMove, RegistrationTime } from '../types'
 import type { ClassOrderOwner } from './event'
-import { classOrder } from './event'
+import { classOrder, placesForClass } from './event'
 import { GROUP_KEY_RESERVE, getRegistrationGroupKey, isParticipantGroup } from './registration'
 
 /** What the selection reads of an entry: its class, the days it entered, and where it is now. */
@@ -138,4 +138,110 @@ export const teamDraw = (
     drawn.push(index)
   }
   return drawn
+}
+
+/** What the places a draw fills are read from (KOE-1722): the trial's places and its classes' and days'. */
+type PlacesOwner = Parameters<typeof placesForClass>[0] & { classes?: readonly { class?: string | null }[] | null }
+
+const participantsOf = (entries: readonly AssemblyEntry[]) =>
+  entries.filter((entry) => !entry.cancelled && isParticipant(entry))
+
+/**
+ * The places a draw fills (KOE-1722): each class's places and the trial's, less the dogs already
+ * selected, a dog cancelled not counted. A class without places of its own is held only to the trial's,
+ * and a trial without places only to its classes'.
+ */
+export const teamDrawPlaces = (event: NonNullable<PlacesOwner>, entries: readonly AssemblyEntry[]): FreePlaces => {
+  const selected = participantsOf(entries)
+  const classes = [
+    ...new Set((event.classes ?? []).flatMap((eventClass) => (eventClass.class ? [eventClass.class] : []))),
+  ]
+  const byClass = new Map(
+    classes.map((key) => {
+      const places = placesForClass(event, key)
+      const taken = selected.filter((entry) => entry.class === key).length
+      return [key, places ? places - taken : Number.POSITIVE_INFINITY]
+    })
+  )
+  const trial = event.places ? event.places - selected.length : Number.POSITIVE_INFINITY
+  return { byClass, trial }
+}
+
+/** A team drawn and placed: its place in the list, and its moves, one class at a time. */
+interface PlacedTeam {
+  team: number
+  moves: ClassMoves[]
+}
+
+/** The places still free on each day of a trial with places per day; none without them. */
+const freeDays = (
+  placesPerDay: Readonly<Record<string, number>> | undefined,
+  entries: readonly AssemblyEntry[]
+): Map<string, number> | undefined => {
+  if (!placesPerDay || !Object.keys(placesPerDay).length) return undefined
+  const free = new Map(Object.entries(placesPerDay).map(([day, places]) => [day, Number(places) || 0]))
+  for (const entry of participantsOf(entries)) {
+    const day = entry.group?.date
+    if (day && free.has(day)) free.set(day, (free.get(day) ?? 0) - 1)
+  }
+  return free
+}
+
+/**
+ * The group a drawn member goes to: the first of a day and half it entered, or of its class where it
+ * entered none the class runs, that still has a place on its day where the trial has places per day.
+ */
+const drawnGroup = (
+  entry: AssemblyEntry,
+  groups: readonly ClassGroup[],
+  free: ReadonlyMap<string, number> | undefined
+): ClassGroup | undefined => {
+  const entered = groups.filter((group) =>
+    entry.dates?.some(({ date, time }) => date === group.date && time === group.time)
+  )
+  const choices = entered.length ? entered : groups
+  return free ? choices.find((group) => (free.get(group.date) ?? Number.POSITIVE_INFINITY) > 0) : choices[0]
+}
+
+/**
+ * The teams drawn (`teamDraw`), placed in the order drawn (KOE-1722). The draw holds to the places of
+ * the classes and the trial; the places of a day (`placesPerDay`) are read here: each member not yet a
+ * participant goes to the first day it entered that still has a place, and a team with a member that
+ * fits no day is passed (`unplaced`), its places left for the next. Without places per day, a member
+ * goes to the first group of a day it entered (`teamGroupMoves`).
+ */
+export const teamDrawMoves = (
+  drawn: readonly number[],
+  teams: readonly EventTeam[],
+  entries: readonly AssemblyEntry[],
+  groupsByClass: ReadonlyMap<string, readonly ClassGroup[]>,
+  event: ClassOrderOwner & { placesPerDay?: Readonly<Record<string, number>> }
+): { placed: PlacedTeam[]; unplaced: number[] } => {
+  const byId = byIdOf(entries)
+  const free = freeDays(event.placesPerDay, entries)
+  const placed: PlacedTeam[] = []
+  const unplaced: number[] = []
+  for (const index of drawn) {
+    const trial = free && new Map(free)
+    const byClass = new Map<ClassKey, RegistrationGroupMove[]>()
+    const fits = liveMembers(teams[index], byId).every((entry) => {
+      if (!entry.class || isParticipant(entry)) return true
+      const group = drawnGroup(entry, groupsByClass.get(entry.class) ?? [], trial)
+      if (!group) return false
+      trial?.set(group.date, (trial.get(group.date) ?? 0) - 1)
+      const move = { group: { date: group.date, key: group.key, time: group.time }, id: entry.id }
+      byClass.set(entry.class, [...(byClass.get(entry.class) ?? []), move])
+      return true
+    })
+    if (!fits) {
+      unplaced.push(index)
+      continue
+    }
+    if (free && trial) for (const [day, places] of trial) free.set(day, places)
+    const moves = [...byClass.keys()]
+      .sort(classOrder(event))
+      .map((eventClass) => ({ eventClass, moves: byClass.get(eventClass) ?? [] }))
+    placed.push({ moves, team: index })
+  }
+  return { placed, unplaced }
 }

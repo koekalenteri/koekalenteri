@@ -9,7 +9,7 @@ import { useAdminEventClassGroups } from '@/hooks/useAdminEventClassGroups'
 import { getEventStateForClass } from '@/lib/event'
 import { getRegistrationGroupKey, isParticipantGroup } from '@/lib/registration'
 import { groupMoveError } from '@/lib/registrationGroups'
-import { teamGroupMoves } from '@/lib/teamSelection'
+import { teamDraw, teamDrawMoves, teamDrawPlaces, teamGroupMoves } from '@/lib/teamSelection'
 import { mapWithConcurrency } from '@/lib/utils'
 import { moveSendsPlaceMessage } from '../eventViewPage/classEntrySelection/moveConfirmation'
 import { useAdminRegistrationActions } from '../state/registrations/actions'
@@ -26,6 +26,28 @@ interface TeamMovePlan {
   moves: ClassMoves[]
   refused?: GroupMoveError
   leftBehind: string[]
+}
+
+/**
+ * What a draw comes to (KOE-1722): the teams drawn and placed, by their place in the list, with the dogs
+ * that move; the dogs that are mailed their place; the teams drawn that fit no day, or whose class does
+ * not take the move; and the moves, all the teams' together, one class at a time.
+ */
+export interface TeamDrawPlan {
+  drawn: { team: number; dogs: string[] }[]
+  messaged: string[]
+  passed: number[]
+  moves: ClassMoves[]
+}
+
+/** The moves of several teams as one request per class, in the order the classes first come. */
+const byClassOf = (classMoves: readonly ClassMoves[]): ClassMoves[] => {
+  const merged = new Map<string, ClassMoves>()
+  for (const { eventClass, moves } of classMoves) {
+    const before = merged.get(eventClass)
+    merged.set(eventClass, { eventClass, moves: [...(before?.moves ?? []), ...moves] })
+  }
+  return [...merged.values()]
 }
 
 /**
@@ -49,6 +71,21 @@ export const useMoveTeam = (event: DogEvent | undefined, registrations: readonly
     [registrations]
   )
 
+  /** The rule a class's moves are held to (`groupMoveError`): the first reason a move is refused, if any. */
+  const refusalOf = useCallback(
+    (classMove: ClassMoves): GroupMoveError | undefined => {
+      if (!event) return undefined
+      const state = getEventStateForClass(event, classMove.eventClass)
+      return classMove.moves
+        .map((move) => {
+          const registration = byId.get(move.id)
+          return registration && groupMoveError(event, state, getRegistrationGroupKey(registration), move.group.key)
+        })
+        .find(Boolean)
+    },
+    [byId, event]
+  )
+
   const plan = useCallback(
     (team: EventTeam, to: TeamMoveTarget): TeamMovePlan => {
       if (!event) return { leftBehind: [], moves: [] }
@@ -56,13 +93,7 @@ export const useMoveTeam = (event: DogEvent | undefined, registrations: readonly
       const moves: ClassMoves[] = []
       let refused: GroupMoveError | undefined
       for (const classMove of classMoves) {
-        const state = getEventStateForClass(event, classMove.eventClass)
-        const reason = classMove.moves
-          .map((move) => {
-            const registration = byId.get(move.id)
-            return registration && groupMoveError(event, state, getRegistrationGroupKey(registration), move.group.key)
-          })
-          .find(Boolean)
+        const reason = refusalOf(classMove)
         if (reason) refused ??= reason
         else moves.push(classMove)
       }
@@ -76,7 +107,90 @@ export const useMoveTeam = (event: DogEvent | undefined, registrations: readonly
       })
       return { leftBehind, moves, refused }
     },
-    [byId, event, groupsByClass, registrations]
+    [byId, event, groupsByClass, refusalOf, registrations]
+  )
+
+  const dogName = useCallback((id: string) => byId.get(id)?.dog.name ?? id, [byId])
+
+  /** The moves that mail the dogs their koepaikkailmoitus (`moveSendsPlaceMessage`). */
+  const messagedBy = useCallback(
+    (moves: readonly ClassMoves[]) =>
+      event
+        ? moves.flatMap(({ eventClass, moves: classMoves }) =>
+            classMoves.filter((move) =>
+              moveSendsPlaceMessage(
+                getEventStateForClass(event, eventClass),
+                getRegistrationGroupKey(byId.get(move.id) ?? { group: undefined }),
+                move.group.key
+              )
+            )
+          )
+        : [],
+    [byId, event]
+  )
+
+  /**
+   * Draws the teams for the places left (KOE-1722, `teamDraw`): the first teams first, in an order set by
+   * `random`, as many as the classes and the trial hold, each placed on the days its dogs entered
+   * (`teamDrawMoves`). A team drawn whose class does not take the move (`groupMoveError`) is passed, as
+   * is one that fits no day.
+   */
+  const drawPlan = useCallback(
+    (teams: readonly EventTeam[], random: () => number): TeamDrawPlan => {
+      if (!event) return { drawn: [], messaged: [], moves: [], passed: [] }
+      const drawn = teamDraw(teams, registrations, teamDrawPlaces(event, registrations), random)
+      const { placed, unplaced } = teamDrawMoves(drawn, teams, registrations, groupsByClass, event)
+      const accepted = placed.filter(({ moves }) => !moves.some((classMove) => refusalOf(classMove)))
+      const refusedTeams = placed.filter((item) => !accepted.includes(item)).map(({ team }) => team)
+      const moves = byClassOf(accepted.flatMap((item) => item.moves))
+      return {
+        drawn: accepted.map(({ moves: teamMoves, team }) => ({
+          dogs: teamMoves.flatMap((classMove) => classMove.moves.map((move) => dogName(move.id))),
+          team,
+        })),
+        messaged: messagedBy(moves).map((move) => dogName(move.id)),
+        moves,
+        passed: [...unplaced, ...refusedTeams],
+      }
+    },
+    [dogName, event, groupsByClass, messagedBy, refusalOf, registrations]
+  )
+
+  /**
+   * Sends the moves one class at a time, in the order given: the endpoint takes one class per request.
+   * A class that fails answers false rather than throwing, so the classes after it still go. Answers the
+   * dogs that did not move.
+   */
+  const send = useCallback(
+    async (moves: readonly ClassMoves[]) => {
+      if (!event) return []
+      const results = await mapWithConcurrency([...moves], 1, ({ moves: classMoves }) =>
+        saveGroups(event.id, classMoves)
+      )
+      return moves.flatMap(({ moves: classMoves }, index) =>
+        results[index] === false ? classMoves.map((move) => dogName(move.id)) : []
+      )
+    },
+    [dogName, event, saveGroups]
+  )
+
+  /** Moves the teams a draw placed (`drawPlan`), asked about once, as a whole, before. */
+  const moveTeams = useCallback(
+    async ({ moves }: TeamDrawPlan) => {
+      if (!event || pending || !moves.length) return
+      setPending(true)
+      try {
+        const notMoved = await send(moves)
+        if (notMoved.length) {
+          enqueueSnackbar(`${t('teams.drawPartlyFailed')} ${notMoved.join(', ')}`, { variant: 'error' })
+        } else {
+          enqueueSnackbar(t('teams.drawn'), { variant: 'success' })
+        }
+      } finally {
+        setPending(false)
+      }
+    },
+    [enqueueSnackbar, event, pending, send, t]
   )
 
   const moveTeam = useCallback(
@@ -84,19 +198,10 @@ export const useMoveTeam = (event: DogEvent | undefined, registrations: readonly
       if (!event || pending) return
       const { leftBehind, moves } = plan(team, to)
       if (!moves.length) return
-      const dogName = (id: string) => byId.get(id)?.dog.name ?? id
 
       setPending(true)
       try {
-        const messaged = moves.flatMap(({ eventClass, moves: classMoves }) =>
-          classMoves.filter((move) =>
-            moveSendsPlaceMessage(
-              getEventStateForClass(event, eventClass),
-              getRegistrationGroupKey(byId.get(move.id) ?? { group: undefined }),
-              move.group.key
-            )
-          )
-        )
+        const messaged = messagedBy(moves)
         if (messaged.length) {
           const { confirmed } = await confirm({
             cancellationText: t('cancel'),
@@ -107,12 +212,7 @@ export const useMoveTeam = (event: DogEvent | undefined, registrations: readonly
           if (!confirmed) return
         }
 
-        // One class at a time, in the event's class order: the endpoint takes one class per request. A
-        // class that fails answers false rather than throwing, so the classes after it still go.
-        const results = await mapWithConcurrency(moves, 1, ({ moves: classMoves }) => saveGroups(event.id, classMoves))
-        const notMoved = moves.flatMap(({ moves: classMoves }, index) =>
-          results[index] === false ? classMoves.map((move) => dogName(move.id)) : []
-        )
+        const notMoved = await send(moves)
         const left = [...notMoved, ...leftBehind]
         if (left.length) {
           enqueueSnackbar(`${t('teams.movePartlyFailed', { number })} ${left.join(', ')}`, { variant: 'error' })
@@ -123,8 +223,8 @@ export const useMoveTeam = (event: DogEvent | undefined, registrations: readonly
         setPending(false)
       }
     },
-    [byId, confirm, enqueueSnackbar, event, pending, plan, saveGroups, t]
+    [confirm, dogName, enqueueSnackbar, event, messagedBy, pending, plan, send, t]
   )
 
-  return { moveTeam, pending, plan }
+  return { drawPlan, moveTeam, moveTeams, pending, plan }
 }

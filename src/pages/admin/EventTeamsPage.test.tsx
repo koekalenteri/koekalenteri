@@ -317,7 +317,11 @@ describe('EventTeamsPage', () => {
   describe('moving a whole team', () => {
     // Before the trial, while its classes still take moves.
     beforeEach(() => vi.setSystemTime(new Date('2021-02-01T10:00:00+02:00')))
-    afterEach(() => vi.setSystemTime(vi.getRealSystemTime()))
+    // An answer queued for a request a test never made would answer the next test's request.
+    afterEach(() => {
+      vi.setSystemTime(vi.getRealSystemTime())
+      vi.mocked(putRegistrationGroups).mockReset()
+    })
 
     const onReserve = (id: string, name: string, eventClass: string): Registration => ({
       ...registrations[0],
