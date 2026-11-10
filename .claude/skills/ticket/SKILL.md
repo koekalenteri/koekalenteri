@@ -7,7 +7,9 @@ description: Take one Jira issue from pickup to a reviewed pull request with gre
 
 This session is the orchestrator. It does not edit code. It routes work and feedback between
 the agents defined in `.claude/agents/`, and checks the outcome from the source, not from their
-reports. The gate is the pull request and the user's merge; nothing here approves or merges.
+reports. The gate is the pull request and the merge queue: the orchestrator queues a finished PR
+(step 6), except the changes the user merges themselves. Nothing here approves a PR or merges
+past the queue.
 
 Each agent definition names its model (`implementer` opus, `reviewer` and `ci-watcher` sonnet).
 Do not pass `model` to `Agent`; the override would run them on this session's model, which costs
@@ -160,7 +162,7 @@ on only with their permission, for as many rounds as they allow.
 
 The PR is marked ready as soon as the review is done and the last commit's CI run has started,
 not when that run has finished. From that point CI is the gate: the merge queue runs the same
-checks before anything lands, so a PR waiting for a green run only delays the user's merge.
+checks before anything lands, so a PR waiting for a green run only delays the merge.
 Check from the source, not from the agents' reports:
 
 - Every review finding is fixed, or answered with evidence, and no round is open.
@@ -173,14 +175,26 @@ Check from the source, not from the agents' reports:
   nothing red.
 - Every Sonar issue found so far was fixed or sorted to `main` or `user` in step 5.
 
-When these hold, mark the PR ready: `gh pr ready <pr>`. Then keep watching: the `ci-watcher`
-for that commit still reports, and its findings (a red check, the Sonar gate below `OK`, an open
-issue on `api/issues/search?componentKeys=koekalenteri_koekalenteri&pullRequest=<pr>&issueStatuses=OPEN,CONFIRMED`)
-go to the implementer as in step 5. The PR stays ready through that round; a red check already
-keeps it out of `main`, so turning it back into a draft adds nothing.
+When these hold, mark the PR ready: `gh pr ready <pr>`, and queue it: `gh pr merge <pr> --auto`.
+That turns on auto-merge: the PR enters the merge queue once its required checks pass, and the
+queue runs them again on top of `main` before it squashes; it never bypasses the queue (#1840).
+Leave the merge to the user, and say which rule holds it, when the PR changes any of these
+(`gh pr view <pr> --json files`):
 
-Tell the user when the PR is ready: the PR, what was wrong and what changed, the review rounds and
-what they caught, the CI state at that moment, out-of-scope findings and the follow-up issues
+- infrastructure: `template/**` or `aws/**` (IAM, tables, buckets, the stacks);
+- data: `src/lambda/RunMigrationFunction/**`, or a stored shape the existing rows must be
+  migrated to (the plan says so);
+- `.github/workflows/**`;
+- `.claude/**`.
+
+Then keep watching: the `ci-watcher` for that commit still reports, and its findings (a red
+check, the Sonar gate below `OK`, an open issue on `api/issues/search?componentKeys=koekalenteri_koekalenteri&pullRequest=<pr>&issueStatuses=OPEN,CONFIRMED`)
+go to the implementer as in step 5. The PR stays ready and queued through that round: a red check
+keeps it out of the queue and out of `main`. A Sonar issue the gate lets through does not, so the
+PR may land before its fix; the fix then goes in a new PR from the same implementer.
+
+Tell the user when the PR is ready: the PR, whether it is queued or which rule leaves its merge to
+them, what was wrong and what changed, the review rounds and what they caught, the CI state at that moment, out-of-scope findings and the follow-up issues
 created for them, the notes (unlikely paths left as they are, one line each), and anything open
 or waiting on them. When the watched run finishes, report its result, the Sonar gate and issue
 count in one line, or the feedback round it started.
@@ -207,10 +221,13 @@ When the user approves an issue for something found while working on `<KEY>`:
 
 - No CI, test or Sonar housekeeping issues in Jira; those PRs carry no issue key.
 - Production only with the user's permission, also for reading.
-- Agents never merge, queue, enable auto-merge or push to main.
+- Agents never merge, queue, enable auto-merge or push to main. Only the orchestrator queues, in
+  step 6.
 - A PR is a draft until step 6 says otherwise, and only the orchestrator marks it ready. A review
-  finding that arrives after that, with the PR still open, turns it back into a draft
-  (`gh pr ready <pr> --undo`) until the fix is pushed; a CI or Sonar finding does not, because
-  the red check is the gate then.
+  finding that arrives after that, with the PR still open, takes it out of the queue and back into
+  a draft until the fix is pushed, then step 6 runs again: `gh pr merge <pr> --disable-auto`; if
+  `gh api graphql -f query='{repository(owner:"koekalenteri",name:"koekalenteri"){pullRequest(number:<pr>){id isInMergeQueue}}}'`
+  says `isInMergeQueue`, `dequeuePullRequest` with that `id`; then `gh pr ready <pr> --undo`. A CI
+  or Sonar finding does not, because the red check is the gate then.
 - Before sending a follow-up to a PR, check it is still open; a merged PR gets a new one from
   `origin/main`.

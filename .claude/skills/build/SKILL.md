@@ -117,6 +117,8 @@ by-hand change after all, and the `docs` reviewer looks at the rebase.
 ## 7. Report
 
 One row per piece: area, what it builds, PR, status, the issues it completes, and what is open.
-Then what waits on the user: the PRs ready to merge in the order the table needs them, and the
-open decisions, asked with `AskUserQuestion` before the report (step 5). When every piece of the release is `mainissa`, say so,
-and list the issues whose status Jira has not moved. Nothing here merges.
+Then what waits on the user: the PRs that `/ticket` step 6 leaves for their merge, in the order
+the table needs them, and the open decisions, asked with `AskUserQuestion` before the report
+(step 5). When every piece of the release is `mainissa`, say so, and list the issues whose status
+Jira has not moved. The queue merges the rest; a piece stacked on another (step 4) is queued only
+once it is out of draft, after its predecessor has landed.
