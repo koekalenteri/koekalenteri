@@ -512,6 +512,7 @@
     },
     "station": "Post",
     "stationAdd": "Add post",
+    "stationDaysLocked": "A post has already run turns, so its day stays in the event. The event's days can be changed so that the day is kept.",
     "stationDogsAtOnce": "Dogs at once",
     "stationJudges": "Judges",
     "stationParts": "Tasks",

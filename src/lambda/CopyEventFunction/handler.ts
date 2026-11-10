@@ -5,6 +5,7 @@ import {
   getEventSeason,
   groupKeyOf,
   shiftPlacesPerDay,
+  shiftStations,
   shiftTeamDays,
   stripInvitationAttachments,
   stripKennelliittoLink,
@@ -86,9 +87,7 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
     d.date = shift(d.date)
   })
   // The posts move with their days (KOE-1563).
-  item.stations?.forEach((station) => {
-    station.date = shift(station.date)
-  })
+  if (item.stations) item.stations = shiftStations(item.stations, days)
   // The places per day move with their days (KOE-1543).
   if (item.placesPerDay) item.placesPerDay = shiftPlacesPerDay(item.placesPerDay, days)
   // The days a team competition counts move with their days (KOE-1726).

@@ -10,7 +10,7 @@ covers:
   - src/pages/admin/EventCreatePage.tsx
   - src/pages/admin/EventEditPage.tsx
   - src/pages/admin/OrganizerListPage.tsx
-sourceHash: a855b0
+sourceHash: 00fa87
 ---
 
 Once a trial has been created in the calendar, the secretary's job before entry opens is to make
@@ -44,7 +44,8 @@ The form says itself what is missing: an incomplete section gets a red note, suc
 "Published": classes ALO, AVO, VOI have no judge*, and **{t:save}** enables only once everything
 required is in place. Go through the sections and check in particular:
 
-- **the dates** — the trial's first and last day, and when entry opens and closes,
+- **the dates** — the trial's first and last day, and when entry opens and closes; the posts and
+  their groups move with the days, and those of a day that drops out of the trial are removed,
 - **classes, groups and the number of places** — places can be given in total, per day or per class,
 - **{t:event.officialFormat}**: an unofficial trial can follow an official one (NOU, NOME-B, NOME-A
   or NOWT). Its classes, entry times, places, reserve list, posts and result entry then work as in

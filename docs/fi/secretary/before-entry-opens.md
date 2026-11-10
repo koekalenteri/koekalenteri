@@ -43,7 +43,9 @@ Lomake kertoo itse, mitä puuttuu: puutteellinen osio saa punaisen huomautuksen,
 *Tila "Julkaistu": ALO, AVO, VOI koeluokilta puuttuu tuomari*, ja **{t:save}** aktivoituu vasta
 kun kaikki vaadittu on paikallaan. Käy osiot läpi ja tarkista erityisesti:
 
-- **päivämäärät** — kokeen alkamis- ja päättymispäivä sekä ilmoittautumisajan alku ja loppu,
+- **päivämäärät** — kokeen alkamis- ja päättymispäivä sekä ilmoittautumisajan alku ja loppu;
+  suorituspaikat ja niiden ryhmät siirtyvät päivien mukana, ja kokeesta pois jäävän päivän
+  suorituspaikat ja ryhmät poistuvat,
 - **luokat, ryhmät ja koepaikkojen määrä** — paikat voi antaa yhteensä, päivittäin tai luokittain,
 - **{t:event.officialFormat}**: epävirallinen koe voi noudatella virallista koetta (NOU, NOME-B,
   NOME-A tai NOWT). Silloin luokat, ilmoittautumisen ajat, koepaikat, varasijalista, suorituspaikat

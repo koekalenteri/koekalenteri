@@ -94,7 +94,12 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   PutAdminRegistration) and a running order's group (`unknownClass`). A per-class write refuses a key
   the event does not run, never reading it as the whole event. A save that changes the classes drops
   the running order groups of a class the event no longer runs (`pruneRotationClasses` in
-  `src/lib/rotation.ts`), so taking a class away is saved, not refused.
+  `src/lib/rotation.ts`), so taking a class away is saved, not refused. Likewise the posts and their
+  groups follow the trial's days (`postsFollowingDays`, KOE-1741): a save of the days or the posts
+  moves a post still on its stored day as many days as the start moved, as the event form moves the
+  classes, and takes away the posts of a day the trial does not have with their exercises in the
+  groups. A post that has run a turn keeps its day (`stationDaysLocked`). Both copies move the posts
+  with `shiftStations` (`src/lib/event.ts`).
 - `classOrder(event)` (`src/lib/event.ts`) is the one class order of every list and view: the own
   classes as listed, then ALO, AVO, VOI. `uniqueClasses` and `registrationOrder` sort by it; a sort
   of classes or entries takes the event, never a fixed order. The reserve numbering

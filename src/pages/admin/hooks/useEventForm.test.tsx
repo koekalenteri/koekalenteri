@@ -399,8 +399,8 @@ describe('useEventForm', () => {
   })
 
   // KOE-1534: the trial is already linked, said without mentioning a koetunnus. KOE-1568: the event's
-  // registrations lock its payment terms.
-  it.each(['kcGuidConflict', 'officialFormatClassShape', 'officialFormatLocked', 'paymentLocked'])(
+  // registrations lock its payment terms. KOE-1741: a post that has run turns keeps its day.
+  it.each(['kcGuidConflict', 'officialFormatClassShape', 'officialFormatLocked', 'paymentLocked', 'stationDaysLocked'])(
     'should name the refusal for a %s conflict',
     async (refusal) => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})

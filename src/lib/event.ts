@@ -1804,6 +1804,14 @@ export const shiftTeamDays = (teamCompetition: TeamCompetition, days: number): T
     ? { ...teamCompetition, days: teamCompetition.days.map((day) => addDays(day, days)) }
     : teamCompetition
 
+/**
+ * The posts moved `days` calendar days, as a copy moves its days (KOE-1563) and an event save moves the
+ * posts with the trial's start (KOE-1741). A post whose day is not a day key has no day to move to and
+ * stays as it is.
+ */
+export const shiftStations = <T extends { date: string }>(stations: readonly T[], days: number): T[] =>
+  stations.map((station): T => (isDayKey(station.date) ? { ...station, date: addDays(station.date, days) } : station))
+
 export const copyDogEvent = (event: DogEvent, now = new Date()): DogEvent => {
   const copy = structuredClone(event)
   const origStartDay = event.startDate
@@ -1830,9 +1838,7 @@ export const copyDogEvent = (event: DogEvent, now = new Date()): DogEvent => {
     d.date = moved(d.date)
   })
   // The posts move with their days (KOE-1563).
-  copy.stations?.forEach((station) => {
-    station.date = moved(station.date)
-  })
+  if (copy.stations) copy.stations = shiftStations(copy.stations, shift)
 
   if (event.placesPerDay) copy.placesPerDay = shiftPlacesPerDay(event.placesPerDay, shift)
   // The days a team competition counts move with their days (KOE-1726).
