@@ -85,11 +85,13 @@ commits on the same branch.
 ## Feedback
 
 Each message from the orchestrator is one package from the reviewers and the CI watcher. Fix what
-belongs to this PR as new commits (no force-push), and check before pushing that the PR is still
+belongs to this PR as new commits, and check before pushing that the PR is still
 open (`gh pr view <pr> --json state`). After pushing, check
 `gh pr view <pr> --json mergeable,mergeStateStatus`: a `CONFLICTING` branch gets no CI run, so
-merge `origin/main` (a merge commit, no force-push), resolve by meaning, not only text, rerun the
-touched tests and push again. Never wait on CI yourself; the CI watcher does. When a round changes the approach or
+`git rebase origin/main`, resolve by meaning, not only text, rerun the touched tests and
+`git push --force-with-lease`. Never merge main into the branch: the merge commit stages every
+file main changed, and the pre-commit hook then tests all of them. `.claude/hooks/refuse-git-merge.sh`
+refuses `git merge` and a `git pull` without `--rebase`. Never wait on CI yourself; the CI watcher does. When a round changes the approach or
 what the tester should try, add a Jira comment saying what changed, with the PR link. If you
 disagree with a finding, say why with evidence;
 do not quietly skip it. Report what you changed per finding.
