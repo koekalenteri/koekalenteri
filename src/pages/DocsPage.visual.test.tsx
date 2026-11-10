@@ -11,7 +11,7 @@ import { DocsPage } from './DocsPage'
 
 // Taller than the page: the browser paints nothing past the viewport, so a capture of a long guide
 // would end in blank space where its last sections should be (KOE-1396).
-const VIEWPORT = { height: 3200, width: 900 }
+const VIEWPORT = { height: 3600, width: 900 }
 
 vi.mock('./components/Header', () => ({ default: () => null }))
 
