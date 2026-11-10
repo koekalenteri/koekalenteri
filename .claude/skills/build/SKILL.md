@@ -101,10 +101,11 @@ way: parked, then asked in the round.
 A file both pieces change by hand orders them (step 2). Generated docs content does not:
 `src/generated/docs/index.ts` and an English page's `sourceHash` line. When the orchestrator
 finds a PR that conflicts only there (`/ticket` step 4 checks before every round), it sends the
-implementer to rebase onto `origin/main`. The implementer takes main's side of the generated
-file, runs `npm run build-docs`, renews the `sourceHash` of each page whose Finnish body changed,
-and pushes with `--force-with-lease` once `npm run check-docs` passes. That update starts no review round: it goes to the implementer
-and the `ci-watcher`, not to the reviewers. When a guide page's own text conflicts, it is a
+implementer to rebase onto `origin/main`. The implementer takes the version from `origin/main`
+of the generated file (in a rebase that side is `--ours`), runs `npm run build-docs`, renews the
+`sourceHash` of each page whose Finnish body changed, and pushes with `--force-with-lease` once
+`npm run check-docs` passes. That update starts no review round: it goes to the implementer and
+the `ci-watcher`, not to the reviewers. When a guide page's own text conflicts, it is a
 by-hand change after all, and the `docs` reviewer looks at the rebase.
 
 ## 7. Report

@@ -90,8 +90,11 @@ For `docs`, run `npm run docs-coverage -- $(gh pr diff <pr> --name-only)` in the
 Do not pass reviewers the implementer's report, in any round: they judge the change by what it
 does.
 
-Before starting them, and again whenever a round seems to stall, check
-`gh pr view <pr> --json mergeable,mergeStateStatus`. A branch that conflicts with `main` gets no
+After every push of the implementer, before the round starts, and again whenever a round seems
+to stall, check `gh pr view <pr> --json mergeable,mergeStateStatus`. The implementer does not
+check it; this is the only check. Right after a push GitHub answers `UNKNOWN` for a while: ask
+again until it is not, in one background command of about two minutes, before deciding:
+`for i in $(seq 24); do m=$(gh pr view <pr> --json mergeable -q .mergeable); [ "$m" != UNKNOWN ] && break; sleep 5; done; echo "$m"`. A branch that conflicts with `main` gets no
 CI run, so nothing will ever report: send the implementer straight back to rebase onto `origin/main`
 and push with `--force-with-lease` (resolved by meaning, not only text, when the conflicting
 change on main touches the same rule), then
@@ -153,8 +156,8 @@ Check from the source, not from the agents' reports:
 - The Jira issue's comments say what the PR does now: when a round changed the approach or what
   the tester should try, there is a later comment saying so. If not, send the implementer back to
   add it.
-- `gh pr view <pr> --json state,isDraft,headRefOid,mergeable`: `mergeable` is `MERGEABLE`, the
-  head is the implementer's last commit, and `gh pr checks <pr>` shows that commit's run started
+- `gh pr view <pr> --json state,isDraft,headRefOid,mergeable`: `mergeable` is `MERGEABLE` (when
+  it is `UNKNOWN`, ask again with the step 4 loop until it is not), the head is the implementer's last commit, and `gh pr checks <pr>` shows that commit's run started
   with nothing red.
 - Every Sonar issue found so far was fixed or sorted to `main` or `user` in step 5.
 

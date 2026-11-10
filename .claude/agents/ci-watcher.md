@@ -16,7 +16,9 @@ thing is ready. Start it, then end your turn with one line saying what you wait 
 harness resumes you with its completion notice. Until then, do not poll it, do not sleep, do not
 `pgrep` it and do not read its output file. Do not call `SubagentHandback` while it runs, either:
 a handback then sends an interim report. A foreground wait does not work here. The harness moves
-a command to the background after 180 s, and a rerun watch then waits for its own copy.
+a foreground command to the background when it runs past its own timeout (120 s by default,
+600 s at most), and at times already after 180 s although its timeout is longer. A rerun watch
+then waits for its own copy.
 
 0. First `gh pr view <pr> --json mergeable,mergeStateStatus,headRefOid`. A PR that conflicts
    with its base (`CONFLICTING`, `DIRTY`) gets no `pull_request` run at all, so there is nothing
