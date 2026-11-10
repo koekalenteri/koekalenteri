@@ -671,6 +671,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   // The index key for the club's own list; a copy, because an index cannot key on a map's field (KOE-1341).
   data.organizerId = data.organizer?.id
   pruneGroupsOfClassesGone(data, item)
+  // After the days of `existing` are keys (rekeyEventDays above): the posts are compared and moved as days.
   settlePostsToDays(data, item, existing)
   checkMergedEvent(data, item, !!existing)
   pruneDaysOutOfTrial(data, item)

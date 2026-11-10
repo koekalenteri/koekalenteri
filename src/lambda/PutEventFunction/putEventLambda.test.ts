@@ -2257,20 +2257,59 @@ describe('putEventLambda', () => {
     })
 
     // The live timeline names its posts by id: a post that has run a turn keeps its day.
-    it('refuses a change of the days that would move or drop a post that has run a turn', async () => {
-      const turn = {
-        dogs: [],
-        id: 'turn-1',
-        registrationIds: [],
-        startedAt: '2025-06-02T08:00:00.000Z',
-        stationId: 'post-2',
-      }
+    /** A turn run at a post: the live timeline names the post by its id. */
+    const turnAt = (stationId: string) => ({
+      dogs: [],
+      id: `turn-${stationId}`,
+      registrationIds: [],
+      startedAt: '2025-06-01T08:00:00.000Z',
+      stationId,
+    })
 
-      const res = await patch({ ...nowt, turns: [turn] }, { classes: [nowt.classes[0]], endDate: '2025-06-01' })
+    it.each([
+      ['drop', 'post-2', { classes: [nowt.classes[0]], endDate: '2025-06-01' }],
+      [
+        'move',
+        'post-1',
+        {
+          classes: [
+            { class: 'ALO', date: '2025-06-08' },
+            { class: 'ALO', date: '2025-06-09' },
+          ],
+          endDate: '2025-06-09',
+          startDate: '2025-06-08',
+        },
+      ],
+    ])('refuses a change of the days that would %s a post that has run a turn', async (_verb, stationId, body) => {
+      const res = await patch({ ...nowt, turns: [turnAt(stationId)] }, body)
 
       expect(res.statusCode).toEqual(409)
       expect(JSON.parse(res.body)).toMatchObject({ error: 'stationDaysLocked' })
       expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    // The lock is the run post's alone: the day that has run stays, the other goes.
+    it('saves a change of the days that leaves every post that has run a turn on its day', async () => {
+      const res = await patch(
+        { ...nowt, turns: [turnAt('post-1')] },
+        { classes: [nowt.classes[0]], endDate: '2025-06-01' }
+      )
+
+      expect(res.statusCode).toEqual(200)
+      expectSaved({ rotations: [firstDay], stations: [first] })
+    })
+
+    // A copy is saved as a new event: its posts are on its days, moved there by the copy and the form.
+    it('keeps the posts and groups of a new event on its days', async () => {
+      signIn(mockSecretary)
+      const { id: _id, ...copy } = { ...nowt, name: 'Kopio' }
+
+      const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>(copy))
+
+      expect(res.statusCode).toEqual(200)
+      expect(saveEventMock).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'new-id', rotations: [firstDay, secondDay], stations: [first, second] })
+      )
     })
   })
 

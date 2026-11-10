@@ -18,8 +18,9 @@ import Stack from '@mui/material/Stack'
 import { atom, useAtomValue } from 'jotai'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { daysBetween } from '@/lib/day'
 import { objectsDiffer } from '@/lib/diff'
-import { formatTypeOf, getEventSeason, isEventOver } from '@/lib/event'
+import { formatTypeOf, getEventSeason, isEventOver, shiftStations } from '@/lib/event'
 import { allMaybe } from '@/lib/maybePromise'
 import { hasEarlyBirdPrice } from '@/lib/payment'
 import { merge, withTimeout } from '@/lib/utils'
@@ -296,6 +297,11 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       // Keep season in sync with startDate year
       if (props.startDate) {
         newState.season = getEventSeason(newState.startDate)
+      }
+      // An event not yet saved, a copy, has no stored posts for the save to move: they move here with
+      // the start, as the classes do (KOE-1741). A saved event's posts are moved by the save.
+      if (!event.id && props.startDate && event.stations?.length) {
+        newState.stations = shiftStations(event.stations, daysBetween(event.startDate, newState.startDate))
       }
       // The next change merges into this one, even when it comes before the form renders again: two
       // debounced fields delivering back to back, or a click landing before the render (KOE-1483).
