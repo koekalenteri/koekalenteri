@@ -20,6 +20,7 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { matchesTeamSearch } from '@/lib/client/teamAssembly'
 import { getHandlingPerson, isStarter } from '@/lib/registration'
 import { formatTeamStanding } from '@/lib/startListView'
 import { MAX_TEAM_MEMBERS, teamMembers } from '@/lib/team'
@@ -130,6 +131,14 @@ const TeamResult = ({ standing, countedDays, runOffWon, onRunOffChange }: Standi
 }
 
 const dogLabel = (registration: Registration) => registration.dog.name ?? registration.dog.regNo ?? ''
+
+/** What a dog to add is found by (KOE-1725): its name and number, its handler, its published start number. */
+const searchOf = (registration: Registration) => ({
+  dogName: registration.dog.name,
+  handler: getHandlingPerson(registration)?.name,
+  regNo: registration.dog.regNo,
+  startNumber: registration.startGroup?.number,
+})
 
 /** What the secretary is told of a member whose entry no longer runs as it did when it was added. */
 const memberState = (registration: Registration): 'memberCancelled' | 'memberReserve' | undefined => {
@@ -304,7 +313,14 @@ export default function TeamCard({
           key={ids.length}
           blurOnSelect
           disabled={full}
-          getOptionLabel={dogLabel}
+          filterOptions={(options, { inputValue }) =>
+            options.filter((registration) => matchesTeamSearch(searchOf(registration), inputValue))
+          }
+          getOptionLabel={(registration) => {
+            const { handler, startNumber } = searchOf(registration)
+            const dog = startNumber === undefined ? dogLabel(registration) : `${startNumber} ${dogLabel(registration)}`
+            return handler ? `${dog}, ${t('teams.handler', { name: handler })}` : dog
+          }}
           getOptionKey={(registration) => registration.id}
           helperText={full ? t('teams.addDogFull', { count: MAX_TEAM_MEMBERS }) : undefined}
           isOptionEqualToValue={(option, value) => option.id === value.id}

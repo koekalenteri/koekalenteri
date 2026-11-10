@@ -196,7 +196,17 @@ joukkueeseen. Ennen kuin koiran luokan osallistujat on valittu, myös varasijall
 kun luokka on valittu, valikko tarjoaa siitä vain osallistujiksi valitut koirat. Joukkueessa jo
 olevaa koiraa tämä ei koske. Joukkueessa voi olla enintään 26 koiraa.
 
+Valikossa koiran nimen perässä on ohjaaja, ja kun starttinumerot on julkaistu, nimen edessä on koiran
+starttinumero. Koiran löytää kirjoittamalla kenttään osan sen nimestä, rekisterinumerosta tai
+ohjaajan nimestä tai sen starttinumeron.
+
 !shot[EventTeamsPage/teams-candidates] Valitun luokan koirista valikko tarjoaa vain osallistujat: varalla oleva ja perunut koira puuttuvat
+
+Joukkuesivu toimii myös puhelimella, joten joukkueet voi koota kokeen toimistossa kesken koepäivän,
+vaikka starttilista olisi jo julkaistu ja osa koirista jo startannut. Koiran jo saamat pisteet lasketaan
+joukkueelle kuten muidenkin.
+
+!shot[EventTeamsPage/teams-phone-search] Puhelimella koira löytyy ohjaajan nimellä
 
 Koira saa joukkueessa tunnuksen siinä järjestyksessä kuin se on lisätty: joukkueen 1 koirat ovat
 1A, 1B, 1C ja niin edelleen. Tunnusta vaihdetaan siirtämällä koiraa rivin nuolilla ylös tai alas,

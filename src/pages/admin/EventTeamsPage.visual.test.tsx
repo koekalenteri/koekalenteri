@@ -223,7 +223,7 @@ it('offers only the picked dogs once the class is picked (KOE-1725)', async () =
   const screen = await renderPage(pickedEvent)
 
   await screen.getByRole('combobox', { name: 'Lisää koira' }).click()
-  await expect.element(screen.getByRole('option', { name: 'Kultakuonon Kide' })).toBeVisible()
+  await expect.element(screen.getByRole('option', { name: 'Kultakuonon Kide, ohj. Sari Saarinen' })).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-candidates')
 })
 
@@ -244,22 +244,61 @@ it('says a suggestion holds more dogs than a team (KOE-1721)', async () => {
 })
 
 // KOE-1725: the teams are put together at the trial office on a phone, so the page fits one.
-const PHONE = { height: 1400, width: 390 }
+const PHONE = { height: 2600, width: 390 }
 
-it('fits a phone, nothing reaching past the screen (KOE-1725)', async () => {
+/** The elements that reach past the phone's screen, by class, the first few. */
+const pastTheScreen = (root: Element) =>
+  [...root.querySelectorAll('*')]
+    .filter((element) => element.getBoundingClientRect().right > PHONE.width + 0.5)
+    .map((element) => element.className || element.tagName)
+    .slice(0, 5)
+
+// A dog found by its handler's name, with its published start number and its handler on the option.
+const numberedRegistrations = registrations.map((registration, at) => ({
+  ...registration,
+  startGroup: registration.group?.date ? { ...registration.group, number: 21 + at } : undefined,
+}))
+
+/** The page at a phone's width, in the series view, once its first team shows; nothing past the screen. */
+const renderPhone = async (teamHeading: string) => {
   await page.viewport(PHONE.width, PHONE.height)
   const screen = await renderPage(seriesEvent, standingsRegistrations, PHONE.width)
+  await expect.element(screen.getByRole('heading', { name: teamHeading })).toBeVisible()
+  expect(pastTheScreen(screen.getByTestId('visual-root').element())).toEqual([])
+  return screen
+}
 
-  await expect.element(screen.getByRole('heading', { name: 'Joukkue 1' })).toBeVisible()
-  const root = screen.getByTestId('visual-root').element()
-  const overflowing = [...root.querySelectorAll('*')].filter(
-    (element) => element.getBoundingClientRect().right > PHONE.width + 0.5
-  )
-  expect(overflowing.map((element) => element.className || element.tagName).slice(0, 5)).toEqual([])
+/** The add-a-dog list at a phone's width, the dog found by part of its handler's name. */
+const renderPhoneSearch = async (addDog: string) => {
+  await page.viewport(PHONE.width, 1400)
+  const screen = await renderPage(pickedEvent, numberedRegistrations, PHONE.width)
+  await screen.getByRole('combobox', { name: addDog }).fill('saari')
+  await expect.element(screen.getByRole('option')).toBeVisible()
+  expect(pastTheScreen(screen.getByTestId('visual-root').element())).toEqual([])
+  return screen
+}
+
+it('fits a phone, nothing reaching past the screen (KOE-1725)', async () => {
+  const screen = await renderPhone('Joukkue 1')
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-phone')
 })
 
+it('finds a dog to add by its handler on a phone (KOE-1725)', async () => {
+  const screen = await renderPhoneSearch('Lisää koira')
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-phone-search')
+})
+
 describeInLanguage('en', () => {
+  it('fits a phone, nothing reaching past the screen (KOE-1725)', async () => {
+    const screen = await renderPhone('Team 1')
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-phone-en')
+  })
+
+  it('finds a dog to add by its handler on a phone (KOE-1725)', async () => {
+    const screen = await renderPhoneSearch('Add a dog')
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-phone-search-en')
+  })
+
   it('asks for the team at entry and suggests the teams named there (KOE-1721)', async () => {
     await page.viewport(900, 1800)
     const screen = await renderPage(suggestionsEvent, suggestionsRegistrations)
@@ -289,7 +328,7 @@ describeInLanguage('en', () => {
     const screen = await renderPage(pickedEvent)
 
     await screen.getByRole('combobox', { name: 'Add a dog' }).click()
-    await expect.element(screen.getByRole('option', { name: 'Kultakuonon Kide' })).toBeVisible()
+    await expect.element(screen.getByRole('option', { name: 'Kultakuonon Kide, handler Sari Saarinen' })).toBeVisible()
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-candidates-en')
   })
 

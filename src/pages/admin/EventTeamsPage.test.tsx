@@ -76,9 +76,12 @@ const setCount = async (user: User, count: string) => {
   await flushPromises()
 }
 
+/** A dog's option in the add-a-dog list: its name, then its handler (KOE-1725). */
+const dogOption = (name: string) => `${name}, teams.handler name`
+
 const addDog = async (user: User, team: HTMLElement, name: string) => {
   await user.click(within(team).getByRole('combobox', { name: 'teams.addDog' }))
-  await user.click(await screen.findByRole('option', { name }))
+  await user.click(await screen.findByRole('option', { name: dogOption(name) }))
   await flushPromises()
 }
 
@@ -125,7 +128,7 @@ describe('EventTeamsPage', () => {
     expect(members(first)).toEqual(['1A Ensimmainen', '1B Varalla' + 'teams.memberReserve'])
 
     await user.click(within(second).getByRole('combobox', { name: 'teams.addDog' }))
-    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Toinen'])
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual([dogOption('Toinen')])
   })
 
   // KOE-1725: once a class is picked, a team takes only the dogs picked into it, as the save holds to.
@@ -145,7 +148,10 @@ describe('EventTeamsPage', () => {
 
     expect(members(first)).toEqual(['1A Varalla' + 'teams.memberReserve'])
     await user.click(within(second).getByRole('combobox', { name: 'teams.addDog' }))
-    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual(['Ensimmainen', 'Toinen'])
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual([
+      dogOption('Ensimmainen'),
+      dogOption('Toinen'),
+    ])
   })
 
   it('moves the letters with the dogs, and closes the gap a removed dog leaves', async () => {

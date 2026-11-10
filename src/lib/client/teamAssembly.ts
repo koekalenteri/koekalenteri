@@ -110,3 +110,24 @@ export const teamSuggestions = (
     .sort(byName)
   return [...named, ...litters]
 }
+
+/** What a dog to add to a team is found by (KOE-1725): its name, its number, its handler, its start number. */
+export interface TeamSearchEntry {
+  dogName?: string
+  regNo?: string
+  handler?: string
+  /** The published start number (`startGroup.number`), the one the dog wears; none before publishing. */
+  startNumber?: number
+}
+
+/**
+ * Whether a dog is what the secretary typed to find it with (KOE-1725), at the trial office, on a
+ * phone: a number is its start number, and any text is part of its name, its registration number or
+ * its handler's name, in any case. Nothing typed finds every dog.
+ */
+export const matchesTeamSearch = (entry: TeamSearchEntry, typed: string): boolean => {
+  const text = typed.trim().toLocaleLowerCase('fi')
+  if (!text) return true
+  if (/^\d+$/.test(text) && entry.startNumber === Number(text)) return true
+  return [entry.dogName, entry.regNo, entry.handler].some((value) => value?.toLocaleLowerCase('fi').includes(text))
+}
