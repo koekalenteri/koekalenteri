@@ -346,6 +346,38 @@ describe('validation', () => {
     })
   })
 
+  // KOE-1723: an unofficial trial that follows NOWT holds to NOWT's judges with classes of its own.
+  describe('the judges of a trial that follows NOWT with own classes', () => {
+    const pirkka: PartialEvent = {
+      ...emptyEvent,
+      classes: [
+        { class: 'YKS', date: '2099-06-06' },
+        { class: 'VET', date: '2099-06-06' },
+      ],
+      eventType: 'Pirkka',
+      officialFormat: 'NOWT',
+      ownClasses: [
+        { code: 'YKS', name: { fi: 'Yksilö' } },
+        { code: 'VET', name: { fi: 'Veteraanit' } },
+      ],
+      state: 'confirmed',
+    }
+
+    it('asks for two judges, as NOWT does', () => {
+      expect(validateEventField({ ...pirkka, judges: [{ id: 1, name: 'Yksi' }] }, 'judges', true)).toMatchObject({
+        key: 'judgeCount',
+      })
+    })
+
+    it('does not ask for a judge for each class, as NOWT does not', () => {
+      const judges = [
+        { id: 1, name: 'Yksi' },
+        { id: 2, name: 'Kaksi' },
+      ]
+      expect(validateEventField({ ...pirkka, judges }, 'judges', true)).toBe(false)
+    })
+  })
+
   describe('validateEventField()', () => {
     it('returns validationError for unknown fields when required and empty', () => {
       const event: PartialEvent = { ...emptyEvent, name: '', state: 'draft' }
