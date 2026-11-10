@@ -1,4 +1,5 @@
-import type { ClassKey, EventClass, JsonDogEvent } from '../types'
+import type { ClassKey, EventClass, JsonDogEvent, RegistrationClass } from '../types'
+import type { ClassOrderOwner } from './event'
 import type { SortableRegistration } from './registration'
 import { classOrder, isOfficialEventType, OFFICIAL_EVENT_TYPES, ownClassCodes } from './event'
 import { isRegistrationClass, registrationSort } from './registration'
@@ -91,6 +92,15 @@ export const enteredClassCodes = (classes: readonly Pick<EventClass, 'class' | '
  */
 export const isEventClass = (event: Partial<ClassOwner>, key: string | null | undefined): key is ClassKey =>
   !!key && (event.ownClasses?.length ? ownClassCodes(event).includes(key) : isRegistrationClass(key))
+
+/**
+ * Whether the event's class is an official class (KOE-1743): ALO, AVO or VOI and not one of the event's
+ * own classes, which may carry the same code. What a reader that filters or counts classes across
+ * events takes, the calendar's class filter and the capacity statistics, so an own ALO is never the
+ * official ALO there. A classless trial's key, its format, is none.
+ */
+export const isOfficialClass = (event: ClassOrderOwner, key: string | null | undefined): key is RegistrationClass =>
+  isRegistrationClass(key) && !ownClassCodes(event).includes(key)
 
 /**
  * Whether a key is a class the event runs (KOE-674): a key of its kind (`isEventClass`) that is among

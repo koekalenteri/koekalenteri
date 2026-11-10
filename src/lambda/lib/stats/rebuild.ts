@@ -12,6 +12,7 @@ import type {
 import type { EventStatsEvent } from '../repositories/eventRepository'
 import type { EventStatKey } from '../repositories/eventStatsRepository'
 import { isEventOver, OFFICIAL_EVENT_TYPES, storedMonthKey, uniqueClasses } from '../../../lib/event'
+import { isOfficialClass } from '../../../lib/eventClass'
 import { isFinishedEntry, isMember, isStarter } from '../../../lib/registration'
 import { mapWithConcurrency, splitEvenly } from '../../../lib/utils'
 import { ALL_EVENT_TYPES_FOR_CAPACITY, ALL_ORGANIZERS_FOR_EVENTS, YEARLY_BREAKDOWN_TYPES } from '../../../types/Stats'
@@ -346,6 +347,14 @@ const eventClassKeys = (event: EventStatsEvent): string[] => {
 }
 
 /**
+ * The class a capacity bucket is kept under: an official class by its code, anything else by the event
+ * type, as a classless trial is. An unofficial trial's own classes may be coded ALO, AVO or VOI, and
+ * counting them there would add them to the official classes in the class picker (KOE-1743).
+ */
+const capacityClassKey = (event: EventStatsEvent, classKey: string): string =>
+  isOfficialClass(event, classKey) ? classKey : event.eventType
+
+/**
  * Places per class. Explicit per-class values win; whatever `event.places` leaves unaccounted
  * for is spread over the classes that have none. `event.places` is the event *total* (the form
  * derives it by summing the classes, see calculateTotalFromClasses), so attributing it to every
@@ -403,14 +412,23 @@ const seedCapacityFromEvents = (
     const classKeys = eventClassKeys(event)
     const placesByClass = eventClassPlaces(event, classKeys)
     const classMonths = new Map<string, string>()
+    // Own classes share their type's bucket, where the event is counted once.
+    const eventBuckets = new Set<CapacityBucket>()
     for (const classKey of classKeys) {
       const month = classMonth(event, classKey)
       if (month === undefined) continue
       classMonths.set(classKey, month)
 
-      const bucket = getOrCreateCapacityBucket(buckets, event.eventType, month, classKey, event.organizer.id)
+      const bucket = getOrCreateCapacityBucket(
+        buckets,
+        event.eventType,
+        month,
+        capacityClassKey(event, classKey),
+        event.organizer.id
+      )
       bucket.places += placesByClass.get(classKey) ?? 0
-      bucket.eventCount += 1
+      if (!eventBuckets.has(bucket)) bucket.eventCount += 1
+      eventBuckets.add(bucket)
     }
     eventClassMonths.set(event.id, classMonths)
   }
@@ -448,7 +466,13 @@ const addCapacityRegistration = (
   const month = classKey && classMonths.get(classKey)
   if (!classKey || !month) return false
 
-  const bucket = getOrCreateCapacityBucket(buckets, event.eventType, month, classKey, event.organizer.id)
+  const bucket = getOrCreateCapacityBucket(
+    buckets,
+    event.eventType,
+    month,
+    capacityClassKey(event, classKey),
+    event.organizer.id
+  )
 
   if (registration.cancelled) {
     bucket.cancelledRegistrations += 1

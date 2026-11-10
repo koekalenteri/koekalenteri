@@ -89,4 +89,32 @@ describe('event derived atoms', () => {
       expect(store.get(filterOrganizersAtom).map((organizer) => organizer.id)).toEqual(['org-1'])
     })
   })
+
+  describe('filterEventClassesAtom', () => {
+    const unofficial = (id: string, ownClasses?: PublicDogEvent['ownClasses']): PublicDogEvent => ({
+      ...eventWithStaticDatesAndClass,
+      classes: [{ class: 'ALO', date: eventWithStaticDatesAndClass.startDate }],
+      eventType: 'Epävirallinen',
+      id,
+      ownClasses,
+      state: 'confirmed',
+    })
+    const emptyFilter = { end: null, eventClass: [], eventType: [], judge: [], organizer: [], start: null }
+
+    it('offers only the official classes: an own class coded ALO is none (KOE-1743)', () => {
+      const store = createStore()
+      store.set(eventFilterAtom, emptyFilter)
+      store.set(eventsAtom, [unofficial('own', [{ code: 'ALO', name: { fi: 'Alokkaat' } }])])
+
+      expect(store.get(filterEventClassesAtom)).toEqual([])
+    })
+
+    it('offers the official class an unofficial trial runs without own classes', () => {
+      const store = createStore()
+      store.set(eventFilterAtom, emptyFilter)
+      store.set(eventsAtom, [unofficial('official-classes')])
+
+      expect(store.get(filterEventClassesAtom)).toEqual(['ALO'])
+    })
+  })
 })

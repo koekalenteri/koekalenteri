@@ -18,7 +18,9 @@ sähköpostia, jonka osoitteen annat lomakkeella: ilmoittautumisesi kaikki linki
 
 Etusivun lista näyttää tulevat kokeet. Suodattimilla voit rajata sitä ajankohdan, koemuodon,
 luokan, järjestäjän ja ylituomarin mukaan, ja valintaruuduilla näyttää vain ne kokeet joiden
-ilmoittautuminen on auki tai tulossa.
+ilmoittautuminen on auki tai tulossa. Luokkasuodattimessa ovat viralliset luokat ALO, AVO ja VOI.
+Epävirallisen kokeen omat luokat eivät ole siinä, vaikka niiden koodi olisi sama, joten omia
+luokkia ajava koe ei löydy luokan mukaan.
 
 Jokainen rivi kertoo kokeen ajan, paikan, järjestäjän ja luokat. **{t:register}** ilmestyy riville
 vasta kun ilmoittautumisaika on käynnissä; sitä ennen rivillä lukee milloin ilmoittautuminen alkaa.

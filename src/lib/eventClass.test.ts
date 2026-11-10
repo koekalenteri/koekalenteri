@@ -5,6 +5,7 @@ import {
   enteredClassCodes,
   inRegistrationOrder,
   isEventClass,
+  isOfficialClass,
   isRunClass,
   ownClassErrors,
   registrationOrder,
@@ -136,6 +137,25 @@ describe('isEventClass', () => {
   it("does not take a classless trial's key, its format", () => {
     expect(isEventClass({ eventType: 'NOU' }, 'NOU')).toBe(false)
     expect(isEventClass(unofficial, 'Labradorinoutajien derby')).toBe(false)
+  })
+})
+
+describe('isOfficialClass (KOE-1743)', () => {
+  const ownAlo = { ownClasses: [{ code: 'ALO' }, { code: 'VET10' }] }
+
+  it('takes ALO, AVO and VOI of an event without own classes', () => {
+    expect(['ALO', 'AVO', 'VOI'].map((key) => isOfficialClass({}, key))).toEqual([true, true, true])
+    expect(isOfficialClass({ ownClasses: null }, 'VOI')).toBe(true)
+  })
+
+  it('does not take an own class, also one coded as an official class', () => {
+    expect(isOfficialClass(ownAlo, 'ALO')).toBe(false)
+    expect(isOfficialClass(ownAlo, 'VET10')).toBe(false)
+  })
+
+  it("does not take a classless trial's key or a missing one", () => {
+    expect(isOfficialClass({}, 'NOU')).toBe(false)
+    expect(isOfficialClass({}, undefined)).toBe(false)
   })
 })
 

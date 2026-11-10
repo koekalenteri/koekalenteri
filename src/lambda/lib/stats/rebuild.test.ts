@@ -588,6 +588,58 @@ describe('stats/rebuild', () => {
     )
   })
 
+  describe('an unofficial trial with classes of its own (KOE-1743)', () => {
+    // Own classes coded as the official ones; the rebuild reads them from the stored event.
+    const ownClassesEvent = {
+      classes: [
+        { class: 'ALO', date: '2025-06-01' as const, places: 10 },
+        { class: 'AVO', date: '2025-06-01' as const, places: 8 },
+      ],
+      endDate: '2025-06-01' as const,
+      eventType: 'Epävirallinen',
+      id: 'own-classes-event',
+      organizer: { id: 'organizer-1' },
+      ownClasses: [
+        { code: 'ALO', name: { fi: 'Alokkaat' } },
+        { code: 'AVO', name: { fi: 'Avoimet' } },
+      ],
+      places: 18,
+      startDate: '2025-06-01' as const,
+      state: 'confirmed' as const,
+    }
+    const registrations = [
+      registration('starter', ownClassesEvent.id, { class: 'ALO', eventType: 'Epävirallinen', group: { key: 'ALO' } }),
+      registration('reserve', ownClassesEvent.id, {
+        class: 'AVO',
+        eventType: 'Epävirallinen',
+        group: { key: 'reserve' },
+      }),
+    ]
+
+    it('counts its capacity under its event type, never under an official class', () => {
+      const { records } = buildStatsRecords(
+        registrations,
+        new Map([[ownClassesEvent.id, ownClassesEvent]]),
+        '2025-01-01T00:00:00.000Z'
+      )
+
+      // The totals stay: every place and entry of the trial is in the one bucket of its type.
+      expect(records.filter((record) => record.PK === 'CAPACITY#Epävirallinen')).toEqual([
+        {
+          cancelledRegistrations: 0,
+          eventCount: 1,
+          organizerId: 'organizer-1',
+          PK: 'CAPACITY#Epävirallinen',
+          places: 18,
+          reserve: 1,
+          SK: '2025-06#Epävirallinen#organizer-1',
+          starters: 1,
+          updatedAt: '2025-01-01T00:00:00.000Z',
+        },
+      ])
+    })
+  })
+
   it('buckets a class by its own scheduled date, not the event start date', () => {
     const multiDay: EventStatsEvent = {
       classes: [{ class: 'VOI', date: '2025-07-15' as const, places: 5 }],

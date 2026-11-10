@@ -7,7 +7,7 @@ covers:
   - src/pages/admin/EventBreakdownPage.tsx
   - src/pages/StatsPage.tsx
   - src/pages/components/stats/**
-sourceHash: 256d58
+sourceHash: b90ddb
 ---
 
 The calendar works its statistics out from the trials that have ended. They are on three pages:
@@ -41,7 +41,9 @@ trials are not counted, and the figures are updated nightly.
 The charts at the foot of the page are drawn for the event type and class picked under
 *{t:stats.admin.eventType}* and *{t:stats.admin.class}*: *{t:stats.admin.capacityTitle}*,
 *{t:stats.admin.demandTitle}* and *{t:stats.admin.cancellationRateTitle}*. The cancellation rate
-is counted from every entry, those cancelled from the reserve list included.
+is counted from every entry, those cancelled from the reserve list included. The classes are the
+official classes ALO, AVO and VOI. An unofficial trial's own classes are counted together under the
+event type's name, as a trial without classes is, even when their code is ALO, AVO or VOI.
 
 !shot[CapacityUtilizationChart/capacity-all-classes] Participants and places by month for one event type
 
