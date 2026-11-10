@@ -23,7 +23,7 @@ bug is fixed. See [README.md](README.md) for how they run.
 | Test | Tags | Issues |
 | --- | --- | --- |
 | a secretary gives an unofficial trial classes of its own, and a dog enters one by its name | `@secretary` `@public` | [KOE-674](https://koekalenteri.atlassian.net/browse/KOE-674) |
-| a trial that follows NOWT scores a dog of its own class at a post | `@secretary` | [KOE-1723](https://koekalenteri.atlassian.net/browse/KOE-1723) |
+| a trial that follows NOWT scores a dog of its own class at a post in half points | `@secretary` | [KOE-1723](https://koekalenteri.atlassian.net/browse/KOE-1723)<br>[KOE-1736](https://koekalenteri.atlassian.net/browse/KOE-1736) |
 | an own class of an unofficial trial › an entry through the form is stored in the own class | `@public` | [KOE-674](https://koekalenteri.atlassian.net/browse/KOE-674) |
 | an own class of an unofficial trial › the server refuses an entry in a class the trial does not run | `@public` | [KOE-674](https://koekalenteri.atlassian.net/browse/KOE-674) |
 

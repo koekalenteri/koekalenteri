@@ -385,12 +385,16 @@ describe('putEventResultsLambda', () => {
     mockGetAuthorizedEvent.mockResolvedValue(hankinome)
     mockGetEvent.mockResolvedValue(hankinome)
 
-    await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(29.5, 30, 15, 0.5) }, id: 'reg-1' }]))
+    await putEventResultsLambda(apiEvent([{ eventResult: { tasks: scores(29.5, 30, 15, 1) }, id: 'reg-1' }]))
 
     expect(mockWrittenResult).toHaveBeenCalledWith(
       'event-1',
       'reg-1',
-      expect.objectContaining({ maxPoints: 120, points: 75 })
+      expect.objectContaining({ maxPoints: 120, points: 75.5 })
+    )
+    // The audit's text is Finnish, and so is its half point (KOE-1736).
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({ messageParams: { result: expect.stringContaining('75,5/120 p') } })
     )
   })
 

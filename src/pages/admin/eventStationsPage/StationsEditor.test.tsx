@@ -55,6 +55,27 @@ describe('StationsEditor', () => {
       await vi.waitFor(() => expect(onChange).toHaveBeenLastCalledWith({ exerciseScoring: null }))
     })
 
+    it('takes the halves off a trial that had them, and keeps its maximum', async () => {
+      const onChange = vi.fn()
+      const { user } = renderWithUserEvents(
+        <Harness
+          initial={{ ...hankinome, exerciseScoring: { halfPoints: true, maxPoints: 30 } }}
+          onChange={onChange}
+        />,
+        undefined
+      )
+
+      await user.click(halves())
+      expect(halves()).not.toBeChecked()
+      expect(maxField()).toHaveValue('30')
+      expect(onChange).toHaveBeenLastCalledWith({ exerciseScoring: { halfPoints: false, maxPoints: 30 } })
+    })
+
+    it('says why an odd maximum needs half points', async () => {
+      renderComponent({ event: { ...hankinome, exerciseScoring: { maxPoints: 25 } }, onChange: vi.fn() })
+      expect(screen.getByText('event.exerciseScoringOddWithoutHalves')).toBeInTheDocument()
+    })
+
     it('offers no scoring of its own to an official NOWT', () => {
       renderComponent({ event: testEvent(), onChange: vi.fn() })
       expect(screen.queryByRole('checkbox', { name: 'event.exerciseHalfPoints' })).not.toBeInTheDocument()

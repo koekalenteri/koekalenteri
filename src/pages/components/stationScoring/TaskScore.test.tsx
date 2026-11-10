@@ -23,6 +23,15 @@ describe('TaskScore', () => {
     await vi.waitFor(() => expect(onChange).toHaveBeenLastCalledWith(task, 29.5, undefined))
   })
 
+  // A phone's number pad has no separator, so a trial in halves asks for the decimal one.
+  it.each([
+    [0.5, 'decimal'],
+    [1, 'numeric'],
+  ])('offers a phone the keyboard for a step of %d', (step, inputMode) => {
+    renderScore(step)
+    expect(screen.getByRole('textbox', { name: 'Rasti 1' })).toHaveAttribute('inputmode', inputMode)
+  })
+
   it('takes a half point down to the whole point below where the trial scores whole points', async () => {
     const { onChange, user } = renderScore(1)
 

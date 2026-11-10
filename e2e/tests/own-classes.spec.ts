@@ -137,9 +137,10 @@ test('a secretary gives an unofficial trial classes of its own, and a dog enters
 })
 
 // KOE-1723: an unofficial trial that follows NOWT runs its own classes at the posts as NOWT runs ALO,
-// and asks for no judges of its own. The trial is today, so its posts take scores.
-test('a trial that follows NOWT scores a dog of its own class at a post', {
-  annotation: issue('KOE-1723'),
+// and asks for no judges of its own. The trial is today, so its posts take scores. It scores 0–30 in
+// halves, as Hankinome does, and the field takes a half point as Finnish writes it (KOE-1736).
+test('a trial that follows NOWT scores a dog of its own class at a post in half points', {
+  annotation: [issue('KOE-1723'), issue('KOE-1736')],
   tag: '@secretary',
 }, async ({ context, page }) => {
   const organizer = await seedOrganizer()
@@ -156,6 +157,7 @@ test('a trial that follows NOWT scores a dog of its own class at a post', {
     entryEndDate: today,
     entryStartDate: helsinkiDay(-7),
     eventType: 'Pirkka',
+    exerciseScoring: { halfPoints: true, maxPoints: 30 },
     judges: [],
     kcGuid: undefined,
     kcId: undefined,
@@ -189,8 +191,8 @@ test('a trial that follows NOWT scores a dog of its own class at a post', {
   await signInAs(context, secretary)
   await page.goto(`/admin/event/results/${event.id}/station/post-1`)
   await page.getByRole('button', { name: `1 ${dog.name}` }).click()
-  await page.getByRole('textbox', { name: /Rasti 1/ }).fill('15')
+  await page.getByRole('textbox', { name: /Rasti 1/ }).fill('29,5')
   await page.getByRole('button', { name: 'Tallenna tulokset' }).click()
 
-  await expect.poll(async () => (await readRegistration(event.id, id))?.eventResult?.tasks?.[0]?.points).toBe(15)
+  await expect.poll(async () => (await readRegistration(event.id, id))?.eventResult?.tasks?.[0]?.points).toBe(29.5)
 })

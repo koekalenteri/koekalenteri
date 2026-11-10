@@ -8,19 +8,32 @@ import { nanoid } from 'nanoid'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { formatTypeOf, getEventDays } from '@/lib/event'
+import { hasOwnExerciseScoring } from '@/lib/exerciseScoring'
 import { scoresAtPosts } from '@/lib/liveFormat'
 import { groupExercises, rotationGroupDay, stationParts } from '@/lib/rotation'
+import { ExerciseScoringEditor } from './ExerciseScoringEditor'
 import { RotationEditor } from './RotationEditor'
 import { StationRow } from './StationRow'
 
 export type StationsEditorEvent = Pick<
   DogEvent,
-  'classes' | 'endDate' | 'eventType' | 'judges' | 'ownClasses' | 'rotations' | 'startDate' | 'stations'
+  | 'classes'
+  | 'endDate'
+  | 'eventType'
+  | 'exerciseScoring'
+  | 'judges'
+  | 'officialFormat'
+  | 'ownClasses'
+  | 'rotations'
+  | 'startDate'
+  | 'stations'
 >
 
 export interface Props {
   readonly event: StationsEditorEvent
   readonly disabled?: boolean
+  /** A saved result or turn keeps the exercises' scoring (KOE-1736), as it keeps the official format. */
+  readonly scoringLocked?: boolean
   readonly onChange?: (event: Patch<DogEvent>) => void
 }
 
@@ -82,7 +95,7 @@ const savedRotations = (event: StationsEditorEvent, rotations: EventRotationGrou
       return classes.length === 0 || classes.some((item) => item.class === group.class)
     })
 
-function StationsEditor({ event, disabled, onChange }: Props) {
+function StationsEditor({ event, disabled, scoringLocked, onChange }: Props) {
   const { t } = useTranslation()
   const stations = useMemo(() => event.stations ?? [], [event.stations])
   const days = useMemo(() => getEventDays(event), [event])
@@ -143,6 +156,11 @@ function StationsEditor({ event, disabled, onChange }: Props) {
         maxWidth: 1280,
       }}
     >
+      {/* The points of an exercise are the trial's, not a post's; only a trial that follows NOWT unofficially
+          has its own (KOE-1736). */}
+      {hasOwnExerciseScoring(event) && (
+        <ExerciseScoringEditor disabled={disabled} event={event} locked={scoringLocked} onChange={onChange} />
+      )}
       {days.map((day) => (
         <Box key={day} sx={{ width: '100%' }}>
           {days.length > 1 && (
