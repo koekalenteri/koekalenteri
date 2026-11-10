@@ -20,7 +20,7 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { matchesTeamSearch } from '@/lib/client/teamAssembly'
+import { findTeamCandidates } from '@/lib/client/teamAssembly'
 import { getHandlingPerson, isStarter } from '@/lib/registration'
 import { formatTeamStanding } from '@/lib/startListView'
 import { MAX_TEAM_MEMBERS, teamMembers } from '@/lib/team'
@@ -313,9 +313,7 @@ export default function TeamCard({
           key={ids.length}
           blurOnSelect
           disabled={full}
-          filterOptions={(options, { inputValue }) =>
-            options.filter((registration) => matchesTeamSearch(searchOf(registration), inputValue))
-          }
+          filterOptions={(options, { inputValue }) => findTeamCandidates(options, inputValue, searchOf)}
           getOptionLabel={(registration) => {
             const { handler, startNumber } = searchOf(registration)
             const dog = startNumber === undefined ? dogLabel(registration) : `${startNumber} ${dogLabel(registration)}`

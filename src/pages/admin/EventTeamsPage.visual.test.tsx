@@ -246,9 +246,13 @@ it('says a suggestion holds more dogs than a team (KOE-1721)', async () => {
 // KOE-1725: the teams are put together at the trial office on a phone, so the page fits one.
 const PHONE = { height: 2600, width: 390 }
 
-/** The elements that reach past the phone's screen, by class, the first few. */
+/**
+ * The elements that reach past the phone's screen, by class, the first few: the page's, and the option
+ * list's, which the autocomplete portals to the end of the document.
+ */
 const pastTheScreen = (root: Element) =>
-  [...root.querySelectorAll('*')]
+  [root, ...document.querySelectorAll('.MuiAutocomplete-popper')]
+    .flatMap((scope) => [scope, ...scope.querySelectorAll('*')])
     .filter((element) => element.getBoundingClientRect().right > PHONE.width + 0.5)
     .map((element) => element.className || element.tagName)
     .slice(0, 5)
@@ -274,6 +278,8 @@ const renderPhoneSearch = async (addDog: string) => {
   const screen = await renderPage(pickedEvent, numberedRegistrations, PHONE.width)
   await screen.getByRole('combobox', { name: addDog }).fill('saari')
   await expect.element(screen.getByRole('option')).toBeVisible()
+  // The option list is checked too: it is not inside the page.
+  expect(document.querySelectorAll('.MuiAutocomplete-popper')).toHaveLength(1)
   expect(pastTheScreen(screen.getByTestId('visual-root').element())).toEqual([])
   return screen
 }
