@@ -87,6 +87,9 @@ const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
 
 const contactInfoShown = (contact?: Partial<PublicContactInfo>) => !!contact?.email || !!contact?.phone
 
+/** Whether the trial is an unofficial one that follows an official format (KOE-1718). */
+const followsOfficialFormat = (event: PartialEvent) => formatTypeOf(event) !== event.eventType
+
 const getMinJudgeCount = (event: PartialEvent) => {
   const formatType = formatTypeOf(event)
   if (formatType === 'NOWT' || formatType === 'NOME-A') {
@@ -217,7 +220,9 @@ export const VALIDATORS: EventValidators = {
     return false
   },
   judges: (event, required, context) => {
-    if (!required) {
+    // An unofficial trial that follows an official format asks for no judges at all, neither a count
+    // nor one for each class (KOE-1723, the user's decision); the official format keeps its rule.
+    if (!required || followsOfficialFormat(event)) {
       return false
     }
 

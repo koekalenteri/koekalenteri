@@ -539,14 +539,20 @@ export const formatClasses = (event: Partial<FormatOwner>): readonly Registratio
     : EVENT_TYPE_CLASSES.unofficialEvents
 }
 
-type ClassShapeEvent = Partial<FormatOwner> & { classes?: ReadonlyArray<unknown> | null }
+type ClassShapeEvent = Partial<FormatOwner> & {
+  classes?: ReadonlyArray<unknown> | null
+  ownClasses?: ReadonlyArray<unknown> | null
+}
 
 /**
- * Whether the trial runs classes: by its official format where it follows one (NOME-B and NOWT do,
- * NOU and NOME-A do not), and by the classes it has where its own type leaves that open.
+ * Whether the trial runs classes: one with classes of its own runs them, whatever format it follows
+ * (KOE-1723); otherwise by its official format where it follows one (NOME-B and NOWT do, NOU and
+ * NOME-A do not), and by the classes it has where its own type leaves that open.
  */
-const runsClasses = (event: ClassShapeEvent): boolean =>
-  formatTypeOf(event) === event.eventType ? !!event.classes?.length : formatClasses(event).length > 0
+const runsClasses = (event: ClassShapeEvent): boolean => {
+  if (event.ownClasses?.length) return true
+  return formatTypeOf(event) === event.eventType ? !!event.classes?.length : formatClasses(event).length > 0
+}
 
 /**
  * Whether a change of the followed type turns a trial with classes into one without, or the other way

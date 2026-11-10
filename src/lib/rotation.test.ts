@@ -675,3 +675,27 @@ describe('roundInputsOf (KOE-1666)', () => {
     expect(roundInputsOf({})).toEqual({ classes: [], rotations: [], stations: [] })
   })
 })
+
+// KOE-1723: an unofficial trial that follows NOWT runs its own classes at the posts as NOWT runs ALO.
+describe('an own class of a trial that follows NOWT', () => {
+  const pirkka = {
+    classes: [
+      { class: 'YKS', date: DAY },
+      { class: 'VET', date: DAY },
+    ],
+    ownClasses: [
+      { code: 'YKS', name: { fi: 'Yksilö' } },
+      { code: 'VET', name: { fi: 'Veteraanit' } },
+    ],
+    rotations: [{ class: 'YKS', exercises: order(1, 2) }],
+    stations: [post(1), post(2)],
+  }
+
+  it('gives a dog of an own class its class running order', () => {
+    expect(dogRound(pirkka, { class: 'YKS', day: DAY })).toEqual([slot(1, 'post-1'), slot(2, 'post-2')])
+  })
+
+  it('runs an own class without an order of its own through one exercise at each post', () => {
+    expect(dogRound(pirkka, { class: 'VET', day: DAY })).toEqual([slot(1, 'post-1'), slot(2, 'post-2')])
+  })
+})
