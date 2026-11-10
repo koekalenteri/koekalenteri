@@ -15,20 +15,19 @@ Every wait is one background command (Bash with `run_in_background: true`) that 
 thing is ready. Start it, then end your turn with one line saying what you wait for. The
 harness resumes you with its completion notice. Until then, do not poll it, do not sleep, do not
 `pgrep` it and do not read its output file. Do not call `SubagentHandback` while it runs, either:
-a handback then sends an interim report. A foreground wait does not work here. The harness moves
-a foreground command to the background when it runs past its own timeout (120 s by default,
-600 s at most), and at times already after 180 s although its timeout is longer. A rerun watch
-then waits for its own copy.
+a handback then sends an interim report. A foreground wait does not work here: the harness
+moves a long foreground command to the background, and a watch run again then waits for its own
+copy.
 
 0. First `gh pr view <pr> --json mergeable,mergeStateStatus,headRefOid`. A PR that conflicts
    with its base (`CONFLICTING`, `DIRTY`) gets no `pull_request` run at all, so there is nothing
    to wait for. Report at once, as the one blocking item, that the branch must be rebased onto
    `origin/main`, with the conflicting files from
-   `git merge-tree --write-tree --name-only origin/main origin/<branch>`. `UNKNOWN` means GitHub
-   is still computing: wait in the background until it is known, two minutes at most:
-   `for i in $(seq 24); do m=$(gh pr view <pr> --json mergeable -q .mergeable); [ "$m" != UNKNOWN ] && break; sleep 5; done; echo "$m"`.
-   Likewise, if `gh pr checks` lists no run for `headRefOid` a few minutes after the push,
-   report that rather than wait (#1520 sat behind conflicts with no checks).
+   `git merge-tree --write-tree --name-only origin/main origin/<branch>`. Read it once: the
+   orchestrator already waited out `UNKNOWN` before it started you, so a state still `UNKNOWN`
+   goes into the report as it is, and you go on to the watch. Likewise, if `gh pr checks` lists
+   no run for `headRefOid` a few minutes after the push, report that rather than wait (#1520 sat
+   behind conflicts with no checks).
 1. `gh pr checks <pr> --watch >/dev/null 2>&1` in the background. Without `--fail-fast` it
    returns only once every check is done. When its notice comes, read `gh pr checks <pr>` once.
 2. The `sonar` job uploads the analysis; SonarCloud's PR result is ready after it. When
