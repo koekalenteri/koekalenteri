@@ -32,6 +32,41 @@ const testEvent = (overrides: Partial<StationsEditorEvent> = {}): StationsEditor
 const renderComponent = (props: Props) => renderWithUserEvents(<StationsEditor {...props} />, undefined)
 
 describe('StationsEditor', () => {
+  // KOE-1736: an unofficial trial that follows NOWT may set an exercise's maximum and half points.
+  describe('the scoring of an exercise', () => {
+    const hankinome = testEvent({ eventType: 'Hankinome', officialFormat: 'NOWT' })
+    const maxField = () => screen.getByRole('textbox', { name: 'event.exerciseMaxPoints' })
+    const halves = () => screen.getByRole('checkbox', { name: 'event.exerciseHalfPoints' })
+
+    it('sets the maximum and the half points of an unofficial trial that follows NOWT', async () => {
+      const onChange = vi.fn()
+      const { user } = renderComponent({ event: { ...hankinome, exerciseScoring: { maxPoints: 30 } }, onChange })
+
+      await user.click(halves())
+      expect(onChange).toHaveBeenLastCalledWith({ exerciseScoring: { halfPoints: true, maxPoints: 30 } })
+    })
+
+    it('stores no scoring of its own once the maximum is back at 20 and the halves are off', async () => {
+      const onChange = vi.fn()
+      const { user } = renderComponent({ event: { ...hankinome, exerciseScoring: { maxPoints: 30 } }, onChange })
+
+      await user.clear(maxField())
+      await user.type(maxField(), '20')
+      await vi.waitFor(() => expect(onChange).toHaveBeenLastCalledWith({ exerciseScoring: null }))
+    })
+
+    it('offers no scoring of its own to an official NOWT', () => {
+      renderComponent({ event: testEvent(), onChange: vi.fn() })
+      expect(screen.queryByRole('checkbox', { name: 'event.exerciseHalfPoints' })).not.toBeInTheDocument()
+    })
+
+    it('keeps the scoring once a result or a turn is saved', () => {
+      renderComponent({ event: hankinome, onChange: vi.fn(), scoringLocked: true })
+      expect(maxField()).toBeDisabled()
+      expect(halves()).toBeDisabled()
+    })
+  })
+
   it('renders a row for each post', () => {
     renderComponent({
       event: testEvent({ stations: [station('a', 1), station('b', 2)] }),

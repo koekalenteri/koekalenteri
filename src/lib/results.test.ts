@@ -849,6 +849,13 @@ describe('formatResultLine', () => {
     expect(formatResultLine({ ...totals, placement: 2, result: 'ALO1' }, t)).toBe('ALO1 65/80 pts 81% Place 2')
   })
 
+  // KOE-1736: half points read in the reader's language, 59,5 in Finnish and 59.5 in English.
+  it('reads half points in the language of the line', () => {
+    const totals = { maxPoints: 60, percentage: 99.17, points: 59.5 }
+    expect(formatResultLine({ ...totals, result: 'YKS1' }, i18n.getFixedT('fi'))).toBe('YKS1 59,5/60 p 99 %')
+    expect(formatResultLine({ ...totals, result: 'YKS1' }, t)).toBe('YKS1 59.5/60 pts 99%')
+  })
+
   it('reads what a round that ended early earned between the code and the mark (KOE-1673)', () => {
     const early = { marks: ['interrupted'] as const, maxPoints: 80, percentage: 28.75, points: 23, result: 'ALO-' }
     expect(formatResultLine(early, i18n.getFixedT('fi'))).toBe('ALO- 23/80 p 29 % Kesk.')
