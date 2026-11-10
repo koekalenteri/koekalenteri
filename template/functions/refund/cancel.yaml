@@ -4,13 +4,7 @@
       CodeUri: lambda/RefundCancelFunction
       Handler: handler.default
       Policies:
-        - Statement:
-            - Sid: SSMGetParameterPolicy
-              Effect: Allow
-              Action:
-              - ssm:GetParameters
-              - ssm:GetParameter
-              Resource: '*'
+        - !Ref PaytrailParametersPolicy
         - DynamoDBCrudPolicy:
             TableName: !Ref TransactionTable
         - DynamoDBCrudPolicy:

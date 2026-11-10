@@ -7,13 +7,7 @@
         Variables:
           REGISTRATION_EDIT_TOKEN_SECRET: !Sub '{{resolve:ssm:${AWS::StackName}-REGISTRATION_EDIT_TOKEN_SECRET}}'
       Policies:
-        - Statement:
-            - Sid: SSMGetParameterPolicy
-              Effect: Allow
-              Action:
-              - ssm:GetParameters
-              - ssm:GetParameter
-              Resource: '*'
+        - !Ref PaytrailParametersPolicy
         - DynamoDBCrudPolicy:
             TableName: !Ref TransactionTable
         - DynamoDBCrudPolicy:
@@ -28,12 +22,7 @@
         # Every audit row is streamed to the event's viewers, and the refunded registration is broadcast (KOE-1340).
         - !Ref WebSocketPolicy
         - CloudWatchPutMetricPolicy: {}
-        - Statement:
-            - Sid: SESSendEmailPolicy
-              Effect: Allow
-              Action:
-              - ses:sendTemplatedEmail
-              Resource: '*'
+        - !Ref SendEmailPolicy
       Events:
         PutEvent:
           Type: Api

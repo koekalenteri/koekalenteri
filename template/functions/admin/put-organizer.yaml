@@ -4,13 +4,6 @@
       CodeUri: lambda/PutOrganizerFunction
       Handler: handler.default
       Policies:
-        - Statement:
-            - Sid: SSMGetParameterPolicy
-              Effect: Allow
-              Action:
-              - ssm:GetParameters
-              - ssm:GetParameter
-              Resource: '*'
         - DynamoDBCrudPolicy:
             TableName: !Ref OrganizerTable
         - !Ref AuthorizePolicy

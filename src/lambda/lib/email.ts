@@ -12,6 +12,7 @@ import { SESClient, SendTemplatedEmailCommand } from '@aws-sdk/client-ses'
 import { getFixedT } from '../../i18n/lambda'
 import { emailBlockedAudit } from '../../lib/audit'
 import { getPaymentBalance } from '../../lib/cost'
+import { sesTemplateName } from '../../lib/emailTemplate'
 import { getRegistrationEmailTemplateData, getRegistrationOwners, isPayerTemplate } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from './audit'
@@ -128,12 +129,12 @@ export async function sendTemplatedMail(
     return
   }
   const params: SendTemplatedEmailCommandInput = {
-    ConfigurationSetName: 'Koekalenteri',
+    ConfigurationSetName: CONFIG.emailConfigurationSet,
     Destination: {
       ToAddresses: recipients,
     },
     Source: from,
-    Template: `${template}-${CONFIG.stackName}-${language}`,
+    Template: sesTemplateName(template, CONFIG.stackName, language),
     TemplateData: JSON.stringify(data),
   }
   if (tags) params.Tags = tags

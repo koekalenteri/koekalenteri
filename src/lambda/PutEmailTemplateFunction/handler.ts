@@ -6,7 +6,7 @@ import {
   TemplateDoesNotExistException,
   UpdateTemplateCommand,
 } from '@aws-sdk/client-ses'
-import { explainTemplateRejection, findEmailTemplateError } from '../../lib/emailTemplate'
+import { explainTemplateRejection, findEmailTemplateError, sesTemplateName } from '../../lib/emailTemplate'
 import { stageTitle } from '../../lib/env'
 import { CONFIG } from '../config'
 import { authorizeAdmin, getUsername } from '../lib/auth'
@@ -63,7 +63,7 @@ const updateOrCreateTemplate = async (language: Language, template: EmailTemplat
  * again: SES renders the stored template, and sending cannot change the subject.
  */
 const sesTemplate = async (id: string, language: Language, source: string): Promise<EmailTemplateContent> => {
-  const template = await markdownToTemplate(`${id}-${CONFIG.stackName}-${language}`, source)
+  const template = await markdownToTemplate(sesTemplateName(id, CONFIG.stackName, language), source)
   return { ...template, SubjectPart: stageTitle(template.SubjectPart ?? '', CONFIG.stageName) }
 }
 

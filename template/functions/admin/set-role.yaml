@@ -15,12 +15,7 @@
             TableName: !Ref DataVersionTable
         - !Ref AuthorizePolicy
         - !Ref WebSocketPolicy
-        - Statement:
-          - Sid: SESSendEmailPolicy
-            Effect: Allow
-            Action:
-            - ses:sendTemplatedEmail
-            Resource: '*'
+        - !Ref SendEmailPolicy
       Events:
         GetUser:
           Type: Api

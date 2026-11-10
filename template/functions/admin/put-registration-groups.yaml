@@ -19,19 +19,7 @@
         - DynamoDBWritePolicy:
             TableName: !Ref AuditTable
         - !Ref AuthorizePolicy
-        - Statement:
-            - Sid: SESSendEmailPolicy
-              Effect: Allow
-              Action:
-              - ses:sendTemplatedEmail
-              Resource: '*'
-        - Statement:
-            - Sid: SSMGetParameterPolicy
-              Effect: Allow
-              Action:
-              - ssm:GetParameters
-              - ssm:GetParameter
-              Resource: '*'
+        - !Ref SendEmailPolicy
         - CloudWatchPutMetricPolicy: {}
         - !Ref WebSocketPolicy
       Events:

@@ -1,7 +1,9 @@
 import { execFileSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { sesTemplateName } from '../lib/emailTemplate'
+import { CONFIG } from './config'
 import { isGranted, unusedGrants } from './test-utils/dynamoActions'
-import { analyzeTableUse } from './test-utils/lambdaTableUse'
+import { analyzeLambdaUse } from './test-utils/lambdaUse'
 import { templateTables } from './test-utils/templateGrants'
 
 /**
@@ -25,7 +27,7 @@ const handlerDirectories = readdirSync('src/lambda', { withFileTypes: true })
 
 const matchAll = (pattern: RegExp) => [...template.matchAll(pattern)].map((match) => match[1])
 
-const analysis = analyzeTableUse(handlerDirectories.map((dir) => `src/lambda/${dir}/handler.ts`))
+const analysis = analyzeLambdaUse(handlerDirectories.map((dir) => `src/lambda/${dir}/handler.ts`))
 
 // One block per resource, starting at its logical id. A resource line may carry a trailing comment
 // (UserLinkTable does).
@@ -198,7 +200,7 @@ describe('template', () => {
 
 // A lambda that reaches a table its policies do not grant fails here, not in dev (KOE-1492). The
 // code side follows calls from each handler's default export and from the module-level code that
-// runs at import (test-utils/lambdaTableUse.ts); the template side is the function block's DynamoDB
+// runs at import (test-utils/lambdaUse.ts); the template side is the function block's DynamoDB
 // policies, inline statements and managed policies (test-utils/templateGrants.ts). The first case of
 // the kind was the user table: outside prod, sendTemplatedMail asks it who is staff, and a sender
 // without the read policy failed on the first mail it sent in test or dev (KOE-1469); that rule is
@@ -299,5 +301,123 @@ describe('environment', () => {
       }
     }
     expect(excess).toEqual([])
+  })
+})
+
+// The SSM and SES grants were Resource '*' in every function that had one, so the public dog lookup
+// could read every SecureString parameter in the account (KOE-1617). Each function now gets the
+// actions its code sends and the parameters its code reads, as the walk finds them (the SDK commands
+// it builds, and the names it hands getSSMParams), and nothing on every resource where the action
+// takes one. A function that starts reading a Paytrail secret through lib code fails here, not in an
+// AccessDenied after the deploy.
+describe('service policies', () => {
+  const { functions } = templateTables(template)
+
+  /** The services whose actions are compared with the SDK commands the walk finds; the others' are not yet. */
+  const COMPARED_SERVICES = new Set(['ses', 'ssm'])
+
+  // CreateTemplate and UpdateTemplate take no resource type in the Service Authorization Reference,
+  // so `*` is the only resource they can have.
+  const WITHOUT_RESOURCE = [
+    'PutEmailTemplateFunction ses:createtemplate',
+    'PutEmailTemplateFunction ses:updatetemplate',
+  ]
+
+  const arn = (service: string, resource: string) =>
+    `!Sub arn:\${AWS::Partition}:${service}:\${AWS::Region}:\${AWS::AccountId}:${resource}`
+
+  /** IAM matches actions without regard to case; the templates write `ses:sendTemplatedEmail`. */
+  const comparedActions = (actions: string[]) =>
+    actions.map((action) => action.toLowerCase()).filter((action) => COMPARED_SERVICES.has(action.split(':')[0]))
+
+  const commandsOf = (codeUri: string) => {
+    const commands = new Map<string, string[]>()
+    for (const [command, locations] of analysis.commands.get(`src/${codeUri}/handler.ts`) ?? []) {
+      for (const action of comparedActions([command])) commands.set(action, locations)
+    }
+    return commands
+  }
+
+  const grantedActions = (statements: { actions: string[] }[]) =>
+    new Set(statements.flatMap(({ actions }) => comparedActions(actions)))
+
+  /** The resources of the statements that allow one action. */
+  const resourcesOf = (statements: { actions: string[]; resources: string[] }[], action: string) =>
+    statements.filter(({ actions }) => comparedActions(actions).includes(action)).flatMap(({ resources }) => resources)
+
+  it('grants every function the SES and SSM actions its code sends', () => {
+    const missing: string[] = []
+    for (const [name, { codeUri, statements }] of functions) {
+      const granted = grantedActions(statements)
+      for (const [action, locations] of commandsOf(codeUri)) {
+        if (!granted.has(action)) missing.push(`${name} sends ${action} without a policy: ${locations.join(', ')}`)
+      }
+    }
+    expect(missing).toEqual([])
+  })
+
+  it('grants no SES or SSM action a function never sends', () => {
+    const excess: string[] = []
+    for (const [name, { codeUri, statements }] of functions) {
+      const sent = commandsOf(codeUri)
+      for (const action of grantedActions(statements)) {
+        if (!sent.has(action)) excess.push(`${name} may ${action} but never does`)
+      }
+    }
+    expect(excess).toEqual([])
+  })
+
+  it('grants every function the SSM parameters its code reads, and no other', () => {
+    const differences: string[] = []
+    for (const [name, { codeUri, statements }] of functions) {
+      const granted = new Set(resourcesOf(statements, 'ssm:getparameters'))
+      const read = analysis.parameters.get(`src/${codeUri}/handler.ts`) ?? new Map<string, string[]>()
+      const readArns = new Set<string>()
+      for (const [parameter, locations] of read) {
+        const parameterArn = arn('ssm', `parameter/${parameter}`)
+        readArns.add(parameterArn)
+        if (!granted.has(parameterArn)) {
+          differences.push(`${name} reads ${parameter} without a policy: ${locations.join(', ')}`)
+        }
+      }
+      for (const resource of granted) {
+        if (!readArns.has(resource)) differences.push(`${name} may read ${resource} but never does`)
+      }
+    }
+    expect(differences).toEqual([])
+  })
+
+  it('grants nothing on every resource, but the actions that take no resource', () => {
+    const everywhere = [...functions].flatMap(([name, { statements }]) =>
+      statements
+        .filter(({ resources }) => resources.includes('*'))
+        .flatMap(({ actions }) => actions.map((action) => `${name} ${action.toLowerCase()}`))
+    )
+    expect(WITHOUT_RESOURCE.filter((grant) => !everywhere.includes(grant))).toEqual([])
+    expect(everywhere.filter((grant) => !WITHOUT_RESOURCE.includes(grant))).toEqual([])
+  })
+
+  // What sendTemplatedMail (lib/email.ts) sends with, from the names it builds: the sender
+  // CONFIG.emailFrom, the stack's own templates (sesTemplateName) and CONFIG.emailConfigurationSet.
+  // SES authorizes against the address when it is verified as an identity of its own and against its
+  // domain otherwise, so both are granted.
+  it('lets every sender send only from the sender address, with the stack templates and the configuration set', () => {
+    const domain = CONFIG.emailFrom.slice(CONFIG.emailFrom.indexOf('@') + 1)
+    const expected = [
+      arn('ses', `identity/${domain}`),
+      arn('ses', `identity/${CONFIG.emailFrom}`),
+      arn('ses', `template/${sesTemplateName('*', `\${AWS::StackName}`, '*')}`),
+      arn('ses', `configuration-set/${CONFIG.emailConfigurationSet}`),
+    ].sort()
+    const senders = [...functions].filter(([, { codeUri }]) => commandsOf(codeUri).has('ses:sendtemplatedemail'))
+    const differing = senders
+      .map(([name, { statements }]) => ({
+        name,
+        resources: [...new Set(resourcesOf(statements, 'ses:sendtemplatedemail'))].sort(),
+      }))
+      .filter(({ resources }) => resources.join() !== expected.join())
+
+    expect(senders.length).toBeGreaterThan(0)
+    expect(differing).toEqual([])
   })
 })

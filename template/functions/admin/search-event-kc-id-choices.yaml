@@ -9,13 +9,7 @@
         - DynamoDBReadPolicy:
             TableName: !Ref EventTypeTable
         - !Ref AuthorizePolicy
-        - Statement:
-            - Sid: SSMGetParameterPolicy
-              Effect: Allow
-              Action:
-              - ssm:GetParameters
-              - ssm:GetParameter
-              Resource: '*'
+        - !Ref KLIntegraatioParametersPolicy
         - CloudWatchPutMetricPolicy: {}
       Events:
         SearchEventKcIdChoices:

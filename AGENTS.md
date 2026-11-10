@@ -385,10 +385,11 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   it alone -- the payment and refund functions keep their logs for 180 days that way.
 - `src/lambda/template.test.ts` builds the template and compares its `CodeUri` values with the
   directories on disk, so a lambda in one and not the other fails a test instead of a deploy.
-- The function block's `Policies` must grant every table the handler's code reaches, and nothing
-  more. The same test follows the calls from each handler's default export, and from the module-level
+- The function block's `Policies` must grant what the handler's code reaches, and nothing more: the
+  tables below, and the SES and SSM actions and SSM parameters in the bullet after the environment
+  variables. The same test follows the calls from each handler's default export, and from the module-level
   code that runs when the handler and the files it imports load, through every file under `src` they
-  reach (`src/lambda/test-utils/lambdaTableUse.ts`, KOE-1557) and reads the block's policies
+  reach (`src/lambda/test-utils/lambdaUse.ts`, KOE-1557) and reads the block's policies
   (`src/lambda/test-utils/templateGrants.ts`, KOE-1492). Code that runs at import counts without its
   function bodies: a function it calls, or writes out as an argument, runs its own body there, and
   one it stores or returns first is not followed; the module's header lists what it does not model.
@@ -412,6 +413,23 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   at import in every handler and all have defaults), and the variables nothing sets by design
   (`AWS_SAM_LOCAL`, `NODE_ENV`, ...) are listed in the test with the reason. The walk refuses a
   `process.env` read it cannot name (a computed key, `process.env` handed on whole).
+- The same walk names the AWS SDK commands the code builds (`new SendTemplatedEmailCommand(...)` as
+  `ses:SendTemplatedEmail`) and the SSM parameters it reads through `getSSMParams` in
+  `src/lambda/lib/secrets.ts` (KOE-1617). The test fails on an SES or SSM action the code sends
+  without a grant or a grant it never sends, on an SSM parameter read without a grant or granted and
+  never read, and on any function statement with `Resource: '*'` but PutEmailTemplate's
+  `ses:CreateTemplate` and `ses:UpdateTemplate`, which take no resource type. A function that reaches
+  a secrets reader carries its policy from `template/policies/parameter-policies.yaml`
+  (`KLAPIParametersPolicy`, `KLIntegraatioParametersPolicy`, `PaytrailParametersPolicy`); a new
+  parameter goes into the reader's policy. A function that sends email carries `- !Ref
+  SendEmailPolicy` (`template/policies/send-email-policy.yaml`), whose resources must be the ones
+  `email.ts` sends with: `CONFIG.emailFrom` and its domain, `sesTemplateName` (`src/lib/emailTemplate.ts`)
+  and `CONFIG.emailConfigurationSet`. The test reads resources as written, so they stay in the short
+  form `!Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/<name>` and
+  `!Sub arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:identity/<identity>` (likewise
+  `template/<name>`, `configuration-set/<name>`); `arn:aws:` or the long `Fn::Sub` form fails it. The
+  walk refuses a `getSSMParams` call whose list it cannot read (a computed name, a spread, a list not
+  written out in the call).
 - A CloudWatch alarm (`AWS::CloudWatch::Alarm`) carries `Condition: IsNotTestStage`, and
   `AlarmActions` and `OKActions` on `- !Ref AlarmTopic` (`template/alarm-topic.yaml`), which mails
   the stack parameter `AlarmEmail` (the repository secret `ALARM_EMAIL`). Test has no alarms; dev's
