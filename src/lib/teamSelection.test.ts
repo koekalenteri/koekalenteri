@@ -1,6 +1,6 @@
 import type { EventTeam } from '../types'
 import type { AssemblyEntry } from './teamSelection'
-import { teamDraw, teamGroupMoves, teamSelection } from './teamSelection'
+import { teamDayPlacer, teamDraw, teamDrawPlaces, teamGroupMoves, teamSelection } from './teamSelection'
 
 // KOE-1722: the secretary selects a team competition's dogs team by team.
 const DAY = '2026-08-01' as const
@@ -170,3 +170,103 @@ describe('teamDraw', () => {
     expect(teamDraw(teams, entries, free, random).slice(0, 2).sort()).toEqual([1, 3])
   })
 })
+
+// KOE-1722: the places a draw fills, read from the event and the dogs already selected.
+describe('teamDrawPlaces', () => {
+  const event = {
+    classes: [
+      { class: 'ALO', date: DAY, places: 4 },
+      { class: 'AVO', date: DAY },
+    ],
+    places: 10,
+  }
+
+  it("counts each class's places and the trial's, less the dogs already selected", () => {
+    const entries = [running('a'), running('b'), reserve('c'), cancelled('d'), running('e', 'AVO')]
+    const free = teamDrawPlaces(event, entries)
+
+    expect(free.trial).toBe(7)
+    expect(free.byClass.get('ALO')).toBe(2)
+  })
+
+  it('holds a class without places of its own only to the places of the trial', () => {
+    expect(teamDrawPlaces(event, []).byClass.get('AVO')).toBe(Number.POSITIVE_INFINITY)
+  })
+
+  it('holds a trial without places to its classes only', () => {
+    expect(teamDrawPlaces({ ...event, places: 0 }, []).trial).toBe(Number.POSITIVE_INFINITY)
+  })
+})
+
+// The draw does not read the places of a day (placesPerDay); placing a team it tries does.
+describe('teamDayPlacer', () => {
+  const DAY2 = '2026-08-02' as const
+  const secondDay = { date: DAY2, key: `${DAY2}-ap`, time: 'ap' as const }
+  const groups = new Map([['ALO', [morning, secondDay]]])
+  const both = (id: string): AssemblyEntry => ({
+    ...reserve(id),
+    dates: [
+      { date: DAY, time: 'ap' },
+      { date: DAY2, time: 'ap' },
+    ],
+  })
+  const onSecondDay = (id: string): AssemblyEntry => ({ ...reserve(id), dates: [{ date: DAY2, time: 'ap' }] })
+  const teams: EventTeam[] = [{ registrationIds: ['a1', 'a2'] }, { registrationIds: ['b1', 'b2'] }]
+
+  it("moves a team's dogs to the participants, to the group of the day they entered", () => {
+    const place = teamDayPlacer(
+      teams,
+      ['a1', 'a2', 'b1', 'b2'].map((id) => reserve(id)),
+      groups,
+      {}
+    )
+
+    expect(place(1)?.moves).toEqual([{ eventClass: 'ALO', moves: [move('b1'), move('b2')] }])
+  })
+
+  it("puts a dog on another day it entered once a day's places are taken, and takes the places only once kept", () => {
+    const entries = [both('a1'), both('a2'), reserve('b1')]
+    const twoAndOne: EventTeam[] = [teams[0], { registrationIds: ['b1'] }]
+    const place = teamDayPlacer(twoAndOne, entries, groups, { placesPerDay: { [DAY]: 1, [DAY2]: 1 } })
+
+    const first = place(0)
+    expect(first?.moves).toEqual([{ eventClass: 'ALO', moves: [move('a1'), move('a2', secondDay)] }])
+    // Not kept yet: the places are still free for another team.
+    expect(place(1)).toBeDefined()
+    first?.keep()
+    expect(place(1)).toBeUndefined()
+  })
+
+  it('places no team with a dog that fits none of its days', () => {
+    const entries = [reserve('a1'), reserve('a2')]
+    const place = teamDayPlacer(teams, entries, groups, { placesPerDay: { [DAY]: 1, [DAY2]: 5 } })
+
+    expect(place(0)).toBeUndefined()
+  })
+
+  // KOE-1722: the draw takes a team's places only once its placing keeps it, so a team passed for its
+  // days leaves them to the next team.
+  it('leaves the places of a team passed for its days to the next team that fits', () => {
+    const satOnly = [reserve('a1'), reserve('a2')]
+    const sunday = [onSecondDay('b1'), onSecondDay('b2')]
+    const entries = [...satOnly, ...sunday, running('x1'), running('x2')]
+    const event = { placesPerDay: { [DAY]: 2, [DAY2]: 2 } }
+    const place = teamDayPlacer(teams, entries, groups, event)
+    const passed: number[] = []
+    const accept = (index: number) => {
+      const placed = place(index)
+      if (!placed) passed.push(index)
+      placed?.keep()
+      return !!placed
+    }
+    const free = { byClass: new Map([['ALO', 2]]), trial: 2 }
+
+    expect(teamDraw(teams, entries, free, () => 0, accept)).toEqual([1])
+    expect(passed).toEqual([0])
+  })
+})
+
+/** A move to a participant group, the first day's morning unless told. */
+function move(id: string, group: { date: string; key: string; time?: string } = morning) {
+  return { group: { date: group.date, key: group.key, time: group.time }, id }
+}

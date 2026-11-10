@@ -2,9 +2,10 @@ import type { TeamSuggestion } from '@/lib/client/teamAssembly'
 import type { TeamStanding } from '@/lib/teamStandings'
 import type { DogEvent, EventTeam, TeamCompetition } from '@/types'
 import type { TeamMoveOption } from './eventTeamsPage/TeamCard'
-import type { TeamMoveTarget } from './eventTeamsPage/useMoveTeam'
+import type { TeamDrawPlan, TeamMoveTarget } from './eventTeamsPage/useMoveTeam'
 import Cancel from '@mui/icons-material/Cancel'
 import Save from '@mui/icons-material/Save'
+import Shuffle from '@mui/icons-material/Shuffle'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
@@ -29,6 +30,7 @@ import { EntryPageHeader } from './components/EntryPageHeader'
 import EventNotFound from './components/EventNotFound'
 import TeamCard from './eventTeamsPage/TeamCard'
 import TeamCompetitionSettings from './eventTeamsPage/TeamCompetitionSettings'
+import TeamDrawDialog from './eventTeamsPage/TeamDrawDialog'
 import TeamSuggestions from './eventTeamsPage/TeamSuggestions'
 import { useMoveTeam } from './eventTeamsPage/useMoveTeam'
 import useEventForm from './hooks/useEventForm'
@@ -143,7 +145,11 @@ export default function EventTeamsPage() {
   // Where each team's dogs stand in the selection, and the move of a whole team (KOE-1722). A team moves
   // as saved: while the page holds changes the moves wait, so no dog moves for a team then cancelled.
   const selections = useMemo(() => teamSelection(teams, registrations), [teams, registrations])
-  const { moveTeam, pending: movePending, plan: planMove } = useMoveTeam(event, registrations)
+  const { drawPlan, moveTeam, moveTeams, pending: movePending, plan: planMove } = useMoveTeam(event, registrations)
+  // The draw for the places left (KOE-1722): of the teams as saved, asked about as a whole first. A team
+  // waits for it while a dog of it is not yet a participant.
+  const [draw, setDraw] = useState<TeamDrawPlan>()
+  const waiting = selections.some((selection) => selection === 'reserve' || selection === 'partial')
   const moveOptions = (team: EventTeam): Partial<Record<TeamMoveTarget, TeamMoveOption>> => {
     const options: Partial<Record<TeamMoveTarget, TeamMoveOption>> = {}
     for (const to of ['participants', 'reserve'] as const) {
@@ -257,6 +263,31 @@ export default function EventTeamsPage() {
             teamCompetition={event.teamCompetition}
             trialDays={trialDays}
             onChange={handleTeamCompetition}
+          />
+          <div>
+            <Button
+              disabled={canSave || movePending || !waiting}
+              onClick={() => setDraw(drawPlan(teams, Math.random))}
+              startIcon={<Shuffle />}
+              variant="outlined"
+            >
+              {t('teams.draw')}
+            </Button>
+            {canSave && waiting && (
+              <Typography variant="caption" component="p" sx={{ color: 'text.secondary' }}>
+                {t('teams.moveSaveFirst')}
+              </Typography>
+            )}
+          </div>
+          <TeamDrawDialog
+            plan={draw}
+            teams={teams}
+            onCancel={() => setDraw(undefined)}
+            onConfirm={async () => {
+              const confirmed = draw
+              setDraw(undefined)
+              if (confirmed) await moveTeams(confirmed)
+            }}
           />
           <TeamSuggestions
             entries={entries}

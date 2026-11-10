@@ -211,6 +211,47 @@ const partlySelected: ConfirmedEvent = {
   teams: [{ registrationIds: ['dog-1', 'dog-4'] }],
 }
 
+// KOE-1722: the draw for the two places left in ALO, the class picked: the first team is drawn, and its
+// dogs are mailed their place.
+const waitingDog = (id: string, dog: string, handler: string) =>
+  entry(id, dog, handler, { class: 'ALO', dates: [{ date: AHEAD, time: 'ap' }], group: { key: 'reserve', number: 1 } })
+const drawRegistrations: Registration[] = [
+  waitingDog('dog-6', 'Aamukasteen Aada', 'Olli Ojala'),
+  waitingDog('dog-7', 'Suonsilmän Salama', 'Tiina Toivonen'),
+  waitingDog('dog-8', 'Kultakuonon Kaiku', 'Sari Saarinen'),
+  waitingDog('dog-9', 'Kultakuonon Kide', 'Sari Saarinen'),
+]
+const drawEvent: ConfirmedEvent = {
+  ...partlySelected,
+  classes: partlySelected.classes.map((eventClass) =>
+    eventClass.class === 'ALO' ? { ...eventClass, places: 2, state: 'picked' } : eventClass
+  ),
+  teams: [
+    { name: 'Loistavat Lintukoirat', registrationIds: ['dog-6', 'dog-7'] },
+    { name: 'Kennel Kultakuono', primary: true, registrationIds: ['dog-8', 'dog-9'] },
+  ],
+}
+
+it('draws the teams for the places left, first teams first, and asks before moving them (KOE-1722)', async () => {
+  await page.viewport(900, 1200)
+  const screen = await renderPage(drawEvent, drawRegistrations)
+
+  await screen.getByRole('button', { name: 'Arvo joukkueet' }).click()
+  await expect.element(screen.getByRole('dialog')).toBeVisible()
+  await expect(screen.getByRole('dialog')).toMatchScreenshot('teams-draw')
+})
+
+describeInLanguage('en', () => {
+  it('draws the teams for the places left, first teams first, and asks before moving them (KOE-1722)', async () => {
+    await page.viewport(900, 1200)
+    const screen = await renderPage(drawEvent, drawRegistrations)
+
+    await screen.getByRole('button', { name: 'Draw the teams' }).click()
+    await expect.element(screen.getByRole('dialog')).toBeVisible()
+    await expect(screen.getByRole('dialog')).toMatchScreenshot('teams-draw-en')
+  })
+})
+
 it('tells where a team stands, and moves it whole either way (KOE-1722)', async () => {
   await page.viewport(900, 1200)
   const screen = await renderPage(partlySelected)
@@ -269,7 +310,7 @@ it('marks the dogs of another litter in a litter team (KOE-1727)', async () => {
 })
 
 // KOE-1725: the teams are put together at the trial office on a phone, so the page fits one.
-const PHONE = { height: 2600, width: 390 }
+const PHONE = { height: 3000, width: 390 }
 
 /**
  * The elements that reach past the phone's screen, by class, the first few: the page's, and the option

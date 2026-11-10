@@ -463,10 +463,14 @@ jobs:
       - name: Cache Playwright browsers
         uses: actions/cache@v6
         with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+          # The browsers and the .deb files of the system packages they need, both fixed by the
+          # Playwright version, so a lock change that leaves it alone still hits.
+          path: |
+            ~/.cache/ms-playwright
+            ~/.cache/ms-playwright-debs
+          key: ${{ runner.os }}-playwright-${{ hashFiles('node_modules/playwright-core/package.json') }}
       - name: Install Playwright chromium
-        run: npx playwright install --with-deps chromium
+        run: scripts/install-playwright-chromium.sh
       - name: Test
         env:
           CUSTOM_DOMAIN: ${{ secrets.CUSTOM_DOMAIN }}
