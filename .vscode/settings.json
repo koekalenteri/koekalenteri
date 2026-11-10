@@ -6,6 +6,11 @@
     "[typescript]": {
         "editor.defaultFormatter": "biomejs.biome"
     },
+    "files.watcherExclude": {
+        "**/.cache/**": true,
+        "**/.claude/worktrees/**": true,
+        "**/.node_modules-store/**": true
+    },
     "sonarlint.connectedMode.project": {
         "connectionId": "koekalenteri",
         "projectKey": "koekalenteri_koekalenteri"

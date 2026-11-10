@@ -1,6 +1,6 @@
 ---
 name: build
-description: Build a release's designed pieces as pull requests. Reads the table of pieces that /design wrote in the release's plan document, runs each piece through the /ticket flow (implementer, reviewers, CI watcher), up to three implementers at once, and keeps the table current so any later session can continue. Use for "toteuta palat", "/build 2.3.0" or "/build 2.3.0 <area>".
+description: Build a release's designed pieces as pull requests. Reads the table of pieces that /design wrote in the release's plan document, runs each piece through the /ticket flow (implementer, reviewers, CI watcher), up to five implementers at once, and keeps the table current so any later session can continue. Use for "toteuta palat", "/build 2.3.0" or "/build 2.3.0 <area>".
 ---
 
 # /build <version> [area]
@@ -32,9 +32,15 @@ again; nothing it needs lives only in its conversation.
 ## 2. Pick what starts
 
 A piece is ready when every piece it waits on is `mainissa`, or `katselmoinnissa` in the same
-area (then it branches from that piece, see step 4). At most **three implementers at once**, one
-per area: the pieces of an area go to the same implementer, in order, so its context carries the
-design. Reviewers and CI watchers are not counted.
+area (then it branches from that piece, see step 4). At most **five implementers at once**. A
+piece that waits on another goes to that piece's implementer, after it, so its context carries
+the design; a ready piece that waits on nothing still open starts an implementer of its own, also
+within an area. Reviewers and CI watchers are not counted.
+
+Before starting an implementer, check the machine: when the 1-minute load from `uptime` is above
+twice the cores (`sysctl -n hw.ncpu`, `nproc` on Linux), start none; wait for a running agent to
+report and check again. The hook, vitest and tsc of every worktree share the cores, so one more
+agent on a full machine makes all of them slower.
 
 Implementers share the machine: vitest one run at a time, the e2e ports one session at a time,
 scratch files named after the branch.
