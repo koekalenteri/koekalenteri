@@ -384,10 +384,9 @@ module.exports = function (webpackEnv) {
               options: {
                 presets: [require.resolve('./babelPreset')],
 
-                // This is a feature of `babel-loader` for webpack (not Babel itself).
-                // It enables caching results in ./node_modules/.cache/babel-loader/
-                // directory for faster rebuilds.
-                cacheDirectory: true,
+                // A feature of `babel-loader` for webpack (not Babel itself): results are cached
+                // in .cache/babel-loader for faster rebuilds.
+                cacheDirectory: paths.appBabelCache,
                 // See #6846 for context on why cacheCompression is disabled
                 cacheCompression: false,
                 compact: isEnvProduction,

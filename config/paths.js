@@ -60,8 +60,9 @@ module.exports = {
   appSrc: resolveApp('src'),
   appTsConfig: resolveApp('tsconfig.json'),
   testsSetup: resolveModule(resolveApp, 'src/setupTests'),
-  appWebpackCache: resolveApp('node_modules/.cache'),
-  appTsBuildInfoFile: resolveApp('node_modules/.cache/tsconfig.tsbuildinfo'),
+  // Per worktree: node_modules may be a shared, read-only store (scripts/link-node-modules.mjs).
+  appWebpackCache: resolveApp('.cache/webpack'),
+  appBabelCache: resolveApp('.cache/babel-loader'),
   swSrc: resolveModule(resolveApp, 'src/service-worker'),
   swUnregisterSrc: resolveModule(resolveApp, 'src/service-worker-unregister'),
   publicUrlOrPath,

@@ -1,7 +1,11 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
+# dependencies; a worktree's node_modules may be a link into the store (scripts/link-node-modules.mjs)
 /node_modules
+/.node_modules-store/
+
+# build and test caches, per worktree
+/.cache/
 
 # output
 coverage

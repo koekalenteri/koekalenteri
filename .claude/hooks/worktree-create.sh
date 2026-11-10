@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # WorktreeCreate: the worktree Claude Code would make (.claude/worktrees/<name> on branch
-# worktree-<name>, from origin/main), with node_modules installed before the agent starts.
-# A new worktree has none, and neither a symlink (vite resolves it and refuses the real path)
-# nor an APFS clone (61 s against 28 s) does better than npm ci from the warm cache.
+# worktree-<name>, from origin/main), with node_modules in place before the agent starts:
+# scripts/link-node-modules.mjs links the shared install for the worktree's package-lock.json,
+# installing it once when the lock is new. A branch without the script gets `npm ci`.
 # Claude Code reads the last stdout line as the path; everything else goes to stderr.
 set -euo pipefail
 
@@ -23,7 +23,10 @@ if [ ! -e "$dir" ]; then
   fi
 fi
 
-if [ ! -d "$dir/node_modules" ]; then
+if [ -f "$dir/scripts/link-node-modules.mjs" ]; then
+  (cd "$dir" && node scripts/link-node-modules.mjs >&2) ||
+    echo "WorktreeCreate: linking node_modules failed in $dir; run npm run link-node-modules there" >&2
+elif [ ! -d "$dir/node_modules" ]; then
   (cd "$dir" && npm ci --prefer-offline --no-audit --no-fund >&2) ||
     echo "WorktreeCreate: npm ci failed in $dir; run it there before the tests" >&2
 fi

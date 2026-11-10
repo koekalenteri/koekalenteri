@@ -12,8 +12,11 @@ commits on the same branch.
 ## Before the first edit
 
 - Read `AGENTS.md` and `LLM_CONTEXT.md`.
-- The `WorktreeCreate` hook installs `node_modules` in your worktree. If it is missing (`ls node_modules`),
-  run `npm ci --prefer-offline` before the first test.
+- The `WorktreeCreate` hook links `node_modules` in your worktree to the shared, read-only install
+  for its `package-lock.json`. If it is missing (`ls node_modules`), or a merge of `origin/main`
+  changed the lock, run `npm run link-node-modules`. Before changing dependencies, run
+  `npm run link-node-modules -- --own`: it gives the worktree an install of its own, and
+  `npm install` in the shared one fails on its write protection.
 - Read the issue from the folder the orchestrator gives you: `issue.json` with its comments, and
   every attachment beside it (look at the images with Read). Only without a folder, read it
   through the REST API (`.env` holds the credentials).
