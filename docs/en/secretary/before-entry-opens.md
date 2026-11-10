@@ -10,7 +10,7 @@ covers:
   - src/pages/admin/EventCreatePage.tsx
   - src/pages/admin/EventEditPage.tsx
   - src/pages/admin/OrganizerListPage.tsx
-sourceHash: 0b7706
+sourceHash: c203c6
 ---
 
 Once a trial has been created in the calendar, the secretary's job before entry opens is to make
@@ -52,12 +52,12 @@ required is in place. Go through the sections and check in particular:
   that trial, and a result is written under its name, for example NOU1. Such a trial asks for no
   judges: neither the official trial's number of judges nor a judge for each class. A trial
   following NOWT or NOME-B needs its classes, chosen or its own, before its state can be set to
-  Published. A trial with classes of its own runs them at the posts as the followed trial runs its classes. Who may enter, the
-  Kennel Club and the statistics stay the unofficial trial's own. The choice can be changed until the
-  first result or post turn is saved. Once the trial has entries, the choice cannot give the trial
-  classes or take them away. If it is changed after entries, the post and start number links must be
-  sent again, and the entry times the entrants chose stay as they are. When the trial stops following
-  NOWT or changes type, its own scoring of the exercises goes.
+  Published. A trial's own classes use the posts as the followed trial's classes do. Who may enter,
+  the Kennel Club and the statistics stay the unofficial trial's own. The choice can be changed
+  until the first result or post turn is saved. Once the trial has entries, the choice cannot give
+  the trial classes or take them away. If it is changed after entries, the post and start number
+  links must be sent again, and the entry times the entrants chose stay as they are. When the trial
+  stops following NOWT or changes type, its own scoring of the exercises goes.
 - **{t:event.ownClasses.title}**: an unofficial trial can have classes of its own, for example YKS
   and VET. **{t:event.ownClasses.add}** adds a class, which gets a code and a name in Finnish and,
   if wanted, in English. The code is written in capitals, starts with a letter, has at most 10

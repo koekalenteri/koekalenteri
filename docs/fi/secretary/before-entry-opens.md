@@ -51,14 +51,15 @@ kun kaikki vaadittu on paikallaan. Käy osiot läpi ja tarkista erityisesti:
   NOME-A tai NOWT). Silloin luokat, ilmoittautumisen ajat, koepaikat, varasijalista, suorituspaikat
   ja tulosten syöttö toimivat kuten siinä kokeessa, ja tulos kirjataan sen nimellä, esimerkiksi
   NOU1. Tällainen koe ei vaadi tuomareita: ei virallisen kokeen tuomarimäärää eikä tuomaria
-  luokkaa kohden. Kun koe noudattelee NOWT:ta tai NOME-B:tä, sille pitää valita luokat tai lisätä
-  omia luokkia ennen kuin sen tilaksi voi vaihtaa Julkaistu. Jos kokeella on omia luokkia, ne
-  käyttävät suorituspaikkoja samoin kuin noudateltavan kokeen luokat. Kuka saa ilmoittautua,
-  Kennelliitto ja tilastot pysyvät epävirallisen kokeen omina. Valintaa voi muuttaa, kunnes kokeeseen on tallennettu ensimmäinen tulos tai suorituspaikan
-  vuoro. Kun kokeessa on jo ilmoittautumisia, valinta ei voi tuoda luokkia kokeeseen eikä poistaa
-  niitä. Jos valintaa muuttaa ilmoittautumisten jälkeen, suorituspaikkojen ja starttinumeroiden
-  linkit on lähetettävä uudelleen, ja ilmoittautujien valitsemat ajat jäävät ennalleen. Kun koe
-  lakkaa noudattelemasta NOWT:ta tai sen tyyppi vaihtuu, rastien oma pisteytys poistuu.
+  luokkaa kohden. Kun koe noudattelee NOWT:ta tai NOME-B:tä, sille pitää valita luokat tai
+  lisätä omia luokkia ennen kuin sen tilaksi voi vaihtaa Julkaistu. Jos kokeella on omia
+  luokkia, ne käyttävät suorituspaikkoja samoin kuin noudateltavan kokeen luokat. Kuka saa
+  ilmoittautua, Kennelliitto ja tilastot pysyvät epävirallisen kokeen omina. Valintaa voi
+  muuttaa, kunnes kokeeseen on tallennettu ensimmäinen tulos tai suorituspaikan vuoro. Kun
+  kokeessa on jo ilmoittautumisia, valinta ei voi tuoda luokkia kokeeseen eikä poistaa niitä. Jos
+  valintaa muuttaa ilmoittautumisten jälkeen, suorituspaikkojen ja starttinumeroiden linkit on
+  lähetettävä uudelleen, ja ilmoittautujien valitsemat ajat jäävät ennalleen. Kun koe lakkaa
+  noudattelemasta NOWT:ta tai sen tyyppi vaihtuu, rastien oma pisteytys poistuu.
 - **{t:event.ownClasses.title}**: epävirallisessa kokeessa voi olla omia luokkia, esimerkiksi YKS
   ja VET. Painike **{t:event.ownClasses.add}** lisää luokan, jolle annetaan koodi ja nimi suomeksi
   sekä halutessa englanniksi. Koodi kirjoitetaan isoilla kirjaimilla, se alkaa kirjaimella ja siinä
