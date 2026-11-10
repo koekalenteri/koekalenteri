@@ -48,10 +48,22 @@ What it measures, in the order the retro uses:
   and then passed on a rerun of the same run (flaky).
 - **Tools:** failed tool calls by kind (permission, hook, sandbox, MCP, harness, exit code), waits
   on the user (`AskUserQuestion`), other pauses over half an hour.
+- **Waits** (`waits.mjs`): every way an agent waits, per kind and agent type (the main session or
+  the subagent's type). The kinds: `sleep` (a foreground `sleep N`), `poll-loop` (`until`,
+  `while` or `for` with a sleep), `gh-pr-checks-watch`, `gh-run-watch`, `bash-background` (Bash
+  with `run_in_background`), `monitor` (the Monitor tool) and `wakeup` (ScheduleWakeup); a
+  foreground command that matches several is the most specific. Per row: calls; wall seconds,
+  from the call to its result, or for a background one to the notice that ends it (the task
+  notification with a status, a Monitor expiry, the wakeup firing with the same prompt), with how
+  many calls had an end in the transcript (`not measured` when none had); calls that timed out
+  (the harness says so, the command ran its whole `timeout N`, a Monitor expired, or a watch was
+  run again at once on the same PR or run); repeats (the same target polled again with nothing
+  else in between); calls the harness moved to the background; and the input-equivalent tokens
+  of the messages that issued them.
 - **Tokens:** input-equivalent tokens (cache write 1.25x or 2x, cache read 0.1x, output 5x) by
   agent type, skill, PR, session and model; the tool results that cost most because every later
   turn reads them again; the same file read three or more times; the same command run three or
-  more times (polling); sleeps and watches.
+  more times (polling).
 
 A measure that finds no data says so; a zero is a result only when the source was there. Write
 down which measures had no data and why.
@@ -78,6 +90,9 @@ Quality first, then wasted work, then tokens and time.
   have been caught (the plan, a reviewer angle, a test, CI, `/verify-dev`), and why was it not?
   Read the PR, the issue and the rule that should have caught it.
 - **Wasted work:** reruns, stalled rounds, conflicts, waits. What made the round necessary.
+  A foreground wait that timed out or was repeated is waste: the agent spent a turn, and the
+  tokens of the message that issued it, without learning the result. Report the waits table
+  with the instruction that told each agent type to wait that way.
 - **Tokens and time:** the largest consumers in the summary.
 
 Read the cause from the source, never from a report: the instruction, hook or workflow line that
@@ -115,7 +130,8 @@ version has none. Read the Docs connector's guide first, then add or replace the
 **Retro**, in this order:
 
 1. **Laatu:** the quality numbers, beside the previous release's.
-2. **Hukka, CI ja työkalut:** the same, compared.
+2. **Hukka, CI ja työkalut:** the same, compared, with the waits table (kind, agent type, calls,
+   wall, timed out, repeats, tokens).
 3. **Tokenit ja aika:** the same, compared.
 4. **Edellisen kierroksen muutokset:** each one, whether it helped, kept, dropped or reverted.
 5. **Löydökset:** each root cause from step 4 with its evidence.

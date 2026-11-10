@@ -18,6 +18,7 @@ import {
   weeks,
   weightedTokens,
 } from '../.claude/skills/improve/retro.mjs'
+import { waitKind, waitTarget } from '../.claude/skills/improve/waits.mjs'
 
 // /improve reads one production release through .claude/skills/improve/retro.mjs. These are the
 // rules it counts by; the sources (git, GitHub, Jira, SonarCloud, transcripts) are read in main().
@@ -246,10 +247,11 @@ describe('TranscriptStats', () => {
     message: { id, model: 'claude-sonnet-5-5', usage, content },
     ...extra,
   })
-  const result = (ts, id, text, isError = false) => ({
+  const result = (ts, id, text, isError = false, extra = {}) => ({
     type: 'user',
     timestamp: ts,
     message: { content: [{ type: 'tool_result', tool_use_id: id, content: text, is_error: isError }] },
+    ...extra,
   })
 
   it('counts a message once although its blocks come on several lines, and only inside the window', () => {
@@ -344,7 +346,20 @@ describe('TranscriptStats', () => {
     expect(r.repeatedCommands).toEqual([
       { command: 'sleep 30; gh pr view 1610 --json mergeable', count: 3, agent: 'implementer' },
     ])
-    expect(r.sleeps).toEqual({ calls: 3, seconds: 90 })
+    // A Read between the polls is something else happening: none of the three is a repeat.
+    expect(r.waits).toEqual([
+      {
+        kind: 'sleep',
+        agent: 'implementer',
+        calls: 3,
+        wallSeconds: 0,
+        wallMeasured: 3,
+        timedOut: 0,
+        repeats: 0,
+        movedToBackground: 0,
+        tokens: 18,
+      },
+    ])
     expect(r.conflictSightings).toEqual({ '#1610': 3 })
     expect(r.gitHooks).toEqual({ preCommitFailed: 1, commitMsgFailed: 0 })
     expect(r.toolErrors).toEqual([{ kind: 'exit', tool: 'Bash', count: 1 }])
@@ -371,5 +386,175 @@ describe('TranscriptStats', () => {
       { angle: 'tests', round: 'r2', runs: 1, tallied: 1, confirmed: 1, plausible: 0, notes: 2, cleanUntallied: 0 },
     ])
     expect(r.reviewerRunsPerPr).toEqual({ '#1610': 1 })
+  })
+
+  describe('waits', () => {
+    const at = (time) => `2026-10-10T${time}Z`
+    const bash = (id, command, extra = {}) => ({ type: 'tool_use', id, name: 'Bash', input: { command, ...extra } })
+    const notification = (type, ts, body) => {
+      const text = `<task-notification>\n${body}\n</task-notification>`
+      if (type === 'queue') return { type: 'queue-operation', operation: 'enqueue', timestamp: ts, content: text }
+      return { type: 'user', timestamp: ts, message: { content: text }, origin: { kind: 'task-notification' } }
+    }
+    const done = (task) => `<task-id>${task}</task-id>\n<status>completed</status>\n<summary>Background command done</summary>`
+
+    const transcript = () => {
+      const stats = new TranscriptStats({ ...window, prs })
+      stats.begin({ sessionId: 's1', agentType: 'main' })
+      // A watch the harness stops at its timeout, run again at once and moved to the background,
+      // then a loop that waits for that background copy: one target, nothing else in between.
+      stats.line(assistant(at('10:00:00'), 'm1', [bash('w1', 'gh pr checks 1610 --watch', { timeout: 600000 })]))
+      stats.line(result(at('10:10:00'), 'w1', 'Exit code 143\nCommand timed out after 10m 0s', true))
+      stats.line(assistant(at('10:10:05'), 'm2', [bash('w2', 'gh pr checks 1610 --watch')]))
+      stats.line(
+        result(
+          at('10:13:05'),
+          'w2',
+          'Command was moved to the background (ID: bmoved1) after running for 180s. Output is being written to: /t/bmoved1.output.'
+        )
+      )
+      stats.line(
+        assistant(at('10:13:10'), 'm3', [
+          bash('p1', 'until ! pgrep -f "gh pr checks 1610 --watch" >/dev/null; do sleep 10; done; gh pr checks 1610'),
+        ])
+      )
+      stats.line(notification('queue', at('10:13:50'), done('bmoved1')))
+      // The same notice again as the user line: the first one counts.
+      stats.line(notification('user', at('10:13:51'), done('bmoved1')))
+      stats.line(result(at('10:14:10'), 'p1', 'tests pass'))
+      // A background command, ended by its completion notice.
+      stats.line(
+        assistant(at('10:15:00'), 'm4', [bash('b1', 'npm run test-backend -- --run x', { run_in_background: true })])
+      )
+      stats.line(
+        result(at('10:15:01'), 'b1', 'Command running in background with ID: bbg1. Output is being written to: /t.', false, {
+          toolUseResult: { backgroundTaskId: 'bbg1' },
+        })
+      )
+      stats.line(notification('user', at('10:20:00'), done('bbg1')))
+      // A monitor: its events do not end it, its expiry does, and an expiry is a timeout.
+      stats.line(
+        assistant(at('10:21:00'), 'm5', [
+          { type: 'tool_use', id: 'mon', name: 'Monitor', input: { command: 'tail -f x', timeout_ms: 1800000 } },
+        ])
+      )
+      stats.line(
+        result(at('10:21:01'), 'mon', 'Monitor started (task bmon1, expires in 30m).', false, {
+          toolUseResult: { taskId: 'bmon1' },
+        })
+      )
+      stats.line(notification('user', at('10:30:00'), '<task-id>bmon1</task-id>\n<event>line</event>'))
+      stats.line(
+        notification('user', at('10:51:00'), '<task-id>bmon1</task-id>\n<event>[Monitor expired after 30m]</event>')
+      )
+      // A wakeup that fires with its prompt, and one that never does.
+      const wakeup = (id, prompt) => ({ type: 'tool_use', id, name: 'ScheduleWakeup', input: { delaySeconds: 600, prompt } })
+      stats.line(assistant(at('10:52:00'), 'm6', [wakeup('k1', 'Check PR 1610')]))
+      stats.line(result(at('10:52:01'), 'k1', 'Next wakeup scheduled'))
+      stats.line({
+        type: 'user',
+        timestamp: at('11:02:00'),
+        isMeta: true,
+        turnOrigin: 'scheduled',
+        message: { content: 'Check PR 1610' },
+      })
+      stats.line(assistant(at('11:03:00'), 'm7', [wakeup('k2', 'Check PR 1610 again')]))
+      stats.line(result(at('11:03:01'), 'k2', 'Next wakeup scheduled'))
+      stats.line(assistant(at('11:04:00'), 'm8', [bash('s1', 'sleep 5')]))
+      stats.line(result(at('11:04:05'), 's1', ''))
+      stats.end()
+
+      stats.begin({ sessionId: 's1', agentType: 'ci-watcher', description: 'Watch CI on PR 1610' })
+      stats.line(assistant(at('12:00:00'), 'c1', [bash('r1', 'gh run watch 123 --exit-status')]))
+      stats.line(result(at('12:02:00'), 'r1', 'run 123 completed'))
+      // The watch's exit code is thrown away, but it ran its whole `timeout 590`.
+      stats.line(
+        assistant(at('12:02:30'), 'c3', [
+          bash('w3', 'timeout 590 gh pr checks 1610 --watch >/dev/null 2>&1; gh pr checks 1610'),
+        ])
+      )
+      stats.line(result(at('12:12:21'), 'w3', 'tests pass'))
+      stats.line(assistant(at('12:12:30'), 'c4', [bash('w4', 'timeout 590 gh pr checks 1611 --watch')]))
+      stats.line(result(at('12:13:30'), 'w4', 'tests pass'))
+      // Two background calls in one message, never matched to a notice: the message costs once.
+      stats.line(
+        assistant(at('12:03:00'), 'c2', [
+          bash('b2', 'sleep 60', { run_in_background: true }),
+          bash('b3', 'sleep 90', { run_in_background: true }),
+        ])
+      )
+      stats.line(result(at('12:03:01'), 'b2', 'Command running in background with ID: bx2.'))
+      stats.line(result(at('12:03:01'), 'b3', 'Command running in background with ID: bx3.'))
+      stats.end()
+      return stats.result().waits
+    }
+
+    const row = (kind, agent, over) => ({
+      kind,
+      agent,
+      calls: 1,
+      wallSeconds: 0,
+      wallMeasured: 1,
+      timedOut: 0,
+      repeats: 0,
+      movedToBackground: 0,
+      tokens: 6,
+      ...over,
+    })
+
+    it('breaks every wait down by kind and agent type, with its wall time, timeouts, repeats and tokens', () => {
+      expect(transcript()).toEqual([
+        row('sleep', 'main', { wallSeconds: 5 }),
+        row('poll-loop', 'main', { wallSeconds: 60, repeats: 1 }),
+        row('gh-pr-checks-watch', 'ci-watcher', { calls: 2, wallSeconds: 651, wallMeasured: 2, timedOut: 1, tokens: 12 }),
+        // 600 s to the timeout, then 225 s to the moved copy's completion notice.
+        row('gh-pr-checks-watch', 'main', {
+          calls: 2,
+          wallSeconds: 825,
+          wallMeasured: 2,
+          timedOut: 2,
+          repeats: 1,
+          movedToBackground: 1,
+          tokens: 12,
+        }),
+        row('gh-run-watch', 'ci-watcher', { wallSeconds: 120 }),
+        row('bash-background', 'ci-watcher', { calls: 2, wallSeconds: 'not measured', wallMeasured: 0 }),
+        row('bash-background', 'main', { wallSeconds: 300 }),
+        row('monitor', 'main', { wallSeconds: 1800, timedOut: 1 }),
+        row('wakeup', 'main', { calls: 2, wallSeconds: 600, tokens: 12 }),
+      ])
+    })
+
+    it.each([
+      ['sleep 30; gh pr view 1610 --json mergeable', 'sleep'],
+      ['until gh pr view 1 --json state | grep -q MERGED; do sleep 20; done', 'poll-loop'],
+      ['for i in 1 2 3; do gh run list; sleep 30; done', 'poll-loop'],
+      ['sleep 5; gh pr checks 1610 --watch --fail-fast', 'gh-pr-checks-watch'],
+      ['timeout 590 gh pr checks 1610 --watch >/dev/null 2>&1; gh pr checks 1610', 'gh-pr-checks-watch'],
+      ['while true; do gh run watch 42; sleep 5; done', 'gh-run-watch'],
+      // The watch is only the text pgrep looks for; the command is the loop.
+      ['until ! pgrep -f "gh pr checks 1783 --watch" >/dev/null; do sleep 10; done', 'poll-loop'],
+      ['gh pr checks 1610', undefined],
+      ['for f in a b; do echo $f; done', undefined],
+      ['npx vitest --watch', undefined],
+    ])('a foreground "%s" is %s', (command, kind) => {
+      expect(waitKind('Bash', { command })).toBe(kind)
+    })
+
+    it('names the tool waits that are not foreground Bash, and nothing else', () => {
+      expect(waitKind('Bash', { command: 'gh pr checks 1 --watch', run_in_background: true })).toBe('bash-background')
+      expect(waitKind('Monitor', { command: 'tail -f x' })).toBe('monitor')
+      expect(waitKind('ScheduleWakeup', { prompt: 'x' })).toBe('wakeup')
+      expect(waitKind('Read', { file_path: '/a' })).toBeUndefined()
+    })
+
+    it('polls one target whatever the sleep or the output filter', () => {
+      expect(waitTarget('Bash', { command: 'sleep 30; gh pr view 1610 --json mergeable' })).toBe(
+        waitTarget('Bash', { command: 'sleep 60; gh pr checks 1610 | grep -v pass' })
+      )
+      expect(waitTarget('Bash', { command: 'gh run watch 123' })).toBe('run:123')
+      expect(waitTarget('Bash', { command: 'sleep 30;  ls  x' })).toBe(waitTarget('Bash', { command: 'sleep 5; ls x' }))
+      expect(waitTarget('ScheduleWakeup', { prompt: 'Check PR' })).toBe('prompt:Check PR')
+    })
   })
 })
