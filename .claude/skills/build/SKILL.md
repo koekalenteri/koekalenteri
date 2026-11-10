@@ -23,6 +23,7 @@ otherwise. The unit of work is a piece, not an issue.
     `mainissa` (merged); `odottaa päätöstä` stays while the piece's question under **Avoimet
     päätökset** in the document has no answer (step 5).
 - `ListAgents` and `git worktree list`: a peer session on a key or a branch holds that piece.
+  The worktrees of `mainissa` pieces no one holds are removed (step 7).
 - `.claude/skills/release-plan/candidates.sh 'fixVersion = "<version>"'` for the open PRs'
   files; a piece whose hard path an open PR outside the plan holds waits for it.
 
@@ -106,7 +107,27 @@ once `npm run check-docs` passes. That update starts no review round: it goes to
 and the `ci-watcher`, not to the reviewers. When a guide page's own text conflicts, it is a
 by-hand change after all, and the `docs` reviewer looks at the merge.
 
-## 7. Report
+## 7. Remove what has landed
+
+A worktree with its own install holds 1.6 GB and keeps Spotlight and the editors' file watchers
+busy; on 10.11.2026, 72 worktrees took 88 GB. When a piece turns `mainissa` and its implementer
+has no further piece in the area, remove the implementer's worktree (its path from
+`git worktree list` by the piece's branch):
+
+```
+node .claude/skills/build/remove-merged-worktrees.mjs --apply <worktree>...
+```
+
+It removes a worktree only when it is clean, a merged PR's head is its HEAD or descends from it,
+and no process works in it; the branch goes with it. Whatever it keeps it prints with the reason:
+a `has commits after #<n>` worktree holds work that never reached a PR, so ask its implementer.
+An implementer with another piece to build keeps its worktree until that one lands too. Name the
+paths: the script cannot see a subagent that waits for its next message, so a sweep without them
+would take a peer session's worktrees. In step 1, a continuing session does the same for the
+`mainissa` pieces whose implementers belonged to an earlier session and no peer holds. A later
+fix to a merged piece gets a fresh implementer; a new worktree links `node_modules` in a second.
+
+## 8. Report
 
 One row per piece: area, what it builds, PR, status, the issues it completes, and what is open.
 Then what waits on the user: the PRs ready to merge in the order the table needs them, and the
