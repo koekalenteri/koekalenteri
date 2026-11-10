@@ -45,7 +45,9 @@ Downloads and scratch files go to a directory of your own (`mktemp -d`), never i
 For every failure, find out whether it belongs to the PR before reporting it:
 
 - Look at the latest completed CI run on main (`gh run list --branch main --workflow ci.yml
-  --limit 3`) and its failed jobs. The same test failing there is main's failure.
+  --limit 3`) and its failed jobs. The same test failing there is main's failure. A main push run
+  that the merge queue already tested skips its test jobs; its tests ran in the `merge_group` run
+  of the same commit.
 - A test that fails on a fixed date, a weekday, the year or the time of day is a clock failure,
   whichever branch shows it first. Say which date the test assumed.
 - A Sonar issue on a line the PR did not touch, or a gate condition that is red on main too, is

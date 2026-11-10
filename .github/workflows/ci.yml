@@ -19,6 +19,10 @@ jobs:
       backend: ${{ steps.scope.outputs.backend }}
       e2e: ${{ steps.scope.outputs.e2e }}
       frontend: ${{ steps.scope.outputs.frontend }}
+      # A push the merge queue has already tested skips the tests and goes straight to deploy-dev;
+      # tested_run_id is that merge_group run, where sonar finds the coverage.
+      tested: ${{ steps.scope.outputs.tested }}
+      tested_run_id: ${{ steps.merge-queue-run.outputs.run-id }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -29,28 +33,28 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             # For PRs, output empty string as base is ignored anyway
-            echo "sha=" >> $GITHUB_OUTPUT
+            echo "sha=" >> "$GITHUB_OUTPUT"
           elif [[ "${{ github.event_name }}" == "push" ]]; then
             # For direct pushes, use the "before" SHA from the push event
             BEFORE_SHA="${{ github.event.before }}"
             if [[ -z "$BEFORE_SHA" || "$BEFORE_SHA" == "0000000000000000000000000000000000000000" ]]; then
               # If this is a new branch, compare with the default branch
-              echo "sha=$(git merge-base origin/${{ github.event.repository.default_branch }} ${{ github.sha }})" >> $GITHUB_OUTPUT
+              echo "sha=$(git merge-base origin/${{ github.event.repository.default_branch }} ${{ github.sha }})" >> "$GITHUB_OUTPUT"
             elif [[ "${{ github.event.forced }}" == "true" ]]; then
               # Force pushes often rewrite an existing commit. Comparing old tip..new tip
               # only shows what changed between the two versions of the commit, not the
               # whole rewritten commit. Use their common ancestor when available.
               if git cat-file -e "$BEFORE_SHA^{commit}" 2>/dev/null && BASE_SHA=$(git merge-base "$BEFORE_SHA" "${{ github.sha }}" 2>/dev/null); then
-                echo "sha=$BASE_SHA" >> $GITHUB_OUTPUT
+                echo "sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
               else
-                echo "sha=$(git rev-parse ${{ github.sha }}^)" >> $GITHUB_OUTPUT
+                echo "sha=$(git rev-parse ${{ github.sha }}^)" >> "$GITHUB_OUTPUT"
               fi
             else
-              echo "sha=$BEFORE_SHA" >> $GITHUB_OUTPUT
+              echo "sha=$BEFORE_SHA" >> "$GITHUB_OUTPUT"
             fi
           else
             # For other events (like merge_group)
-            echo "sha=$(git merge-base origin/main ${{ github.sha }})" >> $GITHUB_OUTPUT
+            echo "sha=$(git merge-base origin/main ${{ github.sha }})" >> "$GITHUB_OUTPUT"
           fi
 
       - uses: dorny/paths-filter@v4
@@ -113,18 +117,63 @@ jobs:
             )
             core.setOutput('failed', String(previousFailed))
 
+      # The merge queue tests the very commit that lands on main, so a push usually has a successful
+      # merge_group run for its SHA. A push without one (the queue bypassed) is tested here.
+      - name: Find the merge queue run of this commit
+        id: merge-queue-run
+        if: ${{ github.event_name == 'push' }}
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { data } = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'ci.yml',
+              event: 'merge_group',
+              head_sha: context.sha,
+              status: 'success',
+              per_page: 1,
+            })
+            const run = data.workflow_runs[0]
+            core.info(
+              run
+                ? `Merge queue run ${run.id} tested ${context.sha} successfully`
+                : `No successful merge queue run for ${context.sha}`
+            )
+            core.setOutput('run-id', run ? String(run.id) : '')
+
       - name: Resolve build scope
         id: scope
+        env:
+          PREVIOUS_FAILED: ${{ steps.previous-ci.outputs.failed }}
+          FILTER_BACKEND: ${{ steps.filter.outputs.backend }}
+          FILTER_FRONTEND: ${{ steps.filter.outputs.frontend }}
+          FILTER_E2E: ${{ steps.filter.outputs.e2e }}
+          MERGE_QUEUE_RUN_ID: ${{ steps.merge-queue-run.outputs.run-id }}
         run: |
-          if [[ "${{ steps.previous-ci.outputs.failed }}" == "true" ]]; then
+          if [[ "$PREVIOUS_FAILED" == "true" ]]; then
             echo "Previous main CI run was not successful; building both backend and frontend."
-            echo "backend=true" >> $GITHUB_OUTPUT
-            echo "frontend=true" >> $GITHUB_OUTPUT
-            echo "e2e=true" >> $GITHUB_OUTPUT
+            {
+              echo "backend=true"
+              echo "frontend=true"
+              echo "e2e=true"
+              echo "tested=false"
+            } >> "$GITHUB_OUTPUT"
           else
-            echo "backend=${{ steps.filter.outputs.backend }}" >> $GITHUB_OUTPUT
-            echo "frontend=${{ steps.filter.outputs.frontend }}" >> $GITHUB_OUTPUT
-            echo "e2e=${{ steps.filter.outputs.e2e }}" >> $GITHUB_OUTPUT
+            {
+              echo "backend=$FILTER_BACKEND"
+              echo "frontend=$FILTER_FRONTEND"
+              echo "e2e=$FILTER_E2E"
+            } >> "$GITHUB_OUTPUT"
+            # The merge_group run compared against the main it was queued on, so its scope holds
+            # this push's. After a failed main run the scope above is the full one, which the
+            # merge queue did not test, so the tests run here.
+            if [[ -n "$MERGE_QUEUE_RUN_ID" ]]; then
+              echo "Merge queue run $MERGE_QUEUE_RUN_ID tested this commit; skipping the tests."
+              echo "tested=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "tested=false" >> "$GITHUB_OUTPUT"
+            fi
           fi
 
       - uses: actions/setup-node@v7
@@ -148,7 +197,7 @@ jobs:
   backend:
     runs-on: ubuntu-latest
     needs: setup
-    if: ${{ needs.setup.outputs.backend == 'true' }}
+    if: ${{ needs.setup.outputs.backend == 'true' && needs.setup.outputs.tested != 'true' }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -197,11 +246,18 @@ jobs:
         with:
           path: coverage/lcov.info
           key: ${{ github.ref_name }}-backend-coverage-${{ github.run_id }}
+      # A merge queue run's cache is under the queue's ref, out of main's reach; the push run that
+      # skips the tests downloads this instead.
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v7
+        with:
+          name: backend-coverage
+          path: coverage/lcov.info
 
   frontend:
     runs-on: ubuntu-latest
     needs: setup
-    if: ${{ needs.setup.outputs.frontend == 'true' }}
+    if: ${{ needs.setup.outputs.frontend == 'true' && needs.setup.outputs.tested != 'true' }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -243,7 +299,7 @@ jobs:
   frontend-test:
     runs-on: ubuntu-latest
     needs: setup
-    if: ${{ needs.setup.outputs.frontend == 'true' }}
+    if: ${{ needs.setup.outputs.frontend == 'true' && needs.setup.outputs.tested != 'true' }}
     strategy:
       matrix:
         shard: [1, 2, 3, 4, 5]
@@ -284,7 +340,7 @@ jobs:
     runs-on: ubuntu-latest
     # Off sonar's path, so it waits for a short job rather than take a runner from one on it.
     needs: [setup, integration]
-    if: ${{ !cancelled() && needs.setup.result == 'success' && needs.setup.outputs.frontend == 'true' }}
+    if: ${{ !cancelled() && needs.setup.result == 'success' && needs.setup.outputs.tested != 'true' && needs.setup.outputs.frontend == 'true' }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -335,7 +391,7 @@ jobs:
     # build it uses, rather than take runners from the jobs on it at the start.
     runs-on: ubuntu-latest
     needs: [setup, frontend]
-    if: ${{ !cancelled() && needs.setup.result == 'success' && (needs.setup.outputs.frontend == 'true' || needs.setup.outputs.backend == 'true' || needs.setup.outputs.e2e == 'true') }}
+    if: ${{ !cancelled() && needs.setup.result == 'success' && needs.setup.outputs.tested != 'true' && (needs.setup.outputs.frontend == 'true' || needs.setup.outputs.backend == 'true' || needs.setup.outputs.e2e == 'true') }}
     timeout-minutes: 15
     strategy:
       fail-fast: false
@@ -413,7 +469,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     needs: [setup, frontend]
-    if: ${{ !cancelled() && needs.setup.result == 'success' }}
+    if: ${{ !cancelled() && needs.setup.result == 'success' && needs.setup.outputs.tested != 'true' }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -470,7 +526,7 @@ jobs:
     # The runner reads its table names and endpoint from e2e/env.mjs, hence the e2e scope too.
     runs-on: ubuntu-latest
     needs: setup
-    if: ${{ needs.setup.outputs.backend == 'true' || needs.setup.outputs.e2e == 'true' }}
+    if: ${{ needs.setup.outputs.tested != 'true' && (needs.setup.outputs.backend == 'true' || needs.setup.outputs.e2e == 'true') }}
     timeout-minutes: 10
     services:
       dynamodb:
@@ -508,7 +564,7 @@ jobs:
           pattern: frontend-coverage-*
           path: coverage
           merge-multiple: true
-      - name: Cache frotnend coverage reports
+      - name: Cache frontend coverage reports
         uses: actions/cache/save@v6
         with:
           path: coverage
@@ -593,7 +649,7 @@ jobs:
 
   sonar:
     runs-on: ubuntu-latest
-    needs: [backend, frontend-coverage]
+    needs: [setup, backend, frontend-coverage]
     if: >-
       ${{
         always() &&
@@ -620,13 +676,49 @@ jobs:
       - name: Install packages
         if: steps.cache-restore.outputs.cache-hit != 'true'
         run: npm ci
+      # A push the merge queue tested ran no tests of its own: the coverage is that merge_group run's.
+      # It is saved under this ref too, so a later run that skips a side restores this commit's
+      # coverage rather than one from before the merge queue runs. A side the merge_group run did not
+      # test has no artifact, and falls back to the cache like any other run.
+      - name: Download frontend coverage from the merge queue run
+        if: ${{ needs.setup.outputs.tested == 'true' }}
+        uses: actions/download-artifact@v8
+        with:
+          pattern: frontend-coverage-*
+          path: coverage
+          merge-multiple: true
+          run-id: ${{ needs.setup.outputs.tested_run_id }}
+          github-token: ${{ github.token }}
+      - name: Cache the merge queue run's frontend coverage
+        if: ${{ needs.setup.outputs.tested == 'true' && hashFiles('coverage/lcov*.info') != '' }}
+        uses: actions/cache/save@v6
+        with:
+          path: coverage
+          key: ${{ github.ref_name }}-frontend-coverage-${{ github.run_id }}
       - name: Download frontend coverage
+        if: ${{ hashFiles('coverage/lcov*.info') == '' }}
         uses: actions/cache/restore@v6
         with:
           path: coverage
           key: ${{ github.ref_name }}-frontend-coverage
           restore-keys: ${{ github.ref_name }}-frontend-coverage
+      - name: Download backend coverage from the merge queue run
+        if: ${{ needs.setup.outputs.tested == 'true' }}
+        uses: actions/download-artifact@v8
+        with:
+          pattern: backend-coverage
+          path: coverage
+          merge-multiple: true
+          run-id: ${{ needs.setup.outputs.tested_run_id }}
+          github-token: ${{ github.token }}
+      - name: Cache the merge queue run's backend coverage
+        if: ${{ needs.setup.outputs.tested == 'true' && hashFiles('coverage/lcov.info') != '' }}
+        uses: actions/cache/save@v6
+        with:
+          path: coverage/lcov.info
+          key: ${{ github.ref_name }}-backend-coverage-${{ github.run_id }}
       - name: Download backend coverage
+        if: ${{ hashFiles('coverage/lcov.info') == '' }}
         uses: actions/cache/restore@v6
         with:
           path: coverage/lcov.info
