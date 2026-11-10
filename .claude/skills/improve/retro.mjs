@@ -20,6 +20,7 @@ import { pathToFileURL } from 'node:url'
 import { promisify } from 'node:util'
 import { dotenvFile } from '../../../scripts/lib/git.mjs'
 import { credentialsFromEnv, jiraClient, searchAll } from '../../../scripts/lib/jira.mjs'
+import { WaitStats } from './waits.mjs'
 
 const REPO = 'koekalenteri/koekalenteri'
 const SONAR = 'https://sonarcloud.io/api'
@@ -313,8 +314,8 @@ export class TranscriptStats {
     this.bigResults = []
     this.repeatedReads = []
     this.repeatedCommands = []
-    this.sleeps = { calls: 0, seconds: 0 }
-    this.waits = []
+    this.waits = new WaitStats(weightedTokens)
+    this.questions = []
     this.activity = new Map()
     this.precommit = { preCommitFailed: 0, commitMsgFailed: 0 }
     this.conflicts = new Map()
@@ -351,10 +352,14 @@ export class TranscriptStats {
       big: [],
       last: '',
     }
+    this.waits.begin(file.agentType)
   }
 
   line(record) {
-    if (!record.timestamp || !this.inWindow(record.timestamp)) return
+    if (!record.timestamp) return
+    // A notice that ends a wait counts after the window too: the wait itself was inside it.
+    this.waits.notice(record)
+    if (!this.inWindow(record.timestamp)) return
     const f = this.file
     if (record.type !== 'assistant' && record.type !== 'user') return
     // Only the conversation counts as activity: bookkeeping lines follow a turn's end.
@@ -400,6 +405,7 @@ export class TranscriptStats {
   toolUse(block, record) {
     const f = this.file
     f.tools.set(block.id, { name: block.name, input: block.input, at: record.timestamp })
+    this.waits.use(block, record)
     if (block.name === 'SubagentHandback') f.last = block.input?.message ?? f.last
     if (block.name === 'Read' && block.input?.file_path) {
       const key = `${block.input.file_path}:${block.input.offset ?? ''}`
@@ -408,11 +414,6 @@ export class TranscriptStats {
     if (block.name === 'Bash') {
       const command = String(block.input?.command ?? '')
       f.commands.set(command, (f.commands.get(command) ?? 0) + 1)
-      const sleep = /\bsleep\s+(\d+)/.exec(command)
-      if (sleep || /--watch\b|\bgh run watch\b/.test(command)) {
-        this.sleeps.calls += 1
-        this.sleeps.seconds += Number(sleep?.[1] ?? 0)
-      }
     }
   }
 
@@ -420,7 +421,10 @@ export class TranscriptStats {
     const content = record.message?.content
     if (typeof content === 'string') return this.skillCommand(content)
     for (const block of Array.isArray(content) ? content : []) {
-      if (block.type === 'text') this.skillCommand(block.text)
+      if (block.type === 'text') {
+        this.skillCommand(block.text)
+        this.waits.interrupt()
+      }
       if (block.type === 'tool_result') this.toolResult(block, record)
     }
   }
@@ -429,6 +433,7 @@ export class TranscriptStats {
     const f = this.file
     const tool = f.tools.get(block.tool_use_id) ?? { name: '?', input: {} }
     const text = textOf(block.content)
+    this.waits.result(block, record, text)
     const size = this.toolSizes.get(tool.name) ?? { calls: 0, chars: 0 }
     size.calls += 1
     size.chars += text.length
@@ -436,7 +441,7 @@ export class TranscriptStats {
     if (text.length >= BIG_RESULT_CHARS)
       f.big.push({ tool: tool.name, input: toolInputSummary(tool.name, tool.input), chars: text.length, turn: f.turn })
     if (tool.name === 'AskUserQuestion') {
-      this.waits.push({
+      this.questions.push({
         session: f.sessionId,
         at: tool.at,
         minutes: Math.round((Date.parse(record.timestamp) - Date.parse(tool.at)) / 60_000),
@@ -502,12 +507,12 @@ export class TranscriptStats {
     const result = []
     for (const [session, times] of this.activity) {
       const sorted = times.sort((a, b) => a[0] - b[0])
-      const waits = this.waits
+      const questions = this.questions
         .filter((w) => w.session === session)
         .map((w) => [Date.parse(w.at), Date.parse(w.at) + w.minutes * 60_000])
       for (let i = 1; i < sorted.length; i++) {
         const [[a, turnEnd], [b]] = [sorted[i - 1], sorted[i]]
-        const asked = waits.some(([s, e]) => s <= a + 1000 && e >= b - 1000)
+        const asked = questions.some(([s, e]) => s <= a + 1000 && e >= b - 1000)
         if (b - a >= LONG_PAUSE_MS && !asked) {
           result.push({
             session,
@@ -563,8 +568,8 @@ export class TranscriptStats {
         .slice(0, 15),
       repeatedReads: this.repeatedReads.sort((a, b) => b.count - a.count).slice(0, 15),
       repeatedCommands: this.repeatedCommands.sort((a, b) => b.count - a.count).slice(0, 15),
-      sleeps: this.sleeps,
-      questionWaits: this.waits.sort((a, b) => b.minutes - a.minutes),
+      waits: this.waits.summary(),
+      questionWaits: this.questions.sort((a, b) => b.minutes - a.minutes),
       pauses: this.pauses().sort((a, b) => b.minutes - a.minutes),
       toolErrors: [...this.errors]
         .map(([key, count]) => ({ kind: key.split('\t')[0], tool: key.split('\t')[1], count }))
@@ -944,6 +949,15 @@ const summary = (r) => {
       const label = after === 'user' ? 'after the turn ended, no question asked' : 'while a tool or agent ran'
       return `Pauses over 30 min ${label}: ${list.length}, median ${median(list.map((p) => p.minutes)) ?? '-'} min`
     }),
+    'Waits by kind and agent type (wall = seconds over the calls whose end the transcript shows, measured/calls; timedOut = the harness timeout, a reached `timeout N` or a Monitor expiry with no events; repeats = the same target polled again with nothing between; tokens = the issuing messages):',
+    tsv(
+      r.transcripts.waits.map((w) => ({
+        ...w,
+        wall: typeof w.wallSeconds === 'number' ? `${w.wallSeconds} (${w.wallMeasured}/${w.calls})` : w.wallSeconds,
+        tokens: fmt(w.tokens),
+      })),
+      ['kind', 'agent', 'calls', 'wall', 'timedOut', 'repeats', 'movedToBackground', 'tokens']
+    ),
     '',
     `## Tokens (input-equivalent; ${r.transcripts.files} transcripts in ${r.transcripts.dirs} folders)`,
     `Total ${fmt(r.transcripts.tokens.total)}`,
@@ -981,7 +995,6 @@ const summary = (r) => {
     ),
     `Repeated reads (same file 3+ times in one transcript), top: ${JSON.stringify(r.transcripts.repeatedReads.slice(0, 5))}`,
     `Repeated commands (3+ times in one transcript), top: ${JSON.stringify(r.transcripts.repeatedCommands.slice(0, 5))}`,
-    `Sleeps and watches: ${JSON.stringify(r.transcripts.sleeps)}`,
     '',
     `Plan documents: this ${r.jira.version?.plan ?? 'none'}, previous (${r.window.previousVersion}) ${r.jira.previousVersion?.plan ?? 'none'}`,
   ]
