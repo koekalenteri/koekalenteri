@@ -38,7 +38,7 @@ sessions work in it, so never check out, switch or reset anything there: a revie
 detached on a PR commit for an hour, twice (#1594, #1608). Read with `git show`. To run or mutate
 code, make a worktree of your own in your scratchpad directory, named after your angle so a
 parallel reviewer's probe never lands in yours:
-`git worktree add --detach <scratchpad>/wt-<angle> origin/<branch>`, then `npm ci --prefer-offline`
+`git worktree add --detach <scratchpad>/wt-<angle> origin/<branch>`, then `npm run link-node-modules`
 there. Remove it with `git worktree remove` before you report.
 
 ## Angles

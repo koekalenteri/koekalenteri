@@ -107,8 +107,8 @@ MCP server (`@playwright/mcp`, pinned in `package.json`), named `playwright`, ru
 (KOE-1731). It is for checking a change on dev (https://dev.koekalenteri.snj.fi) the way a
 tester would, signed in through the dev login form. Claude Code asks once, at the first session
 after the file appears, whether to approve the project server; `claude mcp get playwright` shows
-whether it is approved. The server runs from `node_modules`, so a fresh checkout or worktree
-needs `npm ci` first, or Claude Code shows the server as failed.
+whether it is approved. The server runs from `node_modules`, so a fresh checkout needs `npm ci`
+first and a worktree `npm run link-node-modules`, or Claude Code shows the server as failed.
 
 - The browser is headless and isolated: its profile lives in memory and nothing is kept between
   sessions. To change account, close the browser (`browser_close`) and sign in again through

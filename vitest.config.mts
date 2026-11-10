@@ -1,9 +1,16 @@
 import type { CoverageV8Options } from 'vitest/node'
+import { realpathSync } from 'node:fs'
 import { playwright } from '@vitest/browser-playwright'
 import { configDefaults, defineConfig } from 'vitest/config'
 import { a11yRatchet } from './scripts/a11yRatchet.mjs'
 import { platformFonts } from './scripts/platformFonts.mjs'
 import { resetMouse } from './scripts/resetMouse.mjs'
+
+// Caches stay in the worktree: node_modules may be a shared, read-only store
+// (scripts/link-node-modules.mjs).
+const cacheDir = '.cache/vite'
+// A linked node_modules resolves to the store, outside the root Vite serves from.
+const server = { fs: { allow: ['.', realpathSync(new URL('./node_modules', import.meta.url))] } }
 
 const backendProject = process.argv.includes('--project=backend')
 
@@ -30,6 +37,7 @@ const coverage: { provider: 'v8' } & CoverageV8Options = {
 }
 
 export default defineConfig({
+  cacheDir,
   define: {
     __BUILD_TIMESTAMP__: '0',
   },
@@ -40,6 +48,7 @@ export default defineConfig({
     coverage,
     projects: [
       {
+        cacheDir,
         test: {
           name: 'backend',
           globals: true,
@@ -57,6 +66,7 @@ export default defineConfig({
         },
       },
       {
+        cacheDir,
         test: {
           name: 'integration',
           globals: true,
@@ -74,6 +84,8 @@ export default defineConfig({
         },
       },
       {
+        cacheDir,
+        server,
         resolve: {
           alias: {
             // Deliberately NOT aliasing react-i18next here, unlike the other projects: the mock
@@ -148,6 +160,8 @@ export default defineConfig({
         },
       },
       {
+        cacheDir,
+        server,
         resolve: {
           alias: {
             'react-i18next': new URL('./src/__mocks__/react-i18next/index.tsx', import.meta.url).pathname,

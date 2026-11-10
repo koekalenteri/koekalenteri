@@ -53,6 +53,13 @@ included, and `_test_data_` seeds them. `npm run init-tables` can be run again a
 the tables it finds and adds the indexes the templates have gained since. `npm run init-tables -- --reset`
 drops them first, and `--plan` only prints what the templates declare.
 
+A `git worktree` of the repository needs no install of its own: `npm run link-node-modules` in it
+links `node_modules` to a shared, write-protected install in the main checkout's
+`.node_modules-store/`, one per `package-lock.json`, and installs it there the first time a lock is
+seen. Stores no worktree links any more are removed on the next run. Before changing dependencies
+in a worktree, `npm run link-node-modules -- --own` gives it an install of its own. Build and test
+caches go to `.cache/` in each checkout.
+
 ### Local development
 
 #### Start backend and frontend
