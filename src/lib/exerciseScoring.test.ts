@@ -1,4 +1,5 @@
 import {
+  effectiveExerciseScoring,
   exerciseMaxPoints,
   exerciseScoringErrors,
   isOnPointStep,
@@ -16,6 +17,20 @@ const hankinome = {
   officialFormat: 'NOWT' as const,
 }
 const nowt = { eventType: 'NOWT' }
+
+describe('effectiveExerciseScoring', () => {
+  it("is an unofficial NOWT-following trial's own setting", () => {
+    expect(effectiveExerciseScoring(hankinome)).toEqual({ halfPoints: true, maxPoints: 30 })
+  })
+
+  it.each([
+    ['the official NOWT', { ...nowt, exerciseScoring: { maxPoints: 30 } }],
+    ['a trial following another format', { ...hankinome, officialFormat: 'NOME-B' as const }],
+    ['a trial following none', { ...hankinome, officialFormat: undefined }],
+  ])('is none on %s, whatever is stored', (_name, event) => {
+    expect(effectiveExerciseScoring(event)).toBeUndefined()
+  })
+})
 
 describe('exerciseMaxPoints', () => {
   it('is 20 for the official NOWT, whatever is stored', () => {

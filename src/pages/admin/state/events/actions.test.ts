@@ -282,6 +282,39 @@ describe('adminSaveEventAtom (KOE-1666)', () => {
       undefined
     )
   })
+
+  // KOE-1736: the list's selection is shared by every tab and may be another event; the save is still a
+  // patch against the event it saves, so a cleared field goes as a removal.
+  describe('while the list has another event selected', () => {
+    // Ids of their own: the mocked list holds rows the other tests' saves have changed.
+    const stored = { ...eventWithStaticDates, id: 'edited', kcId: 123456 }
+    const other = { ...eventWithStaticDates, id: 'other' }
+    const { kcId: _kcId, ...cleared } = stored
+    const selectOther = () => {
+      const store = createStore()
+      store.set(adminEventsAtom, [stored, other])
+      store.set(adminEventIdAtom, other.id)
+      vi.mocked(putEvent).mockResolvedValueOnce(stored)
+      return store
+    }
+
+    it('sends the form changes as a patch', async () => {
+      await selectOther().set(adminSaveEventAtom, { event: cleared, formChanges: { kcId: null } })
+
+      expect(putEvent).toHaveBeenCalledWith({ id: stored.id, kcId: null }, TEST_ID_TOKEN, undefined, undefined)
+    })
+
+    it('sends a patch from the actions too', async () => {
+      const store = selectOther()
+      const { result } = renderHook(() => useAdminEventActions(), {
+        wrapper: ({ children }) => createElement(Provider, { store }, children),
+      })
+
+      await act(() => result.current.save(cleared))
+
+      expect(putEvent).toHaveBeenCalledWith({ id: stored.id, kcId: null }, TEST_ID_TOKEN)
+    })
+  })
 })
 
 describe('useAdminEventActions.copyCurrentToEnvironment', () => {

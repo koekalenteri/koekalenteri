@@ -32,6 +32,13 @@ export type FieldRequirements = {
   state: RequiredFieldState
   required: RequiredFields
 }
+/**
+ * A section's slice of the event as EventForm builds it: every field the section's type lists, each one
+ * written out, so a field left out of the slice fails the typecheck rather than reading as empty in the
+ * section (KOE-1440, KOE-1736).
+ */
+export type SectionSlice<T> = { [K in keyof Required<T>]: T[K] }
+
 export type JudgesEvent = Pick<
   PartialEvent,
   'classes' | 'endDate' | 'eventType' | 'judges' | 'mockTrial' | 'officialFormat' | 'ownClasses' | 'startDate'

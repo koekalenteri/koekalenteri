@@ -1,6 +1,13 @@
 import type { Theme } from '@mui/material'
 import type { DogEvent, EventState, Patch } from '@/types'
-import type { PartialEvent } from './eventForm/types'
+import type {
+  BasicInfoEvent,
+  EntryEvent,
+  JudgesEvent,
+  PartialEvent,
+  PaymentEvent,
+  SectionSlice,
+} from './eventForm/types'
 import Cancel from '@mui/icons-material/Cancel'
 import Save from '@mui/icons-material/Save'
 import { useMediaQuery } from '@mui/material'
@@ -130,7 +137,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
   // (see lib/utils#merge), so these only produce a new object when a relevant field changes —
   // letting the memoized sections skip re-rendering on unrelated edits.
   const basicInfoEvent = useMemo(
-    () => ({
+    (): SectionSlice<BasicInfoEvent> => ({
       classes: event.classes,
       contactInfo: event.contactInfo,
       dates: event.dates,
@@ -139,6 +146,8 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       entryEndDate: event.entryEndDate,
       entryStartDate: event.entryStartDate,
       eventType: event.eventType,
+      // The exercises' own scoring goes when the trial stops following NOWT (KOE-1736).
+      exerciseScoring: event.exerciseScoring,
       id: event.id,
       judges: event.judges,
       kcEvent: event.kcEvent,
@@ -166,6 +175,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       event.entryEndDate,
       event.entryStartDate,
       event.eventType,
+      event.exerciseScoring,
       event.id,
       event.judges,
       event.kcEvent,
@@ -186,7 +196,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
     ]
   )
   const judgesEvent = useMemo(
-    () => ({
+    (): SectionSlice<JudgesEvent> => ({
       classes: event.classes,
       endDate: event.endDate,
       eventType: event.eventType,
@@ -209,7 +219,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
     ]
   )
   const entryEvent = useMemo(
-    () => ({
+    (): SectionSlice<EntryEvent> => ({
       classes: event.classes,
       createdAt: event.createdAt,
       dates: event.dates,
@@ -244,7 +254,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
     ]
   )
   const paymentEvent = useMemo(
-    () => ({
+    (): SectionSlice<PaymentEvent> => ({
       cost: event.cost,
       costMember: event.costMember,
       entryStartDate: event.entryStartDate,

@@ -20,7 +20,7 @@ import {
   uniqueClasses,
 } from '../../lib/event'
 import { isEventClass, ownClassErrors } from '../../lib/eventClass'
-import { exerciseScoringErrors } from '../../lib/exerciseScoring'
+import { effectiveExerciseScoring, exerciseScoringErrors } from '../../lib/exerciseScoring'
 import { scoresAtPosts } from '../../lib/liveFormat'
 import { hasPaymentLockingRegistrations, paymentTermsDiffer } from '../../lib/payment'
 import { getStartListBlocker, isStartListFlagPublished } from '../../lib/publishing'
@@ -247,12 +247,18 @@ const checkTeams = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>) =
 
 /**
  * An exercise's own maximum and half points (KOE-1736), only for an unofficial trial that follows NOWT
- * (`exerciseScoringErrors`), checked on the merged event when the save sets them. A setting a later type
- * change leaves behind is not refused: the readers ignore it (`exerciseMaxPoints`, `pointStep`).
+ * (`exerciseScoringErrors`), checked on the merged event when the save changes them: a save repeating the
+ * stored setting, as a whole event does, changes nothing. The trial's format is the secretary's to change,
+ * so a setting the merged event no longer qualifies for is then dropped, not refused, on every save: a row
+ * an earlier save left with one is cleaned too.
  */
-const checkExerciseScoring = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>) => {
-  if (!item.exerciseScoring) return
-  const errors = exerciseScoringErrors(data)
+const settleExerciseScoring = (
+  data: JsonConfirmedEvent,
+  item: Patch<JsonConfirmedEvent>,
+  existing: JsonConfirmedEvent | undefined
+) => {
+  const changes = !!item.exerciseScoring && objectsDiffer(existing?.exerciseScoring ?? {}, item.exerciseScoring)
+  const errors = changes ? exerciseScoringErrors(data) : []
   if (errors.length) {
     throw httpError(400, {
       error: 'invalidExerciseScoring',
@@ -260,14 +266,17 @@ const checkExerciseScoring = (data: JsonConfirmedEvent, item: Patch<JsonConfirme
       message: 'Bad request: only an unofficial trial following NOWT scores its own way',
     })
   }
+  if (data.exerciseScoring && !effectiveExerciseScoring(data)) delete data.exerciseScoring
 }
 
 /**
  * A change of the exercise scoring (KOE-1736) once the trial has run by it: a post has run a turn or a
- * dog has a result, so the scores stand on it and it stays (`isOfficialFormatLocked`).
+ * dog has a result, so the scores stand on it and it stays (`isOfficialFormatLocked`). The setting the
+ * trial scores by is compared, so dropping one it no longer qualified for is no change.
  */
 const checkExerciseScoringLock = async (existing: JsonConfirmedEvent | undefined, data: JsonConfirmedEvent) => {
-  if (!existing || !objectsDiffer(existing.exerciseScoring ?? {}, data.exerciseScoring ?? {})) return
+  const before = existing && effectiveExerciseScoring(existing)
+  if (!existing || !objectsDiffer(before ?? {}, effectiveExerciseScoring(data) ?? {})) return
   const registrations = existing.turns?.length ? [] : await readEventRegistrations(existing.id)
   if (isOfficialFormatLocked(existing, registrations)) {
     throw httpError(409, {
@@ -370,7 +379,6 @@ const checkMergedEvent = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEve
   }
   checkTeams(data, item)
   checkOwnClasses(data, item)
-  checkExerciseScoring(data, item)
 }
 
 const updateEventDerivedFields = async (data: JsonConfirmedEvent) => {
@@ -630,6 +638,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   data.organizerId = data.organizer?.id
   checkMergedEvent(data, item, !!existing)
   pruneDaysOutOfTrial(data, item)
+  settleExerciseScoring(data, item, existing)
 
   // The registration-group lock is server-owned. Never accept it from an
   // admin payload, including when the stored event currently has no lock.

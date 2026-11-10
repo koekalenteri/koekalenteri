@@ -183,4 +183,92 @@ describe('EventEditPage', () => {
       expect(screen.getByText('event list')).toBeInTheDocument()
     })
   })
+
+  // KOE-1736: the exercises' own scoring is a trial's that follows NOWT. The form removes it when the
+  // trial stops following NOWT, and the save must carry the removal, or the server keeps the setting
+  // (and refuses it beside the new format).
+  describe("the exercises' own scoring", () => {
+    const scored: DogEvent = {
+      ...eventWithStaticDates,
+      eventType: 'TEST1',
+      exerciseScoring: { halfPoints: true, maxPoints: 30 },
+      officialFormat: 'NOWT',
+      paymentTime: 'registration',
+      state: 'draft',
+    }
+    const formatField = () => screen.getByRole('combobox', { name: 'event.officialFormat' })
+    const save = async (user: Awaited<ReturnType<typeof renderEditPage>>['user']) => {
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+    }
+
+    beforeEach(() => {
+      vi.mocked(putEvent).mockResolvedValueOnce(scored)
+    })
+    afterEach(() => sessionStorage.clear())
+
+    it('is removed by the save that makes the trial follow another format', async () => {
+      const { user } = await renderEditPage(scored)
+
+      await user.click(formatField())
+      await user.click(screen.getByRole('option', { name: 'NOME-B' }))
+      await flushPromises()
+      await save(user)
+
+      expect(putEvent).toHaveBeenLastCalledWith(
+        expect.objectContaining({ exerciseScoring: null, id: scored.id, officialFormat: 'NOME-B' }),
+        TEST_ID_TOKEN,
+        undefined,
+        undefined
+      )
+    })
+
+    it('is removed by the save that clears the format followed', async () => {
+      const { user } = await renderEditPage(scored)
+
+      await user.clear(formatField())
+      await flushPromises()
+      await save(user)
+
+      expect(putEvent).toHaveBeenLastCalledWith(
+        expect.objectContaining({ exerciseScoring: null, id: scored.id, officialFormat: null }),
+        TEST_ID_TOKEN,
+        undefined,
+        undefined
+      )
+    })
+  })
+
+  // KOE-1736: the event selected on the list (kept in localStorage, shared by every tab) need not be the
+  // one edited. The save is still a patch against the event the form edits: a whole event carries no
+  // removals, and the server would keep every field the form cleared.
+  describe('while the list has another event selected', () => {
+    const following: DogEvent = {
+      ...eventWithStaticDates,
+      eventType: 'TEST1',
+      officialFormat: 'NOWT',
+      paymentTime: 'registration',
+      state: 'draft',
+    }
+    const other: DogEvent = { ...eventWithStaticDates, id: 'other' }
+
+    afterEach(() => sessionStorage.clear())
+
+    it('sends a cleared field as a removal', async () => {
+      vi.mocked(putEvent).mockResolvedValueOnce(following)
+      const { user } = await renderEditPage(following, { others: [other], selected: other.id })
+
+      await user.clear(screen.getByRole('combobox', { name: 'event.officialFormat' }))
+      await flushPromises()
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+
+      expect(putEvent).toHaveBeenLastCalledWith(
+        { id: following.id, modifiedAt: following.modifiedAt, officialFormat: null },
+        TEST_ID_TOKEN,
+        undefined,
+        undefined
+      )
+    })
+  })
 })
