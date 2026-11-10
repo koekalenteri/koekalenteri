@@ -294,16 +294,22 @@ export const teamCountedDays = (event: TeamDaysOwner): DayKey[] => {
   return chosen.size && chosen.size < trialDays.length ? trialDays.filter((day) => chosen.has(day)) : []
 }
 
-/**
- * The competition's settings without the counted days the trial no longer has (KOE-1726), for a change
- * of the trial's days that is saved, not refused. Once none is left the choice goes, and every day
- * counts. Settings with nothing to leave out are given back as they are.
- */
-export const pruneTeamDays = (event: TeamDaysOwner): TeamCompetition | undefined => {
+const withTrialDays = (event: TeamDaysOwner): TeamCompetition | undefined => {
   const { teamCompetition } = event
   if (!teamCompetition?.days) return teamCompetition ?? undefined
   const days = chosenTeamDays(event)
   if (days.length === teamCompetition.days.length) return teamCompetition
   const { days: _days, ...rest } = teamCompetition
   return days.length ? { ...rest, days } : rest
+}
+
+/**
+ * The competition's settings without the counted days the trial no longer has (KOE-1726), for a change
+ * of the trial's days that is saved, not refused. Once none is left the choice goes, and every day
+ * counts. Settings with nothing to leave out are given back as they are, and settings with nothing left
+ * on are none at all (KOE-1745): off is no setting, never an empty object.
+ */
+export const pruneTeamDays = (event: TeamDaysOwner): TeamCompetition | undefined => {
+  const settings = withTrialDays(event)
+  return settings && Object.keys(settings).length ? settings : undefined
 }

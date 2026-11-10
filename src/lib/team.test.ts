@@ -386,6 +386,11 @@ describe('the counted days (KOE-1726)', () => {
       expect(pruneTeamDays({ ...trial, teamCompetition })).toBe(teamCompetition)
       expect(pruneTeamDays({ ...trial, teamCompetition: undefined })).toBeUndefined()
     })
+
+    it('gives no settings where nothing is left on (KOE-1745)', () => {
+      expect(pruneTeamDays({ ...trial, teamCompetition: { days: ['2026-07-31'] } })).toBeUndefined()
+      expect(pruneTeamDays({ ...trial, teamCompetition: {} })).toBeUndefined()
+    })
   })
 })
 

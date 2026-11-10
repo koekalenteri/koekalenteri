@@ -82,6 +82,25 @@ export const patchMerge = <T extends AnyObject, P extends Patch<T>>(base: T, pat
   return changed ? (result as T & P) : (base as T & P)
 }
 
+/**
+ * The patch `patchMerge` turns `base` into `next` with (KOE-1745): `next`, with a null for every key `base`
+ * holds and `next` lacks, at every depth where both are objects. The merge keeps a key the patch leaves
+ * out, so a key taken out of an object would otherwise stay stored. An array or any other value goes as
+ * it is, since the merge replaces it whole.
+ */
+export const patchTo = (base: unknown, next: unknown): unknown => {
+  if (!isObject(base) || !isObject(next)) return next
+
+  const patch: AnyObject = {}
+  for (const [key, value] of Object.entries(base)) {
+    if (value !== undefined && next[key] === undefined) patch[key] = null
+  }
+  for (const [key, value] of Object.entries(next)) {
+    if (value !== undefined) patch[key] = patchTo(base[key], value)
+  }
+  return patch
+}
+
 export const applyPatch = <T extends { id: string }, P extends Patch<T>>(items: T[], itemId: string, patch: P): T[] => {
   let changed = false
   const next = items.map((item) => {

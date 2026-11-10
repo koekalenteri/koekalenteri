@@ -24,15 +24,18 @@ import {
   sanitizeDogEvent,
 } from '@/lib/event'
 import { classEntry, isStartListPublished } from '@/lib/publishing'
+import { patchTo } from '@/lib/utils'
 import { eventsAtom, userAtom, validIdTokenAtom } from '@/pages/state'
 import { adminEventIdAtom, adminEventsAtom, adminNewEventAtom } from './atoms'
 import { adminCurrentEventAtom, adminEventAtom } from './derivedAtoms'
 
 /**
  * What an event save sends: what changed against `stored`, the event as stored under the same id, or the
- * whole event when there is none (a new event). Never the selected event of the list (`adminEventIdAtom`,
- * shared by every tab), which may be another one: a whole event carries no removals, so every field the
- * form cleared would stay stored (KOE-1736). Never the results flag: results are published a day at a time through
+ * whole event when there is none (a new event). A field taken away goes as null, and so does a key taken
+ * out of a changed object (`patchTo`, KOE-1745), as the server merges the save into the stored event key by
+ * key. Never the selected event of the list (`adminEventIdAtom`, shared by every tab), which may be another
+ * one: a whole event carries no removals, so every field the form cleared would stay stored (KOE-1736).
+ * Never the results flag: results are published a day at a time through
  * their own endpoint (KOE-1510), and the server refuses a save whose flag differs from the stored one.
  * A form holding an older copy of the flag would otherwise fail its save.
  */
@@ -56,12 +59,13 @@ const buildEventChanges = (
 
   const changedKeys = formChanges ? Object.keys(formChanges) : getChangedTopLevelKeys(stored, event)
   const changes: Patch<DogEvent> = { id: event.id }
+  const storedFields: Record<string, unknown> = { ...stored }
   for (const key of changedKeys) {
     const value =
       key === 'modifiedAt' && formChanges
         ? (formChanges as Record<string, unknown>)[key]
         : (event as Record<string, unknown>)[key]
-    ;(changes as Record<string, unknown>)[key] = value === undefined ? null : value
+    ;(changes as Record<string, unknown>)[key] = value === undefined ? null : patchTo(storedFields[key], value)
   }
   return changes
 }

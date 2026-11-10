@@ -214,13 +214,18 @@ const TEAM_GROUND = ['teams', 'teamCompetition', 'classes', 'startDate', 'endDat
 const restsOnTeamGround = (item: Patch<JsonConfirmedEvent>) => TEAM_GROUND.some((field) => Object.hasOwn(item, field))
 
 /**
- * The counted days the trial no longer has are left out (KOE-1726), on the merged event: a change of the
- * trial's days is the secretary's to make, so it is saved, not refused, and the choice keeps the days
- * that are left. With none left every day counts. A change of the counted days changes the standings,
- * so the start list is published anew (`teamCompetitionDiffers`).
+ * The competition's settings as stored, on the merged event (`pruneTeamDays`). The counted days the trial
+ * no longer has are left out (KOE-1726): a change of the trial's days is the secretary's to make, so it
+ * is saved, not refused, and the choice keeps the days that are left. With none left every day counts.
+ * A change of the counted days changes the standings, so the start list is published anew
+ * (`teamCompetitionDiffers`). Settings left with nothing on, by a null for the last one or by the days
+ * pruned, are no settings at all (KOE-1745).
  */
-const pruneDaysOutOfTrial = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>) => {
-  if (restsOnTeamGround(item) && data.teamCompetition) data.teamCompetition = pruneTeamDays(data)
+const settleTeamCompetition = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>) => {
+  if (!restsOnTeamGround(item) || !data.teamCompetition) return
+  const settings = pruneTeamDays(data)
+  if (settings) data.teamCompetition = settings
+  else delete data.teamCompetition
 }
 
 /**
@@ -674,7 +679,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   // After the days of `existing` are keys (rekeyEventDays above): the posts are compared and moved as days.
   settlePostsToDays(data, item, existing)
   checkMergedEvent(data, item, !!existing)
-  pruneDaysOutOfTrial(data, item)
+  settleTeamCompetition(data, item)
   settleExerciseScoring(data, item, existing)
 
   // The registration-group lock is server-owned. Never accept it from an

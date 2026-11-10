@@ -29,6 +29,7 @@ import {
   merge,
   parseJSON,
   patchMerge,
+  patchTo,
   splitEvenly,
   withTimeout,
 } from './utils'
@@ -498,6 +499,44 @@ describe('utils', () => {
         expect(placesForClass({ classes, places }, cls)).toEqual(expected)
       }
     )
+  })
+
+  // KOE-1745: the patch a save sends, which the server's merge turns the stored value into the edited one with.
+  describe('patchTo', () => {
+    /** What the server's merge makes of the base with the patch. */
+    const merged = (base: AnyObject, next: AnyObject) => {
+      const patch = patchTo(base, next)
+      return isObject(patch) ? patchMerge(base, patch) : patch
+    }
+
+    it('gives a null for each key taken out of an object, at any depth', () => {
+      const base = { a: 1, b: { c: 2, d: 3 }, e: 4 }
+      const next = { a: 1, b: { c: 2 } }
+
+      expect(patchTo(base, next)).toEqual({ a: 1, b: { c: 2, d: null }, e: null })
+      expect(merged(base, next)).toEqual(next)
+    })
+
+    it('reads a key holding undefined as taken out, and sends none for one the base lacks too', () => {
+      expect(patchTo({ a: 1, b: undefined }, { a: undefined, c: undefined })).toEqual({ a: null })
+    })
+
+    it('takes a map keyed by numbers apart as any other object', () => {
+      const base = { breed: { '110': 40, '111': 45 }, normal: 50 }
+      const next = { breed: { '111': 45 }, normal: 50 }
+
+      expect(merged(base, next)).toEqual(next)
+    })
+
+    it.each([
+      ['an array', [1, 2, 3], [1, 3]],
+      ['a date', new Date('2026-01-01T00:00:00Z'), new Date('2026-01-02T00:00:00Z')],
+      ['a value in place of an object', { normal: 50 }, 50],
+      ['an object in place of a value', 50, { normal: 50 }],
+      ['an object where there was none', undefined, { a: 1 }],
+    ])('gives %s as it is', (_name, base, next) => {
+      expect(patchTo(base, next)).toBe(next)
+    })
   })
 
   describe('patchMerge', () => {
