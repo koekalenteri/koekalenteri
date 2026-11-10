@@ -52,11 +52,22 @@ Suorituspaikat määritellään omalla sivullaan, jonka paneelin painike
 kirjataan rasteilla. Rata rakennetaan yleensä vasta koepaikalla, joten sivu on erillään kokeen
 tiedoista. Epävirallinen koe, joka noudattelee NOWT-koetta, saa samat suorituspaikat ja rastit.
 
+NOWT:ta noudattelevalla epävirallisella kokeella rastin enimmäispisteet voivat olla muut, ja pisteet
+voidaan antaa puolen pisteen tarkkuudella, esimerkiksi Hankinomessa 0–30 puolikkain. Ne asetetaan
+suorituspaikkasivun kohdassa **{t:event.exerciseScoringTitle}**: *{t:event.exerciseMaxPoints}* ja
+*{t:event.exerciseHalfPoints}*. Pariton enimmäispistemäärä vaatii puolikkaat pisteet, koska kahteen
+osaan jaetun rastin osat ovat silloin puolen pisteen arvoisia. Pistekenttään puolikas kirjoitetaan
+pilkulla tai pisteellä, esimerkiksi 29,5. Kenttä pyöristää pisteet alaspäin kokeen pisteaskeleeseen:
+kokonaisin pistein pisteytettävässä kokeessa 29,5 kirjautuu 29:ksi. Kun kokeeseen on tallennettu tuloksia tai suorituspaikan vuoroja, pisteytystä ei voi
+enää muuttaa.
+
+!shot[EventStationsPage/event-stations-scoring] Hankinomen rastit 0–30 puolikkain
+
 Jokaiselle koepäivälle lisätään omat suorituspaikkansa painikkeella **{t:event.stationAdd}**, ja ne
 numeroidaan päivän sisällä yhdestä alkaen. Suorituspaikalle kirjataan *{t:event.stationParts}*,
 *{t:event.stationDogsAtOnce}* ja *{t:event.stationJudges}*, jotka valitaan kokeen tuomareista.
 Tehtävien määrä ja koiramäärä ovat paikan oletuksia sen rasteille. Kaksi tehtävää jakaa rastin kahteen
-10 pisteen osaan.
+yhtä suureen osaan, NOWT:ssa 10 pisteen osiin.
 *{t:event.stationDogsAtOnce}* kertoo, montako koiraa otetaan kerralla samaan vuoroon. Aiemmin
 kahteen osaan tallennettu paikka luetaan yhtenä rastina kahdessa osassa, joten sen tulokset
 säilyvät ennallaan. Tarpeeton suorituspaikka poistetaan painikkeella

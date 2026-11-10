@@ -367,6 +367,20 @@ describe('EventStationsPage', () => {
     expect(screen.getByRole('button', { name: 'save' })).toBeDisabled()
   })
 
+  // KOE-1736: a scoring setting kept from before the trial became an official NOWT is ignored by its
+  // readers and has no editor here, so it is no reason to hold the save.
+  it('saves an official NOWT past an exercise scoring left from before', async () => {
+    const stale: ConfirmedEvent = { ...eventWithStations, exerciseScoring: { maxPoints: 25 } }
+    const { user } = await renderSeeded(stale, registrationsToEventWithStations)
+    await flushPromises()
+
+    await user.click(screen.getAllByRole('button', { name: 'event.stationAdd' })[0])
+    await flushPromises()
+
+    expect(screen.queryByRole('checkbox', { name: 'event.exerciseHalfPoints' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'save' })).toBeEnabled()
+  })
+
   describe('a class split into number ranges (KOE-1665)', () => {
     // ALO runs dogs 1 and 2; the range 1 - 1 leaves dog 2 out.
     const split: ConfirmedEvent = {

@@ -8,6 +8,8 @@ interface Props extends Omit<TextFieldProps<'standard'>, 'onChange'> {
   readonly formatValue?: (value: number | undefined) => string
   readonly parseInput?: (value: string) => number
   readonly pattern?: string
+  /** The keyboard a phone offers: digits, or digits and a decimal separator where halves count. */
+  readonly inputMode?: 'numeric' | 'decimal'
   readonly value?: number
   readonly onChange?: (value: number | undefined) => void
 }
@@ -18,6 +20,7 @@ export const NumberInput = ({
   formatValue = defaultFormatter,
   parseInput = (value: string) => Number.parseInt(value, 10),
   pattern = '[0-9]{1,3}',
+  inputMode = 'numeric',
   value,
   onChange,
   ...props
@@ -62,7 +65,6 @@ export const NumberInput = ({
       onFocus={handleFocus}
       value={stringValue}
       type="text"
-      inputMode="numeric"
       size="small"
       slotProps={{
         input: {
@@ -72,6 +74,8 @@ export const NumberInput = ({
             // field is often named by a column header rather than a <label> of its own.
             // @ts-expect-error wtf
             ...props.slotProps?.input?.inputProps,
+            // On the input itself: on the TextField it lands on the wrapping div, where no keyboard reads it.
+            inputMode,
             pattern,
             // @ts-expect-error wtf
             style: { padding: 4, textAlign: 'right', ...props.slotProps?.input?.inputProps?.style },

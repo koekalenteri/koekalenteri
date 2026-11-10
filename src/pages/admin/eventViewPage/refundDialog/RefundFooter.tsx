@@ -68,6 +68,8 @@ export const RefundFooter = ({
                 <NumberInput
                   disabled={!canHaveHandlingCosts}
                   formatValue={formatAmount}
+                  // Cents after a comma, so the keyboard needs a separator.
+                  inputMode="decimal"
                   parseInput={parseAmount}
                   pattern={`[0-9]{1,3},[0-9]{2}`}
                   slotProps={{

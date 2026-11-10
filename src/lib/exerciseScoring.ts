@@ -15,7 +15,7 @@ const MAX_EXERCISE_POINTS = 100
  * Whether the trial may score its exercises its own way: an unofficial trial that follows NOWT. The
  * official NOWT and its championship keep the rules' 20 points and whole points.
  */
-const hasOwnExerciseScoring = (event: ExerciseScoringOwner): boolean =>
+export const hasOwnExerciseScoring = (event: ExerciseScoringOwner): boolean =>
   !!event.eventType && formatTypeOf(event) === 'NOWT' && event.eventType !== 'NOWT'
 
 /** The trial's own setting where it may have one; none where it no longer qualifies. */
@@ -70,3 +70,10 @@ export const exerciseScoringErrors = (event: ExerciseScoringOwner): ExerciseScor
   // points cannot reach, so it asks for half points.
   return maxPoints !== undefined && maxPoints % 2 === 1 && !scoring.halfPoints ? [{ kind: 'oddWithoutHalves' }] : []
 }
+
+/**
+ * Points as the reader's language writes them (KOE-1736): "29,5" in Finnish, "29.5" in English; whole
+ * points as they are. For a text built in code; a translation formats its own (`{{points, number}}`).
+ */
+export const formatPoints = (points: number, language: string): string =>
+  new Intl.NumberFormat(language, { maximumFractionDigits: 2 }).format(points)

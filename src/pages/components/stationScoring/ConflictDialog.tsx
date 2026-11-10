@@ -14,6 +14,7 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { formatTypeOf } from '@/lib/event'
+import { formatPoints } from '@/lib/exerciseScoring'
 import { shownEventResult } from '@/lib/results'
 import { isRecordedTask, stationTasks, stationWriter } from '@/lib/resultTasks'
 import { AsyncButton } from '../AsyncButton'
@@ -39,17 +40,21 @@ interface Props {
 }
 
 /** One version of the result, spelled as Kennelliitto lists it (KOE-1592), with its points where it has them. */
-const describe = (result: EventResultVersion, eventType: string, eventClass?: string) =>
+const describe = (result: EventResultVersion, language: string, eventType: string, eventClass?: string) =>
   [
     shownEventResult(result.result, eventType, eventClass),
-    result.points === undefined ? undefined : `${result.points} p`,
+    result.points === undefined ? undefined : `${formatPoints(result.points, language)} p`,
   ]
     .filter(Boolean)
     .join(' · ')
 
 /** One exercise's score, its parts summed by eye and a zero's reason beside it: "Rasti 2: 8 + 7 p". */
-const exerciseScore = (tasks: NonNullable<EventResultVersion['tasks']>, t: TFunction<'translation'>) => {
-  const points = tasks.map((task) => task.points ?? '–').join(' + ')
+const exerciseScore = (
+  tasks: NonNullable<EventResultVersion['tasks']>,
+  t: TFunction<'translation'>,
+  language: string
+) => {
+  const points = tasks.map((task) => (task.points === null ? '–' : formatPoints(task.points, language))).join(' + ')
   const reasons = tasks.flatMap((task) => (task.zeroFault ? [t(`results.zeroFaults.${task.zeroFault}`)] : []))
   const reason = reasons.length ? ` (${reasons.join(', ')})` : ''
 
@@ -63,14 +68,20 @@ const outcomeOf = ({ elimination, retirement }: EventResultVersion, t: TFunction
 }
 
 /** One version as a post's own: what the post recorded and how the round ended, or that it holds nothing. */
-const describeAtPost = (result: EventResultVersion, exercises: readonly number[], t: TFunction<'translation'>) => {
+const describeAtPost = (
+  result: EventResultVersion,
+  exercises: readonly number[],
+  t: TFunction<'translation'>,
+  language: string
+) => {
   const recorded = stationTasks(result.tasks, exercises)
     .filter(isRecordedTask)
     .sort((a, b) => a.exercise - b.exercise || a.part - b.part)
   const scores = [...new Set(recorded.map((task) => task.exercise))].map((exercise) =>
     exerciseScore(
       recorded.filter((task) => task.exercise === exercise),
-      t
+      t,
+      language
     )
   )
 
@@ -94,14 +105,16 @@ export const ConflictDialog = ({
   onResolve,
   onClose,
 }: Props) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const eventType = formatTypeOf(event)
   const registrationOf = (id: string) => registrations.find((reg) => reg.id === id)
   const nameOf = (id: string) => registrationOf(id)?.dog?.name ?? id
   const classOf = (id: string) => registrationOf(id)?.class ?? undefined
 
   const versionOf = (version: EventResultVersion, id: string) =>
-    exercisesOf ? describeAtPost(version, exercisesOf(id), t) : describe(version, eventType, classOf(id))
+    exercisesOf
+      ? describeAtPost(version, exercisesOf(id), t, i18n.language)
+      : describe(version, i18n.language, eventType, classOf(id))
 
   // A post's version is its own tasks', which may have a writer of their own; a post's link gets no names at all.
   const storedLabel = ({ id, stored }: ResultConflict) => {

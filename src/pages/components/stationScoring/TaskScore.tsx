@@ -5,8 +5,9 @@ import MenuItem from '@mui/material/MenuItem'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { formatPoints, parsePoints } from '@/lib/exerciseScoring'
 import { nowtZeroFaults, taskEntryCeiling } from '@/lib/results'
 import { effectiveJudge, isRecordedTask } from '@/lib/resultTasks'
 import { NumberInput } from '../NumberInput'
@@ -21,6 +22,19 @@ const scoreFieldWidth = (inline: boolean, showName: boolean, parts: number) => {
 }
 
 const selectWidth = (inline: boolean) => (inline ? { width: 130 } : { minWidth: 150 })
+
+/**
+ * "29,5" and "29.5" alike, rounded down to the step: a trial that scores whole points takes "29,5" as 29,
+ * and the server refuses what is off the step anyway (KOE-1736). "29," on the way to "29,5" holds 29, so
+ * a score left there is not cleared. Not a number is no points.
+ */
+const parseOnStep = (step: number) => (typed: string) => {
+  const points = parsePoints(typed.trim().replace(/[,.]$/, ''))
+  return points === undefined ? Number.NaN : Math.floor(points / step) * step
+}
+
+/** One digit after the separator, and only where the trial scores in halves. */
+const pointsPattern = (step: number) => (step < 1 ? '[0-9]{1,3}([,.][0-9])?' : '[0-9]{1,3}')
 
 interface ZeroFaultProps {
   readonly value?: NowtZeroFault
@@ -131,13 +145,18 @@ export const TaskScore = ({
   notReached = false,
   step = 1,
 }: Props) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const parseInput = useMemo(() => parseOnStep(step), [step])
+  const formatValue = useCallback(
+    (points?: number) => (points === undefined ? '' : formatPoints(points, i18n.language)),
+    [i18n.language]
+  )
   // A stored judge stands while it judges at the exercise's post; one from before the exercise moved to
   // another post gives way to the post's own (`effectiveJudge`, KOE-1665).
   const judge = effectiveJudge(value, judges, defaultJudge)
   const points = value?.points ?? null
   const ceiling = taskEntryCeiling({ maxPoints: task.maxPoints, recalled: value?.recalled }, step)
-  const ceilingText = `/ ${ceiling}`
+  const ceilingText = `/ ${formatPoints(ceiling, i18n.language)}`
   const width = scoreFieldWidth(inline, showName, task.parts)
 
   const handlePoints = useCallback(
@@ -189,8 +208,12 @@ export const TaskScore = ({
   const input = (
     <NumberInput
       disabled={disabled}
+      formatValue={formatValue}
+      inputMode={step < 1 ? 'decimal' : 'numeric'}
       label={showName ? name : undefined}
       onChange={handlePoints}
+      parseInput={parseInput}
+      pattern={pointsPattern(step)}
       slotProps={showName ? undefined : { input: { inputProps: { 'aria-label': name } } }}
       sx={{ width }}
       value={points ?? undefined}

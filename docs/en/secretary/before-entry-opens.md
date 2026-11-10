@@ -10,7 +10,7 @@ covers:
   - src/pages/admin/EventCreatePage.tsx
   - src/pages/admin/EventEditPage.tsx
   - src/pages/admin/OrganizerListPage.tsx
-sourceHash: 543589
+sourceHash: ba65c1
 ---
 
 Once a trial has been created in the calendar, the secretary's job before entry opens is to make
@@ -54,7 +54,8 @@ required is in place. Go through the sections and check in particular:
   Kennel Club and the statistics stay the unofficial trial's own. The choice can be changed until the
   first result or post turn is saved. Once the trial has entries, the choice cannot give the trial
   classes or take them away. If it is changed after entries, the post and start number links must be
-  sent again, and the entry times the entrants chose stay as they are,
+  sent again, and the entry times the entrants chose stay as they are. When the trial stops following
+  NOWT or changes type, its own scoring of the exercises goes.
 - **{t:event.ownClasses.title}**: an unofficial trial can have classes of its own, for example YKS
   and VET. **{t:event.ownClasses.add}** adds a class, which gets a code and a name in Finnish and,
   if wanted, in English. The code is written in capitals, starts with a letter, has at most 10

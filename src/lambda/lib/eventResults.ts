@@ -14,7 +14,7 @@ import { createHash } from 'node:crypto'
 import { resultRecomputedAudit, resultSavedAudit } from '../../lib/audit'
 import { objectsDiffer } from '../../lib/diff'
 import { formatTypeOf } from '../../lib/event'
-import { isOnPointStep, pointStep } from '../../lib/exerciseScoring'
+import { formatPoints, isOnPointStep, pointStep } from '../../lib/exerciseScoring'
 import { makeArray } from '../../lib/judge'
 import { isResultsLocked } from '../../lib/kennelliittoResults'
 import { scoresAtPosts } from '../../lib/liveFormat'
@@ -97,7 +97,9 @@ const auditResultText = (eventResult: JsonEventResult, eventType: string, eventC
   const shown = shownEventResult(eventResult.result, eventType, eventClass)
   if (shown) parts.push(shown)
   if (typeof eventResult.points === 'number') {
-    parts.push(eventResult.maxPoints ? `${eventResult.points}/${eventResult.maxPoints} p` : `${eventResult.points} p`)
+    // The audit's text is Finnish, its points too: "59,5/60 p" (KOE-1736).
+    const points = formatPoints(eventResult.points, 'fi')
+    parts.push(eventResult.maxPoints ? `${points}/${formatPoints(eventResult.maxPoints, 'fi')} p` : `${points} p`)
   }
   if (eventResult.elimination) {
     parts.push(`hylkäävä virhe: ${ELIMINATING_FAULT_TEXT[eventResult.elimination.fault]}`)

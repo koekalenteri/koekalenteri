@@ -13,6 +13,7 @@ import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning'
+import { exerciseScoringErrors, hasOwnExerciseScoring } from '../../lib/exerciseScoring'
 import { merge } from '../../lib/utils'
 import { Path } from '../../routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
@@ -22,7 +23,7 @@ import EventNotFound from './components/EventNotFound'
 import StationsEditor from './eventStationsPage/StationsEditor'
 import { useRotationErrors } from './eventStationsPage/useRotationErrors'
 import useEventForm from './hooks/useEventForm'
-import { adminEventAtom } from './state'
+import { adminEventAtom, adminEventOfficialFormatLockedAtom } from './state'
 import { useAdminEventScope } from './state/eventScope'
 
 /**
@@ -49,6 +50,12 @@ export default function EventStationsPage() {
 
   // A rotation that leaves a dog out, or that the server would refuse, is not saved (KOE-1665).
   const rotationErrors = useRotationErrors(eventId, event)
+  // A turn or a result keeps the exercises' scoring, and the server refuses a setting off the rule
+  // (KOE-1736); the editor says why under its fields.
+  const scoringLocked = useAtomValue(adminEventOfficialFormatLockedAtom(eventId))
+  // Only where the editor shows: a setting kept from before the trial stopped qualifying is no reason the
+  // page could give, and the readers ignore it (`exerciseMaxPoints`).
+  const scoringRefused = !!event && hasOwnExerciseScoring(event) && exerciseScoringErrors(event).length > 0
 
   // `useEventForm` stores whatever it is handed, so it must be handed a whole event. The editor emits a
   // patch, and passing that straight through would replace the stored event with just `{ stations }` —
@@ -84,7 +91,7 @@ export default function EventStationsPage() {
         </Typography>
       </EntryPageHeader>
       <Box sx={{ flexGrow: 1, overflow: 'auto', p: 2 }}>
-        <StationsEditor event={event} onChange={handleStationsChange} />
+        <StationsEditor event={event} onChange={handleStationsChange} scoringLocked={scoringLocked} />
       </Box>
       {rotationErrors.length > 0 && (
         <Alert severity="error" sx={{ mx: 2 }}>
@@ -106,7 +113,7 @@ export default function EventStationsPage() {
       >
         <AsyncButton
           color="primary"
-          disabled={!canSave || rotationErrors.length > 0}
+          disabled={!canSave || rotationErrors.length > 0 || scoringRefused}
           startIcon={<Save />}
           variant="contained"
           onClick={handleSave}

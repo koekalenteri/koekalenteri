@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: d1b429
+sourceHash: bc8e61
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -54,11 +54,21 @@ five. The posts are defined on their own page, opened with the panel's
 exercise. A course is usually laid out at the venue, so the page is separate from the event's details.
 An unofficial trial that follows NOWT gets the same posts and exercises.
 
+An unofficial trial that follows NOWT may give an exercise another maximum and score it in halves,
+as Hankinome scores 0–30 in halves. These are set on the posts page under
+**{t:event.exerciseScoringTitle}**: *{t:event.exerciseMaxPoints}* and *{t:event.exerciseHalfPoints}*.
+An odd maximum needs half points, since the parts of an exercise split in two are then worth halves.
+A half point is typed with a comma or a full stop, 29,5 or 29.5. The field rounds the points down to
+the trial's step: a trial scored in whole points records 29,5 as 29. Once the trial has saved results or post turns, the scoring can no longer be
+changed.
+
+!shot[EventStationsPage/event-stations-scoring] Hankinome's exercises 0–30 in halves
+
 Each trial day gets its own posts with **{t:event.stationAdd}**, numbered from one within the day.
 For a post you record *{t:event.stationParts}*, *{t:event.stationDogsAtOnce}* and
 *{t:event.stationJudges}*, picked from the trial's judges. The tasks and the dogs are the post's
-defaults for its exercises. Tasks 2 splits an exercise into two parts of 10. *{t:event.stationDogsAtOnce}* says
-how many dogs go into one turn. A post saved earlier in two parts is read as one exercise in two
+defaults for its exercises. Tasks 2 splits an exercise into two equal parts, of 10 in NOWT.
+*{t:event.stationDogsAtOnce}* says how many dogs go into one turn. A post saved earlier in two parts is read as one exercise in two
 parts, so its results stay as they were. A post that is not needed is removed with
 **{t:event.stationRemove}**, and the rest are renumbered.
 
