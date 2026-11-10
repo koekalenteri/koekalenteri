@@ -55,6 +55,9 @@ export function Component() {
       const saved = await actions.save(registration, event)
       if (!saved) return
       if (event.paymentTime === 'confirmation') {
+        // The draft stays for the next dog, its team does not: each dog names its own (KOE-1721).
+        const { teamEntry: _team, ...nextDraft } = registration
+        setRegistration(nextDraft)
         void navigate(Path.registration(saved))
       } else {
         void navigate(Path.payment(saved))
@@ -62,7 +65,7 @@ export function Component() {
     } catch (error) {
       console.error(error)
     }
-  }, [actions, event, navigate, registration])
+  }, [actions, event, navigate, registration, setRegistration])
 
   const handleCancel = useCallback(() => {
     resetRegistration()
@@ -79,7 +82,7 @@ export function Component() {
       return
     }
 
-    // make sure the registration is for correct event
+    // make sure the registration is for correct event; the costs and the team were the other trial's
     if (registration.eventId !== event.id || registration.eventType !== event.eventType) {
       setRegistration({
         ...registration,
@@ -89,6 +92,7 @@ export function Component() {
         qualifies: undefined,
         qualifyingResults: [],
         selectedCost: undefined,
+        teamEntry: undefined,
       })
     }
   }, [event, registration, setRegistration])

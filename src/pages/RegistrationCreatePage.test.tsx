@@ -7,6 +7,7 @@ import { screen } from '@testing-library/react'
 import { format } from 'date-fns'
 import { Suspense } from 'react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
+import { registrationDogAged20MonthsAndNoResults } from '../__mockData__/dogs'
 import { eventWithStaticDates, eventWithStaticDatesAnd3Classes } from '../__mockData__/events'
 import { registrationWithStaticDates } from '../__mockData__/registrations'
 import * as eventApi from '../api/event'
@@ -18,6 +19,7 @@ import { ErrorPage } from './ErrorPage'
 import { Component as RegistrationCreatePage } from './RegistrationCreatePage'
 import { newRegistrationAtom } from './state'
 
+vi.mock('../api/dog')
 vi.mock('../api/user')
 vi.mock('../api/event')
 vi.mock('../api/eventType')
@@ -130,6 +132,76 @@ describe('RegistrationCreatePage', () => {
     await flushPromises()
 
     expect(screen.getByText('registration list page')).toBeInTheDocument()
+  })
+
+  // The draft stays for the next dog after a save that pays later; its team does not (KOE-1721).
+  const storedDraft = () => JSON.parse(sessionStorage.getItem('newRegistration') ?? '{}')
+  const team = { name: 'Kultaiset', primary: true as const }
+
+  it('leaves the team out of the draft the next entry starts from', async () => {
+    const eventWithConfirmationPayment = {
+      ...eventWithStaticDates,
+      paymentTime: 'confirmation' as const,
+      teamCompetition: { askAtEntry: true },
+    }
+    const { eventType, id } = eventWithConfirmationPayment
+    vi.setSystemTime(eventWithConfirmationPayment.entryStartDate)
+    vi.spyOn(eventApi, 'getEvent').mockResolvedValueOnce(eventWithConfirmationPayment)
+
+    const { user } = renderWithRouter(`/event/${eventType}/${id}`, {
+      ...registrationWithStaticDates,
+      agreeToTerms: true,
+      id: '',
+      teamEntry: team,
+    })
+    await flushPromises()
+    await user.click(screen.getByRole('button', { name: 'registration.cta.confirmRegistration' }))
+    await flushPromises()
+
+    expect(screen.getByText('registration list page')).toBeInTheDocument()
+    expect(storedDraft()).toMatchObject({ dog: { regNo: registrationWithStaticDates.dog.regNo } })
+    expect(storedDraft()).not.toHaveProperty('teamEntry')
+  })
+
+  // The team section comes before the dog: what the registrant typed there stays when they fetch the dog.
+  it('keeps the team typed before the dog is fetched', async () => {
+    const eventAskingTeam = { ...eventWithStaticDates, teamCompetition: { askAtEntry: true } }
+    const { eventType, id } = eventAskingTeam
+    vi.setSystemTime(eventAskingTeam.entryStartDate)
+    vi.spyOn(eventApi, 'getEvent').mockResolvedValueOnce(eventAskingTeam)
+
+    const { user } = renderWithRouter(`/event/${eventType}/${id}`)
+    await flushPromises()
+    await user.type(screen.getByRole('textbox', { name: 'registration.teamEntryName' }), team.name)
+    await flushPromises()
+    await user.click(screen.getByRole('checkbox', { name: 'registration.teamEntryPrimary' }))
+    await flushPromises()
+    await user.click(screen.getByRole('button', { name: 'registration.dog' }))
+    await flushPromises()
+    await user.type(screen.getByRole('combobox', { name: 'dog.regNo' }), registrationDogAged20MonthsAndNoResults.regNo)
+    await flushPromises()
+    await user.click(screen.getByRole('button', { name: 'registration.cta.fetch' }))
+    await flushPromises()
+
+    expect(storedDraft()).toMatchObject({
+      dog: { regNo: registrationDogAged20MonthsAndNoResults.regNo },
+      teamEntry: team,
+    })
+  })
+
+  it('leaves the team out of a draft that comes from another trial', async () => {
+    vi.setSystemTime(eventWithStaticDates.entryStartDate)
+    const { eventType, id } = eventWithStaticDates
+
+    renderWithRouter(`/event/${eventType}/${id}`, {
+      ...registrationWithStaticDates,
+      eventId: 'another-trial',
+      teamEntry: team,
+    })
+    await flushPromises()
+
+    expect(storedDraft()).toMatchObject({ eventId: id })
+    expect(storedDraft()).not.toHaveProperty('teamEntry')
   })
 
   it('should throw 404 for non-existent event', async () => {
