@@ -23,6 +23,7 @@ jobs:
       # tested_run_id is that merge_group run, where sonar finds the coverage.
       tested: ${{ steps.scope.outputs.tested }}
       tested_run_id: ${{ steps.merge-queue-run.outputs.run-id }}
+      stack: ${{ steps.stack.outputs.changed || 'true' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -174,6 +175,69 @@ jobs:
             else
               echo "tested=false" >> "$GITHUB_OUTPUT"
             fi
+          fi
+
+      # Whether deploy-dev's frontend build has to wait for its backend deploy: it does when the
+      # backend deploy may change what the Amplify build reads from the stack (release.yml,
+      # deploy-frontend). The comparison is with the commit dev's stack was last deployed from, not
+      # with the previous push, so the changes of a push whose deploy failed, was cancelled or has
+      # not finished yet still count. Unfinished runs are looked at too: a deploy-backend that
+      # succeeded in a run cancelled afterwards has deployed the stack all the same.
+      - name: Find the commit the dev stack was deployed from
+        id: deployed-stack
+        if: ${{ github.event_name == 'push' }}
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { data } = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'ci.yml',
+              branch: 'main',
+              event: 'push',
+              per_page: 30,
+            })
+            for (const run of data.workflow_runs) {
+              if (run.id === context.runId) continue
+              const { data: jobs } = await github.rest.actions.listJobsForWorkflowRun({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                run_id: run.id,
+              })
+              const job = jobs.jobs.find((j) => j.name === 'deploy-dev / deploy-backend')
+              if (job?.conclusion === 'success') {
+                core.info(`dev stack last deployed by run ${run.id} from ${run.head_sha}`)
+                core.setOutput('sha', run.head_sha)
+                return
+              }
+            }
+            core.info('no successful dev backend deploy among the last 30 runs')
+            core.setOutput('sha', '')
+
+      # The stack paths are everything the Amplify build can read from the stack: the templates
+      # outside template/functions and template/tables (those define functions with their alarms and
+      # log groups, and tables, none of which AmplifyApp or AmplifyBranch references), the scripts
+      # that join them into one template, and release.yml, whose `sam deploy` sets the parameters the
+      # branch variables are built from. With no deployed commit to compare with, the build waits.
+      - name: Resolve whether the stack changes
+        id: stack
+        if: ${{ github.event_name == 'push' }}
+        env:
+          BASE: ${{ steps.deployed-stack.outputs.sha }}
+          HEAD: ${{ github.sha }}
+        run: |
+          paths=(template ':!template/functions' ':!template/tables'
+            scripts/build-template.mjs scripts/lambdaLogGroups.mjs .github/workflows/release.yml)
+          if [[ -z "$BASE" ]] || ! git merge-base --is-ancestor "$BASE" "$HEAD" 2>/dev/null; then
+            echo "No deployed ancestor to compare with; the stack counts as changed."
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          elif changed=$(git diff --name-only "$BASE" "$HEAD" -- "${paths[@]}") && [[ -z "$changed" ]]; then
+            echo "The stack paths are as deployed from $BASE."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "The stack paths changed since $BASE:"
+            echo "$changed"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
       - uses: actions/setup-node@v7
@@ -585,6 +649,7 @@ jobs:
       env: dev
       deploy_backend: ${{ needs.setup.outputs.backend == 'true' }}
       deploy_frontend: ${{ needs.setup.outputs.frontend == 'true' }}
+      frontend_after_backend: ${{ needs.setup.outputs.stack != 'false' }}
     secrets: inherit
 
   # A pushed commit is only testable once it is deployed to dev, so this is where the named Jira

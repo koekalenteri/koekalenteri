@@ -20,6 +20,11 @@ on:
         required: false
         default: true
         type: boolean
+      frontend_after_backend:
+        description: Start the frontend build only after the backend deploy (deploy-frontend)
+        required: false
+        default: true
+        type: boolean
 
 permissions:
   actions: read
@@ -50,6 +55,7 @@ jobs:
       env: ${{ steps.setEnv.outputs.env }}
       deploy_backend: ${{ steps.setScope.outputs.deploy_backend }}
       deploy_frontend: ${{ steps.setScope.outputs.deploy_frontend }}
+      frontend_after_backend: ${{ steps.setScope.outputs.frontend_after_backend }}
     steps:
       - id: setEnv
         run: |
@@ -66,8 +72,12 @@ jobs:
         run: |
           DEPLOY_BACKEND="${{ inputs.deploy_backend }}"
           DEPLOY_FRONTEND="${{ inputs.deploy_frontend }}"
-          echo "deploy_backend=${DEPLOY_BACKEND:-true}" >> $GITHUB_OUTPUT
-          echo "deploy_frontend=${DEPLOY_FRONTEND:-true}" >> $GITHUB_OUTPUT
+          FRONTEND_AFTER_BACKEND="${{ inputs.frontend_after_backend }}"
+          {
+            echo "deploy_backend=${DEPLOY_BACKEND:-true}"
+            echo "deploy_frontend=${DEPLOY_FRONTEND:-true}"
+            echo "frontend_after_backend=${FRONTEND_AFTER_BACKEND:-true}"
+          } >> "$GITHUB_OUTPUT"
       # The release notes the version shipped with are the release's description too: one text,
       # written once in docs/en/whats-new/<version>.md, not a second one typed into the form
       # (KOE-1398). The form cannot fill itself in, so the description is written over after the
@@ -188,8 +198,9 @@ jobs:
             --no-confirm-changeset --no-fail-on-empty-changeset
       # Data migrations (KOE-1502): the function applies the ones its registry does not list yet and
       # answers with their counters. The lambda wrapper turns a failure into a non-200 answer instead of
-      # a function error, so the answer is checked here; a failed run fails the job and with it
-      # deploy-frontend, which needs this job. The CLI retries a read that timed out, which would start
+      # a function error, so the answer is checked here; a failed run fails the job and with it the
+      # deploy: deploy-frontend does not start and smoke does not run (a dev frontend built beside this
+      # job is published all the same). The CLI retries a read that timed out, which would start
       # a second run beside the first, so it makes one attempt (AWS_MAX_ATTEMPTS); a run cut short by the
       # function's own timeout records nothing, and the next deploy runs its migrations again.
       - name: Run data migrations
@@ -214,7 +225,7 @@ jobs:
       # next morning. Asynchronous (Event): a run takes up to 15 minutes and nothing here needs its
       # result, so only the 202 that queues it is checked; a failed run raises
       # RebuildStatsFunctionErrorAlarm. Not queued is a warning: the backend is already deployed, and
-      # failing would skip deploy-frontend. One attempt (AWS_MAX_ATTEMPTS), so a retried request does
+      # failing would fail the deploy over it. One attempt (AWS_MAX_ATTEMPTS), so a retried request does
       # not queue a second run beside the first.
       - name: Start the stats rebuild
         env:
@@ -238,14 +249,22 @@ jobs:
             echo "$not_queued (status $status)"
           fi
 
+  # The Amplify build reads its configuration from the stack: the environment variables on
+  # AmplifyBranch, and the build spec and the image (_CUSTOM_IMAGE) on AmplifyApp. A build started
+  # while a stack update that changes them is still running uses the previous values, or, the first
+  # time a variable moves, none at all; running the two side by side is also what once hid a broken
+  # build spec for a whole commit, the build that introduced it running against the old one. So the
+  # build starts after the backend deploy (deploy-frontend) unless the caller says the stack cannot
+  # change those values (frontend_after_backend: false); then it starts beside it
+  # (deploy-frontend-beside-backend), the same steps without the wait. Prod and test always wait.
+  # Dev waits when ci.yml's setup finds a change since the commit the stack was last deployed from
+  # in the templates the values come from (template/ outside functions and tables), in the scripts
+  # that join them or in this file; most pushes change none, and their deploy is a build shorter.
+  # Built beside the backend, the new frontend can talk to the previous backend for the minutes the
+  # backend deploy and its migrations still take: accepted on dev.
   deploy-frontend:
-    # After the backend, never beside it: the Amplify build reads its configuration from environment
-    # variables this stack owns (AmplifyBranch.EnvironmentVariables) and builds on the image the stack
-    # pins, so a build started while the stack update is still running uses the previous values -- or,
-    # the first time a variable moves, none at all. Running the two side by side is also what hid a
-    # broken build spec for a whole commit: the build that introduced it ran against the old one.
     needs: [setup, deploy-backend]
-    if: ${{ always() && !failure() && !cancelled() && needs.setup.outputs.deploy_frontend == 'true' }}
+    if: ${{ always() && !failure() && !cancelled() && needs.setup.outputs.deploy_frontend == 'true' && needs.setup.outputs.frontend_after_backend == 'true' }}
     runs-on: ubuntu-latest
     environment: ${{ needs.setup.outputs.env }}
     env:
@@ -253,10 +272,10 @@ jobs:
     # What the smoke job expects the served page to be stamped with: the commit Amplify is asked to
     # build and its package.json version, not the commit that triggered this run (dev builds the
     # newest main).
-    outputs:
+    outputs: &deploy-frontend-outputs
       revision: ${{ steps.amplify.outputs.revision }}
       version: ${{ steps.amplify.outputs.version }}
-    steps:
+    steps: &deploy-frontend-steps
       - name: Checkout code
         uses: actions/checkout@v7
         with:
@@ -334,6 +353,16 @@ jobs:
           done
           echo "Job completed successfully."
 
+  deploy-frontend-beside-backend:
+    needs: [setup]
+    if: ${{ needs.setup.outputs.deploy_frontend == 'true' && needs.setup.outputs.frontend_after_backend != 'true' }}
+    runs-on: ubuntu-latest
+    environment: ${{ needs.setup.outputs.env }}
+    env:
+      AWS_DEPLOY_ROLE_ARN: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+    outputs: *deploy-frontend-outputs
+    steps: *deploy-frontend-steps
+
   # The deploy is done when the site answers, not when Amplify and CloudFormation say so (KOE-1368):
   # the front page must load and the public event list must answer, on every deploy of every
   # environment. A deploy that failed has its own red job, so this one does not run after it. When
@@ -342,7 +371,7 @@ jobs:
   # previous stack's variables is caught here. A backend-only deploy built no page, so only the
   # answers are checked. On dev a red smoke fails deploy-dev in ci.yml, and jira-testable with it.
   smoke:
-    needs: [setup, deploy-backend, deploy-frontend]
+    needs: [setup, deploy-backend, deploy-frontend, deploy-frontend-beside-backend]
     if: ${{ always() && !failure() && !cancelled() }}
     runs-on: ubuntu-latest
     environment: ${{ needs.setup.outputs.env }}
@@ -384,8 +413,8 @@ jobs:
           CUSTOM_DOMAIN: ${{ secrets.CUSTOM_DOMAIN }}
           DEPLOY_FRONTEND: ${{ needs.setup.outputs.deploy_frontend }}
           ENV: ${{ needs.setup.outputs.env }}
-          EXPECT_REVISION: ${{ needs.deploy-frontend.outputs.revision }}
-          EXPECT_VERSION: ${{ needs.deploy-frontend.outputs.version }}
+          EXPECT_REVISION: ${{ needs.deploy-frontend.outputs.revision || needs.deploy-frontend-beside-backend.outputs.revision }}
+          EXPECT_VERSION: ${{ needs.deploy-frontend.outputs.version || needs.deploy-frontend-beside-backend.outputs.version }}
         run: |
           args=(--url "https://$CUSTOM_DOMAIN/" --api "$API_URL")
           if [[ "$DEPLOY_FRONTEND" == "true" ]]; then
