@@ -131,9 +131,11 @@ save that comes while the view is open leaves its change alone. An event gone fr
 draft, which is then all there is of it. The details dialog mounts its form only while open, and Esc
 and a click outside discard its draft as Cancel does. The edit, stations and teams pages leave none
 behind: leaving unsaved asks, and the answer to leave discards that page's draft (KOE-1699, KOE-1700).
-A new event has one draft, `adminNewEventAtom`. `adminSaveEventAtom` is write-only: after the read and
-the call shown here, it writes `adminEventIdAtom`, `adminCurrentEventAtom` and the public
-`eventsAtom`.
+A new event has one draft, `adminNewEventAtom`. `adminSaveEventAtom` is write-only: it sends what
+changed against the event stored under the saved event's id (`adminEventAtom(event.id)`), never against
+the selected one, which another tab may have moved to another event; a whole event would carry none of
+the fields the form cleared (KOE-1736). After the call shown here it writes `adminEventIdAtom`,
+`adminCurrentEventAtom` and the public `eventsAtom`.
 
 ```mermaid
 graph LR
@@ -181,6 +183,7 @@ graph LR
   adminEditableEventByIdAndFormAtom-->sessionStorage
   adminEditableEventByIdAndFormAtom-->adminEventAtom
 
+  adminSaveEventAtom-->adminEventAtom
   adminSaveEventAtom-->adminCurrentEventAtom
   adminSaveEventAtom-->validIdTokenAtom
   adminSaveEventAtom-->eventsAtom

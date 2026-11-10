@@ -1841,6 +1841,46 @@ describe('putEventLambda', () => {
       expect(res.statusCode).toEqual(400)
       expect(JSON.parse(res.body)).toMatchObject({ errors: [{ kind: 'oddWithoutHalves' }] })
     })
+
+    // The trial's format is the secretary's to change: a setting the trial no longer qualifies for is
+    // removed, the save is not refused.
+    describe('once the trial no longer follows NOWT', () => {
+      const scored: JsonDogEvent = { ...hankinome, exerciseScoring: { halfPoints: true, maxPoints: 30 } }
+      const savedWithoutScoring = () =>
+        expect(patchEventMock).toHaveBeenCalledWith(
+          'existing',
+          expect.anything(),
+          expect.not.objectContaining({ exerciseScoring: expect.anything() })
+        )
+
+      it.each<[string, JsonDogEvent, Record<string, unknown>]>([
+        ['a save of another format', scored, { officialFormat: 'NOME-B' }],
+        ['a save that clears the format', scored, { officialFormat: null }],
+        // A whole event repeats the stored setting beside the new format.
+        ['a whole-event save of another format', scored, { ...scored, officialFormat: 'NOME-B' }],
+        // A row a save left with the setting while it took another format.
+        ['any later save', { ...scored, officialFormat: 'NOME-B' }, { name: 'Uusi nimi' }],
+      ])('drops the setting on %s', async (_name, stored, body) => {
+        const res = await patch(stored, body)
+
+        expect(res.statusCode).toEqual(200)
+        savedWithoutScoring()
+      })
+
+      it('drops a setting left behind even when a post has run a turn', async () => {
+        const turn = {
+          dogs: [{ name: 'Dog', number: 1 }],
+          id: 'turn-1',
+          registrationIds: ['run-1'],
+          startedAt: '2026-09-12T08:00:00.000Z',
+          stationId: 'post-1',
+        }
+        const res = await patch({ ...scored, officialFormat: 'NOME-B', turns: [turn] }, { name: 'Uusi nimi' })
+
+        expect(res.statusCode).toEqual(200)
+        savedWithoutScoring()
+      })
+    })
   })
 
   // KOE-674: an unofficial event's own classes, checked on the merged event through the real rule.

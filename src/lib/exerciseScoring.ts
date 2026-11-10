@@ -18,16 +18,20 @@ const MAX_EXERCISE_POINTS = 100
 export const hasOwnExerciseScoring = (event: ExerciseScoringOwner): boolean =>
   !!event.eventType && formatTypeOf(event) === 'NOWT' && event.eventType !== 'NOWT'
 
-/** The trial's own setting where it may have one; none where it no longer qualifies. */
-const ownScoring = (event: ExerciseScoringOwner): ExerciseScoring | undefined =>
+/**
+ * The trial's own setting where it may have one; none where it no longer qualifies. What the readers score
+ * by, and what the event save compares and keeps (KOE-1736).
+ */
+export const effectiveExerciseScoring = (event: ExerciseScoringOwner): ExerciseScoring | undefined =>
   hasOwnExerciseScoring(event) ? (event.exerciseScoring ?? undefined) : undefined
 
 /** The points an exercise is worth: the trial's own maximum where it may set one, else 20. */
 export const exerciseMaxPoints = (event: ExerciseScoringOwner): number =>
-  ownScoring(event)?.maxPoints ?? NOWT_EXERCISE_MAX_POINTS
+  effectiveExerciseScoring(event)?.maxPoints ?? NOWT_EXERCISE_MAX_POINTS
 
 /** The smallest step a score moves by: a half where the trial scores in halves, else a whole point. */
-export const pointStep = (event: ExerciseScoringOwner): number => (ownScoring(event)?.halfPoints ? 0.5 : 1)
+export const pointStep = (event: ExerciseScoringOwner): number =>
+  effectiveExerciseScoring(event)?.halfPoints ? 0.5 : 1
 
 /**
  * Whether points are on the step. Halves are exact binary numbers, so the test is exact, and so are the

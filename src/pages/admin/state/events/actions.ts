@@ -29,29 +29,32 @@ import { adminEventIdAtom, adminEventsAtom, adminNewEventAtom } from './atoms'
 import { adminCurrentEventAtom, adminEventAtom } from './derivedAtoms'
 
 /**
- * What an event save sends. Never the results flag: results are published a day at a time through
+ * What an event save sends: what changed against `stored`, the event as stored under the same id, or the
+ * whole event when there is none (a new event). Never the selected event of the list (`adminEventIdAtom`,
+ * shared by every tab), which may be another one: a whole event carries no removals, so every field the
+ * form cleared would stay stored (KOE-1736). Never the results flag: results are published a day at a time through
  * their own endpoint (KOE-1510), and the server refuses a save whose flag differs from the stored one.
  * A form holding an older copy of the flag would otherwise fail its save.
  */
 export const buildEventSavePatch = (
   event: Patch<DogEvent>,
-  currentAdminEvent?: DogEvent | null,
+  stored?: DogEvent | null,
   formChanges?: Patch<DogEvent>
 ): Patch<DogEvent> => {
-  const { resultsPublished: _resultsPublished, ...patch } = buildEventChanges(event, currentAdminEvent, formChanges)
+  const { resultsPublished: _resultsPublished, ...patch } = buildEventChanges(event, stored, formChanges)
   return patch
 }
 
 const buildEventChanges = (
   event: Patch<DogEvent>,
-  currentAdminEvent?: DogEvent | null,
+  stored?: DogEvent | null,
   formChanges?: Patch<DogEvent>
 ): Patch<DogEvent> => {
-  if (!event.id || event.id !== currentAdminEvent?.id) {
+  if (!event.id || event.id !== stored?.id) {
     return event
   }
 
-  const changedKeys = formChanges ? Object.keys(formChanges) : getChangedTopLevelKeys(currentAdminEvent, event)
+  const changedKeys = formChanges ? Object.keys(formChanges) : getChangedTopLevelKeys(stored, event)
   const changes: Patch<DogEvent> = { id: event.id }
   for (const key of changedKeys) {
     const value =
@@ -95,8 +98,7 @@ export const adminSaveEventAtom = atom(
       formChanges,
     }: { event: Patch<DogEvent>; formChanges?: Patch<DogEvent>; confirmDrops?: string }
   ) => {
-    const currentAdminEvent = await get(adminCurrentEventAtom)
-    const patch = buildEventSavePatch(event, currentAdminEvent, formChanges)
+    const patch = buildEventSavePatch(event, await get(adminEventAtom(event.id ?? undefined)), formChanges)
     const saved = await putEvent(patch, get(validIdTokenAtom), undefined, confirmDrops)
 
     set(adminEventIdAtom, saved.id)
@@ -156,6 +158,9 @@ export const useAdminEventActions = () => {
   )
 
   const currentUser = useAtomCallback(useCallback((get) => get(userAtom), []))
+
+  /** The event as stored under the id of the one being saved, which a save is a patch against. */
+  const storedEvent = useAtomCallback(useCallback((get, _set, eventId?: string) => get(adminEventAtom(eventId)), []))
 
   return {
     attachInvitation,
@@ -269,7 +274,7 @@ export const useAdminEventActions = () => {
   }
 
   async function save(event: Patch<DogEvent>, formChanges?: Patch<DogEvent>): Promise<DogEvent | undefined> {
-    const changes = buildEventSavePatch(event, await currentEvent(), formChanges)
+    const changes = buildEventSavePatch(event, await storedEvent(event.id ?? undefined), formChanges)
     const saved = await putEvent(changes, token)
     await storeSaved(saved)
 
