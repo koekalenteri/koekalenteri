@@ -16,7 +16,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { useUnsavedChangesWarning } from '@/hooks/useUnsavedChangesWarning'
-import { teamSuggestions } from '@/lib/client/teamAssembly'
+import { litterMismatches, teamSuggestions } from '@/lib/client/teamAssembly'
 import { withStoredTotals } from '@/lib/results'
 import { teamSeriesName } from '@/lib/startListView'
 import { isTeamCandidate, teamCompetitionErrors, teamCountedDays, teamErrors, teamTrialDays } from '@/lib/team'
@@ -157,6 +157,17 @@ export default function EventTeamsPage() {
     return options
   }
 
+  // In litter teams, the dogs of another litter than their team's, or of none known (KOE-1727).
+  const litters = !!event?.teamCompetition?.litters
+  const litterMarks = useMemo(
+    () =>
+      teams.map((team) =>
+        litters
+          ? new Map(litterMismatches(team, entries).map(({ kind, registrationId }) => [registrationId, kind]))
+          : undefined
+      ),
+    [entries, litters, teams]
+  )
   // A team is its number, its place in the list: only the last ones come and go (KOE-1714).
   const numbered = useMemo(() => teams.map((team, index) => ({ number: index + 1, team })), [teams])
   // The standings of the draft, so a run-off marked shows before it is saved; the totals a round stored
@@ -268,6 +279,7 @@ export default function EventTeamsPage() {
               standing={standings.get(number - 1)}
               team={team}
               tooMany={overfull.has(number - 1)}
+              litterMarks={litterMarks[number - 1]}
             />
           ))}
         </Stack>
