@@ -10,6 +10,7 @@ import type {
   RegistrationDate,
   RegistrationTime,
 } from '../types'
+import type { TrialDays } from './event'
 import { TZDate } from '@date-fns/tz'
 import { addDays } from 'date-fns'
 import i18n from 'i18next'
@@ -29,6 +30,7 @@ import {
   classLabel,
   compareRegistrationClasses,
   copyDogEvent,
+  datesFollowingDays,
   defaultEntryEndDate,
   defaultEntryStartDate,
   defaultRegistrationGroups,
@@ -38,6 +40,7 @@ import {
   FINISHED_DAYS_AFTER_TRIAL,
   finnishDaySpan,
   foldDayScope,
+  followTrialDays,
   formatClasses,
   formatTypeOf,
   getEventClassesByDays,
@@ -100,6 +103,7 @@ import {
   moveClasslessKey,
   newEventDates,
   newEventStartDay,
+  placesFollowingDays,
   placesForClass,
   registrationDatesOutsideClass,
   sanitizeDogEvent,
@@ -1212,6 +1216,64 @@ describe('lib/event', () => {
         { date: '2026-09-02', id: 'post-1', number: 1 },
         legacy,
       ])
+    })
+  })
+
+  // KOE-1752: the one rule by which what an event keeps by day follows its days.
+  describe('followTrialDays', () => {
+    const stored: TrialDays = { endDate: '2026-08-02', startDate: '2026-08-01' }
+    const week: TrialDays = { endDate: '2026-08-09', startDate: '2026-08-08' }
+
+    it('moves a stored day as many days as the start moved, and keeps a day the save gave itself', () => {
+      const follow = followTrialDays(stored, week)
+
+      expect(follow('2026-08-02', true)).toBe('2026-08-09')
+      expect(follow('2026-08-08', false)).toBe('2026-08-08')
+    })
+
+    it('takes away a day off the new days, and a stored day the stored days had already left behind', () => {
+      const follow = followTrialDays(stored, { ...week, endDate: '2026-08-10' })
+
+      expect(follow('2026-08-03', true)).toBeUndefined()
+      expect(follow('2026-08-11', false)).toBeUndefined()
+      expect(followTrialDays(stored, { ...stored, endDate: '2026-08-01' })('2026-08-02', true)).toBeUndefined()
+    })
+
+    it('moves nothing without stored days, and still leaves out a day off the trial', () => {
+      expect(followTrialDays(undefined, week)('2026-08-08', true)).toBe('2026-08-08')
+      expect(followTrialDays(undefined, week)('2026-08-01', true)).toBeUndefined()
+    })
+
+    it('judges the days by the test given', () => {
+      const follow = followTrialDays(stored, week, (_event, day) => day !== '2026-08-08')
+
+      expect(follow('2026-08-01', true)).toBeUndefined()
+      expect(follow('2026-08-02', true)).toBe('2026-08-09')
+    })
+  })
+
+  describe('datesFollowingDays and placesFollowingDays (KOE-1752)', () => {
+    const follow = followTrialDays(
+      { endDate: '2026-08-02', startDate: '2026-08-01' },
+      { endDate: '2026-08-08', startDate: '2026-08-08' }
+    )
+
+    it('moves the stored day groups, and leaves out those of a day the trial does not have', () => {
+      expect(
+        datesFollowingDays(
+          [
+            { date: '2026-08-01', time: 'kp' },
+            { date: '2026-08-02', time: 'ap' },
+          ],
+          follow,
+          true
+        )
+      ).toEqual([{ date: '2026-08-08', time: 'kp' }])
+    })
+
+    it('keeps the places a save gives on the new days, and leaves out the rest', () => {
+      expect(placesFollowingDays({ '2026-08-01': 3, '2026-08-08': 5 }, follow, false)).toEqual({ '2026-08-08': 5 })
+      expect(placesFollowingDays({ '2026-08-01': 3, '2026-08-02': 4 }, follow, true)).toEqual({ '2026-08-08': 3 })
     })
   })
 

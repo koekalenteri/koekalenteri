@@ -149,19 +149,8 @@ describe('EventEditPage', () => {
     )
   })
 
-  // KOE-1741: a copy is saved as a new event, which has no stored posts for the save to move, so a start
-  // changed on the form moves the copy's posts as it moves the classes. The save then keeps them all.
-  it('saves the posts and groups of a copy on the start chosen on the form', async () => {
-    const source: DogEvent = {
-      ...eventWithEntryNotYetOpen,
-      rotations: [{ class: 'AVO', exercises: [{ stationId: 'post-1' }] }],
-      stations: [
-        { date: eventWithEntryNotYetOpen.startDate, id: 'post-1', number: 1 },
-        { date: eventWithEntryNotYetOpen.endDate, id: 'post-2', number: 1 },
-      ],
-    }
-    const copy = copyDogEvent(source)
-    const start = addDays(copy.startDate, 7)
+  /** The copy on the create page, its start moved on the form to `start`, and saved. */
+  const saveCopyMovedTo = async (copy: DogEvent, start: DayKey) => {
     const { user } = await renderSuspendedWithUserEvents(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
@@ -197,6 +186,22 @@ describe('EventEditPage', () => {
     await flushPromises()
     await user.click(screen.getByRole('button', { name: 'save' }))
     await flushPromises()
+  }
+
+  // KOE-1741: a copy is saved as a new event, which has no stored posts for the save to move, so a start
+  // changed on the form moves the copy's posts as it moves the classes. The save then keeps them all.
+  it('saves the posts and groups of a copy on the start chosen on the form', async () => {
+    const source: DogEvent = {
+      ...eventWithEntryNotYetOpen,
+      rotations: [{ class: 'AVO', exercises: [{ stationId: 'post-1' }] }],
+      stations: [
+        { date: eventWithEntryNotYetOpen.startDate, id: 'post-1', number: 1 },
+        { date: eventWithEntryNotYetOpen.endDate, id: 'post-2', number: 1 },
+      ],
+    }
+    const copy = copyDogEvent(source)
+    const start = addDays(copy.startDate, 7)
+    await saveCopyMovedTo(copy, start)
 
     expect(putEvent).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -206,6 +211,46 @@ describe('EventEditPage', () => {
           { date: start, id: 'post-1', number: 1 },
           { date: addDays(start, 1), id: 'post-2', number: 1 },
         ],
+      }),
+      expect.anything(),
+      undefined,
+      undefined
+    )
+  })
+
+  // KOE-1752: the day groups, the places per day and the counted days of a copy move with a start chosen
+  // on the form before the first save, as its classes and posts do.
+  it('saves the day groups, places per day and counted days of a copy on the start chosen on the form', async () => {
+    const first = eventWithEntryNotYetOpen.startDate
+    const second = eventWithEntryNotYetOpen.endDate
+    const source: DogEvent = {
+      ...eventWithEntryNotYetOpen,
+      classes: [],
+      dates: [
+        { date: first, time: 'kp' },
+        { date: second, time: 'ap' },
+        { date: second, time: 'ip' },
+      ],
+      eventType: 'NOU',
+      places: 30,
+      placesPerDay: { [first]: 10, [second]: 20 },
+      teamCompetition: { askAtEntry: true, days: [second] },
+    }
+    const copy = copyDogEvent(source)
+    const start = addDays(copy.startDate, 7)
+    const next = addDays(start, 1)
+    await saveCopyMovedTo(copy, start)
+
+    expect(putEvent).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        dates: [
+          { date: start, time: 'kp' },
+          { date: next, time: 'ap' },
+          { date: next, time: 'ip' },
+        ],
+        placesPerDay: { [start]: 10, [next]: 20 },
+        startDate: start,
+        teamCompetition: { askAtEntry: true, days: [next] },
       }),
       expect.anything(),
       undefined,

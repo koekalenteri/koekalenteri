@@ -2313,6 +2313,118 @@ describe('putEventLambda', () => {
     })
   })
 
+  // KOE-1752: the day groups and the places per day follow the trial's days. The event form moves them
+  // itself, as it moves the classes, so what a save carries is on the days it gives; what a save leaves
+  // out (a form loaded before) still holds the stored days and moves as many days as the start did. A
+  // day the trial no longer has is left out either way.
+  describe('the day groups and the places per day when the days change (KOE-1752)', () => {
+    const grouped: JsonDogEvent = {
+      ...mockEvent,
+      dates: [
+        { date: '2025-06-01', time: 'kp' },
+        { date: '2025-06-02', time: 'ap' },
+        { date: '2025-06-02', time: 'ip' },
+      ],
+      placesPerDay: { '2025-06-01': 10, '2025-06-02': 20 },
+    }
+    const movedWeek: Pick<JsonDogEvent, 'dates' | 'placesPerDay'> = {
+      dates: [
+        { date: '2025-06-08', time: 'kp' },
+        { date: '2025-06-09', time: 'ap' },
+        { date: '2025-06-09', time: 'ip' },
+      ],
+      placesPerDay: { '2025-06-08': 10, '2025-06-09': 20 },
+    }
+    const patch = async (stored: JsonDogEvent, body: Record<string, unknown>) => {
+      signIn(mockSecretary)
+      getEventMock.mockResolvedValueOnce(stored)
+      return putEventLambda(constructAPIGwEvent({ id: 'existing', ...body }, { method: 'PATCH' }))
+    }
+    const expectSaved = (fields: Partial<JsonDogEvent>) =>
+      expect(patchEventMock).toHaveBeenCalledWith('existing', expect.anything(), expect.objectContaining(fields))
+
+    beforeEach(() => mockReadEventRegistrations.mockResolvedValue([]))
+
+    it.each<[string, Partial<JsonDogEvent>, Pick<JsonDogEvent, 'dates' | 'placesPerDay'>]>([
+      ['a start moved with the same length', { endDate: '2025-06-09', startDate: '2025-06-08' }, movedWeek],
+      [
+        'a day added at the start',
+        { startDate: '2025-05-31' },
+        {
+          dates: [
+            { date: '2025-05-31', time: 'kp' },
+            { date: '2025-06-01', time: 'ap' },
+            { date: '2025-06-01', time: 'ip' },
+          ],
+          placesPerDay: { '2025-05-31': 10, '2025-06-01': 20 },
+        },
+      ],
+      ['a day added at the end', { endDate: '2025-06-03' }, grouped],
+      [
+        'the last day taken away',
+        { endDate: '2025-06-01' },
+        { dates: [{ date: '2025-06-01', time: 'kp' }], placesPerDay: { '2025-06-01': 10 } },
+      ],
+    ])('moves the stored ones along with %s', async (_name, body, { dates, placesPerDay }) => {
+      const res = await patch(grouped, body)
+
+      expect(res.statusCode).toEqual(200)
+      expectSaved({ dates, placesPerDay })
+    })
+
+    // An empty list of groups would leave the trial none at all: with none left the trial's defaults hold.
+    it('stores no groups or places once the day they were on is taken away', async () => {
+      const lastDayOnly: JsonDogEvent = {
+        ...mockEvent,
+        dates: [{ date: '2025-06-02', time: 'ap' }],
+        placesPerDay: { '2025-06-02': 20 },
+      }
+
+      const res = await patch(lastDayOnly, { endDate: '2025-06-01' })
+
+      expect(res.statusCode).toEqual(200)
+      expect(patchEventMock).toHaveBeenCalledWith(
+        'existing',
+        lastDayOnly,
+        expect.not.objectContaining({ dates: expect.anything() })
+      )
+      expect(patchEventMock).toHaveBeenCalledWith(
+        'existing',
+        lastDayOnly,
+        expect.not.objectContaining({ placesPerDay: expect.anything() })
+      )
+    })
+
+    it('keeps what a whole-event save carries on the new days', async () => {
+      const res = await patch(grouped, { ...grouped, ...movedWeek, endDate: '2025-06-09', startDate: '2025-06-08' })
+
+      expect(res.statusCode).toEqual(200)
+      expectSaved(movedWeek)
+    })
+
+    it('keeps what the save gives itself, and leaves out a day the trial does not have', async () => {
+      const res = await patch(grouped, {
+        dates: [
+          { date: '2025-06-08', time: 'ap' },
+          { date: '2025-06-09', time: 'kp' },
+          { date: '2025-06-10', time: 'kp' },
+        ],
+        endDate: '2025-06-09',
+        placesPerDay: { '2025-06-01': null, '2025-06-02': null, '2025-06-08': 5, '2025-06-10': 7 },
+        startDate: '2025-06-08',
+      })
+
+      expect(res.statusCode).toEqual(200)
+      expectSaved({
+        dates: [
+          { date: '2025-06-08', time: 'ap' },
+          { date: '2025-06-09', time: 'kp' },
+        ],
+        placesPerDay: { '2025-06-08': 5 },
+      })
+    })
+  })
+
   // KOE-1745: the save sends a key taken out of a changed object as null, which the merge deletes.
   describe('a key taken out of a changed object', () => {
     const patch = async (stored: JsonDogEvent, body: Record<string, unknown>) => {
@@ -2630,7 +2742,6 @@ describe('putEventLambda', () => {
         }
 
         it.each([
-          ['a later first day', { startDate: '2025-06-02' }, { askAtEntry: true, days: ['2025-06-02'] }],
           [
             'an earlier last day',
             { endDate: '2025-06-01', startDate: '2025-06-01' },
@@ -2682,6 +2793,73 @@ describe('putEventLambda', () => {
             expect.objectContaining({ teamCompetition: counted.teamCompetition })
           )
           expect(mockPublishPublicStartList).not.toHaveBeenCalled()
+        })
+      })
+
+      // KOE-1752: the counted days follow the trial's days as its classes and posts do: a counted day still
+      // on its stored day moves as many days as the start did, one the save counts itself keeps its day,
+      // and one the trial no longer has is left out.
+      describe('the counted days when the days change (KOE-1752)', () => {
+        const secondCounted: JsonDogEvent = {
+          ...mockEvent,
+          classes: [
+            { class: 'ALO', date: '2025-06-01' },
+            { class: 'ALO', date: '2025-06-02' },
+          ],
+          teamCompetition: { askAtEntry: true, days: ['2025-06-02'] },
+        }
+        const movedWeek = {
+          classes: [
+            { class: 'ALO', date: '2025-06-08' },
+            { class: 'ALO', date: '2025-06-09' },
+          ],
+          endDate: '2025-06-09',
+          startDate: '2025-06-08',
+        }
+
+        it.each<[string, Record<string, unknown>, TeamCompetition]>([
+          ['a start moved with the same length', movedWeek, { askAtEntry: true, days: ['2025-06-09'] }],
+          [
+            'a day added at the start',
+            {
+              classes: [
+                { class: 'ALO', date: '2025-05-31' },
+                { class: 'ALO', date: '2025-06-01' },
+              ],
+              startDate: '2025-05-31',
+            },
+            { askAtEntry: true, days: ['2025-06-01'] },
+          ],
+          [
+            'a later first day',
+            { classes: [{ class: 'ALO', date: '2025-06-02' }], startDate: '2025-06-02' },
+            { askAtEntry: true },
+          ],
+          [
+            'a day added at the end',
+            { classes: [...secondCounted.classes, { class: 'ALO', date: '2025-06-03' }], endDate: '2025-06-03' },
+            { askAtEntry: true, days: ['2025-06-02'] },
+          ],
+          [
+            'the last day taken away',
+            { classes: [{ class: 'ALO', date: '2025-06-01' }], endDate: '2025-06-01' },
+            { askAtEntry: true },
+          ],
+          ['a whole-event save', { ...secondCounted, ...movedWeek }, { askAtEntry: true, days: ['2025-06-09'] }],
+          [
+            'a day the save counts itself',
+            { ...movedWeek, teamCompetition: { days: ['2025-06-08'] } },
+            { askAtEntry: true, days: ['2025-06-08'] },
+          ],
+        ])('follows %s', async (_name, body, kept) => {
+          const res = await patch(secondCounted, body)
+
+          expect(res.statusCode).toEqual(200)
+          expect(patchEventMock).toHaveBeenCalledWith(
+            'existing',
+            secondCounted,
+            expect.objectContaining({ teamCompetition: kept })
+          )
         })
       })
 

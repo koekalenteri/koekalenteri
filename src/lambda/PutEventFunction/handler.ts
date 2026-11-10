@@ -3,6 +3,8 @@ import type { EventChange } from '../lib/event'
 import { nanoid } from 'nanoid'
 import { objectsDiffer } from '../../lib/diff'
 import {
+  datesFollowingDays,
+  followTrialDays,
   formatTypeOf,
   getEventSeason,
   hasEntries,
@@ -17,6 +19,7 @@ import {
   moveClasslessKey,
   OFFICIAL_EVENT_TYPES,
   ownClassCodes,
+  placesFollowingDays,
   uniqueClasses,
 } from '../../lib/event'
 import { isEventClass, ownClassErrors } from '../../lib/eventClass'
@@ -29,7 +32,13 @@ import { isOfficialFormatLocked } from '../../lib/results'
 import { postsFollowingDays, pruneRotationClasses, rotationShapeErrors } from '../../lib/rotation'
 import { eventBodySchema } from '../../lib/schema/event'
 import { legacyEventDay, rekeyEventDays, requestDay } from '../../lib/storedDays'
-import { pruneTeamDays, teamCompetitionDiffers, teamCompetitionErrors, teamErrors, teamsDiffer } from '../../lib/team'
+import {
+  teamCompetitionDiffers,
+  teamCompetitionErrors,
+  teamDaysFollowingDays,
+  teamErrors,
+  teamsDiffer,
+} from '../../lib/team'
 import { patchMerge } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { audit, eventAuditKey, getEventAuditMessages } from '../lib/audit'
@@ -214,16 +223,21 @@ const TEAM_GROUND = ['teams', 'teamCompetition', 'classes', 'startDate', 'endDat
 const restsOnTeamGround = (item: Patch<JsonConfirmedEvent>) => TEAM_GROUND.some((field) => Object.hasOwn(item, field))
 
 /**
- * The competition's settings as stored, on the merged event (`pruneTeamDays`). The counted days the trial
- * no longer has are left out (KOE-1726): a change of the trial's days is the secretary's to make, so it
- * is saved, not refused, and the choice keeps the days that are left. With none left every day counts.
- * A change of the counted days changes the standings, so the start list is published anew
- * (`teamCompetitionDiffers`). Settings left with nothing on, by a null for the last one or by the days
- * pruned, are no settings at all (KOE-1745).
+ * The competition's settings as stored, on the merged event (`teamDaysFollowingDays`). The counted days
+ * follow the trial's days (KOE-1752): a change of the trial's days is the secretary's to make, so it is
+ * saved, not refused; a counted day still on its stored day moves as many days as the start did, and one
+ * the trial no longer has is left out (KOE-1726). With none left every day counts. A change of the
+ * counted days changes the standings, so the start list is published anew (`teamCompetitionDiffers`).
+ * Settings left with nothing on, by a null for the last one or by the days pruned, are no settings at all
+ * (KOE-1745).
  */
-const settleTeamCompetition = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>) => {
+const settleTeamCompetition = (
+  data: JsonConfirmedEvent,
+  item: Patch<JsonConfirmedEvent>,
+  existing: JsonConfirmedEvent | undefined
+) => {
   if (!restsOnTeamGround(item) || !data.teamCompetition) return
-  const settings = pruneTeamDays(data)
+  const settings = teamDaysFollowingDays(existing, data)
   if (settings) data.teamCompetition = settings
   else delete data.teamCompetition
 }
@@ -260,6 +274,36 @@ const settlePostsToDays = (
   }
   data.stations = stations
   if (data.rotations) data.rotations = rotations
+}
+
+/** The fields of a save the day groups and the places per day rest on (KOE-1752). */
+const DAY_DATA_GROUND = ['startDate', 'endDate', 'dates', 'placesPerDay'] as const
+
+/**
+ * The day groups of a classless trial and the places per day follow the trial's days (KOE-1752,
+ * `followTrialDays`), on the merged event. The event form moves them itself with the start, as it moves
+ * the classes, so what a save carries is on the days it gives and only loses a day the trial does not
+ * have; a whole event sent as a patch leaves the stored days' places beside the new ones, and they go.
+ * What a save leaves out (a form loaded before) still holds the stored days and moves as many days as the
+ * start did. Nothing left is no field: an empty list of groups would leave the trial none at all.
+ */
+const settleDayData = (
+  data: JsonConfirmedEvent,
+  item: Patch<JsonConfirmedEvent>,
+  existing: JsonConfirmedEvent | undefined
+) => {
+  if (!DAY_DATA_GROUND.some((field) => Object.hasOwn(item, field))) return
+  const follow = followTrialDays(existing, data)
+  if (data.dates) {
+    const dates = datesFollowingDays(data.dates, follow, !Object.hasOwn(item, 'dates'))
+    if (dates.length) data.dates = dates
+    else delete data.dates
+  }
+  if (data.placesPerDay) {
+    const placesPerDay = placesFollowingDays(data.placesPerDay, follow, !Object.hasOwn(item, 'placesPerDay'))
+    if (Object.keys(placesPerDay).length) data.placesPerDay = placesPerDay
+    else delete data.placesPerDay
+  }
 }
 
 /**
@@ -678,8 +722,9 @@ const putEventLambda = lambda('putEvent', async (event) => {
   pruneGroupsOfClassesGone(data, item)
   // After the days of `existing` are keys (rekeyEventDays above): the posts are compared and moved as days.
   settlePostsToDays(data, item, existing)
+  settleDayData(data, item, existing)
   checkMergedEvent(data, item, !!existing)
-  settleTeamCompetition(data, item)
+  settleTeamCompetition(data, item, existing)
   settleExerciseScoring(data, item, existing)
 
   // The registration-group lock is server-owned. Never accept it from an
