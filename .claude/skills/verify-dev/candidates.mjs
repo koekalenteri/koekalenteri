@@ -16,7 +16,7 @@
 import { execFileSync } from 'node:child_process'
 import { pathToFileURL } from 'node:url'
 import { dotenvFile, isGitDescendant } from '../../../scripts/lib/git.mjs'
-import { claimedKeys, credentialsFromEnv, jiraClient } from '../../../scripts/lib/jira.mjs'
+import { claimedKeys, credentialsFromEnv, jiraClient, searchAll } from '../../../scripts/lib/jira.mjs'
 
 const SMOKE_JOB = 'deploy-dev / smoke'
 const E2E_JOB = 'deploy-dev / e2e'
@@ -62,22 +62,12 @@ export const candidateRow = (issue, commits, devSha, isDescendant) => {
 
 const run = (cmd, args) => execFileSync(cmd, args, { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 })
 
-const searchIssues = async (request, jql) => {
-  const issues = []
-  let token
-  do {
-    const params = new URLSearchParams({ jql, fields: 'summary,status', maxResults: '100' })
-    if (token) params.set('nextPageToken', token)
-    const response = await request(`/rest/api/3/search/jql?${params}`)
-    if (!response.ok) throw new Error(`Jira search failed (${response.status}): ${await response.text()}`)
-    const page = await response.json()
-    for (const issue of page.issues) {
-      issues.push({ key: issue.key, status: issue.fields.status.name, summary: issue.fields.summary })
-    }
-    token = page.nextPageToken
-  } while (token)
-  return issues
-}
+const searchIssues = async (request, jql) =>
+  (await searchAll(request, jql, { fields: 'summary,status' })).map((issue) => ({
+    key: issue.key,
+    status: issue.fields.status.name,
+    summary: issue.fields.summary,
+  }))
 
 /** `git log --format=%H%x00%B%x1e` output as [{ sha, message }]: a NUL ends the sha, an RS the entry. */
 export const parseLog = (text) =>

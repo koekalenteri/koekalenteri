@@ -74,6 +74,10 @@ This is the standard process for all production and pre-release deployments. The
 - For pre-releases, the tag is force-pushed to the `release/test` branch.
 - The appropriate release branch is then deployed to the corresponding environment using AWS Amplify.
 
+Once a production release is out, `/improve <version>` in a Claude Code session looks back at how
+it was made (`.claude/skills/improve/SKILL.md`) and records the retro in the release's plan
+document.
+
 #### Publishing a Pre-release as a Full Release
 
 If you have published a pre-release and now want to promote it to a full production release:

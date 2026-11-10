@@ -42,3 +42,19 @@ export const jiraClient = ({ baseUrl, email, token }) => {
     return response
   }
 }
+
+/** Every issue a JQL search finds, page by page. `params` are its other query parameters (fields, expand). */
+export const searchAll = async (request, jql, params = {}) => {
+  const issues = []
+  let token
+  do {
+    const query = new URLSearchParams({ jql, maxResults: '100', ...params })
+    if (token) query.set('nextPageToken', token)
+    const response = await request(`/rest/api/3/search/jql?${query}`)
+    if (!response.ok) throw new Error(`Jira search failed (${response.status}): ${await response.text()}`)
+    const page = await response.json()
+    issues.push(...page.issues)
+    token = page.nextPageToken
+  } while (token)
+  return issues
+}
