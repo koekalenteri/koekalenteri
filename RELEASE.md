@@ -123,9 +123,9 @@ The `dev` environment is automatically updated whenever changes are pushed to th
 
 #### Automation:
 
-- On a push to `main`, the workflow checks for changes in the `frontend` and `backend` directories.
-- **Backend**: If backend files have changed, the `deploy-backend` job deploys the latest commit from `main` to the `dev` environment's backend infrastructure.
-- **Frontend**: If frontend files have changed, the `deploy-frontend` job triggers a webhook (`DEPLOY_TRIGGER_HOOK`) that builds and deploys the latest commit from the `main` branch to the `dev` environment's frontend.
+- On a push to `main`, the `setup` job decides the scope from the changed paths: backend, frontend or both. After a failed main run, the scope is both.
+- When the merge queue has already tested the pushed commit (a successful `merge_group` run for the same SHA) and the previous main run succeeded, the push run skips the tests and `deploy-dev` starts right after `setup`. Sonar still analyses the commit, with the coverage from that `merge_group` run. A push without such a run runs the tests before the deploy.
+- `deploy-dev` calls `release.yml` with `env: dev`: **Backend** deploys the SAM stack, **Frontend** starts an Amplify job for the dev branch, and the `smoke` job checks the served site.
 
 ---
 
