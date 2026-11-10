@@ -276,6 +276,28 @@ siirtopainikkeet odottavat tallennusta. Siirron aikana painikkeet odottavat sen 
 
 !shot[EventTeamsPage/teams-move] Joukkueen koirista yksi on osallistujana ja yksi varasijalla, joten joukkueen voi siirtää kumpaan suuntaan tahansa
 
+### Arvonta
+
+Jos joukkueita on enemmän kuin kokeeseen mahtuu, painike **{t:teams.draw}** arpoo jäljellä olevat
+paikat joukkueiden kesken. Arvonnassa ovat joukkueet, joiden koiria on vielä varasijoilla.
+Ykkösjoukkueet arvotaan ennen muita, ja kummankin ryhmän järjestys arvotaan. Joukkue arvotaan vain, jos
+kaikki sen varasijoilla olevat koirat mahtuvat luokkansa ja koko kokeen jäljellä oleville paikoille;
+muuten arvonta siirtyy seuraavaan joukkueeseen. Luokka, jolle ei ole annettu omia paikkoja, rajoittuu
+vain kokeen paikkoihin.
+
+Arvottu koira siirretään sen ryhmän osallistujiin, jonka päivälle ja ajalle se on ilmoittautunut. Jos
+kokeella on päiväkohtaiset paikat, koira menee ensimmäiselle ilmoittamalleen päivälle, jolla on vielä
+tilaa. Joukkue, jonka jokin koira ei mahdu millekään päivälleen tai jonka luokka ei ota siirtoa
+vastaan, jätetään väliin, ja sen paikat jäävät seuraavalle arvottavalle joukkueelle.
+
+Ennen kuin yksikään koira siirtyy, Koekalenteri näyttää arvonnan tuloksen: arvotut joukkueet koirineen,
+koirat, joille lähtee koepaikkailmoitus, ja väliin jätetyt joukkueet. **{t:teams.drawConfirm}** siirtää
+koirat luokka kerrallaan samoin säännöin kuin koko joukkueen siirto, ja **{t:cancel}** jättää kaiken
+ennalleen. Arvontaa ei voi tehdä, kun sivulla on tallentamattomia muutoksia. Palvelin ei tarkista
+paikkojen määrää siirroissa, ei arvonnassa eikä käsin siirrettäessä.
+
+!shot[EventTeamsPage/teams-draw] Kahdelle jäljellä olevalle paikalle arvottiin ykkösjoukkue, ja sen koirille lähtee koepaikkailmoitus
+
 ### Pentuejoukkueet
 
 Jos joukkueet kootaan saman pentueen koirista, kuten derbyssä, rastita paneelin *{t:teams.settings}*
