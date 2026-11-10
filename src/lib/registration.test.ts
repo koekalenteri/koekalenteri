@@ -76,7 +76,6 @@ import {
   shouldSendInvitationToRegistration,
   withoutAdminProtectedFields,
   withoutParticipantResponses,
-  withoutPublicOperationFields,
   withoutRegistrationMoney,
   withRegistrationOverrides,
 } from './registration'
@@ -1949,15 +1948,20 @@ describe('removedKeptRegistrationField (KOE-1721)', () => {
     ).toBeUndefined()
     expect(removedKeptRegistrationField({ ...stored, teamEntry: { name: 'Kultaiset' } }, stored)).toBeUndefined()
   })
-})
 
-describe('withoutPublicOperationFields (KOE-1721)', () => {
-  it('leaves only what a participant cannot write', () => {
-    expect(withoutPublicOperationFields({ class: 'ALO', eventId: 'e', id: 'r', notes: 'n', paidAt: 'x' })).toEqual({
-      eventId: 'e',
-      id: 'r',
-      paidAt: 'x',
-    })
+  it.each(['agreeToTerms', 'breeder', 'dates', 'dog', 'language', 'notes', 'reserve'] as const)(
+    'keeps the %s every registration has',
+    (field) => {
+      const complete = JSON.parse(JSON.stringify(registrationWithStaticDates))
+
+      expect(removedKeptRegistrationField(complete, { ...complete, [field]: undefined })).toBe(field)
+    }
+  )
+
+  it('leaves out what every registration has but a participant never writes', () => {
+    const complete = JSON.parse(JSON.stringify(registrationWithStaticDates))
+
+    expect(removedKeptRegistrationField(complete, { ...complete, eventType: undefined, id: undefined })).toBeUndefined()
   })
 })
 

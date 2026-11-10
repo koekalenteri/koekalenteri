@@ -2311,7 +2311,6 @@ describe('putRegistrationLabmda', () => {
 
       it.each([
         ['the team', removing(['teamEntry']), withoutTeam],
-        ['the team sent as a null', nulling(['teamEntry']), withoutTeam],
         [
           'the first-team mark',
           removing(['teamEntry', 'primary']),
@@ -2342,27 +2341,10 @@ describe('putRegistrationLabmda', () => {
         )
       })
 
-      it('stores a null sent inside a value as the field left out', async () => {
-        asking(true)
-        mockGetRegistration.mockResolvedValueOnce(structuredClone(stored))
-
-        const res = await putRegistrationLabmda(
-          operating({ path: ['handler'], type: 'CHANGE', value: { ...stored.handler, location: null } })
-        )
-
-        const { location: _location, ...handler } = stored.handler ?? {}
-        expect(res.statusCode).toBe(200)
-        expect(mockPatchRegistration).toHaveBeenCalledWith(
-          stored.eventId,
-          stored.id,
-          stored,
-          expect.objectContaining({ handler })
-        )
-      })
-
-      // What an entry keeps (`removedKeptRegistrationField`), removed or sent as a null; the dates are
-      // held by the array check (`hasInvalidRegistrationArrayFields`) first.
+      // What an entry keeps (`removedKeptRegistrationField`); the dates are held by the array check
+      // (`hasInvalidRegistrationArrayFields`) first. A null is refused before either (`writesNull`).
       const kept = (field: string) => `Bad request: patch removes the registration field ${field}`
+      const writesNull = 'Bad request: patch operation writes a null'
       it.each([
         ...[
           'agreeToTerms',
@@ -2378,9 +2360,14 @@ describe('putRegistrationLabmda', () => {
           'payer',
           'reserve',
         ].map((field) => [`a removal of the ${field}`, removing([field]), kept(field)] as const),
-        ...['class', 'handler', 'ownerHandles'].map(
-          (field) => [`the ${field} sent as a null`, nulling([field]), kept(field)] as const
+        ...['class', 'teamEntry'].map(
+          (field) => [`the ${field} sent as a null`, nulling([field]), writesNull] as const
         ),
+        [
+          'a null inside a value',
+          operating({ path: ['handler'], type: 'CHANGE', value: { ...stored.handler, location: null } }),
+          writesNull,
+        ] as const,
         [
           'a removal of the dates',
           removing(['dates']),

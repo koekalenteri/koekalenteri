@@ -169,27 +169,16 @@ export const createPatchOperations = (before: object, after: object): PatchOpera
     return [{ path: difference.path, type: difference.type, value: difference.value }]
   })
 
-const withoutNulls = (value: unknown): unknown => {
-  if (Array.isArray(value)) return value.filter((item) => item !== null).map(withoutNulls)
-  if (!isRecord(value)) return value
-  return Object.fromEntries(
-    Object.entries(value)
-      .filter(([, item]) => item !== null)
-      .map(([key, item]) => [key, withoutNulls(item)])
-  )
-}
+const holdsNull = (value: unknown): boolean =>
+  value === null ||
+  (Array.isArray(value) ? value.some(holdsNull) : isRecord(value) && Object.values(value).some(holdsNull))
 
 /**
- * The operations with every null read as the removal it stands for, as a patch body's null is
- * (`patchMerge`): a change to null removes the field, a field created as null is not created, and a
- * null inside a value is left out of it (KOE-1721). No null reaches the patched object.
+ * Whether an operation writes a null, as its value or inside it (KOE-1721). The registration form
+ * writes none: `createPatchOperations` makes a field taken away a REMOVE.
  */
-export const nullsAsRemovals = (operations: readonly PatchOperation[]): PatchOperation[] =>
-  operations.flatMap<PatchOperation>((operation) => {
-    if (operation.type === 'REMOVE') return [operation]
-    if (operation.value === null) return operation.type === 'CHANGE' ? [{ path: operation.path, type: 'REMOVE' }] : []
-    return [{ ...operation, value: withoutNulls(operation.value) }]
-  })
+export const writesNull = (operations: readonly PatchOperation[]): boolean =>
+  operations.some((operation) => operation.type !== 'REMOVE' && holdsNull(operation.value))
 
 export const applyPatchOperations = <T extends object>(base: T, operations: readonly PatchOperation[]): T => {
   if (!operations.length) return base

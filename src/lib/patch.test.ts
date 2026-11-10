@@ -1,32 +1,24 @@
 import type { PatchOperation } from '../types'
-import { applyPatchOperations, createPatchOperations, InvalidPatchError, nullsAsRemovals } from './patch'
+import { applyPatchOperations, createPatchOperations, InvalidPatchError, writesNull } from './patch'
 
-describe('nullsAsRemovals (KOE-1721)', () => {
-  it('reads a change to null as a removal and drops a field created as null', () => {
-    expect(
-      nullsAsRemovals([
-        { path: ['class'], type: 'CHANGE', value: null },
-        { path: ['teamEntry'], type: 'CREATE', value: null },
-        { path: ['notes'], type: 'REMOVE' },
-      ])
-    ).toEqual([
-      { path: ['class'], type: 'REMOVE' },
-      { path: ['notes'], type: 'REMOVE' },
-    ])
+describe('writesNull (KOE-1721)', () => {
+  it.each([
+    ['a change to null', { path: ['class'], type: 'CHANGE', value: null }],
+    ['a field created as null', { path: ['teamEntry'], type: 'CREATE', value: null }],
+    ['a null in an object', { path: ['handler'], type: 'CHANGE', value: { email: null, name: 'Handler' } }],
+    ['a null in a list', { path: ['owners'], type: 'CHANGE', value: [{ name: 'Owner' }, null] }],
+  ] satisfies Array<[string, PatchOperation]>)('finds %s', (_name, operation) => {
+    expect(writesNull([{ path: ['notes'], type: 'REMOVE' }, operation])).toBe(true)
   })
 
-  it('leaves the nulls out of a value, in its objects and its lists alike', () => {
+  it('finds none in removals and values without a null', () => {
     expect(
-      nullsAsRemovals([
-        { path: ['handler'], type: 'CHANGE', value: { email: null, name: 'Handler', phone: '' } },
-        { path: ['owners'], type: 'CHANGE', value: [null, { location: null, name: 'Owner' }] },
+      writesNull([
+        { path: ['notes'], type: 'REMOVE' },
+        { path: ['owners'], type: 'CHANGE', value: [{ location: '', name: 'Owner' }] },
         { path: ['reserve'], type: 'CHANGE', value: 'ANY' },
       ])
-    ).toEqual([
-      { path: ['handler'], type: 'CHANGE', value: { name: 'Handler', phone: '' } },
-      { path: ['owners'], type: 'CHANGE', value: [{ name: 'Owner' }] },
-      { path: ['reserve'], type: 'CHANGE', value: 'ANY' },
-    ])
+    ).toBe(false)
   })
 })
 

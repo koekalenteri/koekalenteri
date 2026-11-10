@@ -118,53 +118,28 @@ export const createRegistrationDraft = (mode: 'admin' | 'participant'): Registra
  * an edit and a patch; this is where a new registration is held to the full shape.
  */
 export const isCompleteRegistration = (registration: Patch<JsonRegistration>): registration is JsonRegistration =>
-  typeof registration.agreeToTerms === 'boolean' &&
-  isObject(registration.breeder) &&
-  typeof registration.createdAt === 'string' &&
-  typeof registration.createdBy === 'string' &&
-  Array.isArray(registration.dates) &&
-  isObject(registration.dog) &&
-  typeof registration.eventId === 'string' &&
-  typeof registration.eventType === 'string' &&
-  typeof registration.id === 'string' &&
-  (registration.language === 'fi' || registration.language === 'en') &&
-  typeof registration.modifiedAt === 'string' &&
-  typeof registration.modifiedBy === 'string' &&
-  typeof registration.notes === 'string' &&
-  Array.isArray(registration.qualifyingResults) &&
-  typeof registration.reserve === 'string'
+  REQUIRED_REGISTRATION_FIELDS.every(([field, holds]) => holds(registration[field]))
 
-/**
- * What an entry keeps once it has it (KOE-1721): the participant's part of what every registration has
- * (`isCompleteRegistration`), and the class and the people the entry form requires
- * (`registrationForm/validation.ts`). A participant's edit may change these, never take one away; the
- * team, the costs and the manual results stay theirs to clear.
- */
-const KEPT_REGISTRATION_FIELDS = [
-  'agreeToTerms',
-  'breeder',
-  'class',
-  'dates',
-  'dog',
-  'handler',
-  'language',
-  'notes',
-  'owner',
-  'ownerHandles',
-  'ownerPays',
-  'owners',
-  'payer',
-  'reserve',
-] as const satisfies ReadonlyArray<keyof JsonRegistration>
+const isString = (value: unknown) => typeof value === 'string'
 
-const isPresent = (value: unknown) => value !== undefined && value !== null
-
-/** The field of `KEPT_REGISTRATION_FIELDS` the stored entry has and the edited one has not, if any. */
-export const removedKeptRegistrationField = (
-  stored: Partial<JsonRegistration>,
-  edited: Partial<JsonRegistration>
-): string | undefined => KEPT_REGISTRATION_FIELDS.find((field) => isPresent(stored[field]) && !isPresent(edited[field]))
-
+/** What every stored registration has, each with what it must be (`isCompleteRegistration`). */
+const REQUIRED_REGISTRATION_FIELDS = [
+  ['agreeToTerms', (value) => typeof value === 'boolean'],
+  ['breeder', isObject],
+  ['createdAt', isString],
+  ['createdBy', isString],
+  ['dates', Array.isArray],
+  ['dog', isObject],
+  ['eventId', isString],
+  ['eventType', isString],
+  ['id', isString],
+  ['language', (value) => value === 'fi' || value === 'en'],
+  ['modifiedAt', isString],
+  ['modifiedBy', isString],
+  ['notes', isString],
+  ['qualifyingResults', Array.isArray],
+  ['reserve', isString],
+] as const satisfies ReadonlyArray<readonly [keyof JsonRegistration, (value: unknown) => boolean]>
 type PublicRegistrationField = keyof JsonRegistration
 
 /** What a participant's request may write; `PARTICIPANT_FIELD_SECTIONS` (`registrationLocks.ts`) says when each closes. */
@@ -326,10 +301,30 @@ const PUBLIC_REGISTRATION_OPERATION_FIELD_NAMES: ReadonlySet<string> = new Set(P
 export const isPublicRegistrationOperationField = (field: unknown): field is PublicRegistrationField =>
   typeof field === 'string' && PUBLIC_REGISTRATION_OPERATION_FIELD_NAMES.has(field)
 
-/** A copy of the registration without the fields a participant's operations write (`PUBLIC_REGISTRATION_OPERATION_FIELDS`). */
-export const withoutPublicOperationFields = <T extends Partial<Record<PublicRegistrationField, unknown>>>(
-  registration: T
-): T => withoutFields(registration, PUBLIC_REGISTRATION_OPERATION_FIELDS)
+/**
+ * What an entry keeps once it has it (KOE-1721): the participant's part of what every registration has
+ * (`REQUIRED_REGISTRATION_FIELDS`), and the class and the people the entry form requires
+ * (`registrationForm/validation.ts`). A participant's edit may change these, never take one away; the
+ * team, the costs and the manual results stay theirs to clear.
+ */
+const KEPT_REGISTRATION_FIELDS: ReadonlyArray<keyof JsonRegistration> = [
+  ...REQUIRED_REGISTRATION_FIELDS.map(([field]) => field).filter(isPublicRegistrationOperationField),
+  'class',
+  'handler',
+  'owner',
+  'ownerHandles',
+  'ownerPays',
+  'owners',
+  'payer',
+]
+
+const isPresent = (value: unknown) => value !== undefined && value !== null
+
+/** The field of `KEPT_REGISTRATION_FIELDS` the stored entry has and the edited one has not, if any. */
+export const removedKeptRegistrationField = (
+  stored: Partial<JsonRegistration>,
+  edited: Partial<JsonRegistration>
+): string | undefined => KEPT_REGISTRATION_FIELDS.find((field) => isPresent(stored[field]) && !isPresent(edited[field]))
 
 const REGISTRATION_ARRAY_FIELDS = [
   { path: ['dates'], required: true },
