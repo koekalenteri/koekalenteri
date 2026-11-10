@@ -239,6 +239,92 @@ describe('EventEditPage', () => {
     })
   })
 
+  // KOE-1752: the day groups and the places per day are the form's own, edited and shown on it, so the
+  // form moves them with the start as it moves the classes; the save carries them on the new days.
+  describe('a start moved on the form', () => {
+    const grouped: DogEvent = {
+      ...eventWithStaticDates,
+      dates: [
+        { date: '2021-02-10', time: 'kp' },
+        { date: '2021-02-11', time: 'ap' },
+        { date: '2021-02-11', time: 'ip' },
+      ],
+      paymentTime: 'registration',
+      places: 30,
+      placesPerDay: { '2021-02-10': 10, '2021-02-11': 20 },
+      state: 'draft',
+    }
+
+    type User = Awaited<ReturnType<typeof renderEditPage>>['user']
+    /** The day pasted into a date field: a group of per-section spinbuttons, so into the first one. */
+    const pasteDay = async (user: User, field: string, day: string) => {
+      const section = screen.getByRole('group', { name: field }).querySelector<HTMLElement>('[role="spinbutton"]')
+      if (!section) throw new Error(`${field} day section not found`)
+      await user.click(section)
+      await user.keyboard('{Control>}a{/Control}')
+      await user.paste(day)
+      await flushPromises()
+    }
+    const save = async (user: User) => {
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+    }
+
+    afterEach(() => sessionStorage.clear())
+
+    it('saves the day groups and the places per day on the new days', async () => {
+      vi.mocked(putEvent).mockResolvedValueOnce(grouped)
+      const { user } = await renderEditPage(grouped)
+
+      await pasteDay(user, 'event.startDate', '17.02.2021')
+      await save(user)
+
+      expect(putEvent).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          dates: [
+            { date: '2021-02-17', time: 'kp' },
+            { date: '2021-02-18', time: 'ap' },
+            { date: '2021-02-18', time: 'ip' },
+          ],
+          endDate: '2021-02-18',
+          placesPerDay: { '2021-02-10': null, '2021-02-11': null, '2021-02-17': 10, '2021-02-18': 20 },
+          startDate: '2021-02-17',
+        }),
+        TEST_ID_TOKEN,
+        undefined,
+        undefined
+      )
+    })
+
+    // The day groups' defaults fill only the day added: the moved days keep the groups chosen for them.
+    it('keeps the groups of the moved days and gives a day added the defaults', async () => {
+      vi.mocked(putEvent).mockResolvedValueOnce(grouped)
+      const { user } = await renderEditPage(grouped)
+
+      await pasteDay(user, 'event.startDate', '17.02.2021')
+      await pasteDay(user, 'event.endDate', '19.02.2021')
+      await save(user)
+
+      expect(putEvent).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          dates: [
+            { date: '2021-02-17', time: 'kp' },
+            { date: '2021-02-18', time: 'ap' },
+            { date: '2021-02-18', time: 'ip' },
+            { date: '2021-02-19', time: 'ap' },
+            { date: '2021-02-19', time: 'ip' },
+          ],
+          endDate: '2021-02-19',
+          placesPerDay: { '2021-02-10': null, '2021-02-11': null, '2021-02-17': 10, '2021-02-18': 20 },
+          startDate: '2021-02-17',
+        }),
+        TEST_ID_TOKEN,
+        undefined,
+        undefined
+      )
+    })
+  })
+
   // KOE-1736: the event selected on the list (kept in localStorage, shared by every tab) need not be the
   // one edited. The save is still a patch against the event the form edits: a whole event carries no
   // removals, and the server would keep every field the form cleared.

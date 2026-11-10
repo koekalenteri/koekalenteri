@@ -5,10 +5,10 @@ import {
   isTeamCountedDay,
   MAX_TEAM_MEMBERS,
   normalizeTeamName,
-  pruneTeamDays,
   teamCompetitionDiffers,
   teamCompetitionErrors,
   teamCountedDays,
+  teamDaysFollowingDays,
   teamErrors,
   teamMembers,
   teamNameKey,
@@ -366,15 +366,19 @@ describe('the counted days (KOE-1726)', () => {
     })
   })
 
-  describe('pruneTeamDays', () => {
-    it('drops a day the trial no longer has, and keeps the other settings', () => {
-      const teamCompetition: TeamCompetition = { askAtEntry: true, days: ['2026-08-02', '2026-08-03'] }
+  describe('teamDaysFollowingDays', () => {
+    const prune = (teamCompetition: TeamCompetition | undefined) =>
+      teamDaysFollowingDays(undefined, { ...trial, teamCompetition })
 
-      expect(pruneTeamDays({ ...trial, teamCompetition })).toEqual({ askAtEntry: true, days: ['2026-08-02'] })
+    it('drops a day the trial no longer has, and keeps the other settings', () => {
+      expect(prune({ askAtEntry: true, days: ['2026-08-02', '2026-08-03'] })).toEqual({
+        askAtEntry: true,
+        days: ['2026-08-02'],
+      })
     })
 
     it('removes the choice once none of its days is left, so every day counts', () => {
-      const pruned = pruneTeamDays({ ...trial, teamCompetition: { askAtEntry: true, days: ['2026-07-31'] } })
+      const pruned = prune({ askAtEntry: true, days: ['2026-07-31'] })
 
       expect(pruned).toEqual({ askAtEntry: true })
       expect(pruned).not.toHaveProperty('days')
@@ -383,13 +387,64 @@ describe('the counted days (KOE-1726)', () => {
     it('gives the same settings back when every chosen day is still in the trial', () => {
       const teamCompetition: TeamCompetition = { days: ['2026-08-02', '2026-08-01'] }
 
-      expect(pruneTeamDays({ ...trial, teamCompetition })).toBe(teamCompetition)
-      expect(pruneTeamDays({ ...trial, teamCompetition: undefined })).toBeUndefined()
+      expect(prune(teamCompetition)).toBe(teamCompetition)
+      expect(prune(undefined)).toBeUndefined()
     })
 
     it('gives no settings where nothing is left on (KOE-1745)', () => {
-      expect(pruneTeamDays({ ...trial, teamCompetition: { days: ['2026-07-31'] } })).toBeUndefined()
-      expect(pruneTeamDays({ ...trial, teamCompetition: {} })).toBeUndefined()
+      expect(prune({ days: ['2026-07-31'] })).toBeUndefined()
+      expect(prune({})).toBeUndefined()
+    })
+
+    // KOE-1752: the counted days follow the trial's days as its classes do.
+    describe("when the trial's days move", () => {
+      const stored = { ...trial, teamCompetition: { askAtEntry: true, days: ['2026-08-02' as const] } }
+      const week = {
+        classes: [
+          { class: 'ALO' as const, date: '2026-08-08' as const },
+          { class: 'AVO' as const, date: '2026-08-09' as const },
+        ],
+        endDate: '2026-08-09' as const,
+        startDate: '2026-08-08' as const,
+      }
+
+      it('moves a stored counted day as many days as the start moved', () => {
+        expect(teamDaysFollowingDays(stored, { ...week, teamCompetition: stored.teamCompetition })).toEqual({
+          askAtEntry: true,
+          days: ['2026-08-09'],
+        })
+      })
+
+      it('keeps a day the save counts itself', () => {
+        expect(teamDaysFollowingDays(stored, { ...week, teamCompetition: { days: ['2026-08-08'] } })).toEqual({
+          days: ['2026-08-08'],
+        })
+      })
+
+      it('takes away a stored day the stored days had already left behind, never moving it into view', () => {
+        const stranded = { ...trial, teamCompetition: { days: ['2026-08-03' as const, '2026-08-02' as const] } }
+        const longer = {
+          classes: [...week.classes, { class: 'VOI' as const, date: '2026-08-10' as const }],
+          endDate: '2026-08-10' as const,
+          startDate: '2026-08-08' as const,
+        }
+
+        expect(teamDaysFollowingDays(stranded, { ...longer, teamCompetition: stranded.teamCompetition })).toEqual({
+          days: ['2026-08-09'],
+        })
+      })
+
+      it('leaves out a moved day that falls off the class days, and with none left every day counts', () => {
+        const later = {
+          classes: [{ class: 'ALO' as const, date: '2026-08-02' as const }],
+          endDate: '2026-08-02' as const,
+          startDate: '2026-08-02' as const,
+        }
+
+        expect(teamDaysFollowingDays(stored, { ...later, teamCompetition: stored.teamCompetition })).toEqual({
+          askAtEntry: true,
+        })
+      })
     })
   })
 })

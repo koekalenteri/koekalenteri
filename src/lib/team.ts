@@ -10,7 +10,7 @@ import type {
   TeamCompetition,
   TeamEntry,
 } from '../types'
-import { eventDates, getEventStateForClass } from './event'
+import { eventDates, followTrialDays, getEventStateForClass } from './event'
 import { isStarter } from './registration'
 import { isObject } from './utils'
 
@@ -294,22 +294,41 @@ export const teamCountedDays = (event: TeamDaysOwner): DayKey[] => {
   return chosen.size && chosen.size < trialDays.length ? trialDays.filter((day) => chosen.has(day)) : []
 }
 
-const withTrialDays = (event: TeamDaysOwner): TeamCompetition | undefined => {
-  const { teamCompetition } = event
+/** Whether a day is one of the days a team competition counts from: the trial's class days. */
+const onTeamTrialDays = (event: TeamDaysOwner, day: DayKey): boolean => eventDates(event).includes(day)
+
+/** The counted days once they have followed the trial's days, in the order chosen. */
+const followedTeamDays = (before: TeamDaysOwner | undefined, after: TeamDaysOwner, days: readonly DayKey[]) => {
+  const follow = followTrialDays(before, after, onTeamTrialDays)
+  const stored = new Set(before?.teamCompetition?.days)
+  return days.flatMap((day) => {
+    const followed = follow(day, stored.has(day))
+    return followed === undefined ? [] : [followed]
+  })
+}
+
+const withFollowedDays = (before: TeamDaysOwner | undefined, after: TeamDaysOwner): TeamCompetition | undefined => {
+  const { teamCompetition } = after
   if (!teamCompetition?.days) return teamCompetition ?? undefined
-  const days = chosenTeamDays(event)
-  if (days.length === teamCompetition.days.length) return teamCompetition
+  const days = followedTeamDays(before, after, teamCompetition.days)
+  if (sameIds(days, teamCompetition.days)) return teamCompetition
   const { days: _days, ...rest } = teamCompetition
   return days.length ? { ...rest, days } : rest
 }
 
 /**
- * The competition's settings without the counted days the trial no longer has (KOE-1726), for a change
- * of the trial's days that is saved, not refused. Once none is left the choice goes, and every day
- * counts. Settings with nothing to leave out are given back as they are, and settings with nothing left
- * on are none at all (KOE-1745): off is no setting, never an empty object.
+ * The competition's settings once the counted days have followed the trial's days (KOE-1752,
+ * `followTrialDays`), for a change of the trial's days that is saved, not refused: a counted day still the
+ * stored one moves as many days as the start did, as the classes and the posts do, a day the save counts
+ * itself keeps its day, and a day the trial no longer has is left out (KOE-1726). Once none is left the
+ * choice goes, and every day counts. Without stored settings (a create) nothing moves. Settings with
+ * nothing to change are given back as they are, and settings with nothing left on are none at all
+ * (KOE-1745): off is no setting, never an empty object.
  */
-export const pruneTeamDays = (event: TeamDaysOwner): TeamCompetition | undefined => {
-  const settings = withTrialDays(event)
+export const teamDaysFollowingDays = (
+  before: TeamDaysOwner | undefined,
+  after: TeamDaysOwner
+): TeamCompetition | undefined => {
+  const settings = withFollowedDays(before, after)
   return settings && Object.keys(settings).length ? settings : undefined
 }

@@ -20,7 +20,16 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { daysBetween } from '@/lib/day'
 import { objectsDiffer } from '@/lib/diff'
-import { formatTypeOf, getEventSeason, isEventOver, shiftStations } from '@/lib/event'
+import {
+  datesFollowingDays,
+  followTrialDays,
+  formatTypeOf,
+  getEventSeason,
+  isEventOver,
+  placesFollowingDays,
+  shiftStations,
+  shiftTeamDays,
+} from '@/lib/event'
 import { allMaybe } from '@/lib/maybePromise'
 import { hasEarlyBirdPrice } from '@/lib/payment'
 import { merge, withTimeout } from '@/lib/utils'
@@ -58,6 +67,24 @@ interface Props {
 }
 
 const SELECTABLE_EVENT_STATES: EventState[] = ['draft', 'tentative', 'confirmed', 'cancelled']
+
+/**
+ * What the event keeps by day follows a change of its days on the form (`followTrialDays`), in place on
+ * `next`. The day groups and the places per day are the form's own, shown and edited on it, so they
+ * follow here for every event, as the classes do (KOE-1752); the save carries them on the new days, and
+ * the day groups' defaults (`EventGroups`) fill only a day added. An event not yet saved, a copy, has no
+ * stored posts or counted days for the save to move: they move here with the start too (KOE-1741,
+ * KOE-1752). A saved event's posts and counted days are moved by the save.
+ */
+const followDays = (event: DogEvent, next: DogEvent) => {
+  const follow = followTrialDays(event, next)
+  if (next.dates) next.dates = datesFollowingDays(next.dates, follow, true)
+  if (next.placesPerDay) next.placesPerDay = placesFollowingDays(next.placesPerDay, follow, true)
+  if (event.id || next.startDate === event.startDate) return
+  const shift = daysBetween(event.startDate, next.startDate)
+  if (event.stations?.length) next.stations = shiftStations(event.stations, shift)
+  if (event.teamCompetition) next.teamCompetition = shiftTeamDays(event.teamCompetition, shift)
+}
 
 /**
  * The form renders nothing until every list it offers has loaded, so this load must end one way or
@@ -298,11 +325,7 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
       if (props.startDate) {
         newState.season = getEventSeason(newState.startDate)
       }
-      // An event not yet saved, a copy, has no stored posts for the save to move: they move here with
-      // the start, as the classes do (KOE-1741). A saved event's posts are moved by the save.
-      if (!event.id && props.startDate && event.stations?.length) {
-        newState.stations = shiftStations(event.stations, daysBetween(event.startDate, newState.startDate))
-      }
+      if (props.startDate || props.endDate) followDays(event, newState)
       // The next change merges into this one, even when it comes before the form renders again: two
       // debounced fields delivering back to back, or a click landing before the render (KOE-1483).
       eventRef.current = newState

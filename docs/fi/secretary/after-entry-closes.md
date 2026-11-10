@@ -339,9 +339,10 @@ esimerkiksi derbyn karsintapäivän mutta ei finaalia. Valinta on samassa paneel
 poistaa, sen päivän tulokset eivät kuulu joukkueille. Vähintään yhden päivän on oltava valittuna,
 joten viimeistä laskettavaa päivää ei voi poistaa: jos haluat vaihtaa päivän, valitse ensin uusi
 päivä ja poista sitten vanha. Kun kaikki päivät on taas
-valittu, lasketaan kaikki päivät, myös päivä, joka kokeeseen myöhemmin lisätään. Jos kokeen päiviä
-muutetaan, päivät, joita kokeessa ei enää ole, poistuvat valinnasta, ja kopio siirtää valinnan
-kokeen mukana.
+valittu, lasketaan kaikki päivät, myös päivä, joka kokeeseen myöhemmin lisätään. Kun kokeen
+päiviä siirretään, valinta siirtyy päivien mukana samoin kuin kopiossa: kokeen toisena päivänä
+laskettu päivä on edelleen kokeen toinen päivä. Päivä, jota kokeessa ei enää ole, poistuu
+valinnasta.
 
 Kun vain osa päivistä lasketaan, joukkueen tuloksen perässä kerrotaan, minkä päivien tuloksista
 pisteet on laskettu, sekä joukkuesivulla että julkisella starttilistalla.

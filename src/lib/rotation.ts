@@ -9,11 +9,10 @@ import type {
   Language,
   StationVisitLayout,
 } from '../types'
-import type { ClassLabelOwner, ClassOrderOwner } from './event'
+import type { ClassLabelOwner, ClassOrderOwner, TrialDays } from './event'
 import type { ExerciseScoringOwner } from './exerciseScoring'
 import type { SortableRegistration } from './registration'
-import { daysBetween, isDayKey } from './day'
-import { classLabel, classOrder, formatTypeOf, shiftStations } from './event'
+import { classLabel, classOrder, followTrialDays, formatTypeOf } from './event'
 import { registrationOrder } from './eventClass'
 import { stationDogsAtOnce } from './liveFormat'
 import { getRegistrationGroupDay, getRegistrationPlacement } from './registration'
@@ -463,14 +462,6 @@ interface PostsFollowingDays {
 }
 
 /**
- * Whether a day is one of the trial's. A post whose day is no day key, or a trial whose days are none (a
- * stored row the day migration could not read, KOE-1547), has no day to judge it by, so the post is never
- * taken away for it.
- */
-const onTrialDays = ({ startDate, endDate }: Pick<PostDaysEvent, 'startDate' | 'endDate'>, day: string): boolean =>
-  ![day, startDate, endDate].every(isDayKey) || (startDate <= day && day <= endDate)
-
-/**
  * The posts and groups follow the trial's days (KOE-1741), as the event form moves the classes
  * (`updateClassDates`): a post still on the day stored for it moves as many days as the start did, a post
  * the save placed itself keeps the day it was given, and a post on a day the trial does not have is taken
@@ -482,18 +473,16 @@ export const postsFollowingDays = (
   before: Pick<PostDaysEvent, 'startDate' | 'endDate' | 'stations'> | undefined,
   after: PostDaysEvent
 ): PostsFollowingDays => {
-  const shift =
-    before && isDayKey(before.startDate) && isDayKey(after.startDate)
-      ? daysBetween(before.startDate, after.startDate)
-      : 0
+  const follow = followTrialDays<TrialDays>(before, after)
   const storedDays = new Map(before?.stations?.map((station) => [station.id, station.date]))
   const given = after.stations ?? []
-  const shifted = shiftStations(given, shift)
   const carriesStoredDay = (station: EventStation) => storedDays.get(station.id) === station.date
-  const moved = given.map((station, index) => (carriesStoredDay(station) ? shifted[index] : station))
-  const stranded = (station: EventStation) =>
-    !!before && carriesStoredDay(station) && !onTrialDays(before, station.date)
-  const kept = given.map((station, index) => !stranded(station) && onTrialDays(after, moved[index].date))
+  const followed = given.map((station) => follow(station.date, carriesStoredDay(station)))
+  const moved = given.map((station, index) => {
+    const date = followed[index] ?? station.date
+    return date === station.date ? station : { ...station, date }
+  })
+  const kept = followed.map((day) => day !== undefined)
   const stations = moved.filter((_station, index) => kept[index])
 
   // Only the posts taken away here take their exercises along: a group still naming a post the save

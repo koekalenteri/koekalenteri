@@ -20,7 +20,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 992ab6
+sourceHash: 22c652
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -335,8 +335,9 @@ example a derby's qualifying day but not its final. The choice is in the same pa
 *{t:teams.settings}*, under *{t:teams.countedDays}*. By default every day counts. Clearing a day leaves its results out of the teams'
 points. At least one day must be chosen, so the last day counted cannot be cleared: to switch the
 day, choose the new day first and then clear the old one. Once every day is chosen again, every day counts, also a day added to the trial
-later. If the trial's days change, the days it no longer has drop out of the choice, and a copy
-moves the choice with the trial.
+later. When the trial's days are moved, the choice moves with them, as in a copy: a day counted as
+the trial's second day is still its second day. A day the trial no longer has drops out of the
+choice.
 
 When only some days count, a team's result ends with the days its points come from, on the teams
 page and on the public start list alike.

@@ -104,7 +104,13 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   groups; a post already off the stored days is taken away, never moved into view. A post that has
   run a turn keeps its day (`stationDaysLocked`). Both copies move the posts with `shiftStations`
   (`src/lib/event.ts`), and so does the event form for an event not yet saved, a copy, since a create
-  has no stored posts for the save to move.
+  has no stored posts for the save to move. Everything else an event keeps by day follows the same
+  rule, `followTrialDays` in `src/lib/event.ts`, which `postsFollowingDays` is built on (KOE-1752):
+  the team competition's counted days (`teamDaysFollowingDays` in `src/lib/team.ts`) are moved by the
+  save as the posts are, and by the form for a copy. A classless trial's day groups (`dates`) and the
+  places per day are the form's own, so the event form moves them for every event; PutEvent
+  (`settleDayData`) takes what a save carries as given and only leaves out a day the trial does not
+  have, and moves a field the save leaves out.
 - `classOrder(event)` (`src/lib/event.ts`) is the one class order of every list and view: the own
   classes as listed, then ALO, AVO, VOI. `uniqueClasses` and `registrationOrder` sort by it; a sort
   of classes or entries takes the event, never a fixed order. The reserve numbering

@@ -1812,6 +1812,78 @@ export const shiftTeamDays = (teamCompetition: TeamCompetition, days: number): T
 export const shiftStations = <T extends { date: string }>(stations: readonly T[], days: number): T[] =>
   stations.map((station): T => (isDayKey(station.date) ? { ...station, date: addDays(station.date, days) } : station))
 
+/** A trial's days, from its first to its last. */
+export interface TrialDays {
+  startDate: DayKey
+  endDate: DayKey
+}
+
+/**
+ * Whether a day is one of the trial's, from its start to its end. A day that is no day key, or a trial
+ * whose days are none (a stored row the day migration could not read, KOE-1547), has no day to judge it
+ * by, so it is always one.
+ */
+const onTrialDays = ({ startDate, endDate }: TrialDays, day: DayKey): boolean =>
+  ![day, startDate, endDate].every(isDayKey) || (startDate <= day && day <= endDate)
+
+/**
+ * Where a day kept for the trial goes when the trial's days change: the day, or undefined when it is taken away.
+ * `stored` says whether the day still is the one stored for it.
+ */
+export type DayFollower = (day: DayKey, stored: boolean) => DayKey | undefined
+
+/**
+ * The one rule by which what an event keeps by day follows the trial's days (KOE-1741, KOE-1752), as the
+ * event form moves the classes (`updateClassDates`): a day still the stored one moves as many days as the
+ * start did, a day the save gave itself stays, and a day the trial does not have is taken away. A stored
+ * day the stored days had already left behind is taken away before anything moves, never moved into
+ * view. Without stored days (a create) nothing moves. `isTrialDay` is the test of a trial's days, its
+ * start to its end unless the data counts another set (the class days of a team competition).
+ */
+export const followTrialDays = <E extends TrialDays>(
+  before: E | undefined,
+  after: E,
+  isTrialDay: (event: E, day: DayKey) => boolean = onTrialDays
+): DayFollower => {
+  const shift =
+    before && isDayKey(before.startDate) && isDayKey(after.startDate)
+      ? daysBetween(before.startDate, after.startDate)
+      : 0
+  return (day, stored) => {
+    if (before && stored && !isTrialDay(before, day)) return undefined
+    const moved = stored && isDayKey(day) ? addDays(day, shift) : day
+    return isTrialDay(after, moved) ? moved : undefined
+  }
+}
+
+/** The day groups of a classless trial once they have followed its days (`followTrialDays`, KOE-1752). */
+export const datesFollowingDays = <T extends { date: DayKey }>(
+  dates: readonly T[],
+  follow: DayFollower,
+  stored: boolean
+): T[] =>
+  dates.flatMap((group): T[] => {
+    const date = follow(group.date, stored)
+    return date === undefined ? [] : [{ ...group, date }]
+  })
+
+/**
+ * The places per day once they have followed the trial's days (`followTrialDays`, KOE-1752). A key that is
+ * not a day has no day to follow, and no day reads its places, so it is left out, as a copy leaves it.
+ */
+export const placesFollowingDays = (
+  placesPerDay: Readonly<Record<string, number>>,
+  follow: DayFollower,
+  stored: boolean
+): Record<string, number> => {
+  const followed: Record<string, number> = {}
+  Object.entries(placesPerDay).forEach(([day, places]) => {
+    const moved = isDayKey(day) ? follow(day, stored) : undefined
+    if (moved !== undefined) followed[moved] = places
+  })
+  return followed
+}
+
 export const copyDogEvent = (event: DogEvent, now = new Date()): DogEvent => {
   const copy = structuredClone(event)
   const origStartDay = event.startDate
