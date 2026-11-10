@@ -20,7 +20,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 3613b4
+sourceHash: 992ab6
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -276,6 +276,27 @@ A team is moved as it is saved: while the page has changes not saved, the move b
 the save. While a move runs, the buttons wait for it to finish.
 
 !shot[EventTeamsPage/teams-move] One of the team's dogs is a participant and one on the reserve list, so the team can be moved either way
+
+### The draw
+
+When more teams enter than the trial holds, **{t:teams.draw}** draws the places left among the teams.
+The teams in the draw are those with dogs still on the reserve list. First teams are drawn before the
+others, and each group in a random order. A team is drawn only if all its dogs on the reserve list fit
+the places left in their class and in the whole trial; otherwise the draw goes on to the next team. A
+class without places of its own is held only to the trial's places.
+
+A dog drawn moves to the participants of the group for the day and time it entered. Where the trial has
+places per day, the dog goes to the first day it entered that still has room. A team with a dog that
+fits none of its days, or whose class takes no move, is passed, and its places are left for the next
+team drawn.
+
+Before any dog moves, Koekalenteri shows the result of the draw: the teams drawn with their dogs, the
+dogs mailed their place, and the teams passed. **{t:teams.drawConfirm}** moves the dogs one class at a
+time by the same rules as moving a whole team, and **{t:cancel}** leaves everything as it was. The draw
+is not available while the page has changes not saved. The server does not check the number of places
+on a move, neither for the draw nor for a move by hand.
+
+!shot[EventTeamsPage/teams-draw] The first team was drawn for the two places left, and its dogs are mailed their place
 
 ### Litter teams
 
