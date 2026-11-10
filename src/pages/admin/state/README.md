@@ -134,7 +134,9 @@ behind: leaving unsaved asks, and the answer to leave discards that page's draft
 A new event has one draft, `adminNewEventAtom`. `adminSaveEventAtom` is write-only: it sends what
 changed against the event stored under the saved event's id (`adminEventAtom(event.id)`), never against
 the selected one, which another tab may have moved to another event; a whole event would carry none of
-the fields the form cleared (KOE-1736). After the call shown here it writes `adminEventIdAtom`,
+the fields the form cleared (KOE-1736). PutEvent merges the save into the stored event key by key
+(`patchMerge`), so a field taken away goes as null, and a changed object goes with a null for each key
+taken out of it (`patchTo`, KOE-1745); an array goes whole. After the call shown here it writes `adminEventIdAtom`,
 `adminCurrentEventAtom` and the public `eventsAtom`.
 
 ```mermaid

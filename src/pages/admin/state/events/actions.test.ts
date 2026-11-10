@@ -5,6 +5,7 @@ import { createElement } from 'react'
 import { eventWithStaticDates } from '@/__mockData__/events'
 import { exportEventToStage, putEvent, putResultsPublished } from '@/api/event'
 import { putStationTurn } from '@/api/station'
+import { getChanges } from '@/lib/utils'
 import { TEST_ID_TOKEN } from '@/test-utils/utils'
 import {
   adminSaveEventAtom,
@@ -28,6 +29,37 @@ describe('buildEventSavePatch', () => {
     expect(buildEventSavePatch(event, current)).toEqual({
       id: current.id,
       kcId: null,
+    })
+  })
+
+  // KOE-1745: the server merges a changed object key by key, so a key taken out of it goes as null.
+  it('carries a key taken out of a changed object as null, at any depth', () => {
+    const current = {
+      ...eventWithStaticDates,
+      names: { en: 'Test', fi: 'Koe' },
+      teamCompetition: { askAtEntry: true, days: [eventWithStaticDates.startDate], litters: true },
+    }
+    const event = { ...current, names: { fi: 'Koe' }, teamCompetition: { litters: true } }
+    const expected = {
+      id: current.id,
+      names: { en: null, fi: 'Koe' },
+      teamCompetition: { askAtEntry: null, days: null, litters: true },
+    }
+
+    expect(buildEventSavePatch(event, current)).toEqual(expected)
+    expect(buildEventSavePatch(event, current, getChanges(current, event))).toEqual(expected)
+  })
+
+  it('takes the fields of the official before out when another is picked', () => {
+    const current = {
+      ...eventWithStaticDates,
+      official: { email: 'vanha@example.com', id: 'old', name: 'Vanha', phone: '040 1' },
+    }
+    const event = { ...current, official: { email: 'uusi@example.com', id: 'new', name: 'Uusi' } }
+
+    expect(buildEventSavePatch(event, current, getChanges(current, event))).toEqual({
+      id: current.id,
+      official: { ...event.official, phone: null },
     })
   })
 

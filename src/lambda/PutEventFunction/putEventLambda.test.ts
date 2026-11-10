@@ -2313,6 +2313,41 @@ describe('putEventLambda', () => {
     })
   })
 
+  // KOE-1745: the save sends a key taken out of a changed object as null, which the merge deletes.
+  describe('a key taken out of a changed object', () => {
+    const patch = async (stored: JsonDogEvent, body: Record<string, unknown>) => {
+      signIn(mockSecretary)
+      getEventMock.mockResolvedValueOnce(stored)
+      return putEventLambda(constructAPIGwEvent({ id: 'existing', ...body }, { method: 'PATCH' }))
+    }
+
+    it('stores the official picked in place of another, without the fields of the one before', async () => {
+      const stored: JsonDogEvent = {
+        ...mockEvent,
+        official: { email: 'vanha@example.com', id: 'old', name: 'Vanha', phone: '040 1' },
+      }
+      const official = { email: 'uusi@example.com', id: 'new', name: 'Uusi' }
+
+      const res = await patch(stored, { official: { ...official, phone: null } })
+
+      expect(res.statusCode).toEqual(200)
+      expect(patchEventMock).toHaveBeenCalledWith('existing', stored, expect.objectContaining({ official }))
+    })
+
+    it('stores the cost without a breed taken out of it, keyed by its code', async () => {
+      const stored: JsonDogEvent = { ...mockEvent, cost: { breed: { '110': 40, '111': 45 }, normal: 50 } }
+
+      const res = await patch(stored, { cost: { breed: { '110': null, '111': 45 }, normal: 50 } })
+
+      expect(res.statusCode).toEqual(200)
+      expect(patchEventMock).toHaveBeenCalledWith(
+        'existing',
+        stored,
+        expect.objectContaining({ cost: { breed: { '111': 45 }, normal: 50 } })
+      )
+    })
+  })
+
   describe('the teams of a team competition (KOE-1714)', () => {
     const putTeams = async (teams: unknown) => {
       signIn(mockSecretary)
@@ -2545,6 +2580,44 @@ describe('putEventLambda', () => {
           'existing',
           stored,
           expect.objectContaining({ teamCompetition: { series } })
+        )
+      })
+
+      // KOE-1745: the teams page takes one setting off with a null while another stays on.
+      it.each([
+        ['the question at entry', { askAtEntry: null }, { days: ['2025-06-01'], litters: true }],
+        ['litter teams', { litters: null }, { askAtEntry: true, days: ['2025-06-01'] }],
+        ['the counted days', { days: null }, { askAtEntry: true, litters: true }],
+      ])('takes off %s and keeps the settings left on', async (_name, off, kept) => {
+        const stored: JsonDogEvent = {
+          ...mockEvent,
+          teamCompetition: { askAtEntry: true, days: ['2025-06-01'], litters: true },
+        }
+
+        const res = await patch(stored, { teamCompetition: { ...kept, ...off } })
+
+        expect(res.statusCode).toEqual(200)
+        expect(patchEventMock).toHaveBeenCalledWith(
+          'existing',
+          stored,
+          expect.objectContaining({ teamCompetition: kept })
+        )
+      })
+
+      // Off is no setting at all: settings left with none on are no settings, not an empty object.
+      it.each<[string, TeamCompetition, Record<string, unknown>]>([
+        ['the last setting taken off', { askAtEntry: true }, { teamCompetition: { askAtEntry: null } }],
+        ['the counted days the trial no longer has', { days: ['2025-06-02'] }, { endDate: '2025-06-01' }],
+      ])('stores no settings once %s leaves none', async (_name, teamCompetition, body) => {
+        const stored: JsonDogEvent = { ...mockEvent, teamCompetition }
+
+        const res = await patch(stored, body)
+
+        expect(res.statusCode).toEqual(200)
+        expect(patchEventMock).toHaveBeenCalledWith(
+          'existing',
+          stored,
+          expect.not.objectContaining({ teamCompetition: expect.anything() })
         )
       })
 

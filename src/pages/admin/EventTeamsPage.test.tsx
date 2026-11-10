@@ -1,4 +1,4 @@
-import type { ConfirmedEvent, EventTeam, Registration } from '@/types'
+import type { ConfirmedEvent, DogEvent, EventTeam, Registration } from '@/types'
 import { ThemeProvider } from '@mui/material'
 import { cleanup, screen, within } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
@@ -9,6 +9,7 @@ import { putEvent } from '@/api/event'
 import { putRegistrationGroups } from '@/api/registration'
 import theme from '@/assets/Theme'
 import { MAX_TEAM_MEMBERS } from '@/lib/team'
+import { patchMerge } from '@/lib/utils'
 import { Path } from '@/routeConfig'
 import { expectConsoleOutput } from '@/test-utils/consoleGuard'
 import { DataMemoryRouter, flushPromises, renderSuspendedWithUserEvents, TEST_ID_TOKEN } from '@/test-utils/utils'
@@ -1127,5 +1128,58 @@ describe('EventTeamsPage', () => {
       undefined,
       undefined
     )
+  })
+
+  // KOE-1745: one setting taken off while another stays on is gone once the server has merged the save.
+  describe('one setting off while another stays on', () => {
+    const SECOND_DAY = '2021-02-11' as const
+    const twoDays: ConfirmedEvent = {
+      ...eventWithStations,
+      classes: [...eventWithStations.classes, ...eventWithStations.classes.map((c) => ({ ...c, date: SECOND_DAY }))],
+      endDate: SECOND_DAY,
+    }
+    const dayBoxes = () => within(screen.getByRole('group', { name: 'teams.countedDays' })).getAllByRole('checkbox')
+
+    it.each([
+      [
+        'the question at entry',
+        { ...eventWithStations, teamCompetition: { askAtEntry: true, litters: true } },
+        () => screen.getByRole('checkbox', { name: 'teams.askAtEntry' }),
+        { askAtEntry: null, litters: true },
+        { litters: true },
+      ],
+      [
+        'litter teams',
+        { ...eventWithStations, teamCompetition: { askAtEntry: true, litters: true } },
+        () => screen.getByRole('checkbox', { name: 'teams.litters' }),
+        { askAtEntry: true, litters: null },
+        { askAtEntry: true },
+      ],
+      [
+        'the counted days, back to every day',
+        { ...twoDays, teamCompetition: { days: [eventWithStations.startDate], litters: true } },
+        () => dayBoxes()[1],
+        { days: null, litters: true },
+        { litters: true },
+      ],
+    ])('takes off %s', async (_name, stored: ConfirmedEvent, box, sent, kept) => {
+      // The server merges the request into the stored event field by field (PutEvent, `patchMerge`).
+      const base: DogEvent = stored
+      vi.mocked(putEvent).mockImplementation(async (request) => patchMerge(base, request))
+      const { user } = await renderPage(stored)
+      await flushPromises()
+
+      await user.click(box())
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+
+      expect(putEvent).toHaveBeenLastCalledWith(
+        expect.objectContaining({ teamCompetition: sent }),
+        TEST_ID_TOKEN,
+        undefined,
+        undefined
+      )
+      expect(putEvent).toHaveLastResolvedWith(expect.objectContaining({ teamCompetition: kept }))
+    })
   })
 })
