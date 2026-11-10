@@ -17,13 +17,14 @@ otherwise. The unit of work is a piece, not an issue.
   first.
 - The table is a record, not the truth. Before anything starts, recompute every row from the
   sources and correct the table where it differs:
-  - branch: `git branch -a --list '*-p<k>-*'` by the piece's id `P<k>`;
+  - branch: `git branch -a --list '*-p<k>-*'` by the piece's id `P<k>`, and
+    `'*-p<k>f-*'` for its fix row `P<k>.1` (step 7);
   - PR: `gh pr list --head <branch> --state all --json number,state,isDraft`;
   - status: `suunniteltu` (no branch), `työn alla` (branch, no PR), `katselmoinnissa` (open PR),
     `mainissa` (merged); `odottaa päätöstä` stays while the piece's question under **Avoimet
     päätökset** in the document has no answer (step 5).
 - `ListAgents` and `git worktree list`: a peer session on a key or a branch holds that piece.
-  The worktrees of `mainissa` pieces no one holds are removed (step 7).
+  The worktrees of `mainissa` pieces no one holds are removed (step 8).
 - `.claude/skills/release-plan/candidates.sh 'fixVersion = "<version>"'` for the open PRs'
   files; a piece whose hard path an open PR outside the plan holds waits for it.
 
@@ -107,7 +108,36 @@ once `npm run check-docs` passes. That update starts no review round: it goes to
 and the `ci-watcher`, not to the reviewers. When a guide page's own text conflicts, it is a
 by-hand change after all, and the `docs` reviewer looks at the merge.
 
-## 7. Remove what has landed
+## 7. Test on dev
+
+Every merge to `main` deploys to dev, and `/verify-dev` tests what has landed there before the
+release goes to production. It runs as part of the build, after each deploy:
+
+- **When.** After a merge, wait for that commit's CI run in the background
+  (`gh run watch <run> --exit-status` with `run_in_background`; the run is the `ci.yml` run on
+  `main` for the merge commit). When its `deploy-dev / smoke` job has passed, run
+  `.claude/skills/verify-dev/candidates.mjs` with the keys of the release's issues
+  (`fixVersion = "<version>"`) in Ready for Testing, and start one run for all it marks onDev
+  `yes`.
+- **One run at a time.** The browser is one profile. A deploy that lands while a run is going
+  waits; when the run reports, the next run takes every issue that is ready by then.
+- **Who runs it.** A `general-purpose` agent in the background, with the prompt: run the
+  `verify-dev` skill (Skill tool) for `<keys>`, follow it as written, and report its run
+  summary. It has the `playwright` MCP tools (load them with `ToolSearch`) and does the Jira
+  comments and moves itself. The orchestrator keeps building meanwhile.
+- **Done** needs nothing more. **Blocked** goes back to Ready for Testing, and the next run after
+  the next deploy takes it again; name the blocker in the report.
+- **Returned to In Progress** gets one fix round without asking. Add a row under the piece that
+  completed the issue, `P<k>.1`, on branch `koe-<n>-p<k>f-<slug>`, and give it with the
+  verdict comment (Odotettu, Havaittu, Toistoaskeleet, the screenshot) to the area's implementer,
+  or to a fresh one when that one has stopped. It runs `/ticket` steps 2 to 6 like any piece;
+  the PR claims the issue again in its title, so `jira-testable` returns it to Ready for Testing
+  and the next run tests it.
+- **Returned a second time**, the fix row is `odottaa päätöstä` with the verdict under
+  **Avoimet päätökset**, asked as in step 5. Another automatic round would guess at what the
+  first fix missed.
+
+## 8. Remove what has landed
 
 A worktree with its own install holds 1.6 GB and keeps Spotlight and the editors' file watchers
 busy; on 10.11.2026, 72 worktrees took 88 GB. When a piece turns `mainissa` and its implementer
@@ -127,7 +157,7 @@ would take a peer session's worktrees. In step 1, a continuing session does the 
 `mainissa` pieces whose implementers belonged to an earlier session and no peer holds. A later
 fix to a merged piece gets a fresh implementer; a new worktree links `node_modules` in a second.
 
-## 8. Report
+## 9. Report
 
 One row per piece: area, what it builds, PR, status, the issues it completes, and what is open.
 Then what waits on the user: the PRs ready to merge in the order the table needs them, and the
