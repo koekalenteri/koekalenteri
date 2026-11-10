@@ -10,7 +10,7 @@ covers:
   - src/pages/admin/EventCreatePage.tsx
   - src/pages/admin/EventEditPage.tsx
   - src/pages/admin/OrganizerListPage.tsx
-sourceHash: 7252af
+sourceHash: 543589
 ---
 
 Once a trial has been created in the calendar, the secretary's job before entry opens is to make

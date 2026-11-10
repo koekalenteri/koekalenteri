@@ -48,7 +48,7 @@ kun kaikki vaadittu on paikallaan. Käy osiot läpi ja tarkista erityisesti:
 - **{t:event.officialFormat}**: epävirallinen koe voi noudatella virallista koetta (NOU, NOME-B,
   NOME-A tai NOWT). Silloin luokat, ilmoittautumisen ajat, koepaikat, varasijalista, suorituspaikat
   ja tulosten syöttö toimivat kuten siinä kokeessa, ja tulos kirjataan sen nimellä, esimerkiksi
-  NOU1. Tuomareita noudatteleva koe ei vaadi: ei virallisen kokeen tuomarimäärää eikä tuomaria
+  NOU1. Tällainen koe ei vaadi tuomareita: ei virallisen kokeen tuomarimäärää eikä tuomaria
   luokkaa kohden. Jos kokeella on omia luokkia, ne ajetaan suorituspaikoilla samoin kuin noudateltavan
   kokeen luokat. Kuka saa ilmoittautua, Kennelliitto ja tilastot pysyvät epävirallisen kokeen
   omina. Valintaa voi muuttaa, kunnes kokeeseen on tallennettu ensimmäinen tulos tai suorituspaikan
