@@ -346,8 +346,9 @@ describe('validation', () => {
     })
   })
 
-  // KOE-1723: an unofficial trial that follows NOWT holds to NOWT's judges with classes of its own.
-  describe('the judges of a trial that follows NOWT with own classes', () => {
+  // KOE-1723: an unofficial trial that follows an official format asks for no judges, neither a count
+  // nor a judge for each class (the user's decision); the official format keeps its rule.
+  describe('the judges of an unofficial trial that follows an official format', () => {
     const pirkka: PartialEvent = {
       ...emptyEvent,
       classes: [
@@ -363,18 +364,26 @@ describe('validation', () => {
       state: 'confirmed',
     }
 
-    it('asks for two judges, as NOWT does', () => {
-      expect(validateEventField({ ...pirkka, judges: [{ id: 1, name: 'Yksi' }] }, 'judges', true)).toMatchObject({
-        key: 'judgeCount',
-      })
+    it.each([
+      ['no judge', []],
+      ['one judge', [{ id: 1, name: 'Yksi' }]],
+    ])('takes %s', (_name, judges) => {
+      expect(validateEventField({ ...pirkka, judges }, 'judges', true)).toBe(false)
     })
 
-    it('does not ask for a judge for each class, as NOWT does not', () => {
-      const judges = [
-        { id: 1, name: 'Yksi' },
-        { id: 2, name: 'Kaksi' },
-      ]
-      expect(validateEventField({ ...pirkka, judges }, 'judges', true)).toBe(false)
+    it('asks for no judge for each class where it follows the B-trial', () => {
+      const judges = [{ id: 1, name: 'Yksi' }]
+      expect(validateEventField({ ...pirkka, judges, officialFormat: 'NOME-B' }, 'judges', true)).toBe(false)
+    })
+
+    it('still asks an official NOWT for two judges', () => {
+      const nowt: PartialEvent = {
+        ...emptyEvent,
+        eventType: 'NOWT',
+        judges: [{ id: 1, name: 'Yksi' }],
+        state: 'confirmed',
+      }
+      expect(validateEventField(nowt, 'judges', true)).toMatchObject({ key: 'judgeCount' })
     })
   })
 

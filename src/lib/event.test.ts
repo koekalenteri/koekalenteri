@@ -3211,6 +3211,7 @@ describe('formatClasses (KOE-1718)', () => {
 describe('isClassShapeChange (KOE-1718)', () => {
   const classless = { classes: [], eventType: 'Harjoitus' }
   const classful = { classes: [{ class: 'ALO' }], eventType: 'Harjoitus' }
+  const ownful = { classes: [{ class: 'YKS' }], eventType: 'Pirkka', ownClasses: [{ code: 'YKS' }] }
 
   it.each([
     ['classless to a format with classes', classless, { ...classless, officialFormat: 'NOWT' as const }, true],
@@ -3219,6 +3220,14 @@ describe('isClassShapeChange (KOE-1718)', () => {
     ['with classes to a format with', classful, { ...classful, officialFormat: 'NOME-B' as const }, false],
     ['a format with classes back to none', { ...classless, officialFormat: 'NOWT' as const }, classless, true],
     ['a format without classes back to none', { ...classless, officialFormat: 'NOU' as const }, classless, false],
+    // KOE-1723: a trial with classes of its own runs them, whatever format it follows.
+    ['own classes to a format without', ownful, { ...ownful, officialFormat: 'NOU' as const }, false],
+    [
+      'own classes to a format with',
+      { ...ownful, officialFormat: 'NOU' as const },
+      { ...ownful, officialFormat: 'NOWT' as const },
+      false,
+    ],
   ])('tells %s', (_name, before, after, expected) => {
     expect(isClassShapeChange(before, after)).toBe(expected)
   })

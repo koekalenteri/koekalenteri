@@ -95,7 +95,7 @@ describe('EventForm', () => {
   })
 
   // KOE-1718: every section slice carries the official type an unofficial trial follows, so the judges
-  // section reads the NOWT's rules: no judge per class, and two judges at least.
+  // section reads the NOWT's layout: no judge per class. KOE-1723: and it asks for no number of judges.
   it('reads the judges section by the official type an unofficial trial follows', async () => {
     const { user } = await renderComponent({
       ...eventWithEntryNotYetOpen,
@@ -107,7 +107,7 @@ describe('EventForm', () => {
     await user.click(screen.getByRole('button', { name: 'judges' }))
     await flushPromises()
 
-    expect(screen.getByText(/^validation\.event\.judgeCount/)).toBeVisible()
+    expect(screen.queryByText(/^validation\.event\.judgeCount/)).not.toBeInTheDocument()
     expect(screen.getByRole('textbox', { name: 'judge 1' })).toBeVisible()
     for (const picker of screen.getAllByLabelText('event.judgesEditor.classes')) expect(picker).not.toBeVisible()
 

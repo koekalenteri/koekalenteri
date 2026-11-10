@@ -135,3 +135,62 @@ test('a secretary gives an unofficial trial classes of its own, and a dog enters
   const key = await new PaymentPage(entry.page).registrationKey()
   expect(await readRegistration(key.eventId, key.id)).toMatchObject({ class: 'VET' })
 })
+
+// KOE-1723: an unofficial trial that follows NOWT runs its own classes at the posts as NOWT runs ALO,
+// and asks for no judges of its own. The trial is today, so its posts take scores.
+test('a trial that follows NOWT scores a dog of its own class at a post', {
+  annotation: issue('KOE-1723'),
+  tag: '@secretary',
+}, async ({ context, page }) => {
+  const organizer = await seedOrganizer()
+  const secretary = await seedStaffUser({ roles: { [organizer.id]: 'secretary' } })
+  const today = helsinkiDay(0)
+  const event = await seedEvent({
+    classes: [
+      { class: 'YKS', date: today, places: 20 },
+      { class: 'VET', date: today, places: 20 },
+    ],
+    dates: [{ date: today, time: 'ap' }],
+    endDate: today,
+    // Entry still open today, so the dog is entered as the form enters it.
+    entryEndDate: today,
+    entryStartDate: helsinkiDay(-7),
+    eventType: 'Pirkka',
+    judges: [],
+    kcGuid: undefined,
+    kcId: undefined,
+    officialFormat: 'NOWT',
+    organizer: { id: organizer.id, name: organizer.name },
+    ownClasses: [
+      { code: 'YKS', name: { en: 'Individual', fi: 'Yksilö' } },
+      { code: 'VET', name: { en: 'Veterans', fi: 'Veteraanit' } },
+    ],
+    rotations: [{ class: 'YKS', exercises: [{ stationId: 'post-1' }, { stationId: 'post-2' }] }],
+    startDate: today,
+    stations: [
+      { date: today, id: 'post-1', number: 1 },
+      { date: today, id: 'post-2', number: 2 },
+    ],
+  })
+  const dog = await seedDog()
+  const owner = await seedStaffUser()
+  // Entered and placed before the trial, as the secretary would have.
+  const body = registrationBody(event, dog, owner)
+  const created = await postRegistration({ ...body, class: 'YKS' })
+  expect(created.status, await created.clone().text()).toBe(200)
+  const { id } = (await created.json()) as { id: string }
+  const stored = await readRegistration(event.id, id)
+  await putItem(TABLES.registration, {
+    ...stored,
+    group: { date: today, key: `${today}-ap`, number: 1, time: 'ap' },
+    state: 'ready',
+  })
+
+  await signInAs(context, secretary)
+  await page.goto(`/admin/event/results/${event.id}/station/post-1`)
+  await page.getByRole('button', { name: `1 ${dog.name}` }).click()
+  await page.getByRole('textbox', { name: /Rasti 1/ }).fill('15')
+  await page.getByRole('button', { name: 'Tallenna tulokset' }).click()
+
+  await expect.poll(async () => (await readRegistration(event.id, id))?.eventResult?.tasks?.[0]?.points).toBe(15)
+})
