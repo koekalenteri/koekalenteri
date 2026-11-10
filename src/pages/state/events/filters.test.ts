@@ -239,5 +239,20 @@ describe('state.events.filters', () => {
       expect(matchesEventFilter(event, { ...emptyFilter, withOpenEntry: true }, 'organizer')).toBe(false)
       expect(matchesEventFilter(event, { ...emptyFilter, withResults: true }, 'eventType')).toBe(false)
     })
+
+    describe('the class facet on an unofficial trial', () => {
+      const unofficial: PublicDogEvent = { ...event, eventType: 'Epävirallinen' }
+      const alo: FilterProps = { ...emptyFilter, eventClass: ['ALO'] }
+
+      it('does not find an own class coded ALO by the official ALO (KOE-1743)', () => {
+        const ownAlo = { ...unofficial, ownClasses: [{ code: 'ALO', name: { fi: 'Alokkaat' } }] }
+
+        expect(matchesEventFilter(ownAlo, alo)).toBe(false)
+      })
+
+      it('finds the official ALO it runs without own classes', () => {
+        expect(matchesEventFilter(unofficial, alo)).toBe(true)
+      })
+    })
   })
 })

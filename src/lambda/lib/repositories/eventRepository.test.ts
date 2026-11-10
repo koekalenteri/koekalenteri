@@ -115,7 +115,7 @@ describe('eventRepository', () => {
       await expect(readEventsForStats()).resolves.toEqual([event])
       expect(mockReadAll).toHaveBeenCalledWith({
         names: { '#state': 'state' },
-        projection: 'id, organizer, startDate, endDate, eventType, classes, places, #state, judges',
+        projection: 'id, organizer, startDate, endDate, eventType, classes, ownClasses, places, #state, judges',
       })
     })
 

@@ -4,7 +4,7 @@ import i18next from 'i18next'
 import { atom } from 'jotai'
 import { atomFamily } from 'jotai-family'
 import { compareByLocalizedString } from '@/lib/client/sort'
-import { isRegistrationClass } from '@/lib/registration'
+import { isOfficialClass } from '@/lib/eventClass'
 import { unique, uniqueFn } from '@/lib/utils'
 import { eventFilterAtom, eventsAtom } from './atoms'
 import { matchesEventFilter } from './filters'
@@ -34,9 +34,13 @@ export const filterEventTypesAtom = atom((get) => {
 
 export const filterEventClassesAtom = atom((get) => {
   const events = get(filteredEventsForEventClassAtom)
-  const eventClasses = events.flatMap((event) => event.classes)
-  // The calendar filters by the official classes alone; an event's own class is no filter (KOE-674).
-  const uniqueEventClasses = unique(eventClasses.map((eventClass) => eventClass.class).filter(isRegistrationClass))
+  // The calendar filters by the official classes alone; an event's own class is none, also one coded
+  // ALO, AVO or VOI (KOE-674, KOE-1743).
+  const uniqueEventClasses = unique(
+    events.flatMap((event) =>
+      event.classes.map((eventClass) => eventClass.class).filter((key) => isOfficialClass(event, key))
+    )
+  )
   uniqueEventClasses.sort((a, b) => a.localeCompare(b, i18next.language))
   return uniqueEventClasses
 })

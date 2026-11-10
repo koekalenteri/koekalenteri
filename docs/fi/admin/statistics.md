@@ -41,7 +41,9 @@ peruttuja kokeita ei lasketa, ja luvut päivittyvät öisin.
 Sivun alaosan kaaviot lasketaan koemuodolle ja luokalle, jotka valitaan kohdista
 *{t:stats.admin.eventType}* ja *{t:stats.admin.class}*: *{t:stats.admin.capacityTitle}*,
 *{t:stats.admin.demandTitle}* ja *{t:stats.admin.cancellationRateTitle}*. Peruutusprosentti
-lasketaan kaikista ilmoittautuneista, myös varasijalta peruneista.
+lasketaan kaikista ilmoittautuneista, myös varasijalta peruneista. Luokat ovat viralliset luokat
+ALO, AVO ja VOI. Epävirallisen kokeen omat luokat lasketaan yhteen koemuodon nimellä, kuten koe
+jossa ei ole luokkia, vaikka niiden koodi olisi ALO, AVO tai VOI.
 
 !shot[CapacityUtilizationChart/capacity-all-classes] Osallistujat ja paikat kuukausittain yhdelle koemuodolle
 

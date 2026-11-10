@@ -4,6 +4,7 @@ import type { FilterProps } from './types'
 import { formatDate, formatDateSpan } from '@/i18n/dates'
 import { dayOf, isDayKey, TIME_ZONE } from '@/lib/day'
 import { hasAvailableResults, isEntryClosing, isEntryOpen, isEntryUpcoming, storedDayKey } from '@/lib/event'
+import { isOfficialClass } from '@/lib/eventClass'
 import { isRegistrationClass } from '@/lib/registration'
 
 /** A day key from the URL as it is; anything else, including nothing, is no day. */
@@ -64,11 +65,12 @@ function withinEventTypeFilter(event: PublicDogEvent, { eventType }: FilterProps
   return true
 }
 
+/** The class facet finds an event by an official class it runs, never by an own class of the same code (KOE-1743). */
 function withinEventTypeClassFilter(event: PublicDogEvent, { eventClass }: FilterProps) {
-  if (eventClass.length && !eventClass.some((c) => event.classes.map((cl) => cl.class).includes(c))) {
-    return false
-  }
-  return true
+  return (
+    !eventClass.length ||
+    event.classes.some(({ class: key }) => isOfficialClass(event, key) && eventClass.includes(key))
+  )
 }
 
 function withinJudgeFilter(event: PublicDogEvent, { judge }: FilterProps) {

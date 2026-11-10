@@ -23,7 +23,7 @@ export type EventStatsEvent = Pick<
   JsonDogEvent,
   'classes' | 'endDate' | 'eventType' | 'id' | 'places' | 'startDate' | 'state'
 > &
-  Partial<Pick<JsonDogEvent, 'judges'>> & {
+  Partial<Pick<JsonDogEvent, 'judges' | 'ownClasses'>> & {
     organizer: { id: string }
   }
 
@@ -32,7 +32,8 @@ type EventEntryEndDates = Pick<JsonDogEvent, 'id' | 'entryEndDate' | 'entryOrigE
 type IndexedEntryEnd = EventEntryEndDates & Required<Pick<JsonDogEvent, 'entryEndDate'>>
 
 const EVENT_STATS_PROJECTION_NAMES = { '#state': 'state' }
-const EVENT_STATS_PROJECTION = 'id, organizer, startDate, endDate, eventType, classes, places, #state, judges'
+const EVENT_STATS_PROJECTION =
+  'id, organizer, startDate, endDate, eventType, classes, ownClasses, places, #state, judges'
 
 /** `consistent` reads the row as last written, for a caller about to write back what it folds from it. */
 export const readEvent = async <T extends JsonDogEvent = JsonDogEvent>(eventId: string, consistent = false) =>

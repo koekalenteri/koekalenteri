@@ -9,7 +9,7 @@ covers:
   - src/pages/RegistrationCreatePage.tsx
   - src/pages/components/RegistrationForm.tsx
   - src/pages/components/registrationForm/**
-sourceHash: 6694bb
+sourceHash: 6a6ac0
 ---
 
 Entering a trial needs no account and no sign-in. All you need is access to the email address you
@@ -19,6 +19,9 @@ give on the form: every link to your entry is sent there.
 
 The front page lists upcoming trials. The filters narrow it by date, trial type, class, organizer
 and senior judge, and the checkboxes show only the trials whose entry is open or about to open.
+The class filter has the official classes ALO, AVO and VOI. An unofficial trial's own classes are
+not in it, even when their code is the same, so a trial that runs classes of its own is not found by
+class.
 
 Each row gives the date, place, organizer and classes. **{t:register}** appears on the row only while the
 entry period is running; before that, the row says when entry opens.

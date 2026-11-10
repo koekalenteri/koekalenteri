@@ -89,7 +89,10 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   `ownClassErrors` (PutEvent refuses with `invalidOwnClasses`), `isEventClass` for whether a key is
   one of the event's classes (never a classless trial's format), and `registrationOrder` (a day's
   entries class by class, then time and number). A check that a key is
-  a class of the event takes `isEventClass`, not `isRegistrationClass`. A writer holds a class to the
+  a class of the event takes `isEventClass`, not `isRegistrationClass`. An own class may be coded
+  ALO, AVO or VOI, so a reader that filters or counts classes across events (the calendar's class
+  filter, the capacity statistics) takes `isOfficialClass` from the same module, which never reads an
+  own class as the official one (KOE-1743). A writer holds a class to the
   classes the event runs (`isRunClass`): an entry's class (`assertEntryClass` in PutRegistration and
   PutAdminRegistration) and a running order's group (`unknownClass`). A per-class write refuses a key
   the event does not run, never reading it as the whole event. A save that changes the classes drops
