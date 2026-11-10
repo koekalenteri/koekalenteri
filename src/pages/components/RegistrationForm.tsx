@@ -38,6 +38,7 @@ import { dayOf, TIME_ZONE } from '../../lib/day'
 import { getDiffOperations } from '../../lib/diff'
 import { minDogAgeFor } from '../../lib/dog'
 import { isDevEnv } from '../../lib/env'
+import { classLabel } from '../../lib/event'
 import { formatMoney } from '../../lib/money'
 import { getFormPayment } from '../../lib/payment'
 import { getPrioritySort, PRIORITY_MEMBER, priorityValuesToPriority, RESTRICTION } from '../../lib/priority'
@@ -305,7 +306,8 @@ export default function RegistrationForm({
 
   const [helperTexts, errorStates] = useMemo(() => {
     const states: { [Property in keyof Registration]?: boolean } = {}
-    const texts = getSectionHelperTexts(registration, t)
+    const className = registration.class ? classLabel(event, registration.class, language) : undefined
+    const texts = getSectionHelperTexts(registration, className, t)
     // A breed-only restriction is the dog's to meet; an incomplete dog is reported ahead of it.
     if (restriction?.section === 'dog') {
       texts.dog = restriction.text
@@ -320,7 +322,7 @@ export default function RegistrationForm({
       states.breeder = states.owner = states.qualifyingResults = true
     }
     return [texts, states]
-  }, [errors, registration, restriction, sectionRegistration, t])
+  }, [errors, event, language, registration, restriction, sectionRegistration, t])
 
   // The address check needs the list of top-level domains; it is fetched here, once, so it has
   // arrived by the time anyone has typed an address (KOE-1347).
@@ -703,8 +705,13 @@ function getRestrictionNotice(
   return { section: 'membership', text: t(key, { breeds }) }
 }
 
+/**
+ * The line under each section's title. `className` is the entry's class as the registrant reads it: an own
+ * class by its name (KOE-674), an official one by its code.
+ */
 function getSectionHelperTexts(
   registration: Registration,
+  className: string | undefined,
   t: TFunction<'translation', undefined>
 ): { [Property in keyof Registration]?: string } {
   return {
@@ -714,7 +721,7 @@ function getSectionHelperTexts(
     owner: formatOwnerNames(registration),
     payer: getPayingPerson(registration)?.name || '',
     qualifyingResults: t('registration.qualifyingResultsInfo', {
-      class: registration.class,
+      class: className,
       eventType: registration.eventType,
       qualifies: t(registration.qualifies ? 'registration.qualifyingResultsYes' : 'registration.qualifyingResultsNo'),
     }),

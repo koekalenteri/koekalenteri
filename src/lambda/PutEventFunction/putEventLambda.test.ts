@@ -515,6 +515,8 @@ describe('putEventLambda', () => {
         const res = await putEventLambda(
           constructAPIGwEvent({
             ...mockEvent,
+            // A whole event carries its classes, and a save of the classes keeps only the groups of the classes it runs.
+            classes: [{ class: 'ALO', date: '2026-09-12' }],
             eventType: 'NOWT',
             rotations: [{ class: 'ALO', exercises: [{ stationId: 'post-1' }], firstNumber: 9, lastNumber: 1 }],
             stations: posts,
@@ -1999,6 +2001,75 @@ describe('putEventLambda', () => {
       const res = await patch({ ...own, classes: [] }, { name: 'Uusi nimi' })
 
       expect(res.statusCode).toEqual(200)
+    })
+
+    // The posts and the running order of a trial that follows NOWT: a group for each class.
+    describe('the running order of a class taken away', () => {
+      const stations: EventStation[] = [{ date: '2025-06-01', id: 'post-1', number: 1 }]
+      const derbyGroup: EventRotationGroup = { class: 'DERBY', exercises: [{ stationId: 'post-1' }] }
+      const veteransGroup: EventRotationGroup = { class: 'VET10', exercises: [{ stationId: 'post-1' }] }
+      const following: JsonDogEvent = {
+        ...own,
+        officialFormat: 'NOWT',
+        rotations: [derbyGroup, veteransGroup],
+        stations,
+      }
+      const withoutVeterans = { classes: [own.classes[0]], ownClasses: [derby] }
+
+      beforeEach(() => mockReadEventRegistrations.mockResolvedValue([{ ...invitedParticipant(), class: 'DERBY' }]))
+
+      it('drops the groups of the class with the class', async () => {
+        const res = await patch(following, withoutVeterans)
+
+        expect(res.statusCode).toEqual(200)
+        expect(patchEventMock).toHaveBeenCalledWith(
+          'existing',
+          expect.anything(),
+          expect.objectContaining({ rotations: [derbyGroup] })
+        )
+      })
+
+      // A save of the whole event carries the stored groups back with the classes.
+      it('saves the whole event that still carries the group of the class taken away', async () => {
+        const res = await patch(following, { ...following, ...withoutVeterans, entryEndDate: '2025-05-20' })
+
+        expect(res.statusCode).toEqual(200)
+        expect(patchEventMock).toHaveBeenCalledWith(
+          'existing',
+          expect.anything(),
+          expect.objectContaining({ rotations: [derbyGroup] })
+        )
+      })
+
+      it('still refuses a save of the groups alone that names a class the event does not run', async () => {
+        const res = await patch(
+          { ...following, ...withoutVeterans, rotations: [derbyGroup] },
+          {
+            rotations: [derbyGroup, veteransGroup],
+          }
+        )
+
+        expect(res.statusCode).toEqual(400)
+        expect(JSON.parse(res.body)).toMatchObject({ errors: [{ group: 1, kind: 'unknownClass' }] })
+        expect(patchEventMock).not.toHaveBeenCalled()
+      })
+
+      // An event left without classes keys a group as a classless dog, never by a class code.
+      it('drops the group of the last class taken away', async () => {
+        mockReadEventRegistrations.mockResolvedValue([])
+
+        const res = await patch(
+          { ...following, ...withoutVeterans, rotations: [derbyGroup] },
+          { classes: [], ownClasses: null }
+        )
+
+        expect(res.statusCode).toEqual(200)
+        expect(patchEventMock).toHaveBeenCalledWith(
+          'existing',
+          expect.anything(),
+          expect.objectContaining({ rotations: [] })
+        )
+      })
     })
   })
 

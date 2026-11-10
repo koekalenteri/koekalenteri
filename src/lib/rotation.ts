@@ -11,7 +11,7 @@ import type {
 import type { ClassLabelOwner, ClassOrderOwner } from './event'
 import type { ExerciseScoringOwner } from './exerciseScoring'
 import type { SortableRegistration } from './registration'
-import { classLabel, classOrder } from './event'
+import { classLabel, classOrder, formatTypeOf } from './event'
 import { registrationOrder } from './eventClass'
 import { stationDogsAtOnce } from './liveFormat'
 import { getRegistrationGroupDay, getRegistrationPlacement } from './registration'
@@ -430,6 +430,19 @@ type RotationShapeError =
  */
 const runsGroupClass = (event: RotationEvent, group: EventRotationGroup): boolean =>
   !event.classes?.length || event.classes.some((eventClass) => eventClass.class === group.class)
+
+/**
+ * The groups of the classes the event runs (KOE-674): a class taken away takes its groups with it, as
+ * PutEvent saves a change of the classes, the last class too. An event left without classes keeps only
+ * the groups keyed as a classless dog is (`rotationDogOf`): by the trial's format or its own type. Only
+ * NOWT is scored at posts and it has classes, so in practice such an event keeps none.
+ */
+export const pruneRotationClasses = (event: RotationEvent): EventRotationGroup[] => {
+  const rotations = event.rotations ?? []
+  if (event.classes?.length) return rotations.filter((group) => runsGroupClass(event, group))
+  const classlessKeys = new Set([formatTypeOf(event), event.eventType])
+  return rotations.filter((group) => classlessKeys.has(group.class))
+}
 
 const exerciseErrors = (event: RotationEvent, group: EventRotationGroup, index: number): RotationShapeError[] => {
   const exercises = groupExercises(group)

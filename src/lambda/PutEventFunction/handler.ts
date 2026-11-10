@@ -26,7 +26,7 @@ import { hasPaymentLockingRegistrations, paymentTermsDiffer } from '../../lib/pa
 import { getStartListBlocker, isStartListFlagPublished } from '../../lib/publishing'
 import { groupParticipantsByClass } from '../../lib/registration'
 import { isOfficialFormatLocked } from '../../lib/results'
-import { rotationShapeErrors } from '../../lib/rotation'
+import { pruneRotationClasses, rotationShapeErrors } from '../../lib/rotation'
 import { eventBodySchema } from '../../lib/schema/event'
 import { legacyEventDay, rekeyEventDays, requestDay } from '../../lib/storedDays'
 import { pruneTeamDays, teamCompetitionDiffers, teamCompetitionErrors, teamErrors, teamsDiffer } from '../../lib/team'
@@ -221,6 +221,17 @@ const restsOnTeamGround = (item: Patch<JsonConfirmedEvent>) => TEAM_GROUND.some(
  */
 const pruneDaysOutOfTrial = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>) => {
   if (restsOnTeamGround(item) && data.teamCompetition) data.teamCompetition = pruneTeamDays(data)
+}
+
+/**
+ * A class taken away takes its running order groups with it (KOE-674), on the merged event and before the
+ * rotation is checked: the change of classes is saved, not refused, also by a save that carries the stored
+ * groups back. A save of the groups alone that names a class the event does not run is still refused.
+ */
+const pruneGroupsOfClassesGone = (data: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>) => {
+  if (!Object.hasOwn(item, 'classes') || !data.rotations?.length) return
+  const kept = pruneRotationClasses(data)
+  if (kept.length !== data.rotations.length) data.rotations = kept
 }
 
 /**
@@ -628,6 +639,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   const data = existing ? moveClasslessKey(merged, formatTypeOf(existing), formatTypeOf(merged)) : merged
   // The index key for the club's own list; a copy, because an index cannot key on a map's field (KOE-1341).
   data.organizerId = data.organizer?.id
+  pruneGroupsOfClassesGone(data, item)
   checkMergedEvent(data, item, !!existing)
   pruneDaysOutOfTrial(data, item)
 
