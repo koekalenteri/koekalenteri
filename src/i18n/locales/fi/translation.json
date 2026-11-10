@@ -404,7 +404,7 @@
         "typeName": "Koodi ei voi olla koetyypin nimi.",
         "unnamed": "Anna luokalle nimi suomeksi."
       },
-      "info": "Epävirallisessa kokeessa voi olla omia luokkia, esimerkiksi YKS tai VET. Koodi näkyy linkeissä ja ylläpidossa, nimi osallistujille ja sähköposteissa. Luokat näkyvät kaikkialla tässä järjestyksessä. Kun kokeella on omia luokkia, se ajaa vain niitä.",
+      "info": "Epävirallisessa kokeessa voi olla omia luokkia, esimerkiksi YKS tai VET. Koodi näkyy linkeissä ja ylläpidossa, nimi osallistujille ja sähköposteissa. Luokat näkyvät kaikkialla tässä järjestyksessä. Omat luokat korvaavat viralliset luokat: kokeessa ei voi olla molempia. Ensimmäisen oman luokan lisääminen poistaa kohdasta Luokat jo valitut viralliset luokat.",
       "moveDown": "Siirrä {{code}} alemmas",
       "moveUp": "Siirrä {{code}} ylemmäs",
       "name": "Nimi ({{language}})",
@@ -1769,6 +1769,7 @@
   "validation": {
     "event": {
       "classes": "Luokat on vaadittu tieto \"$t(event.states.{{state}})\" -tilassa olevalle {{type}}-tapahtumalle",
+      "classesFollowed": "Luokat vaaditaan, koska koe noudattelee {{format}}-koetta. Valitse luokat tai lisää kokeelle omia luokkia.",
       "classesGroups": "Tila \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classesMissing, {\"count\": {{length}} }) pitää valita vähintään yksi päivä.",
       "classesJudge": "Tila \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classesMissing, {\"count\": {{length}} }) puuttuu tuomari.",
       "classesMissing_one": "koeluokalta",

@@ -232,6 +232,79 @@ describe('the official type an unofficial trial follows (KOE-1718)', () => {
   })
 })
 
+// KOE-1742: a published unofficial trial following NOWT without classes is told why it needs them and how
+// to give them, under the classes, with the own classes right below.
+describe('the classes a followed format requires (KOE-1742)', () => {
+  const event = {
+    classes: [],
+    description: '',
+    endDate: '2026-06-01' as const,
+    eventType: 'EPÄVIRALLINEN',
+    id: 'test',
+    judges: [],
+    name: 'Harjoitus-WT',
+    officialFormat: 'NOWT' as const,
+    startDate: '2026-06-01' as const,
+    state: 'confirmed' as const,
+  }
+  const selectedEventType = {
+    active: true,
+    description: { en: 'Unofficial', fi: 'Epävirallinen', sv: 'Inofficiell' },
+    eventType: 'EPÄVIRALLINEN',
+    official: false,
+  }
+  // The form's own validation, translated as EventForm translates it.
+  const renderRequired = () => {
+    const fields = requiredFields(event)
+    const error = validateEventField(event, 'classes', !!fields.required.classes)
+    if (!error) throw new Error('a published trial following NOWT without classes should not validate')
+    return render(
+      <TestProvider initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
+        <Frame>
+          <BasicInfoSection
+            errorStates={{ classes: true }}
+            event={event}
+            eventTypeClasses={EVENT_TYPE_CLASSES}
+            eventTypes={['EPÄVIRALLINEN']}
+            fields={fields}
+            helperTexts={{ classes: i18next.t(`validation.event.${error.key}`, error.opts) }}
+            open
+            selectedEventType={selectedEventType}
+          />
+        </Frame>
+      </TestProvider>
+    )
+  }
+
+  it('names the format and what to do', async () => {
+    const screen = await renderRequired()
+
+    await expect
+      .element(
+        screen.getByText(
+          'Luokat vaaditaan, koska koe noudattelee NOWT-koetta. Valitse luokat tai lisää kokeelle omia luokkia.'
+        )
+      )
+      .toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('basic-info-section-classes-followed')
+  })
+
+  describeInLanguage('en', () => {
+    it('names the format and what to do', async () => {
+      const screen = await renderRequired()
+
+      await expect
+        .element(
+          screen.getByText(
+            "Classes are required because the trial follows NOWT. Choose the classes or add classes of the trial's own."
+          )
+        )
+        .toBeVisible()
+      await expect(screen.getByTestId('visual-root')).toMatchScreenshot('basic-info-section-classes-followed-en')
+    })
+  })
+})
+
 // KOE-674: an unofficial trial's own classes, in the secretary's order, chosen by day among the classes.
 // The second class has no Finnish name or day yet, so its row says what the save would refuse.
 describe("an unofficial trial's own classes (KOE-674)", () => {

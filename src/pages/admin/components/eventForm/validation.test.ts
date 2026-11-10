@@ -387,6 +387,31 @@ describe('validation', () => {
     })
   })
 
+  // KOE-1742: an unofficial trial needs its classes because of the format it follows, not because of its
+  // own type, and the error says so; the official trial's error stays as it was.
+  describe('the classes of an unofficial trial that follows an official format', () => {
+    const followed = (officialFormat: 'NOWT' | 'NOME-B'): PartialEvent => ({
+      ...emptyEvent,
+      classes: [],
+      eventType: 'EPÄVIRALLINEN',
+      officialFormat,
+      state: 'confirmed',
+    })
+
+    it.each(['NOWT', 'NOME-B'] as const)('names %s as the reason', (format) => {
+      const event = followed(format)
+      expect(validateEventField(event, 'classes', !!requiredFields(event).required.classes)).toEqual({
+        key: 'classesFollowed',
+        opts: { field: 'classes', format, state: 'confirmed', type: 'EPÄVIRALLINEN' },
+      })
+    })
+
+    it('asks no classes of an unofficial trial that follows no format', () => {
+      const event: PartialEvent = { ...followed('NOWT'), officialFormat: undefined }
+      expect(validateEventField(event, 'classes', !!requiredFields(event).required.classes)).toBe(false)
+    })
+  })
+
   describe('validateEventField()', () => {
     it('returns validationError for unknown fields when required and empty', () => {
       const event: PartialEvent = { ...emptyEvent, name: '', state: 'draft' }

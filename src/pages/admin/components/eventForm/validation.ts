@@ -172,7 +172,10 @@ export const VALIDATORS: EventValidators = {
       return false
     }
     if (!event.classes?.length) {
-      return 'classes'
+      // An unofficial trial needs them for the format it follows, and the error names it (KOE-1742).
+      return followsOfficialFormat(event)
+        ? { key: 'classesFollowed', opts: { field: 'classes', format: formatTypeOf(event) } }
+        : 'classes'
     }
     if (formatTypeOf(event) === 'NOWT') {
       const list = uniqueClasses(event).filter(

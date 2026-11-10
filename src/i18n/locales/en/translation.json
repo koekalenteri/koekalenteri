@@ -404,7 +404,7 @@
         "typeName": "A code cannot be the name of an event type.",
         "unnamed": "Give the class a name in Finnish."
       },
-      "info": "An unofficial trial can have classes of its own, such as YKS or VET. The code shows in links and in the administration, the name to participants and in emails. The classes show everywhere in this order. A trial with classes of its own runs only those.",
+      "info": "An unofficial trial can have classes of its own, such as YKS or VET. The code shows in links and in the administration, the name to participants and in emails. The classes show everywhere in this order. Own classes replace the official classes: a trial cannot have both. Adding the first own class removes the official classes already chosen under Classes.",
       "moveDown": "Move {{code}} down",
       "moveUp": "Move {{code}} up",
       "name": "Name ({{language}})",
@@ -1769,6 +1769,7 @@
   "validation": {
     "event": {
       "classes": "Classes are required for \"$t(event.states.{{state}})\" state event of {{type}} type.",
+      "classesFollowed": "Classes are required because the trial follows {{format}}. Choose the classes or add classes of the trial's own.",
       "classesGroups": "State \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classesMissing, {\"count\": {{length}} }) must have at least one available day.",
       "classesJudge": "State \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classesMissing, {\"count\": {{length}} }) is missing judge.",
       "classesMissing_one": "class",

@@ -10,7 +10,7 @@ covers:
   - src/pages/admin/EventCreatePage.tsx
   - src/pages/admin/EventEditPage.tsx
   - src/pages/admin/OrganizerListPage.tsx
-sourceHash: 00fa87
+sourceHash: c203c6
 ---
 
 Once a trial has been created in the calendar, the secretary's job before entry opens is to make
@@ -50,20 +50,22 @@ required is in place. Go through the sections and check in particular:
 - **{t:event.officialFormat}**: an unofficial trial can follow an official one (NOU, NOME-B, NOME-A
   or NOWT). Its classes, entry times, places, reserve list, posts and result entry then work as in
   that trial, and a result is written under its name, for example NOU1. Such a trial asks for no
-  judges: neither the official trial's number of judges nor a judge for each class. A trial with
-  classes of its own runs them at the posts as the followed trial runs its classes. Who may enter, the
-  Kennel Club and the statistics stay the unofficial trial's own. The choice can be changed until the
-  first result or post turn is saved. Once the trial has entries, the choice cannot give the trial
-  classes or take them away. If it is changed after entries, the post and start number links must be
-  sent again, and the entry times the entrants chose stay as they are. When the trial stops following
-  NOWT or changes type, its own scoring of the exercises goes.
+  judges: neither the official trial's number of judges nor a judge for each class. A trial
+  following NOWT or NOME-B needs its classes, chosen or its own, before its state can be set to
+  Published. A trial's own classes use the posts as the followed trial's classes do. Who may enter,
+  the Kennel Club and the statistics stay the unofficial trial's own. The choice can be changed
+  until the first result or post turn is saved. Once the trial has entries, the choice cannot give
+  the trial classes or take them away. If it is changed after entries, the post and start number
+  links must be sent again, and the entry times the entrants chose stay as they are. When the trial
+  stops following NOWT or changes type, its own scoring of the exercises goes.
 - **{t:event.ownClasses.title}**: an unofficial trial can have classes of its own, for example YKS
   and VET. **{t:event.ownClasses.add}** adds a class, which gets a code and a name in Finnish and,
   if wanted, in English. The code is written in capitals, starts with a letter, has at most 10
   letters or digits, and cannot be the name of an event type. The code shows in links and in the
   administration, the name to entrants, on the start list and in emails. The classes show everywhere
-  in the order the arrows put them in. When the first own class is added, the trial's ALO, AVO and
-  VOI classes go, as the trial runs only its own classes. On a one-day trial a class gets the trial's
+  in the order the arrows put them in. Own classes replace the official classes: a trial cannot have
+  both. Adding the first own class removes the official classes already chosen under
+  **{t:event.classes}**. On a one-day trial a class gets the trial's
   day as soon as it has a code; on a longer trial its days are chosen under **{t:event.classes}**.
   A class's row says what to correct before saving. Once a class has entries, its code cannot be
   changed and the class cannot be removed. A class removed takes its groups in the running order
