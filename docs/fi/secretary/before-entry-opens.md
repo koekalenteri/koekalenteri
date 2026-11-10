@@ -51,9 +51,10 @@ kun kaikki vaadittu on paikallaan. Käy osiot läpi ja tarkista erityisesti:
   NOME-A tai NOWT). Silloin luokat, ilmoittautumisen ajat, koepaikat, varasijalista, suorituspaikat
   ja tulosten syöttö toimivat kuten siinä kokeessa, ja tulos kirjataan sen nimellä, esimerkiksi
   NOU1. Tällainen koe ei vaadi tuomareita: ei virallisen kokeen tuomarimäärää eikä tuomaria
-  luokkaa kohden. Jos kokeella on omia luokkia, ne ajetaan suorituspaikoilla samoin kuin noudateltavan
-  kokeen luokat. Kuka saa ilmoittautua, Kennelliitto ja tilastot pysyvät epävirallisen kokeen
-  omina. Valintaa voi muuttaa, kunnes kokeeseen on tallennettu ensimmäinen tulos tai suorituspaikan
+  luokkaa kohden. Kun koe noudattelee NOWT:ta tai NOME-B:tä, sille pitää valita luokat tai lisätä
+  omia luokkia ennen kuin sen tilaksi voi vaihtaa Julkaistu. Jos kokeella on omia luokkia, ne
+  käyttävät suorituspaikkoja samoin kuin noudateltavan kokeen luokat. Kuka saa ilmoittautua,
+  Kennelliitto ja tilastot pysyvät epävirallisen kokeen omina. Valintaa voi muuttaa, kunnes kokeeseen on tallennettu ensimmäinen tulos tai suorituspaikan
   vuoro. Kun kokeessa on jo ilmoittautumisia, valinta ei voi tuoda luokkia kokeeseen eikä poistaa
   niitä. Jos valintaa muuttaa ilmoittautumisten jälkeen, suorituspaikkojen ja starttinumeroiden
   linkit on lähetettävä uudelleen, ja ilmoittautujien valitsemat ajat jäävät ennalleen. Kun koe
@@ -63,8 +64,9 @@ kun kaikki vaadittu on paikallaan. Käy osiot läpi ja tarkista erityisesti:
   sekä halutessa englanniksi. Koodi kirjoitetaan isoilla kirjaimilla, se alkaa kirjaimella ja siinä
   on enintään 10 kirjainta tai numeroa, eikä se voi olla koetyypin nimi. Koodi näkyy linkeissä ja
   ylläpidossa, nimi ilmoittautujille, starttilistalla ja sähköposteissa. Luokat näkyvät kaikkialla
-  siinä järjestyksessä, johon ne nuolilla järjestää. Kun ensimmäinen oma luokka lisätään, kokeen
-  ALO-, AVO- ja VOI-luokat poistuvat, sillä koe ajaa vain omia luokkiaan. Yksipäiväisessä kokeessa
+  siinä järjestyksessä, johon ne nuolilla järjestää. Omat luokat korvaavat viralliset luokat:
+  kokeessa ei voi olla molempia. Ensimmäisen oman luokan lisääminen poistaa kohdasta
+  **{t:event.classes}** jo valitut viralliset luokat. Yksipäiväisessä kokeessa
   luokka saa kokeen päivän heti, kun sillä on koodi; pidemmässä kokeessa luokan päivät valitaan
   kohdasta **{t:event.classes}**. Luokan rivillä kerrotaan, mitä siinä on korjattavaa ennen
   tallennusta. Kun luokassa on ilmoittautumisia, sen koodia ei voi muuttaa eikä luokkaa poistaa.

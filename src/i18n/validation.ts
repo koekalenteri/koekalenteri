@@ -4,7 +4,7 @@ type ValidationErrorKey = typeof fi.validation
 
 export type ValidationError<T extends object, NS extends keyof ValidationErrorKey> = {
   key: keyof ValidationErrorKey[NS]
-  opts: { field: keyof T; list?: Array<string>; length?: number; state?: string; type?: string }
+  opts: { field: keyof T; format?: string; list?: Array<string>; length?: number; state?: string; type?: string }
 }
 export type ValidationResult<T extends object, NS extends keyof ValidationErrorKey> = false | ValidationError<T, NS>
 
