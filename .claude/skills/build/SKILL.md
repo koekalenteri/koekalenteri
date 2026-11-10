@@ -68,9 +68,11 @@ CI runs only for PRs into main (`.github/workflows/ci.yml`), and `delete_branch_
 A piece whose predecessor in the same area is still in review branches from the predecessor's
 branch and opens its PR into main as a draft, with "Sisältää #<n>:n; mergeä #<n> ensin" in the
 body. Its reviewers get the range `<predecessor head>..<piece head>`. A fix to the predecessor
-is merged into the piece's branch. When the predecessor lands, the implementer merges
-`origin/main` (a merge commit, no force-push), the range becomes the whole diff, and the draft
-turns ready by `/ticket` step 6.
+is taken into the piece's branch by rebasing it onto the predecessor's branch. When the
+predecessor lands, squashed, the implementer runs
+`git rebase --onto origin/main <predecessor head> <piece branch>` and pushes with
+`--force-with-lease`; the range becomes the whole diff, and the draft turns ready by `/ticket`
+step 6.
 
 ## 5. A question parks its piece, not the session
 

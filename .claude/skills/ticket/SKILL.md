@@ -92,8 +92,9 @@ does.
 
 Before starting them, and again whenever a round seems to stall, check
 `gh pr view <pr> --json mergeable,mergeStateStatus`. A branch that conflicts with `main` gets no
-CI run, so nothing will ever report: send the implementer straight back to merge `origin/main`
-(by meaning, not only text, when the conflicting change on main touches the same rule), then
+CI run, so nothing will ever report: send the implementer straight back to rebase onto `origin/main`
+and push with `--force-with-lease` (resolved by meaning, not only text, when the conflicting
+change on main touches the same rule), then
 start the round. `main` moves while a ticket is open, so expect this on any PR that lives through
 several rounds (#1520 stalled on it after #1519 landed).
 
