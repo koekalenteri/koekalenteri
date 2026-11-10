@@ -1787,6 +1787,34 @@ describe('putEventLambda', () => {
     expect(saveEventMock).not.toHaveBeenCalled()
   })
 
+  // KOE-1736: an exercise's own maximum and half points, only for an unofficial trial following NOWT.
+  describe('the exercise scoring of an unofficial trial (KOE-1736)', () => {
+    const hankinome: JsonDogEvent = { ...mockEvent, eventType: 'Hankinome', officialFormat: 'NOWT' }
+    const patch = async (stored: JsonDogEvent, body: Record<string, unknown>) => {
+      signIn(mockSecretary)
+      getEventMock.mockResolvedValueOnce(stored)
+      return putEventLambda(constructAPIGwEvent({ id: 'existing', ...body }, { method: 'PATCH' }))
+    }
+
+    it('stores a maximum and half points for a trial following NOWT', async () => {
+      const exerciseScoring = { halfPoints: true, maxPoints: 30 }
+      const res = await patch(hankinome, { exerciseScoring })
+
+      expect(res.statusCode).toEqual(200)
+      expect(patchEventMock).toHaveBeenCalledWith('existing', expect.anything(), expect.objectContaining({ exerciseScoring }))
+    })
+
+    it.each([
+      ['an official trial', { ...mockEvent, eventType: 'NOWT' }],
+      ['a trial following no NOWT', { ...hankinome, officialFormat: 'NOU' as const }],
+    ])('refuses the setting on %s', async (_name, stored) => {
+      const res = await patch(stored, { exerciseScoring: { maxPoints: 30 } })
+
+      expect(res.statusCode).toEqual(400)
+      expect(JSON.parse(res.body)).toMatchObject({ error: 'invalidExerciseScoring' })
+    })
+  })
+
   // KOE-674: an unofficial event's own classes, checked on the merged event through the real rule.
   describe('the own classes of an unofficial event (KOE-674)', () => {
     const derby = { code: 'DERBY', name: { fi: 'Derby' } }
