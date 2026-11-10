@@ -50,12 +50,13 @@ export const parsePoints = (text: string): number | undefined => {
 
 /** Why the event save refuses a trial's exercise scoring. */
 interface ExerciseScoringError {
-  kind: 'notFollowingNowt' | 'badMaxPoints'
+  kind: 'notFollowingNowt' | 'badMaxPoints' | 'oddWithoutHalves'
 }
 
 /**
  * Every reason the event save refuses the exercise scoring (KOE-1736): set on a trial that may not have
- * one, or with a maximum that is not a whole number from 1 to 100. No setting is always taken.
+ * one, with a maximum that is not a whole number from 1 to 100, or with an odd maximum in whole points,
+ * whose split exercise would have parts of half a point. No setting is always taken.
  */
 export const exerciseScoringErrors = (event: ExerciseScoringOwner): ExerciseScoringError[] => {
   const scoring = event.exerciseScoring
@@ -64,5 +65,8 @@ export const exerciseScoringErrors = (event: ExerciseScoringOwner): ExerciseScor
   const { maxPoints } = scoring
   const badMax =
     maxPoints !== undefined && !(Number.isInteger(maxPoints) && maxPoints >= 1 && maxPoints <= MAX_EXERCISE_POINTS)
-  return badMax ? [{ kind: 'badMaxPoints' }] : []
+  if (badMax) return [{ kind: 'badMaxPoints' }]
+  // An exercise split in two parts is half the maximum each: an odd maximum makes halves, which whole
+  // points cannot reach, so it asks for half points.
+  return maxPoints !== undefined && maxPoints % 2 === 1 && !scoring.halfPoints ? [{ kind: 'oddWithoutHalves' }] : []
 }

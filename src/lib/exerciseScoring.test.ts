@@ -85,6 +85,7 @@ describe('parsePoints', () => {
 describe('exerciseScoringErrors', () => {
   it('takes an unofficial trial that follows NOWT, and no setting anywhere', () => {
     expect(exerciseScoringErrors(hankinome)).toEqual([])
+    expect(exerciseScoringErrors({ ...hankinome, exerciseScoring: { halfPoints: true, maxPoints: 25 } })).toEqual([])
     expect(exerciseScoringErrors(nowt)).toEqual([])
   })
 
@@ -93,6 +94,8 @@ describe('exerciseScoringErrors', () => {
     ['an unofficial trial that follows no NOWT', { ...hankinome, officialFormat: 'NOU' as const }, 'notFollowingNowt'],
     ['a maximum of nought', { ...hankinome, exerciseScoring: { maxPoints: 0 } }, 'badMaxPoints'],
     ['a maximum of a fraction', { ...hankinome, exerciseScoring: { maxPoints: 20.5 } }, 'badMaxPoints'],
+    // A split exercise of 25 has parts of 12.5, which whole points cannot reach.
+    ['an odd maximum in whole points', { ...hankinome, exerciseScoring: { maxPoints: 25 } }, 'oddWithoutHalves'],
   ])('refuses the setting on %s', (_name, event, kind) => {
     expect(exerciseScoringErrors(event)).toEqual([{ kind }])
   })

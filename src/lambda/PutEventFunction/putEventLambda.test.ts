@@ -1817,7 +1817,7 @@ describe('putEventLambda', () => {
         stationId: 'post-1',
       }
       const run: JsonDogEvent = { ...hankinome, exerciseScoring: { maxPoints: 30 }, turns: [turn] }
-      const res = await patch(run, { exerciseScoring: { maxPoints: 25 } })
+      const res = await patch(run, { exerciseScoring: { maxPoints: 24 } })
 
       expect(res.statusCode).toEqual(409)
       expect(JSON.parse(res.body)).toMatchObject({ error: 'exerciseScoringLocked' })
@@ -1831,6 +1831,13 @@ describe('putEventLambda', () => {
 
       expect(res.statusCode).toEqual(400)
       expect(JSON.parse(res.body)).toMatchObject({ error: 'invalidExerciseScoring' })
+    })
+
+    it('refuses an odd maximum in whole points', async () => {
+      const res = await patch(hankinome, { exerciseScoring: { maxPoints: 25 } })
+
+      expect(res.statusCode).toEqual(400)
+      expect(JSON.parse(res.body)).toMatchObject({ errors: [{ kind: 'oddWithoutHalves' }] })
     })
   })
 

@@ -47,9 +47,6 @@ kirjautumista, ja tallennus kertoo heti, jos numero on jo toisella koiralla tai 
 
 NOWT-kokeessa koirakot tekevät rastinsa tuomarien suorituspaikoilla, ja pisteet kirjataan
 rasteittain. Rasti on yksi 20 pisteen suoritus, ja kokeessa on tavallisesti neljä tai viisi rastia.
-NOWT:ta noudattelevalla epävirallisella kokeella rastin enimmäispisteet voivat olla muut, ja pisteet
-voidaan antaa puolen pisteen tarkkuudella, esimerkiksi Hankinomessa 0–30 puolikkain. Pisteet, jotka
-eivät osu kokeen pisteaskeleeseen, hylätään tallennettaessa.
 Suorituspaikat määritellään omalla sivullaan, jonka paneelin painike
 **{t:eventManagement.stations}** avaa; painike näkyy vain niissä koemuodoissa, joissa pisteet
 kirjataan rasteilla. Rata rakennetaan yleensä vasta koepaikalla, joten sivu on erillään kokeen
