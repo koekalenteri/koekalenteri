@@ -431,6 +431,13 @@ type RotationShapeError =
 const runsGroupClass = (event: RotationEvent, group: EventRotationGroup): boolean =>
   !event.classes?.length || event.classes.some((eventClass) => eventClass.class === group.class)
 
+/**
+ * The groups of the classes the event runs (KOE-674): a class taken away takes its groups with it, as
+ * PutEvent saves a change of the classes. A classless trial keys its groups by its format and keeps them.
+ */
+export const pruneRotationClasses = (event: RotationEvent): EventRotationGroup[] =>
+  (event.rotations ?? []).filter((group) => runsGroupClass(event, group))
+
 const exerciseErrors = (event: RotationEvent, group: EventRotationGroup, index: number): RotationShapeError[] => {
   const exercises = groupExercises(group)
   if (exercises.length === 0) return [{ group: index, kind: 'noExercises' }]

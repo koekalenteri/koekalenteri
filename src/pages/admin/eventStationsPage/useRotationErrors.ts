@@ -23,8 +23,8 @@ const rotationErrorMessages = (
   // The editor offers only the day's posts and keeps every group at one exercise at least, so of the
   // shape errors it can produce only these; the server refuses the others. A group without exercises is
   // one stored in dev before the running order, which the secretary removes. A group of a class the event
-  // no longer runs (KOE-674) is one stored before the class was dropped: the next edit leaves it out
-  // (`savedRotations`), and until then it is named.
+  // no longer runs (KOE-674) goes with the class when the event form saves it (PutEvent); one left on the
+  // day of its posts is left out by this page's next edit (`savedRotations`), and until then it is named.
   const shape = rotationShapeErrors(event).flatMap((error) => {
     const group = groupName(error.group)
     if (error.kind === 'overlap') return [t('event.rotation.error.overlap', { group, other: groupName(error.other) })]

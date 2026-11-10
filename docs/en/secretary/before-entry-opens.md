@@ -10,7 +10,7 @@ covers:
   - src/pages/admin/EventCreatePage.tsx
   - src/pages/admin/EventEditPage.tsx
   - src/pages/admin/OrganizerListPage.tsx
-sourceHash: ba65c1
+sourceHash: a855b0
 ---
 
 Once a trial has been created in the calendar, the secretary's job before entry opens is to make
@@ -65,7 +65,8 @@ required is in place. Go through the sections and check in particular:
   VOI classes go, as the trial runs only its own classes. On a one-day trial a class gets the trial's
   day as soon as it has a code; on a longer trial its days are chosen under **{t:event.classes}**.
   A class's row says what to correct before saving. Once a class has entries, its code cannot be
-  changed and the class cannot be removed. Once the trial's classes have entries, the trial cannot
+  changed and the class cannot be removed. A class removed takes its groups in the running order
+  on the posts page with it. Once the trial's classes have entries, the trial cannot
   take up own classes or drop them by changing its type. Cancelled and unpaid entries count too; if
   the save is refused because of them, Koekalenteri names the classes,
 - **the judges and the classes each of them judges**,

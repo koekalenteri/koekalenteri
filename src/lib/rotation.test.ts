@@ -8,6 +8,7 @@ import {
   formatRotationGroup,
   formatStationArrivals,
   nextRotationGroup,
+  pruneRotationClasses,
   rotationCoverageErrors,
   rotationDogOf,
   rotationGroupOf,
@@ -518,6 +519,28 @@ describe('rotationShapeErrors', () => {
         stations: [...stations, post(1, 1, OTHER_DAY)],
       })
     ).toEqual([])
+  })
+})
+
+// KOE-674: a save that changes the classes keeps the groups of the classes the event still runs.
+describe('pruneRotationClasses', () => {
+  const classes = [{ class: 'DERBY', date: DAY }]
+  const derby: EventRotationGroup = { class: 'DERBY', exercises: order(1) }
+
+  it('drops the groups of a class the event no longer runs', () => {
+    expect(pruneRotationClasses({ classes, rotations: [derby, { class: 'VET', exercises: order(2) }] })).toEqual([
+      derby,
+    ])
+  })
+
+  it('keeps the groups of a classless trial, keyed by its format', () => {
+    const groups: EventRotationGroup[] = [{ class: 'NOWT', exercises: order(1) }]
+
+    expect(pruneRotationClasses({ classes: [], rotations: groups })).toEqual(groups)
+  })
+
+  it('gives an event without groups none', () => {
+    expect(pruneRotationClasses({ classes })).toEqual([])
   })
 })
 

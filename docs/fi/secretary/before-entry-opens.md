@@ -66,6 +66,7 @@ kun kaikki vaadittu on paikallaan. Käy osiot läpi ja tarkista erityisesti:
   luokka saa kokeen päivän heti, kun sillä on koodi; pidemmässä kokeessa luokan päivät valitaan
   kohdasta **{t:event.classes}**. Luokan rivillä kerrotaan, mitä siinä on korjattavaa ennen
   tallennusta. Kun luokassa on ilmoittautumisia, sen koodia ei voi muuttaa eikä luokkaa poistaa.
+  Poistetun luokan ryhmät poistuvat suorituspaikkasivun suoritusjärjestyksestä luokan mukana.
   Kun kokeen luokissa on jo ilmoittautumisia, omia luokkia ei voi ottaa käyttöön eikä niitä voi
   poistaa vaihtamalla koetyyppiä. Ilmoittautumisiksi lasketaan myös perutut ja maksamattomat;
   jos tallennus torjutaan niiden takia, Koekalenteri kertoo, mistä luokista on kyse,

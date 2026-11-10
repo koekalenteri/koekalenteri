@@ -175,6 +175,21 @@ describe('RegistrationForm', () => {
     expect(screen.getAllByText(/validation\.registration\.dogAge/).length).toBeGreaterThan(0)
   })
 
+  // KOE-674: the registrant reads an own class by its name, as the class select shows it.
+  it('names the own class by its name in the qualifying results line', async () => {
+    const event = {
+      ...eventWithStaticDates,
+      classes: [{ class: 'VET', date: eventWithStaticDates.startDate }],
+      ownClasses: [{ code: 'VET', name: { fi: 'Veteraanit' } }],
+    }
+    render(<RegistrationForm event={event} registration={{ ...registrationWithStaticDates, class: 'VET' }} />, {
+      wrapper: RegistrationFormWrapper,
+    })
+    await flushPromises()
+
+    expect(screen.getByText('registration.qualifyingResultsInfo Veteraanit')).toBeInTheDocument()
+  })
+
   describe('the team named at entry (KOE-1721)', () => {
     // Before the trial, so the entry is still the registrant's to change.
     beforeEach(() => vi.setSystemTime(frozenInstant('2021-01-01')))
