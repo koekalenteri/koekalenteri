@@ -126,6 +126,7 @@ The `dev` environment is automatically updated whenever changes are pushed to th
 - On a push to `main`, the `setup` job decides the scope from the changed paths: backend, frontend or both. After a failed main run, the scope is both.
 - When the merge queue has already tested the pushed commit (a successful `merge_group` run for the same SHA) and the previous main run succeeded, the push run skips the tests and `deploy-dev` starts right after `setup`. Sonar still analyses the commit, with the coverage from that `merge_group` run. A push without such a run runs the tests before the deploy.
 - `deploy-dev` calls `release.yml` with `env: dev`: **Backend** deploys the SAM stack, **Frontend** starts an Amplify job for the dev branch, and the `smoke` job checks the served site.
+- The Amplify build reads its environment variables, build spec and image from the stack, so it starts after the backend deploy (`deploy-frontend`) when the backend deploy can change them, and beside it (`deploy-frontend-beside-backend`) when it cannot. The `setup` job in `ci.yml` decides: the build waits when anything in `template/` outside `template/functions` and `template/tables`, `scripts/build-template.mjs`, `scripts/lambdaLogGroups.mjs` or `.github/workflows/release.yml` changed since the commit the `dev` stack was last deployed from. Test and production always build after the backend.
 
 ---
 
@@ -138,7 +139,6 @@ The release workflow requires the following secrets to be configured in your Git
 - `AWS_SECRET_ACCESS_KEY`: Your AWS secret key.
 - `AWS_REGION`: The AWS region for your resources (e.g., `eu-west-1`).
 - `AMPLIFY_APP_ID`: The App ID of your AWS Amplify application. This is retrieved from the CloudFormation stack outputs of the `prod` and `test` environments.
-- `DEPLOY_TRIGGER_HOOK`: A webhook URL that triggers a build of the `main` branch in the `dev` environment's Amplify app.
 - `GITHUB_TOKEN`: A GitHub token with permissions to create and push branches. The default `GITHUB_TOKEN` provided by Actions should suffice.
 
 ### Registration edit-token secret recovery

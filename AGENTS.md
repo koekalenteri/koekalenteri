@@ -227,9 +227,11 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   they no longer name (`src/lambda/lib/stats/README.md`).
 - The deploy runs it, nobody runs it by hand: after `sam deploy`, the `Run data migrations` step of
   `deploy-backend` in `release.yml` invokes the function directly (`aws lambda invoke`, no
-  `requestContext`, so no Cognito check) and prints the counters. A failed run fails the job before
-  the frontend is published. The step makes one attempt (`AWS_MAX_ATTEMPTS=1`): the CLI retries a
-  read that timed out, which would start a second run beside the first.
+  `requestContext`, so no Cognito check) and prints the counters. A failed run fails the job and
+  the deploy. The frontend build waits for the job on prod and test, and on dev when the stack's
+  Amplify values can change; otherwise dev builds it beside the job, and a failed migration does not
+  stop its publishing. The step makes one attempt (`AWS_MAX_ATTEMPTS=1`): the CLI retries a read
+  that timed out, which would start a second run beside the first.
 - Applied migrations are recorded in the data version table (collection `migrations`, scope = the
   migration's name, fields `appliedAt`, `count` and `hash`; every environment has its own table). A
   deploy runs only the migrations whose row is missing or whose stored `hash` differs from the hash of
