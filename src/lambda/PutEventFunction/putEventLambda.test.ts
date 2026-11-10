@@ -1808,6 +1808,21 @@ describe('putEventLambda', () => {
       )
     })
 
+    it('keeps the setting once a post has run a turn', async () => {
+      const turn = {
+        dogs: [{ name: 'Dog', number: 1 }],
+        id: 'turn-1',
+        registrationIds: ['run-1'],
+        startedAt: '2026-09-12T08:00:00.000Z',
+        stationId: 'post-1',
+      }
+      const run: JsonDogEvent = { ...hankinome, exerciseScoring: { maxPoints: 30 }, turns: [turn] }
+      const res = await patch(run, { exerciseScoring: { maxPoints: 25 } })
+
+      expect(res.statusCode).toEqual(409)
+      expect(JSON.parse(res.body)).toMatchObject({ error: 'exerciseScoringLocked' })
+    })
+
     it.each([
       ['an official trial', { ...mockEvent, eventType: 'NOWT' }],
       ['a trial following no NOWT', { ...hankinome, officialFormat: 'NOU' as const }],
