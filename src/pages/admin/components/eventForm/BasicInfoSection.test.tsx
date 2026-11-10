@@ -104,6 +104,46 @@ describe('BasicInfoSection', () => {
       )
     })
 
+    // KOE-1736: the exercises' own scoring is a trial's that follows NOWT, and goes when it stops following.
+    describe("the exercises' own scoring", () => {
+      const scored: PartialEvent = {
+        ...unofficial,
+        exerciseScoring: { halfPoints: true, maxPoints: 30 },
+        officialFormat: 'NOWT',
+      }
+
+      it('goes when the trial changes type', async () => {
+        const changeHandler = vi.fn()
+        const { user } = renderComponent({
+          event: scored,
+          eventTypes: ['Harjoitus', 'Koulutus'],
+          onChange: changeHandler,
+          open: true,
+          selectedEventType: harjoitus,
+        })
+
+        await user.click(screen.getByRole('combobox', { name: 'event.eventType' }))
+        await user.click(screen.getByRole('option', { name: 'Koulutus' }))
+
+        expect(changeHandler).toHaveBeenCalledWith(expect.objectContaining({ exerciseScoring: null }))
+      })
+
+      it('goes when the trial follows another format than NOWT', async () => {
+        const changeHandler = vi.fn()
+        const { user } = renderComponent({
+          event: scored,
+          onChange: changeHandler,
+          open: true,
+          selectedEventType: harjoitus,
+        })
+
+        await user.click(screen.getByRole('combobox', { name: 'event.officialFormat' }))
+        await user.click(screen.getByRole('option', { name: 'NOU' }))
+
+        expect(changeHandler).toHaveBeenCalledWith({ classes: [], exerciseScoring: null, officialFormat: 'NOU' })
+      })
+    })
+
     // KOE-674: an unofficial trial's own classes are its own, whatever type or format it takes, as long
     // as it stays unofficial; an official type runs none.
     describe("the event's own classes", () => {

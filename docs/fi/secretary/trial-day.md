@@ -57,8 +57,8 @@ voidaan antaa puolen pisteen tarkkuudella, esimerkiksi Hankinomessa 0–30 puoli
 suorituspaikkasivun kohdassa **{t:event.exerciseScoringTitle}**: *{t:event.exerciseMaxPoints}* ja
 *{t:event.exerciseHalfPoints}*. Pariton enimmäispistemäärä vaatii puolikkaat pisteet, koska kahteen
 osaan jaetun rastin osat ovat silloin puolen pisteen arvoisia. Pistekenttään puolikas kirjoitetaan
-pilkulla tai pisteellä, esimerkiksi 29,5. Pisteet, jotka eivät osu kokeen pisteaskeleeseen, hylätään
-tallennettaessa. Kun kokeeseen on tallennettu tuloksia tai suorituspaikan vuoroja, pisteytystä ei voi
+pilkulla tai pisteellä, esimerkiksi 29,5. Kenttä pyöristää pisteet alaspäin kokeen pisteaskeleeseen:
+kokonaisin pistein pisteytettävässä kokeessa 29,5 kirjautuu 29:ksi. Kun kokeeseen on tallennettu tuloksia tai suorituspaikan vuoroja, pisteytystä ei voi
 enää muuttaa.
 
 !shot[EventStationsPage/event-stations-scoring] Hankinomen rastit 0–30 puolikkain

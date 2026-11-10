@@ -54,7 +54,8 @@ kun kaikki vaadittu on paikallaan. Käy osiot läpi ja tarkista erityisesti:
   omina. Valintaa voi muuttaa, kunnes kokeeseen on tallennettu ensimmäinen tulos tai suorituspaikan
   vuoro. Kun kokeessa on jo ilmoittautumisia, valinta ei voi tuoda luokkia kokeeseen eikä poistaa
   niitä. Jos valintaa muuttaa ilmoittautumisten jälkeen, suorituspaikkojen ja starttinumeroiden
-  linkit on lähetettävä uudelleen, ja ilmoittautujien valitsemat ajat jäävät ennalleen,
+  linkit on lähetettävä uudelleen, ja ilmoittautujien valitsemat ajat jäävät ennalleen. Kun koe
+  lakkaa noudattelemasta NOWT:ta tai sen tyyppi vaihtuu, rastien oma pisteytys poistuu.
 - **{t:event.ownClasses.title}**: epävirallisessa kokeessa voi olla omia luokkia, esimerkiksi YKS
   ja VET. Painike **{t:event.ownClasses.add}** lisää luokan, jolle annetaan koodi ja nimi suomeksi
   sekä halutessa englanniksi. Koodi kirjoitetaan isoilla kirjaimilla, se alkaa kirjaimella ja siinä

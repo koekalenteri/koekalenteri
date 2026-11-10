@@ -32,6 +32,14 @@ describe('TaskScore', () => {
     expect(screen.getByRole('textbox', { name: 'Rasti 1' })).toHaveAttribute('inputmode', inputMode)
   })
 
+  it('holds the whole points while the separator waits for its digit', async () => {
+    const { onChange, user } = renderScore(0.5)
+
+    await user.type(screen.getByRole('textbox', { name: 'Rasti 1' }), '29,')
+
+    await vi.waitFor(() => expect(onChange).toHaveBeenLastCalledWith(task, 29, undefined))
+  })
+
   it('takes a half point down to the whole point below where the trial scores whole points', async () => {
     const { onChange, user } = renderScore(1)
 

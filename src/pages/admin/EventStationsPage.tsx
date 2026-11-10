@@ -13,7 +13,7 @@ import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { useUnsavedChangesWarning } from '../../hooks/useUnsavedChangesWarning'
-import { exerciseScoringErrors } from '../../lib/exerciseScoring'
+import { exerciseScoringErrors, hasOwnExerciseScoring } from '../../lib/exerciseScoring'
 import { merge } from '../../lib/utils'
 import { Path } from '../../routeConfig'
 import { AsyncButton } from '../components/AsyncButton'
@@ -53,7 +53,9 @@ export default function EventStationsPage() {
   // A turn or a result keeps the exercises' scoring, and the server refuses a setting off the rule
   // (KOE-1736); the editor says why under its fields.
   const scoringLocked = useAtomValue(adminEventOfficialFormatLockedAtom(eventId))
-  const scoringRefused = !!event && exerciseScoringErrors(event).length > 0
+  // Only where the editor shows: a setting kept from before the trial stopped qualifying is no reason the
+  // page could give, and the readers ignore it (`exerciseMaxPoints`).
+  const scoringRefused = !!event && hasOwnExerciseScoring(event) && exerciseScoringErrors(event).length > 0
 
   // `useEventForm` stores whatever it is handed, so it must be handed a whole event. The editor emits a
   // patch, and passing that straight through would replace the stored event with just `{ stations }` —

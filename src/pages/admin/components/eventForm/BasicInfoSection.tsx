@@ -47,6 +47,7 @@ import {
   ownClassCodes,
 } from '@/lib/event'
 import { enteredClassCodes } from '@/lib/eventClass'
+import { hasOwnExerciseScoring } from '@/lib/exerciseScoring'
 import { isRegistrationClass } from '@/lib/registration'
 import CollapsibleSection from '@/pages/components/CollapsibleSection'
 import DateRange from '@/pages/components/DateRange'
@@ -216,6 +217,8 @@ function BasicInfoSection({
         officialFormat: null,
         retrieveType,
         ...(dropsOwnClasses ? { ownClasses: null } : {}),
+        // The exercises' own scoring is a trial's that follows NOWT, and the format is chosen anew (KOE-1736).
+        ...(event.exerciseScoring ? { exerciseScoring: null } : {}),
       })
     },
     [event, eventTypeClasses, onChange]
@@ -242,8 +245,15 @@ function BasicInfoSection({
         event.endDate,
         keptClasses(event, filterClasses)
       )
+      // The exercises' own scoring goes with a format that is no longer NOWT (KOE-1736).
+      const dropsScoring =
+        !!event.exerciseScoring && !hasOwnExerciseScoring({ eventType: event.eventType, officialFormat })
       // A cleared choice is sent as null, which removes it from the stored event.
-      onChange?.({ classes, officialFormat: officialFormat ?? null })
+      onChange?.({
+        classes,
+        officialFormat: officialFormat ?? null,
+        ...(dropsScoring ? { exerciseScoring: null } : {}),
+      })
     },
     [changesShape, event, eventTypeClasses, onChange]
   )

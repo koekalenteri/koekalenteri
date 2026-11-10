@@ -25,10 +25,11 @@ const selectWidth = (inline: boolean) => (inline ? { width: 130 } : { minWidth: 
 
 /**
  * "29,5" and "29.5" alike, rounded down to the step: a trial that scores whole points takes "29,5" as 29,
- * and the server refuses what is off the step anyway (KOE-1736). Not a number is no points.
+ * and the server refuses what is off the step anyway (KOE-1736). "29," on the way to "29,5" holds 29, so
+ * a score left there is not cleared. Not a number is no points.
  */
 const parseOnStep = (step: number) => (typed: string) => {
-  const points = parsePoints(typed)
+  const points = parsePoints(typed.trim().replace(/[,.]$/, ''))
   return points === undefined ? Number.NaN : Math.floor(points / step) * step
 }
 

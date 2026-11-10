@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: 944319
+sourceHash: bc8e61
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -58,8 +58,8 @@ An unofficial trial that follows NOWT may give an exercise another maximum and s
 as Hankinome scores 0–30 in halves. These are set on the posts page under
 **{t:event.exerciseScoringTitle}**: *{t:event.exerciseMaxPoints}* and *{t:event.exerciseHalfPoints}*.
 An odd maximum needs half points, since the parts of an exercise split in two are then worth halves.
-A half point is typed with a comma or a full stop, 29,5 or 29.5. Points off the trial's step are
-refused on saving. Once the trial has saved results or post turns, the scoring can no longer be
+A half point is typed with a comma or a full stop, 29,5 or 29.5. The field rounds the points down to
+the trial's step: a trial scored in whole points records 29,5 as 29. Once the trial has saved results or post turns, the scoring can no longer be
 changed.
 
 !shot[EventStationsPage/event-stations-scoring] Hankinome's exercises 0–30 in halves
