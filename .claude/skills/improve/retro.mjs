@@ -949,7 +949,7 @@ const summary = (r) => {
       const label = after === 'user' ? 'after the turn ended, no question asked' : 'while a tool or agent ran'
       return `Pauses over 30 min ${label}: ${list.length}, median ${median(list.map((p) => p.minutes)) ?? '-'} min`
     }),
-    'Waits by kind and agent type (wall = seconds over the calls whose end the transcript shows, measured/calls; timedOut = timed out or a watch run again at once on the same target; repeats = the same target polled again with nothing between; tokens = the issuing messages):',
+    'Waits by kind and agent type (wall = seconds over the calls whose end the transcript shows, measured/calls; timedOut = the harness timeout, a reached `timeout N` or a Monitor expiry with no events; repeats = the same target polled again with nothing between; tokens = the issuing messages):',
     tsv(
       r.transcripts.waits.map((w) => ({
         ...w,

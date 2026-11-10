@@ -17,7 +17,6 @@ const WAIT_KINDS = [
   'wakeup',
 ]
 
-const WATCHES = new Set(['gh-pr-checks-watch', 'gh-run-watch'])
 const NOT_MEASURED = 'not measured'
 
 /** The command with its quoted text emptied, so that a string a loop greps for is no command. */
@@ -85,6 +84,8 @@ const endingNotices = (text) =>
       task: /<task-id>(\w+)<\/task-id>/.exec(body)?.[1],
       status: /<status>(\w+)<\/status>/.test(body),
       expired: body.includes('[Monitor expired'),
+      // An expiry after events is a watch that ended; one that saw nothing waited in vain.
+      empty: /\[Monitor expired\b[^\]]*\bwith (?:no|0) events?\b/.test(body),
     }))
     .filter((n) => n.task && (n.status || n.expired))
 
@@ -128,8 +129,6 @@ export class WaitStats {
     // Calls of one message run side by side: the second is no poll after the first.
     if (target && this.last?.target === target && this.last.message !== message) {
       call.repeat = true
-      // A watch run again on the same target at once did not wait long enough the first time.
-      if (WATCHES.has(this.last.call.kind)) this.last.call.timedOut = true
     }
     this.last = { target, call, message }
     this.calls.push(call)
@@ -171,7 +170,7 @@ export class WaitStats {
       if (!call) continue
       this.tasks.delete(n.task)
       call.wall = seconds(call.at, record.timestamp)
-      if (n.expired) call.timedOut = true
+      if (n.empty) call.timedOut = true
     }
     if (record.type !== 'user' || typeof record.message?.content !== 'string') return
     this.interrupt()

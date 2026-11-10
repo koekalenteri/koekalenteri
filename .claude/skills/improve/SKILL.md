@@ -56,14 +56,14 @@ What it measures, in the order the retro uses:
   from the call to its result, or for a background one to the notice that ends it (the task
   notification with a status, a Monitor expiry, the wakeup firing with the same prompt), with how
   many calls had an end in the transcript (`not measured` when none had); calls that timed out
-  (the harness says so, the command ran its whole `timeout N`, a Monitor expired, or a watch was
-  run again at once on the same PR or run); repeats (the same target polled again with nothing
-  else in between); calls the harness moved to the background; and the input-equivalent tokens
+  (the harness says so, the command ran its whole `timeout N`, or a Monitor expired with no
+  events delivered); repeats, the polling measure (the same target polled again with nothing
+  else in between, not in the same message); calls the harness moved to the background; and the input-equivalent tokens
   of the messages that issued them.
 - **Tokens:** input-equivalent tokens (cache write 1.25x or 2x, cache read 0.1x, output 5x) by
   agent type, skill, PR, session and model; the tool results that cost most because every later
   turn reads them again; the same file read three or more times; the same command run three or
-  more times (polling).
+  more times in one transcript, whatever it is (for waits, `repeats` above).
 
 A measure that finds no data says so; a zero is a result only when the source was there. Write
 down which measures had no data and why.

@@ -432,7 +432,8 @@ describe('TranscriptStats', () => {
         })
       )
       stats.line(notification('user', at('10:20:00'), done('bbg1')))
-      // A monitor: its events do not end it, its expiry does, and an expiry is a timeout.
+      // A monitor: its events do not end it, its expiry does. An expiry after events is a watch that
+      // ended; one with no events delivered timed out.
       stats.line(
         assistant(at('10:21:00'), 'm5', [
           { type: 'tool_use', id: 'mon', name: 'Monitor', input: { command: 'tail -f x', timeout_ms: 1800000 } },
@@ -445,7 +446,28 @@ describe('TranscriptStats', () => {
       )
       stats.line(notification('user', at('10:30:00'), '<task-id>bmon1</task-id>\n<event>line</event>'))
       stats.line(
-        notification('user', at('10:51:00'), '<task-id>bmon1</task-id>\n<event>[Monitor expired after 30m]</event>')
+        notification(
+          'user',
+          at('10:51:00'),
+          '<task-id>bmon1</task-id>\n<event>[Monitor expired after 30m with 2 events delivered. Re-arm it if you still need the watch.]</event>'
+        )
+      )
+      stats.line(
+        assistant(at('10:51:10'), 'm9', [
+          { type: 'tool_use', id: 'mon2', name: 'Monitor', input: { command: 'tail -f y', timeout_ms: 600000 } },
+        ])
+      )
+      stats.line(
+        result(at('10:51:11'), 'mon2', 'Monitor started (task bmon2, expires in 10m).', false, {
+          toolUseResult: { taskId: 'bmon2' },
+        })
+      )
+      stats.line(
+        notification(
+          'user',
+          at('11:01:10'),
+          '<task-id>bmon2</task-id>\n<event>[Monitor expired after 10m with no events delivered. Re-arm it if you still need the watch.]</event>'
+        )
       )
       // A wakeup that fires with its prompt, and one that never does.
       const wakeup = (id, prompt) => ({ type: 'tool_use', id, name: 'ScheduleWakeup', input: { delaySeconds: 600, prompt } })
@@ -486,6 +508,27 @@ describe('TranscriptStats', () => {
       stats.line(result(at('12:03:01'), 'b2', 'Command running in background with ID: bx2.'))
       stats.line(result(at('12:03:01'), 'b3', 'Command running in background with ID: bx3.'))
       stats.end()
+
+      stats.begin({ sessionId: 's1', agentType: 'reviewer', description: 'Review PR 1612: tests' })
+      // One message, the same target twice: side by side, so no repeat.
+      stats.line(
+        assistant(at('13:00:00'), 'v1', [bash('x1', 'gh pr checks 1612 --watch'), bash('x2', 'gh pr checks 1612 --watch')])
+      )
+      stats.line(result(at('13:01:00'), 'x1', 'tests pass'))
+      stats.line(result(at('13:01:00'), 'x2', 'tests pass'))
+      // A background command ended by the queued_command attachment that carries its notice.
+      stats.line(assistant(at('13:02:00'), 'v2', [bash('bt', 'npm run build', { run_in_background: true })]))
+      stats.line(result(at('13:02:01'), 'bt', 'Command running in background with ID: bat1.'))
+      stats.line({
+        type: 'attachment',
+        timestamp: at('13:04:00'),
+        attachment: {
+          type: 'queued_command',
+          commandMode: 'task-notification',
+          prompt: `<task-notification>\n${done('bat1')}\n</task-notification>`,
+        },
+      })
+      stats.end()
       return stats.result().waits
     }
 
@@ -512,15 +555,18 @@ describe('TranscriptStats', () => {
           calls: 2,
           wallSeconds: 825,
           wallMeasured: 2,
-          timedOut: 2,
+          timedOut: 1,
           repeats: 1,
           movedToBackground: 1,
           tokens: 12,
         }),
+        row('gh-pr-checks-watch', 'reviewer', { calls: 2, wallSeconds: 120, wallMeasured: 2 }),
         row('gh-run-watch', 'ci-watcher', { wallSeconds: 120 }),
         row('bash-background', 'ci-watcher', { calls: 2, wallSeconds: 'not measured', wallMeasured: 0 }),
         row('bash-background', 'main', { wallSeconds: 300 }),
-        row('monitor', 'main', { wallSeconds: 1800, timedOut: 1 }),
+        row('bash-background', 'reviewer', { wallSeconds: 120 }),
+        // 1800 s to the expiry after two events, 600 s to the one with none.
+        row('monitor', 'main', { calls: 2, wallSeconds: 2400, wallMeasured: 2, timedOut: 1, tokens: 12 }),
         row('wakeup', 'main', { calls: 2, wallSeconds: 600, tokens: 12 }),
       ])
     })
