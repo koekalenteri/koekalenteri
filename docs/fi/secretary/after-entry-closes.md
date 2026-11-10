@@ -276,6 +276,23 @@ siirtopainikkeet odottavat tallennusta. Siirron aikana painikkeet odottavat sen 
 
 !shot[EventTeamsPage/teams-move] Joukkueen koirista yksi on osallistujana ja yksi varasijalla, joten joukkueen voi siirtää kumpaan suuntaan tahansa
 
+### Pentuejoukkueet
+
+Jos joukkueet kootaan saman pentueen koirista, kuten derbyssä, rastita paneelin *{t:teams.settings}*
+kohdasta *{t:teams.litterTeams}* valinta **{t:teams.litters}**. Silloin paneeli
+*{t:teams.suggestions}* ehdottaa joukkueen myös kustakin pentueesta, jonka koiria on kokeessa vähintään
+kaksi: koirista, joilla on sama isä, emä ja syntymäpäivä ja jotka eivät ole jo joukkueessa eivätkä ole
+kertoneet joukkueen nimeä. Ehdotus nimetään ensimmäisen ilmoittautuneen koiran kasvattajan mukaan, tai
+vanhempien mukaan (Isä x Emä), jos kasvattajaa ei ole kerrottu. Ilmoittautumisessa kerrottu joukkueen
+nimi menee pentueen edelle: sen kertonut koira on nimen ehdotuksessa.
+
+Pentuejoukkueen koiralla on merkintä *{t:teams.otherLitter}*, jos se on eri pentueesta kuin useimmat
+joukkueen koirat (tasatilanteessa ratkaisee joukkueen ensimmäinen koira, jonka pentue tiedetään), ja
+*{t:teams.unknownLitter}*, jos sen isää, emää tai syntymäpäivää ei tiedetä. Merkintä on vain muistutus: joukkueen voi tallentaa
+siitä huolimatta.
+
+!shot[EventTeamsPage/teams-litters] Pentuejoukkue, jossa yksi koira on eri pentueesta ja yhden pentuetta ei tiedetä
+
 ### Sarjat
 
 Joukkuekilpailussa voi olla useita sarjoja, esimerkiksi avoin sarja ja rotusarja. Sarjat lisätään

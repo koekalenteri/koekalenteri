@@ -97,3 +97,37 @@ test('on a phone, a dog is found by its handler and added to a team', {
   const [saved] = await readEventsOf(organizer.id)
   expect(saved.teams).toEqual([{ registrationIds: [entry.id] }])
 })
+
+// Every seeded dog is of the same sire, dam and birth day, and the entries name the same breeder.
+test('dogs of one litter are suggested as a team named after their breeder', {
+  annotation: issue('KOE-1727'),
+  tag: '@secretary',
+}, async ({ context, page }) => {
+  const organizer = await seedOrganizer()
+  const secretary = await seedStaffUser({ roles: { [organizer.id]: 'secretary' } })
+  const event = await seedEvent({
+    classes: [],
+    eventType: 'NOU',
+    organizer: { id: organizer.id, name: organizer.name },
+    paymentTime: 'confirmation',
+  })
+  const [first, second] = [await seedDog(), await seedDog()]
+  const owner = await seedStaffUser()
+  const entries = [await registerThroughApi(event, first, owner), await registerThroughApi(event, second, owner)]
+
+  await signInAs(context, secretary)
+  await page.goto(teamsPage(event.id))
+  await page.getByRole('checkbox', { name: 'Joukkueet ovat pentuejoukkueita' }).check()
+  await page.getByRole('button', { name: 'Tee joukkue Kennel E2E' }).click()
+  await expect(
+    page.getByRole('region', { name: 'Joukkue 1' }).getByRole('textbox', { name: 'Joukkueen nimi' })
+  ).toHaveValue('Kennel E2E')
+  await page.getByRole('button', { name: 'Tallenna' }).click()
+  await expect(page.getByText('Joukkueet tallennettu')).toBeVisible()
+
+  const [saved] = await readEventsOf(organizer.id)
+  expect(saved).toMatchObject({
+    teamCompetition: { litters: true },
+    teams: [{ name: 'Kennel E2E', registrationIds: entries.map(({ id }) => id) }],
+  })
+})
