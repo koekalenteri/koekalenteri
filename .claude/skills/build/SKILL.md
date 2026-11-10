@@ -129,10 +129,9 @@ release goes to production. It runs as part of the build, after each deploy:
   `yes`.
 - **One run at a time.** The browser is one profile. A deploy that lands while a run is going
   waits; when the run reports, the next run takes every issue that is ready by then.
-- **Who runs it.** A `general-purpose` agent in the background, with the prompt: run the
-  `verify-dev` skill (Skill tool) for `<keys>`, follow it as written, and report its run
-  summary. It has the `playwright` MCP tools (load them with `ToolSearch`) and does the Jira
-  comments and moves itself. The orchestrator keeps building meanwhile.
+- **Who runs it.** A `dev-tester` agent (`.claude/agents/dev-tester.md`) in the background,
+  with the keys to test. It runs the `verify-dev` skill, does the Jira comments and moves itself
+  and reports the run summary. The orchestrator keeps building meanwhile.
 - **Done** needs nothing more. **Blocked** goes back to Ready for Testing, and the next run after
   the next deploy takes it again; name the blocker in the report.
 - **Returned to In Progress** gets one fix round without asking. Add a row under the piece that

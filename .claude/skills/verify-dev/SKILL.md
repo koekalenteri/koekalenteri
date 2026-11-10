@@ -1,6 +1,7 @@
 ---
 name: verify-dev
 description: Test the Jira issues in Ready for Testing on dev through the UI, with the project's Playwright browser and the dev test accounts. An issue that works moves to Done with its evidence; one that does not goes back to In Progress with expected, observed, repro steps and a screenshot; one that cannot be tested through the UI is skipped with the reason. Runs between the merge and the production release. Use for "testaa devissä", "/verify-dev" or "/verify-dev KOE-1674".
+model: opus
 ---
 
 # /verify-dev [KEY...]
