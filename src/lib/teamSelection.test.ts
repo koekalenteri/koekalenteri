@@ -1,6 +1,6 @@
 import type { EventTeam } from '../types'
 import type { AssemblyEntry } from './teamSelection'
-import { teamDraw, teamDrawMoves, teamDrawPlaces, teamGroupMoves, teamSelection } from './teamSelection'
+import { teamDayPlacer, teamDraw, teamDrawPlaces, teamGroupMoves, teamSelection } from './teamSelection'
 
 // KOE-1722: the secretary selects a team competition's dogs team by team.
 const DAY = '2026-08-01' as const
@@ -198,8 +198,8 @@ describe('teamDrawPlaces', () => {
   })
 })
 
-// The draw does not read the places of a day (placesPerDay); placing the drawn teams does.
-describe('teamDrawMoves', () => {
+// The draw does not read the places of a day (placesPerDay); placing a team it tries does.
+describe('teamDayPlacer', () => {
   const DAY2 = '2026-08-02' as const
   const secondDay = { date: DAY2, key: `${DAY2}-ap`, time: 'ap' as const }
   const groups = new Map([['ALO', [morning, secondDay]]])
@@ -210,33 +210,59 @@ describe('teamDrawMoves', () => {
       { date: DAY2, time: 'ap' },
     ],
   })
+  const onSecondDay = (id: string): AssemblyEntry => ({ ...reserve(id), dates: [{ date: DAY2, time: 'ap' }] })
   const teams: EventTeam[] = [{ registrationIds: ['a1', 'a2'] }, { registrationIds: ['b1', 'b2'] }]
 
-  it('moves each drawn team to the participants, team by team in the order drawn', () => {
-    const entries = ['a1', 'a2', 'b1', 'b2'].map((id) => reserve(id))
+  it("moves a team's dogs to the participants, to the group of the day they entered", () => {
+    const place = teamDayPlacer(
+      teams,
+      ['a1', 'a2', 'b1', 'b2'].map((id) => reserve(id)),
+      groups,
+      {}
+    )
 
-    expect(teamDrawMoves([1, 0], teams, entries, groups, {})).toEqual({
-      placed: [
-        { moves: [{ eventClass: 'ALO', moves: [move('b1'), move('b2')] }], team: 1 },
-        { moves: [{ eventClass: 'ALO', moves: [move('a1'), move('a2')] }], team: 0 },
-      ],
-      unplaced: [],
-    })
+    expect(place(1)?.moves).toEqual([{ eventClass: 'ALO', moves: [move('b1'), move('b2')] }])
   })
 
-  it("puts a dog on another day it entered once a day's places are taken, and passes a team that fits no day", () => {
-    const entries = [both('a1'), both('a2'), reserve('b1'), reserve('b2')]
-    const event = { placesPerDay: { [DAY]: 1, [DAY2]: 1 } }
+  it("puts a dog on another day it entered once a day's places are taken, and takes the places only once kept", () => {
+    const entries = [both('a1'), both('a2'), reserve('b1')]
+    const twoAndOne: EventTeam[] = [teams[0], { registrationIds: ['b1'] }]
+    const place = teamDayPlacer(twoAndOne, entries, groups, { placesPerDay: { [DAY]: 1, [DAY2]: 1 } })
 
-    expect(teamDrawMoves([0, 1], teams, entries, groups, event)).toEqual({
-      placed: [
-        {
-          moves: [{ eventClass: 'ALO', moves: [move('a1'), move('a2', secondDay)] }],
-          team: 0,
-        },
-      ],
-      unplaced: [1],
-    })
+    const first = place(0)
+    expect(first?.moves).toEqual([{ eventClass: 'ALO', moves: [move('a1'), move('a2', secondDay)] }])
+    // Not kept yet: the places are still free for another team.
+    expect(place(1)).toBeDefined()
+    first?.keep()
+    expect(place(1)).toBeUndefined()
+  })
+
+  it('places no team with a dog that fits none of its days', () => {
+    const entries = [reserve('a1'), reserve('a2')]
+    const place = teamDayPlacer(teams, entries, groups, { placesPerDay: { [DAY]: 1, [DAY2]: 5 } })
+
+    expect(place(0)).toBeUndefined()
+  })
+
+  // KOE-1722: the draw takes a team's places only once its placing keeps it, so a team passed for its
+  // days leaves them to the next team.
+  it('leaves the places of a team passed for its days to the next team that fits', () => {
+    const satOnly = [reserve('a1'), reserve('a2')]
+    const sunday = [onSecondDay('b1'), onSecondDay('b2')]
+    const entries = [...satOnly, ...sunday, running('x1'), running('x2')]
+    const event = { placesPerDay: { [DAY]: 2, [DAY2]: 2 } }
+    const place = teamDayPlacer(teams, entries, groups, event)
+    const passed: number[] = []
+    const accept = (index: number) => {
+      const placed = place(index)
+      if (!placed) passed.push(index)
+      placed?.keep()
+      return !!placed
+    }
+    const free = { byClass: new Map([['ALO', 2]]), trial: 2 }
+
+    expect(teamDraw(teams, entries, free, () => 0, accept)).toEqual([1])
+    expect(passed).toEqual([0])
   })
 })
 

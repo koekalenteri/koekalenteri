@@ -1,4 +1,4 @@
-import type { ConfirmedEvent, Registration } from '@/types'
+import type { ConfirmedEvent, EventTeam, Registration } from '@/types'
 import { ThemeProvider } from '@mui/material'
 import { cleanup, screen, within } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
@@ -429,6 +429,79 @@ describe('EventTeamsPage', () => {
           [expect.objectContaining({ id: 'b1' }), expect.objectContaining({ id: 'b2' })],
           TEST_ID_TOKEN
         )
+      })
+
+      const openDraw = async (shown: typeof drawEvent, entries: Registration[]) => {
+        const rendered = await renderPage(shown, entries)
+        await flushPromises()
+        await rendered.user.click(screen.getByRole('button', { name: 'teams.draw' }))
+        await flushPromises()
+        return { ...rendered, dialog: screen.getByRole('dialog') }
+      }
+      const withPlaces = (places: Partial<Record<string, number>>, teams: EventTeam[] = drawEvent.teams) => ({
+        ...drawEvent,
+        classes: eventWithStations.classes.map((c) => ({ ...c, places: places[c.class] ?? 0 })),
+        places: Object.values(places).reduce<number>((sum, count) => sum + (count ?? 0), 0),
+        teams,
+      })
+
+      it('moves two teams drawn in one class with one request for the class', async () => {
+        vi.mocked(putRegistrationGroups).mockResolvedValueOnce(moved(four))
+        const { dialog, user } = await openDraw(withPlaces({ ALO: 4 }), four)
+
+        await user.click(within(dialog).getByRole('button', { name: 'teams.drawConfirm' }))
+        await flushPromises()
+
+        expect(putRegistrationGroups).toHaveBeenCalledTimes(1)
+        expect(
+          vi
+            .mocked(putRegistrationGroups)
+            .mock.calls[0][1].map((move) => move.id)
+            .sort()
+        ).toEqual(['a1', 'a2', 'b1', 'b2'])
+      })
+
+      it('passes a team drawn whose class takes no move, and moves none of its dogs', async () => {
+        vi.mocked(putRegistrationGroups).mockResolvedValueOnce(moved(four))
+        const avo = [onReserve('a1', 'Aatu', 'AVO'), onReserve('a2', 'Aino', 'AVO'), ...four.slice(2)]
+        const closed = {
+          ...withPlaces({ ALO: 2, AVO: 2 }, [
+            { name: 'Avoimet', registrationIds: ['a1', 'a2'] },
+            { name: 'Alokkaat', registrationIds: ['b1', 'b2'] },
+          ]),
+        }
+        closed.classes = closed.classes.map((c) => (c.class === 'AVO' ? { ...c, state: 'completed' as const } : c))
+        const { dialog, user } = await openDraw(closed, avo)
+
+        expect(dialog).toHaveTextContent('teams.drawPassed: teams.team number: Avoimet')
+        expect(dialog).toHaveTextContent('Bella, Bruno')
+        await user.click(within(dialog).getByRole('button', { name: 'teams.drawConfirm' }))
+        await flushPromises()
+        expect(putRegistrationGroups).toHaveBeenCalledTimes(1)
+        expect(putRegistrationGroups).toHaveBeenCalledWith(
+          eventWithStations.id,
+          [expect.objectContaining({ id: 'b1' }), expect.objectContaining({ id: 'b2' })],
+          TEST_ID_TOKEN
+        )
+      })
+
+      it('names the dogs a failed request left where they were', async () => {
+        // The failed class is reported, and the page reloads the entries, which the mock does not hold.
+        expectConsoleOutput(/reportError Error: network/, /Unable to refresh registrations after group move failure/)
+        vi.mocked(putRegistrationGroups).mockRejectedValueOnce(new Error('network'))
+        const { dialog, user } = await openDraw(drawEvent, four)
+
+        await user.click(within(dialog).getByRole('button', { name: 'teams.drawConfirm' }))
+        await flushPromises()
+
+        expect(screen.getByText(/^teams\.drawPartlyFailed Bella, Bruno$/)).toBeInTheDocument()
+      })
+
+      it('says no team fits where no places are left, and moves none', async () => {
+        const { dialog } = await openDraw(withPlaces({ ALO: 1 }), four)
+
+        expect(dialog).toHaveTextContent('teams.drawNone')
+        expect(within(dialog).getByRole('button', { name: 'teams.drawConfirm' })).toBeDisabled()
       })
 
       it('offers no draw while the teams have changes to save', async () => {

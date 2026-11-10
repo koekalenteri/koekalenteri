@@ -277,7 +277,8 @@ vain kokeen paikkoihin.
 
 Arvottu koira siirretään sen ryhmän osallistujiin, jonka päivälle ja ajalle se on ilmoittautunut. Jos
 kokeella on päiväkohtaiset paikat, koira menee ensimmäiselle ilmoittamalleen päivälle, jolla on vielä
-tilaa; joukkue, jonka jokin koira ei mahdu millekään päivälleen, jätetään väliin.
+tilaa. Joukkue, jonka jokin koira ei mahdu millekään päivälleen tai jonka luokka ei ota siirtoa
+vastaan, jätetään väliin, ja sen paikat jäävät seuraavalle arvottavalle joukkueelle.
 
 Ennen kuin yksikään koira siirtyy, Koekalenteri näyttää arvonnan tuloksen: arvotut joukkueet koirineen,
 koirat, joille lähtee koepaikkailmoitus, ja väliin jätetyt joukkueet. **{t:teams.drawConfirm}** siirtää

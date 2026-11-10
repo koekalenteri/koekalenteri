@@ -6,10 +6,10 @@ import { useSnackbar } from 'notistack'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAdminEventClassGroups } from '@/hooks/useAdminEventClassGroups'
-import { getEventStateForClass } from '@/lib/event'
+import { classOrder, getEventStateForClass } from '@/lib/event'
 import { getRegistrationGroupKey, isParticipantGroup } from '@/lib/registration'
 import { groupMoveError } from '@/lib/registrationGroups'
-import { teamDraw, teamDrawMoves, teamDrawPlaces, teamGroupMoves } from '@/lib/teamSelection'
+import { teamDayPlacer, teamDraw, teamDrawPlaces, teamGroupMoves } from '@/lib/teamSelection'
 import { mapWithConcurrency } from '@/lib/utils'
 import { moveSendsPlaceMessage } from '../eventViewPage/classEntrySelection/moveConfirmation'
 import { useAdminRegistrationActions } from '../state/registrations/actions'
@@ -40,14 +40,15 @@ export interface TeamDrawPlan {
   moves: ClassMoves[]
 }
 
-/** The moves of several teams as one request per class, in the order the classes first come. */
-const byClassOf = (classMoves: readonly ClassMoves[]): ClassMoves[] => {
+/** The moves of several teams as one request per class, in the event's class order (`classOrder`). */
+const byClassOf = (classMoves: readonly ClassMoves[], event: DogEvent): ClassMoves[] => {
   const merged = new Map<string, ClassMoves>()
   for (const { eventClass, moves } of classMoves) {
     const before = merged.get(eventClass)
     merged.set(eventClass, { eventClass, moves: [...(before?.moves ?? []), ...moves] })
   }
-  return [...merged.values()]
+  const byClass = classOrder(event)
+  return [...merged.values()].sort((a, b) => byClass(a.eventClass, b.eventClass))
 }
 
 /**
@@ -132,17 +133,31 @@ export const useMoveTeam = (event: DogEvent | undefined, registrations: readonly
   /**
    * Draws the teams for the places left (KOE-1722, `teamDraw`): the first teams first, in an order set by
    * `random`, as many as the classes and the trial hold, each placed on the days its dogs entered
-   * (`teamDrawMoves`). A team drawn whose class does not take the move (`groupMoveError`) is passed, as
-   * is one that fits no day.
+   * (`teamDayPlacer`). A team that fits no day, or whose class does not take the move (`groupMoveError`),
+   * is passed, and its places go to the next team the draw tries.
    */
   const drawPlan = useCallback(
     (teams: readonly EventTeam[], random: () => number): TeamDrawPlan => {
       if (!event) return { drawn: [], messaged: [], moves: [], passed: [] }
-      const drawn = teamDraw(teams, registrations, teamDrawPlaces(event, registrations), random)
-      const { placed, unplaced } = teamDrawMoves(drawn, teams, registrations, groupsByClass, event)
-      const accepted = placed.filter(({ moves }) => !moves.some((classMove) => refusalOf(classMove)))
-      const refusedTeams = placed.filter((item) => !accepted.includes(item)).map(({ team }) => team)
-      const moves = byClassOf(accepted.flatMap((item) => item.moves))
+      // A team is taken only once placed on its days and its classes take the move: one passed for
+      // either leaves its places to the next team the draw tries.
+      const place = teamDayPlacer(teams, registrations, groupsByClass, event)
+      const accepted: { moves: ClassMoves[]; team: number }[] = []
+      const passed: number[] = []
+      teamDraw(teams, registrations, teamDrawPlaces(event, registrations), random, (team) => {
+        const placed = place(team)
+        if (!placed || placed.moves.some((classMove) => refusalOf(classMove))) {
+          passed.push(team)
+          return false
+        }
+        placed.keep()
+        accepted.push({ moves: placed.moves, team })
+        return true
+      })
+      const moves = byClassOf(
+        accepted.flatMap((item) => item.moves),
+        event
+      )
       return {
         drawn: accepted.map(({ moves: teamMoves, team }) => ({
           dogs: teamMoves.flatMap((classMove) => classMove.moves.map((move) => dogName(move.id))),
@@ -150,7 +165,7 @@ export const useMoveTeam = (event: DogEvent | undefined, registrations: readonly
         })),
         messaged: messagedBy(moves).map((move) => dogName(move.id)),
         moves,
-        passed: [...unplaced, ...refusedTeams],
+        passed,
       }
     },
     [dogName, event, groupsByClass, messagedBy, refusalOf, registrations]

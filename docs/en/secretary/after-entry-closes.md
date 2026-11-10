@@ -20,7 +20,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 1641fa
+sourceHash: d7a4fe
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -276,8 +276,9 @@ the places left in their class and in the whole trial; otherwise the draw goes o
 class without places of its own is held only to the trial's places.
 
 A dog drawn moves to the participants of the group for the day and time it entered. Where the trial has
-places per day, the dog goes to the first day it entered that still has room; a team with a dog that
-fits none of its days is passed.
+places per day, the dog goes to the first day it entered that still has room. A team with a dog that
+fits none of its days, or whose class takes no move, is passed, and its places are left for the next
+team drawn.
 
 Before any dog moves, Koekalenteri shows the result of the draw: the teams drawn with their dogs, the
 dogs mailed their place, and the teams passed. **{t:teams.drawConfirm}** moves the dogs one class at a
