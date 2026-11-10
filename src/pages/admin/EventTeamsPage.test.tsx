@@ -758,7 +758,7 @@ describe('EventTeamsPage', () => {
       expectSaved({ teamCompetition: { litters: true } })
     })
 
-    it('suggests a litter as a team named after its parents', async () => {
+    it('suggests a litter as a team named after its breeder', async () => {
       const { user } = await renderPage({ ...eventWithStations, teamCompetition: { litters: true } }, litterEntries)
       await flushPromises()
 
@@ -766,7 +766,7 @@ describe('EventTeamsPage', () => {
       await flushPromises()
 
       const [team] = teamSections()
-      expect(within(team).getByRole('textbox', { name: 'teams.name' })).toHaveValue('Isä x Emä')
+      expect(within(team).getByRole('textbox', { name: 'teams.name' })).toHaveValue('Breeder Name')
       expect(members(team)).toEqual(['1A Ensimmainen', '1B Toinen'])
     })
 

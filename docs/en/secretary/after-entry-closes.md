@@ -20,7 +20,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 17ff80
+sourceHash: 0692b5
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -266,6 +266,21 @@ A team is moved as it is saved: while the page has changes not saved, the move b
 the save. While a move runs, the buttons wait for it to finish.
 
 !shot[EventTeamsPage/teams-move] One of the team's dogs is a participant and one on the reserve list, so the team can be moved either way
+
+### Litter teams
+
+If the teams are made of dogs of one litter, as in a derby, tick **{t:teams.litters}** under
+*{t:teams.litterTeams}* in the panel *{t:teams.settings}*. The panel *{t:teams.suggestions}* then also
+suggests a team for each litter with at least two dogs in the trial: the dogs with the same sire, dam
+and birth day that are in no team yet and gave no team name. A suggestion is named after the breeder
+of the first dog entered, or after the parents (Sire x Dam) where no breeder was given. A team name given
+at entry comes before the litter: the dog that gave it is in the name's suggestion.
+
+A dog of a litter team is marked *{t:teams.otherLitter}* when it is of another litter than most of the
+team's dogs (on a tie the team's first dog decides), and *{t:teams.unknownLitter}* when its sire, dam or
+birth day is not known. The mark is a reminder only: the team can be saved all the same.
+
+!shot[EventTeamsPage/teams-litters] A litter team with one dog of another litter and one whose litter is not known
 
 ### Series
 

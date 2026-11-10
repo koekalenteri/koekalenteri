@@ -613,7 +613,10 @@ export interface TeamCompetition {
   days?: DayKey[]
   /** The entry form asks for the dog's team (KOE-1721). */
   askAtEntry?: boolean
-  /** The teams page suggests teams from litters (KOE-1727). */
+  /**
+   * The teams are litter teams (KOE-1727): the teams page suggests a team for each litter, named after
+   * the breeder, and marks a dog of another litter in a team (`litterMismatches`), a warning only.
+   */
   litters?: boolean
 }
 
