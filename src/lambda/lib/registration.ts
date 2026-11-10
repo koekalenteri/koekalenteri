@@ -150,6 +150,18 @@ export const authorizeRegistrationRead = (
   return authorizeRegistrationEdit(event, registration)
 }
 
+/**
+ * The participant's workflow flags, each with the fields that go with it. A participant sets one, never
+ * clears it: clearing is the organizer's. A new registration sets none.
+ */
+const ONE_WAY_PARTICIPANT_FLAGS = [
+  { fields: ['cancelled', 'cancelReason'], flag: 'cancelled' },
+  { fields: ['confirmed'], flag: 'confirmed' },
+  { fields: ['invitationRead'], flag: 'invitationRead' },
+] as const satisfies ReadonlyArray<{ fields: ReadonlyArray<keyof JsonRegistration>; flag: keyof JsonRegistration }>
+
+const ONE_WAY_PARTICIPANT_FIELDS = ONE_WAY_PARTICIPANT_FLAGS.flatMap(({ fields }) => fields)
+
 export const publicRegistrationPatch = (input: Patch<JsonRegistration>, update: boolean): Patch<JsonRegistration> => {
   const result: Patch<JsonRegistration> = {}
   const fields = update ? PUBLIC_REGISTRATION_UPDATE_FIELDS : PUBLIC_REGISTRATION_FIELDS
@@ -157,21 +169,29 @@ export const publicRegistrationPatch = (input: Patch<JsonRegistration>, update: 
     if (Object.hasOwn(input, field)) Object.assign(result, { [field]: input[field] })
   }
 
-  if (!update) {
-    delete result.cancelReason
-    delete result.cancelled
-    delete result.confirmed
-    delete result.invitationRead
-  } else {
-    // Participant workflow flags are one-way transitions. Clearing them is organizer-only.
-    if (result.cancelled !== true) {
-      delete result.cancelled
-      delete result.cancelReason
-    }
-    if (result.confirmed !== true) delete result.confirmed
-    if (result.invitationRead !== true) delete result.invitationRead
+  for (const { fields: flagFields, flag } of ONE_WAY_PARTICIPANT_FLAGS) {
+    if (update && result[flag] === true) continue
+    for (const field of flagFields) delete result[field]
   }
   return result
+}
+
+/**
+ * The stored registration with a participant's operations applied, as it is saved: what they removed
+ * stays removed, a team or its first-team mark among them (KOE-1721), and a workflow flag they tried
+ * to clear keeps its stored value, by the rule of `publicRegistrationPatch`. The row is a copy of its
+ * own: applying the operations shares every part they leave alone with the stored row, and the save
+ * writes into its row (the official results, the days as keys) before comparing it with the stored one.
+ */
+export const withParticipantFlagsKept = (patched: JsonRegistration, existing: JsonRegistration): JsonRegistration => {
+  const allowed = publicRegistrationPatch(patched, true)
+  const row: JsonRegistration = structuredClone(patched)
+  for (const field of ONE_WAY_PARTICIPANT_FIELDS) {
+    if (Object.hasOwn(allowed, field)) continue
+    if (Object.hasOwn(existing, field)) Object.assign(row, { [field]: existing[field] })
+    else delete row[field]
+  }
+  return row
 }
 
 /**

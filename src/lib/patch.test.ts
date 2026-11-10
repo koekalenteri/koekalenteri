@@ -1,5 +1,26 @@
 import type { PatchOperation } from '../types'
-import { applyPatchOperations, createPatchOperations, InvalidPatchError } from './patch'
+import { applyPatchOperations, createPatchOperations, InvalidPatchError, writesNull } from './patch'
+
+describe('writesNull (KOE-1721)', () => {
+  it.each([
+    ['a change to null', { path: ['class'], type: 'CHANGE', value: null }],
+    ['a field created as null', { path: ['teamEntry'], type: 'CREATE', value: null }],
+    ['a null in an object', { path: ['handler'], type: 'CHANGE', value: { email: null, name: 'Handler' } }],
+    ['a null in a list', { path: ['owners'], type: 'CHANGE', value: [{ name: 'Owner' }, null] }],
+  ] satisfies Array<[string, PatchOperation]>)('finds %s', (_name, operation) => {
+    expect(writesNull([{ path: ['notes'], type: 'REMOVE' }, operation])).toBe(true)
+  })
+
+  it('finds none in removals and values without a null', () => {
+    expect(
+      writesNull([
+        { path: ['notes'], type: 'REMOVE' },
+        { path: ['owners'], type: 'CHANGE', value: [{ location: '', name: 'Owner' }] },
+        { path: ['reserve'], type: 'CHANGE', value: 'ANY' },
+      ])
+    ).toBe(false)
+  })
+})
 
 describe('patch operations', () => {
   it('creates deterministic operations that preserve arrays', () => {

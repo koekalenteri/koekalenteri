@@ -78,6 +78,7 @@ const {
   participantRegistrationResponse,
   publicRegistrationPatch,
   removeRegistrationCreationMetadata,
+  withParticipantFlagsKept,
 } = await import('./registration')
 
 /**
@@ -1152,6 +1153,33 @@ describe('registration access', () => {
     expect(
       publicRegistrationPatch({ cancelled: true, cancelReason: 'reason', confirmed: true, invitationRead: true }, true)
     ).toEqual({ cancelled: true, cancelReason: 'reason', confirmed: true, invitationRead: true })
+  })
+
+  describe('withParticipantFlagsKept (KOE-1721)', () => {
+    const stored = jsonRegistrationsToEventWithALOInvited[0]
+    const { teamEntry: _team, ...withoutTeam } = { ...stored, teamEntry: { name: 'Kultaiset' } }
+
+    it('keeps what the operations removed removed', () => {
+      expect(withParticipantFlagsKept(withoutTeam, { ...stored, teamEntry: { name: 'Kultaiset' } })).toEqual(
+        withoutTeam
+      )
+    })
+
+    it('keeps the stored flags the operations cleared', () => {
+      const flagged = { ...stored, cancelled: true, cancelReason: 'sick', confirmed: true, invitationRead: true }
+      const { cancelled: _c, cancelReason: _r, confirmed: _f, invitationRead: _i, ...cleared } = flagged
+
+      expect(withParticipantFlagsKept({ ...cleared, cancelled: false }, flagged)).toEqual(flagged)
+    })
+
+    it('takes a flag the operations set, and leaves out one never stored', () => {
+      const { cancelled: _c, cancelReason: _r, confirmed: _f, invitationRead: _i, ...plain } = stored
+
+      expect(withParticipantFlagsKept({ ...plain, confirmed: true, invitationRead: false }, plain)).toEqual({
+        ...plain,
+        confirmed: true,
+      })
+    })
   })
 
   // A stored row and its trial, as the handlers have them (paid at entry, the fee unpaid).

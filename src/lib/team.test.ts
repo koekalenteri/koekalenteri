@@ -286,6 +286,13 @@ describe('entryTeamError (KOE-1721)', () => {
     expect(entryTeamError({}, { name: ' Savon  Nuuskut 1' }, stored)).toBeUndefined()
     expect(entryTeamError({}, { name: 'Savon Nuuskut 2' }, stored)).toBe('notAsked')
   })
+
+  it('lets the first-team mark come off a stored team, never go on, where the event no longer asks for one', () => {
+    const stored = { name: 'Savon Nuuskut 1', primary: true as const }
+
+    expect(entryTeamError({}, { name: 'Savon Nuuskut 1' }, stored)).toBeUndefined()
+    expect(entryTeamError({}, { name: 'Savon Nuuskut 1', primary: true }, { name: 'Savon Nuuskut 1' })).toBe('notAsked')
+  })
 })
 
 // KOE-1726: the days of the trial whose results the teams count.

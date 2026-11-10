@@ -169,6 +169,17 @@ export const createPatchOperations = (before: object, after: object): PatchOpera
     return [{ path: difference.path, type: difference.type, value: difference.value }]
   })
 
+const holdsNull = (value: unknown): boolean =>
+  value === null ||
+  (Array.isArray(value) ? value.some(holdsNull) : isRecord(value) && Object.values(value).some(holdsNull))
+
+/**
+ * Whether an operation writes a null, as its value or inside it (KOE-1721). The registration form
+ * writes none: `createPatchOperations` makes a field taken away a REMOVE.
+ */
+export const writesNull = (operations: readonly PatchOperation[]): boolean =>
+  operations.some((operation) => operation.type !== 'REMOVE' && holdsNull(operation.value))
+
 export const applyPatchOperations = <T extends object>(base: T, operations: readonly PatchOperation[]): T => {
   if (!operations.length) return base
 

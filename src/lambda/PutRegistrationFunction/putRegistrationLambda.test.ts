@@ -1235,6 +1235,39 @@ describe('putRegistrationLabmda', () => {
     expect(Array.isArray(mockPatchRegistration.mock.calls[0]?.[3].dates)).toBe(true)
   })
 
+  it('keeps a cancellation the operations try to remove', async () => {
+    const existingJson = {
+      ...storedRegistrationJson(registrationWithStaticDates),
+      cancelled: true,
+      cancelReason: 'sick',
+    }
+    mockGetLiveEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(structuredClone(existingJson))
+
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent(
+        {
+          eventId: existingJson.eventId,
+          id: existingJson.id,
+          operations: [
+            { path: ['cancelled'], type: 'REMOVE' },
+            { path: ['cancelReason'], type: 'REMOVE' },
+            { path: ['notes'], type: 'CHANGE', value: 'patched notes' },
+          ],
+        },
+        { method: 'PATCH' }
+      )
+    )
+
+    expect(res.statusCode).toEqual(200)
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      existingJson.eventId,
+      existingJson.id,
+      existingJson,
+      expect.objectContaining({ cancelled: true, cancelReason: 'sick', notes: 'patched notes' })
+    )
+  })
+
   it('rejects patch operations for non-public fields', async () => {
     const existingJson = storedRegistrationJson(registrationWithStaticDates)
     mockGetLiveEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
@@ -2200,6 +2233,10 @@ describe('putRegistrationLabmda', () => {
 
     beforeEach(() => {
       vi.setSystemTime(eventWithStaticDatesAndClass.entryStartDate)
+      // A request refused before the event is read leaves its event queued, and `clearAllMocks` keeps
+      // the queue: each test here reads the event it asked for, not the one before.
+      mockGetLiveEvent.mockReset()
+      mockGetRegistration.mockReset()
     })
 
     it('stores the team of a new entry, its name tidied, where the event asks for one', async () => {
@@ -2254,12 +2291,98 @@ describe('putRegistrationLabmda', () => {
     })
 
     it('refuses a team that is not a named object', async () => {
-      asking(true)
-
       const res = await putRegistrationLabmda(constructAPIGwEvent({ ...entry, state: 'ready', teamEntry: 'Nuuskut' }))
 
       expect(res.statusCode).toBe(400)
       expect(mockWriteRegistration).not.toHaveBeenCalled()
+    })
+
+    // The edit form sends a cleared name, or a first-team mark taken off, as a removal (KOE-1721).
+    describe('taken off a stored entry', () => {
+      const stored = {
+        ...storedRegistrationJson(registrationWithStaticDatesAndClass),
+        teamEntry: { name: 'Kultaiset', primary: true as const },
+      }
+      const removing = (path: string[]) => operating({ path, type: 'REMOVE' })
+      const nulling = (path: string[]) => operating({ path, type: 'CHANGE', value: null })
+      const operating = (operation: object) =>
+        constructAPIGwEvent({ eventId: stored.eventId, id: stored.id, operations: [operation] }, { method: 'PATCH' })
+      const withoutTeam = expect.not.objectContaining({ teamEntry: expect.anything() })
+
+      it.each([
+        ['the team', removing(['teamEntry']), withoutTeam],
+        [
+          'the first-team mark',
+          removing(['teamEntry', 'primary']),
+          expect.objectContaining({ teamEntry: { name: 'Kultaiset' } }),
+        ],
+      ])('stores the entry without %s', async (_name, request, saved) => {
+        asking(true)
+        mockGetRegistration.mockResolvedValueOnce(structuredClone(stored))
+
+        const res = await putRegistrationLabmda(request)
+
+        expect(res.statusCode).toBe(200)
+        expect(mockPatchRegistration).toHaveBeenCalledWith(stored.eventId, stored.id, stored, saved)
+      })
+
+      it('stores the entry without the first-team mark where the event no longer asks for a team', async () => {
+        asking(false)
+        mockGetRegistration.mockResolvedValueOnce(structuredClone(stored))
+
+        const res = await putRegistrationLabmda(removing(['teamEntry', 'primary']))
+
+        expect(res.statusCode).toBe(200)
+        expect(mockPatchRegistration).toHaveBeenCalledWith(
+          stored.eventId,
+          stored.id,
+          stored,
+          expect.objectContaining({ teamEntry: { name: 'Kultaiset' } })
+        )
+      })
+
+      // What an entry keeps (`removedKeptRegistrationField`); the dates are held by the array check
+      // (`hasInvalidRegistrationArrayFields`) first. A null is refused before either (`writesNull`).
+      const kept = (field: string) => `Bad request: patch removes the registration field ${field}`
+      const writesNull = 'Bad request: patch operation writes a null'
+      it.each([
+        ...[
+          'agreeToTerms',
+          'breeder',
+          'class',
+          'dog',
+          'handler',
+          'language',
+          'notes',
+          'owner',
+          'ownerHandles',
+          'ownerPays',
+          'payer',
+          'reserve',
+        ].map((field) => [`a removal of the ${field}`, removing([field]), kept(field)] as const),
+        ...['class', 'teamEntry'].map(
+          (field) => [`the ${field} sent as a null`, nulling([field]), writesNull] as const
+        ),
+        [
+          'a null inside a value',
+          operating({ path: ['handler'], type: 'CHANGE', value: { ...stored.handler, location: null } }),
+          writesNull,
+        ] as const,
+        [
+          'a removal of the dates',
+          removing(['dates']),
+          'Bad request: registration array fields must be arrays',
+        ] as const,
+      ])('refuses %s, and saves nothing', async (_name, request, message) => {
+        asking(true)
+        mockGetRegistration.mockResolvedValueOnce(structuredClone(stored))
+
+        const res = await putRegistrationLabmda(request)
+
+        expect(res.statusCode).toBe(400)
+        expect(JSON.parse(res.body)).toMatchObject({ message })
+        expect(mockPatchRegistration).not.toHaveBeenCalled()
+      })
     })
   })
 
