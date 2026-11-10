@@ -175,6 +175,7 @@
     "knip": "^6.44.2",
     "mdast-util-to-hast": "^13.2.1",
     "mini-css-extract-plugin": "^2.10.2",
+    "oxc-parser": "^0.156.0",
     "pdfjs-dist": "^6.5.438",
     "playwright": "^1.63.0",
     "react-app-polyfill": "^3.0.0",
