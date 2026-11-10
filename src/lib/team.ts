@@ -231,7 +231,7 @@ const isTeamEntry = (value: unknown): value is TeamEntry =>
  * Why the save refuses the team an entry names (KOE-1721), or nothing. A team is a name, and maybe the
  * first-team mark; one is written only where the event asks for it (`teamCompetition.askAtEntry`), and
  * then with a name. The team stored before is kept as it is, so an event that stops asking leaves the
- * entries that named one their own to save.
+ * entries that named one their own to save, and to take off: the whole team, or only its first-team mark.
  */
 export const entryTeamError = (
   event: Pick<JsonDogEvent | DogEvent, 'teamCompetition'>,
@@ -241,7 +241,7 @@ export const entryTeamError = (
   if (teamEntry === undefined || teamEntry === null) return undefined
   if (!isTeamEntry(teamEntry)) return 'invalid'
   const name = normalizeTeamName(teamEntry.name)
-  if (stored && name === normalizeTeamName(stored.name) && teamEntry.primary === stored.primary) return undefined
+  if (stored && name === normalizeTeamName(stored.name) && (!teamEntry.primary || stored.primary)) return undefined
   if (event.teamCompetition?.askAtEntry !== true) return 'notAsked'
   if (!name) return 'noName'
   return name.length > MAX_TEAM_NAME_LENGTH ? 'tooLong' : undefined

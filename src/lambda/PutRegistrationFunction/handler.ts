@@ -46,6 +46,7 @@ import {
   hasRegistrationChanges,
   publicRegistrationPatch,
   registrationConflictBody,
+  withParticipantFlagsKept,
 } from '../lib/registration'
 import { persistRegistrationWithGroups } from '../lib/registrationPersistence'
 import {
@@ -73,29 +74,43 @@ const getData = async (registration: Patch<JsonRegistration>) => {
   return { confirmedEvent, existing }
 }
 
-/** The stored registration with the participant's operations applied, only to the fields a participant may edit. */
+/**
+ * The stored registration with the participant's operations applied, only to the fields a participant
+ * may edit, as the row to save: what they removed stays removed (KOE-1721), and the workflow flags go
+ * one way only (`withParticipantFlagsKept`). A removal that leaves a whole row without a field every
+ * registration has is refused.
+ */
 const applyPublicPatchRequest = (
   existing: JsonRegistration,
   operationRequest: JsonRegistrationPatchRequest
-): Patch<JsonRegistration> => {
+): JsonRegistration => {
+  let patched: JsonRegistration
   try {
-    const patched = applyRegistrationPatchRequest(existing, operationRequest, isPublicRegistrationOperationField)
-    return publicRegistrationPatch(patched, true)
+    patched = applyRegistrationPatchRequest(existing, operationRequest, isPublicRegistrationOperationField)
   } catch (error) {
     if (error instanceof InvalidPatchError) throw httpError(400, { message: `Bad request: ${error.message}` })
     throw error
   }
+  const row = withParticipantFlagsKept(patched, existing)
+  if (isCompleteRegistration(existing) && !isCompleteRegistration(row)) {
+    throw httpError(400, { message: 'Bad request: patch removes a required registration field' })
+  }
+  return row
 }
 
 /**
  * The registration to store and what the participant's request did to it: an edit of the details,
  * a cancellation, a confirmation, or the reading of an invitation. The one-way flags only count on
- * the way up; `publicRegistrationPatch` has already dropped any attempt to clear them.
+ * the way up; `publicRegistrationPatch` has already dropped any attempt to clear them. Operations
+ * arrive as the whole row to store (`applied`), which is not merged onto the stored one again: the
+ * merge keeps a stored field the patch leaves out, and so would undo every removal. A body is a
+ * patch, merged onto the stored row, where a null removes a field.
  */
 const buildPublicRegistrationData = (
   registration: Patch<JsonRegistration>,
   existing: JsonRegistration | undefined,
-  confirmedEvent: JsonConfirmedEvent
+  confirmedEvent: JsonConfirmedEvent,
+  applied: JsonRegistration | undefined
 ) => {
   const cancel = !existing?.cancelled && Boolean(registration.cancelled)
   const confirm = !existing?.confirmed && Boolean(registration.confirmed) && !existing?.cancelled
@@ -104,7 +119,8 @@ const buildPublicRegistrationData = (
     : { read: false }
 
   let data: JsonRegistration
-  if (existing) data = patchMerge(existing, registration)
+  if (applied) data = applied
+  else if (existing) data = patchMerge(existing, registration)
   else {
     // Decided below from the dog's official results, once the body is known to be whole.
     registration.qualifies = false
@@ -256,6 +272,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   const linkOrigin = getFrontendOrigin(event)
   const { operationRequest, registration: requested } = parsePublicRegistrationBody(event)
   let registration = requested
+  let applied: JsonRegistration | undefined
 
   const { confirmedEvent, existing } = await getData(registration)
   if (!confirmedEvent || isEventOver(confirmedEvent)) {
@@ -264,7 +281,10 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
 
   if (existing) {
     authorizeRegistrationEdit(event, existing)
-    if (operationRequest) registration = applyPublicPatchRequest(existing, operationRequest)
+    if (operationRequest) {
+      applied = applyPublicPatchRequest(existing, operationRequest)
+      registration = applied
+    }
   }
 
   // On the logged-in route the authorizer names the participant (KOE-1418); on the public one the
@@ -285,7 +305,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   registration.modifiedBy = user.name
   registration.updatedAt = timestamp
 
-  const { data, flags } = buildPublicRegistrationData(registration, existing, confirmedEvent)
+  const { data, flags } = buildPublicRegistrationData(registration, existing, confirmedEvent, applied)
   assertEntryContentEditable(existing, data, confirmedEvent)
   assertCancellationOpen(existing, flags.cancel, confirmedEvent)
   const locks = existing ? getParticipantFieldLocks(confirmedEvent, existing) : NO_PARTICIPANT_FIELD_LOCKS
