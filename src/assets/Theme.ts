@@ -4,7 +4,7 @@ import { createTheme, responsiveFontSizes } from '@mui/material/styles'
 import '@mui/x-data-grid/themeAugmentation'
 import '@mui/x-date-pickers/themeAugmentation'
 
-declare module '@mui/material/styles/createPalette' {
+declare module '@mui/material/styles' {
   interface TypeBackground {
     caption: string
     form: string

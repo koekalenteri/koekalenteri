@@ -143,6 +143,23 @@ const crowdRegistrations: Registration[] = Array.from({ length: MAX_TEAM_MEMBERS
   entry(`crowd-${at}`, `Joukkokoira ${at + 1}`, 'Maila Mallinen', { teamEntry: { name: 'Iso Joukkue' } })
 )
 
+// Litter teams (KOE-1727): two dogs of one litter, one of another, and one whose litter is not known.
+const litter = (registration: Registration, sire = 'Kultakuonon Kaiku'): Registration => ({
+  ...registration,
+  dog: { ...registration.dog, dam: { name: 'Kultakuonon Kide' }, dob: '2024-03-01', sire: { name: sire } },
+})
+const litterRegistrations: Registration[] = [
+  litter(registrations[0]),
+  litter(registrations[1]),
+  litter(registrations[3], 'Metsälän Myrsky'),
+  { ...registrations[4], dog: { ...registrations[4].dog, dam: undefined, dob: undefined, sire: undefined } },
+]
+const litterEvent: ConfirmedEvent = {
+  ...eventWithStations,
+  teamCompetition: { litters: true },
+  teams: [{ name: 'Kennel Kultakuono', registrationIds: ['dog-1', 'dog-2', 'dog-4', 'dog-5'] }],
+}
+
 const renderPage = (shown: ConfirmedEvent = event, entries: Registration[] = registrations) =>
   render(
     <div data-testid="visual-root" style={{ background: '#fff', width: 900 }}>
@@ -236,14 +253,30 @@ it('asks for the team at entry and suggests the teams named there (KOE-1721)', a
 })
 
 it('says a suggestion holds more dogs than a team (KOE-1721)', async () => {
-  await page.viewport(900, 1000)
+  await page.viewport(900, 1300)
   const screen = await renderPage({ ...eventWithStations, teamCompetition: { askAtEntry: true } }, crowdRegistrations)
 
   await expect.element(screen.getByText(/^Ehdotuksessa on enemmän koiria/)).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-suggestion-too-many')
 })
 
+it('marks the dogs of another litter in a litter team (KOE-1727)', async () => {
+  await page.viewport(900, 1600)
+  const screen = await renderPage(litterEvent, litterRegistrations)
+
+  await expect.element(screen.getByText('Eri pentue', { exact: true })).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-litters')
+})
+
 describeInLanguage('en', () => {
+  it('marks the dogs of another litter in a litter team (KOE-1727)', async () => {
+    await page.viewport(900, 1600)
+    const screen = await renderPage(litterEvent, litterRegistrations)
+
+    await expect.element(screen.getByText('Another litter', { exact: true })).toBeVisible()
+    await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-litters-en')
+  })
+
   it('asks for the team at entry and suggests the teams named there (KOE-1721)', async () => {
     await page.viewport(900, 1800)
     const screen = await renderPage(suggestionsEvent, suggestionsRegistrations)

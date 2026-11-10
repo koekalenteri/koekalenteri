@@ -51,6 +51,8 @@ interface Props {
   readonly countedDays?: readonly DayKey[]
   /** The team holds more dogs than a team may (`teamErrors`), as a suggestion taken whole can. */
   readonly tooMany?: boolean
+  /** The dogs of a litter team not of its litter, by registration id (`litterMismatches`, KOE-1727). */
+  readonly litterMarks?: ReadonlyMap<string, 'otherLitter' | 'unknownLitter'>
 }
 
 /** A way the whole team can be moved, and why it cannot be now, where it cannot. */
@@ -158,6 +160,7 @@ export default function TeamCard({
   moveOptions = {},
   countedDays,
   tooMany,
+  litterMarks,
 }: Props) {
   const { t } = useTranslation()
   const ids = team.registrationIds
@@ -258,6 +261,7 @@ export default function TeamCard({
         <List dense disablePadding>
           {teamMembers(team, number, entries).map(({ code, place: at, registration }) => {
             const state = memberState(registration)
+            const litterMark = litterMarks?.get(registration.id)
             const handler = getHandlingPerson(registration)?.name
             return (
               <ListItem
@@ -291,6 +295,7 @@ export default function TeamCard({
                     <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                       <span>{`${code} ${dogLabel(registration)}`}</span>
                       {state && <Chip label={t(`teams.${state}`)} size="small" />}
+                      {litterMark && <Chip label={t(`teams.${litterMark}`)} size="small" variant="outlined" />}
                     </Stack>
                   }
                   secondary={handler ? t('teams.handler', { name: handler }) : undefined}

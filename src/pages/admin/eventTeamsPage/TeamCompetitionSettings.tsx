@@ -43,10 +43,17 @@ const withDays = (
   return days.length < trialDays.length ? { ...rest, days: trialDays.filter((day) => days.includes(day)) } : rest
 }
 
-/** The settings asking for the team at entry or not (KOE-1721): not asking is no setting at all. */
-const withAskAtEntry = (teamCompetition: TeamCompetition | undefined, ask: boolean): TeamCompetition => {
-  const { askAtEntry: _askAtEntry, ...rest } = teamCompetition ?? {}
-  return ask ? { ...rest, askAtEntry: true } : rest
+/**
+ * The settings with a choice on or off: asking for the team at entry (KOE-1721), or litter teams
+ * (KOE-1727). Off is no setting at all.
+ */
+const withChoice = (
+  teamCompetition: TeamCompetition | undefined,
+  choice: 'askAtEntry' | 'litters',
+  on: boolean
+): TeamCompetition => {
+  const { [choice]: _old, ...rest } = teamCompetition ?? {}
+  return on ? { ...rest, [choice]: true } : rest
 }
 
 /** A part of the settings, one level under the panel's heading. */
@@ -111,10 +118,11 @@ const CountedDays = ({ teamCompetition, trialDays, onChange }: CountedDaysProps)
 
 /**
  * The settings of the event's team competition: whether the entry form asks for the dog's team
- * (KOE-1721), which the secretary sets before any team is made, and its series (KOE-1720), each with
- * its name in Finnish, which every series needs, and in the other languages where the organizer gives
- * one. The teams are ranked within their series, and the public start list heads each with its name. A
- * trial of two days or more also chooses the days the teams count (KOE-1726).
+ * (KOE-1721) and whether the teams are litter teams (KOE-1727), which the secretary sets before any team
+ * is made, and its series (KOE-1720), each with its name in Finnish, which every series needs, and in
+ * the other languages where the organizer gives one. The teams are ranked within their series, and the
+ * public start list heads each with its name. A trial of two days or more also chooses the days the
+ * teams count (KOE-1726).
  */
 export default function TeamCompetitionSettings({ teamCompetition, trialDays, onChange }: Props) {
   const { t } = useTranslation()
@@ -146,11 +154,26 @@ export default function TeamCompetitionSettings({ teamCompetition, trialDays, on
           control={
             <Checkbox
               checked={!!teamCompetition?.askAtEntry}
-              onChange={(e) => onChange(withAskAtEntry(teamCompetition, e.target.checked))}
+              onChange={(e) => onChange(withChoice(teamCompetition, 'askAtEntry', e.target.checked))}
               size="small"
             />
           }
           label={t('teams.askAtEntry')}
+        />
+        <Divider />
+        <SectionHeading>{t('teams.litterTeams')}</SectionHeading>
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          {t('teams.littersInfo')}
+        </Typography>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={!!teamCompetition?.litters}
+              onChange={(e) => onChange(withChoice(teamCompetition, 'litters', e.target.checked))}
+              size="small"
+            />
+          }
+          label={t('teams.litters')}
         />
         <Divider />
         <SectionHeading>{t('teams.series')}</SectionHeading>

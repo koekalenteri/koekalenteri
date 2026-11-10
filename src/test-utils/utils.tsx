@@ -1,6 +1,5 @@
 import type { RenderOptions, RenderResult } from '@testing-library/react'
-import type { Options } from '@testing-library/user-event/dist/types/options'
-import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
+import type { Options, UserEvent } from '@testing-library/user-event'
 import type { Atom } from 'jotai'
 import type { RouteObject, RouterInit } from 'react-router'
 import { render } from '@testing-library/react'

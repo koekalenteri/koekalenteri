@@ -52,11 +52,14 @@ function compile() {
   })
 }
 
+// TypeScript 7 exports no `bin/tsc` subpath, so the binary is found from the package root.
+const tscPath = () => path.join(path.dirname(require.resolve('typescript/package.json')), 'bin', 'tsc')
+
 async function build() {
-  // CI type-checks once in the frontend job's lint step; the builds there skip the 50 s repeat.
+  // CI type-checks once in the frontend job's lint step; the builds there skip the repeat.
   if (process.env.SKIP_TYPECHECK !== 'true') {
     console.log('Type-checking the frontend...')
-    execFileSync(process.execPath, [require.resolve('typescript/bin/tsc'), '--noEmit', '-p', paths.appTsConfig], {
+    execFileSync(process.execPath, [tscPath(), '--noEmit', '-p', paths.appTsConfig], {
       stdio: 'inherit',
     })
   }

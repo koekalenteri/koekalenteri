@@ -1635,6 +1635,9 @@
     "entryInfo": "Kun kysymys on päällä, ilmoittautumislomake kysyy koiran joukkueen nimeä ja sitä, onko joukkue yhdistyksen tai kennelin ykkösjoukkue. Ilmoitetuista nimistä kootaan joukkue-ehdotukset tälle sivulle.",
     "handler": "ohj. {{name}}",
     "info": "Joukkueet numeroidaan järjestyksessä, ja koira saa joukkueessa tunnuksen sen mukaan, missä järjestyksessä se on lisätty: 1A, 1B, 1C. Koiran tunnusta voi vaihtaa siirtämällä koiraa joukkueessa ylös tai alas.",
+    "litters": "Joukkueet ovat pentuejoukkueita",
+    "littersInfo": "Pentuejoukkueessa on saman pentueen koiria. Kun valinta on päällä, sivu ehdottaa joukkueita koirista, joilla on sama isä, emä ja syntymäpäivä, nimettynä kasvattajan mukaan, ja merkitsee joukkueeseen koiran, joka on eri pentueesta tai jonka pentuetta ei tiedetä.",
+    "litterTeams": "Pentuejoukkueet",
     "memberCancelled": "Peruttu",
     "memberReserve": "Varalla",
     "moveConfirm": "Siirrä",
@@ -1650,6 +1653,7 @@
     "name": "Joukkueen nimi",
     "noDogs": "Joukkueessa ei ole vielä koiria.",
     "noSeries": "Ei sarjaa",
+    "otherLitter": "Eri pentue",
     "primary": "Ykkösjoukkue",
     "remove": "Poista {{code}} joukkueesta",
     "removeSeries": "Poista sarja {{name}}",
@@ -1675,7 +1679,8 @@
     "title": "Joukkueet",
     "tooMany": "Joukkueessa voi olla enintään {{count}} koiraa. Poista ylimääräiset koirat ennen tallennusta.",
     "toParticipants": "Siirrä osallistujiin",
-    "toReserve": "Siirrä varasijalle"
+    "toReserve": "Siirrä varasijalle",
+    "unknownLitter": "Pentue ei tiedossa"
   },
   "templateEditor": {
     "editor": {

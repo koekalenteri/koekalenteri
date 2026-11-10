@@ -736,6 +736,66 @@ describe('EventTeamsPage', () => {
     })
   })
 
+  // KOE-1727: litter teams, suggested from the dogs of one litter, and a warning for a dog of another.
+  describe('litter teams', () => {
+    const expectSaved = (fields: object) =>
+      expect(putEvent).toHaveBeenLastCalledWith(expect.objectContaining(fields), TEST_ID_TOKEN, undefined, undefined)
+    const ofLitter = (registration: Registration, sire = 'Isä'): Registration => ({
+      ...registration,
+      dog: { ...registration.dog, dam: { name: 'Emä' }, dob: '2024-03-01', sire: { name: sire } },
+    })
+    const litterEntries = [ofLitter(registrations[0]), ofLitter(registrations[1]), ofLitter(registrations[2], 'Toinen')]
+
+    it('makes the teams litter teams once the secretary says so', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const { user } = await renderPage()
+      await flushPromises()
+
+      await user.click(screen.getByRole('checkbox', { name: 'teams.litters' }))
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+
+      expectSaved({ teamCompetition: { litters: true } })
+    })
+
+    it('suggests a litter as a team named after its breeder', async () => {
+      const { user } = await renderPage({ ...eventWithStations, teamCompetition: { litters: true } }, litterEntries)
+      await flushPromises()
+
+      await user.click(screen.getByRole('button', { name: 'teams.takeSuggestion name' }))
+      await flushPromises()
+
+      const [team] = teamSections()
+      expect(within(team).getByRole('textbox', { name: 'teams.name' })).toHaveValue('Breeder Name')
+      expect(members(team)).toEqual(['1A Ensimmainen', '1B Toinen'])
+    })
+
+    it('marks a dog of another litter in a litter team', async () => {
+      await renderPage(
+        {
+          ...eventWithStations,
+          teamCompetition: { litters: true },
+          teams: [{ registrationIds: ['run-1', 'run-2', 'reserve-1'] }],
+        },
+        litterEntries
+      )
+      await flushPromises()
+
+      expect(members(teamSections()[0])).toEqual([
+        '1A Ensimmainen',
+        '1B Toinen',
+        '1C Varalla' + 'teams.memberReserve' + 'teams.otherLitter',
+      ])
+    })
+
+    it('marks no litter where the teams are not litter teams', async () => {
+      await renderPage({ ...eventWithStations, teams: [{ registrationIds: ['run-1', 'reserve-1'] }] }, litterEntries)
+      await flushPromises()
+
+      expect(members(teamSections()[0])).toEqual(['1A Ensimmainen', '1B Varalla' + 'teams.memberReserve'])
+    })
+  })
+
   // KOE-1721: the question at entry, the teams suggested from the names given, and the first-team mark.
   describe('teams named at entry', () => {
     const expectSaved = (fields: object) =>
