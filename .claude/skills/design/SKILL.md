@@ -38,6 +38,9 @@ folders, the causes found, the open PRs' files, and ask for, in this order:
   fails without it, its size in changed lines (estimate), what it needs from earlier pieces (the
   contract: type, field, signature, rule), and per issue whether it **advances** or **completes**
   it.
+- **Open questions:** every choice the implementer would otherwise have to ask the user while
+  building: a stored shape or field, a name or label the user sees, a limit or default, a
+  behaviour the issues leave open. For each, the piece, the options and a recommendation.
 
 Cut the pieces by these rules:
 
@@ -74,9 +77,11 @@ Write into the plan document, in place:
   reused), area, what it builds, issues it advances, issues it completes, branch (empty), PR
   (empty), waits on (pieces and PRs), status (`suunniteltu`). `/build` reads and writes this table; nothing else does.
 
-Then one `AskUserQuestion` round: approve the design per area (or what to change), and any
-decision the design needs from the user (a stored shape choice, a behaviour the issues leave
-open). Record the answers in the document before reporting.
+Then one `AskUserQuestion` round: approve the design per area (or what to change), and every
+open question the `Plan` agents listed. A question `/build` meets later stops only its piece but
+waits for the user (`/build` step 5), so a product choice left for the build costs hours. Record
+the answers in the design sections before reporting; a question still open goes under **Avoimet
+päätökset** with its piece at `odottaa päätöstä`.
 
 ## 5. Report
 
