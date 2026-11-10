@@ -1,5 +1,5 @@
 import type { Processor } from 'unified'
-import type { Node } from 'unist-builder/lib'
+import type { Node } from 'unist'
 import { toPlainText } from './toPlainText'
 
 function compiler(node: Node, file: { extname: string }) {

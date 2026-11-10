@@ -1,6 +1,6 @@
 import type { Element, Text } from 'hast'
 import type { Text as MdastText, Paragraph, Parents, Table } from 'mdast'
-import type { State } from 'mdast-util-to-hast/lib/state'
+import type { State } from 'mdast-util-to-hast'
 import { all, one, tableHandler, wrap } from './table'
 
 // The handlers return broad hast content unions; these narrow safely for assertions and fail the

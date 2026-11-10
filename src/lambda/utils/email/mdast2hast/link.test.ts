@@ -1,5 +1,5 @@
 import type { Link } from 'mdast'
-import type { State } from 'mdast-util-to-hast/lib/state'
+import type { State } from 'mdast-util-to-hast'
 import { vi } from 'vitest'
 import { linkHandler } from './link'
 

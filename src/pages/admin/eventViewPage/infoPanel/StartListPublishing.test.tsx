@@ -1,4 +1,4 @@
-import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
+import type { UserEvent } from '@testing-library/user-event'
 import type { ConfirmedEvent, Registration } from '@/types'
 import { screen, waitFor, within } from '@testing-library/react'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
