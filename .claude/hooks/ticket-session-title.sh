@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # UserPromptSubmit: "/ticket KOE-1490" names the session "KOE-1490 <summary>". The summary
 # comes from Jira with the credentials in .env; without them, or when Jira does not answer in
-# time, the session is named by the key alone. "/release-plan 2.3.0", "/design 2.3.0 <area>" and
-# "/build 2.3.0" name it by the version and the phase: "2.3.0 julkaisusuunnitelma". Any other
-# prompt passes through untouched.
+# time, the session is named by the key alone. "/release-plan 2.3.0", "/design 2.3.0 <area>",
+# "/build 2.3.0" and "/improve 2.3.0" name it by the version and the phase: "2.3.0
+# julkaisusuunnitelma". Any other prompt passes through untouched.
 set -u
 
 input=$(cat)
@@ -11,13 +11,14 @@ prompt=$(jq -r '.prompt // ""' <<<"$input")
 line=$(head -n 1 <<<"$prompt")
 current=$(jq -r '.session_title // ""' <<<"$input")
 
-phase=$(sed -nE 's/^[[:space:]]*\/(release-plan|design|build)[[:space:]]+([0-9][^[:space:]]*).*/\1 \2/p' <<<"$line")
+phase=$(sed -nE 's/^[[:space:]]*\/(release-plan|design|build|improve)[[:space:]]+([0-9][^[:space:]]*).*/\1 \2/p' <<<"$line")
 if [ -n "$phase" ]; then
   read -r skill version <<<"$phase"
   case $skill in
     release-plan) title="$version julkaisusuunnitelma" ;;
     design) title="$version suunnittelu" ;;
     build) title="$version toteutus" ;;
+    improve) title="$version retro" ;;
   esac
   [ "$current" = "$title" ] && exit 0
   jq -n --arg title "$title" '{hookSpecificOutput: {hookEventName: "UserPromptSubmit", sessionTitle: $title}}'

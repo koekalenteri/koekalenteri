@@ -165,4 +165,6 @@ Mark each finding `confirmed` (you traced both the fault and the path to it, or 
 `plausible` (one of them is unverified; say which and what would settle it).
 
 Return: the angle, the findings most severe first (file:line, the path that reaches it, scenario,
-suggested fix), the notes, and what you looked at.
+suggested fix), the notes, and what you looked at. The report's last line is the tally, in
+exactly this form, also when every count is 0: `Findings: <n> confirmed, <n> plausible, <n> notes`.
+`/improve` counts findings per angle and round from that line (`.claude/skills/improve/retro.mjs`).
