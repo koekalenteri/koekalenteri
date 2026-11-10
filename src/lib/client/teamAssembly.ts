@@ -150,3 +150,36 @@ export const teamSuggestions = (
     .sort(byName)
   return [...named, ...litters]
 }
+
+/** What a dog to add to a team is found by (KOE-1725): its name, its number, its handler, its start number. */
+export interface TeamSearchEntry {
+  dogName?: string
+  regNo?: string
+  handler?: string
+  /** The published start number (`startGroup.number`), the one the dog wears; none before publishing. */
+  startNumber?: number
+}
+
+/** Whether the text typed is part of a dog's name, registration number or handler's name, in any case. */
+const matchesText = (entry: TeamSearchEntry, text: string) =>
+  [entry.dogName, entry.regNo, entry.handler].some((value) => value?.toLocaleLowerCase('fi').includes(text))
+
+/**
+ * The dogs the secretary finds with what they typed (KOE-1725), at the trial office, on a phone. A
+ * number some dog wears as its start number finds that dog alone; any other text, a number before the
+ * start numbers are published or part of a registration number among them, finds the dogs whose name,
+ * registration number or handler's name holds it, in any case. Nothing typed finds every dog.
+ */
+export const findTeamCandidates = <T>(
+  candidates: readonly T[],
+  typed: string,
+  searchOf: (candidate: T) => TeamSearchEntry
+): T[] => {
+  const text = typed.trim().toLocaleLowerCase('fi')
+  if (!text) return [...candidates]
+  if (/^\d+$/.test(text)) {
+    const numbered = candidates.filter((candidate) => searchOf(candidate).startNumber === Number(text))
+    if (numbered.length) return numbered
+  }
+  return candidates.filter((candidate) => matchesText(searchOf(candidate), text))
+}
