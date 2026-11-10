@@ -53,55 +53,85 @@ const movedClasses = (classes: readonly EventClass[], moves: ReadonlyMap<string,
  */
 const reconciled = (state: OwnClassRows, trial: TrialDays): OwnClassRows => {
   const codes = state.ownClasses.map(({ code }) => code)
-  const unique = (code: string) => !!code && codes.filter((item) => item === code).length === 1
   const rows = [...state.rows]
   let classes = [...state.classes]
 
-  // Each round puts at least one row's days in place for good; the bound only guards the loop.
+  // Each step puts at least one row's days in place for good; the bound only guards the loop.
   for (let round = 0; round <= rows.length * rows.length; round++) {
-    const wanting = rows.flatMap((row, at) => (codes[at] && row.dayCode !== codes[at] ? [at] : []))
-    if (!wanting.length) break
-    const keeper = (code: string) => rows.findIndex((row) => row.dayCode === code)
-    const free = wanting.find((at) => keeper(codes[at]) === -1)
-    if (free !== undefined) {
-      const from = rows[free].dayCode
-      if (from) classes = movedClasses(classes, new Map([[from, codes[free]]]))
-      rows[free] = { ...rows[free], dayCode: codes[free] }
-      continue
-    }
-    // Every wanting row waits on another row's days: follow the waits to a ring of wanting rows.
-    const ring = ringFrom(wanting, (at) => keeper(codes[at]))
-    if (ring) {
-      classes = movedClasses(classes, new Map(ring.map((at) => [rows[at].dayCode, codes[at]])))
-      for (const at of ring) rows[at] = { ...rows[at], dayCode: codes[at] }
-      continue
-    }
-    // A row whose code no other row shows comes before one whose code is shared, which is still being
-    // typed through: the two trade places, so neither row's days are merged or lost.
-    const first = wanting.find(
-      (at) => unique(codes[at]) && !!rows[at].dayCode && !unique(codes[keeper(codes[at])] ?? '')
-    )
-    if (first === undefined) break
-    const other = keeper(codes[first])
-    const from = rows[first].dayCode
-    classes = movedClasses(
-      classes,
-      new Map([
-        [from, codes[first]],
-        [codes[first], from],
-      ])
-    )
-    rows[first] = { ...rows[first], dayCode: codes[first] }
-    rows[other] = { ...rows[other], dayCode: from }
+    const step = nextStep(rows, codes)
+    if (!step) break
+    classes = movedClasses(classes, step.moves)
+    for (const [at, dayCode] of step.dayCodes) rows[at] = { ...rows[at], dayCode }
   }
+  return { ...state, classes: withTrialDay(classes, rows, codes, trial), rows }
+}
 
-  if (trial.startDate === trial.endDate) {
-    rows.forEach((row, at) => {
-      if (unique(codes[at]) && row.dayCode === codes[at] && !daysOf(classes, codes[at]))
-        classes = [...classes, { class: codes[at], date: trial.startDate }]
-    })
+/** Whether a code is one row's alone. */
+const uniqueIn = (codes: readonly string[], code: string) =>
+  !!code && codes.filter((item) => item === code).length === 1
+
+/** One step of putting the rows' days in place: the codes the days move between, and the rows' new day codes. */
+interface Step {
+  moves: Map<string, string>
+  dayCodes: Map<number, string>
+}
+
+/**
+ * The next step towards every row's days under the code it shows (`reconciled`), or none once no step is
+ * left: a row whose code is free takes its days there; else a ring of rows waiting on each other moves at
+ * once; else a row whose code no other row shows trades places with the row whose shared code holds it up.
+ */
+const nextStep = (rows: readonly Row[], codes: readonly string[]): Step | undefined => {
+  const wanting = rows.flatMap((row, at) => (codes[at] && row.dayCode !== codes[at] ? [at] : []))
+  if (!wanting.length) return undefined
+  const keeper = (code: string) => rows.findIndex((row) => row.dayCode === code)
+
+  const free = wanting.find((at) => keeper(codes[at]) === -1)
+  if (free !== undefined) {
+    const from = rows[free].dayCode
+    return { dayCodes: new Map([[free, codes[free]]]), moves: new Map(from ? [[from, codes[free]]] : []) }
   }
-  return { ...state, classes, rows }
+  // Every wanting row waits on another row's days: follow the waits to a ring of wanting rows.
+  const ring = ringFrom(wanting, (at) => keeper(codes[at]))
+  if (ring) {
+    return {
+      dayCodes: new Map(ring.map((at) => [at, codes[at]])),
+      moves: new Map(ring.map((at) => [rows[at].dayCode, codes[at]])),
+    }
+  }
+  // A row whose code no other row shows comes before one whose code is shared, which is still being
+  // typed through: the two trade places, so neither row's days are merged or lost.
+  const first = wanting.find(
+    (at) => uniqueIn(codes, codes[at]) && !!rows[at].dayCode && !uniqueIn(codes, codes[keeper(codes[at])] ?? '')
+  )
+  if (first === undefined) return undefined
+  const from = rows[first].dayCode
+  return {
+    dayCodes: new Map([
+      [first, codes[first]],
+      [keeper(codes[first]), from],
+    ]),
+    moves: new Map([
+      [from, codes[first]],
+      [codes[first], from],
+    ]),
+  }
+}
+
+/** On a trial of one day, the trial's day for each row in place whose code is its alone and has none. */
+const withTrialDay = (
+  classes: EventClass[],
+  rows: readonly Row[],
+  codes: readonly string[],
+  trial: TrialDays
+): EventClass[] => {
+  if (trial.startDate !== trial.endDate) return classes
+  const added = rows.flatMap((row, at) =>
+    uniqueIn(codes, codes[at]) && row.dayCode === codes[at] && !daysOf(classes, codes[at])
+      ? [{ class: codes[at], date: trial.startDate }]
+      : []
+  )
+  return [...classes, ...added]
 }
 
 /** A ring of rows each waiting on the next, starting from any of `wanting`; none where a wait ends. */
