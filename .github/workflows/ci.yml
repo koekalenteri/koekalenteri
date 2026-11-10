@@ -693,7 +693,7 @@ jobs:
       frontend_after_backend: ${{ needs.setup.outputs.stack != 'false' }}
       # deploy-backend ships build-backend's bundles: this run's, or on a push the merge queue has
       # already tested, the merge_group run's (build-backend is skipped here then).
-      backend_artifact: backend-build
+      use_backend_build: true
       backend_run_id: ${{ needs.setup.outputs.tested == 'true' && needs.setup.outputs.tested_run_id || '' }}
     secrets: inherit
 

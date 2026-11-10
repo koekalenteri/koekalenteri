@@ -25,13 +25,13 @@ on:
         required: false
         default: true
         type: boolean
-      backend_artifact:
-        description: Artifact of the calling run that holds dist/ from build-backend; empty builds it here
+      use_backend_build:
+        description: Deploy the backend-build artifact of ci.yml's build-backend instead of building here
         required: false
-        default: ''
-        type: string
+        default: false
+        type: boolean
       backend_run_id:
-        description: Run that uploaded backend_artifact, when it is not the calling run
+        description: Run that uploaded backend-build, when it is not the calling run
         required: false
         default: ''
         type: string
@@ -129,7 +129,7 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-          cache: ${{ !inputs.backend_artifact && 'npm' || '' }}
+          cache: npm
           cache-dependency-path: package-lock.json
       # ci.yml's build-backend job has built dist for its e2e shards already: dev deploys those
       # bundles, from the calling run or, on a push the merge queue tested, from that merge_group run
@@ -138,25 +138,25 @@ jobs:
       # dist/lambda/<Function> (no package.json, nothing to install), so the deploy needs no
       # node_modules either way.
       - name: Download the backend build
-        if: ${{ inputs.backend_artifact }}
+        if: ${{ inputs.use_backend_build }}
         uses: actions/download-artifact@v8
         with:
-          name: ${{ inputs.backend_artifact }}
+          name: backend-build
           path: dist
           run-id: ${{ inputs.backend_run_id }}
           github-token: ${{ inputs.backend_run_id && github.token || '' }}
       - name: Cache node_modules
-        if: ${{ !inputs.backend_artifact }}
+        if: ${{ !inputs.use_backend_build }}
         id: cache
         uses: actions/cache@v6
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - name: Install packages
-        if: ${{ !inputs.backend_artifact && steps.cache.outputs.cache-hit != 'true' }}
+        if: ${{ !inputs.use_backend_build && steps.cache.outputs.cache-hit != 'true' }}
         run: npm ci
       - name: Build
-        if: ${{ !inputs.backend_artifact }}
+        if: ${{ !inputs.use_backend_build }}
         run: npm run build-backend
       - uses: aws-actions/setup-sam@v3
         with:
