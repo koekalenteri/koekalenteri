@@ -1,6 +1,7 @@
 import type { TFunction } from 'i18next'
 import type {
   ClassKey,
+  DayKey,
   EventClass,
   EventExercise,
   EventRotationGroup,
@@ -11,7 +12,8 @@ import type {
 import type { ClassLabelOwner, ClassOrderOwner } from './event'
 import type { ExerciseScoringOwner } from './exerciseScoring'
 import type { SortableRegistration } from './registration'
-import { classLabel, classOrder, formatTypeOf } from './event'
+import { daysBetween, isDayKey } from './day'
+import { classLabel, classOrder, formatTypeOf, shiftStations } from './event'
 import { registrationOrder } from './eventClass'
 import { stationDogsAtOnce } from './liveFormat'
 import { getRegistrationGroupDay, getRegistrationPlacement } from './registration'
@@ -442,6 +444,75 @@ export const pruneRotationClasses = (event: RotationEvent): EventRotationGroup[]
   if (event.classes?.length) return rotations.filter((group) => runsGroupClass(event, group))
   const classlessKeys = new Set([formatTypeOf(event), event.eventType])
   return rotations.filter((group) => classlessKeys.has(group.class))
+}
+
+/** What the posts follow of an event (KOE-1741): its days, its posts and their groups. */
+export interface PostDaysEvent {
+  startDate: DayKey
+  endDate: DayKey
+  stations?: readonly EventStation[]
+  rotations?: readonly EventRotationGroup[]
+}
+
+/** The posts and groups of an event once they have followed its days, and the stored posts whose day changed. */
+interface PostsFollowingDays {
+  stations: EventStation[]
+  rotations: EventRotationGroup[]
+  /** The ids of the stored posts the save keeps on another day than stored, or takes away by their day. */
+  changed: string[]
+}
+
+/**
+ * Whether a day is one of the trial's. A post whose day is no day key, or a trial whose days are none (a
+ * stored row the day migration could not read, KOE-1547), has no day to judge it by, so the post is never
+ * taken away for it.
+ */
+const onTrialDays = ({ startDate, endDate }: Pick<PostDaysEvent, 'startDate' | 'endDate'>, day: string): boolean =>
+  ![day, startDate, endDate].every(isDayKey) || (startDate <= day && day <= endDate)
+
+/**
+ * The posts and groups follow the trial's days (KOE-1741), as the event form moves the classes
+ * (`updateClassDates`): a post still on the day stored for it moves as many days as the start did, a post
+ * the save placed itself keeps the day it was given, and a post on a day the trial does not have is taken
+ * away, with its exercises in the groups. A post the stored days had already left behind is taken away
+ * by them before anything moves, never moved into view. A group left without exercises is taken away too;
+ * one that had none stays. A group has no day of its own, so it moves with its posts.
+ */
+export const postsFollowingDays = (
+  before: Pick<PostDaysEvent, 'startDate' | 'endDate' | 'stations'> | undefined,
+  after: PostDaysEvent
+): PostsFollowingDays => {
+  const shift =
+    before && isDayKey(before.startDate) && isDayKey(after.startDate)
+      ? daysBetween(before.startDate, after.startDate)
+      : 0
+  const storedDays = new Map(before?.stations?.map((station) => [station.id, station.date]))
+  const given = after.stations ?? []
+  const shifted = shiftStations(given, shift)
+  const carriesStoredDay = (station: EventStation) => storedDays.get(station.id) === station.date
+  const moved = given.map((station, index) => (carriesStoredDay(station) ? shifted[index] : station))
+  const stranded = (station: EventStation) =>
+    !!before && carriesStoredDay(station) && !onTrialDays(before, station.date)
+  const kept = given.map((station, index) => !stranded(station) && onTrialDays(after, moved[index].date))
+  const stations = moved.filter((_station, index) => kept[index])
+
+  // Only the posts taken away here take their exercises along: a group still naming a post the save
+  // removed itself is the rotation check's to refuse.
+  const gone = new Set(given.filter((_station, index) => !kept[index]).map((station) => station.id))
+  const rotations = (after.rotations ?? []).flatMap((group) => {
+    const exercises = groupExercises(group)
+    const left = exercises.filter((exercise) => !gone.has(exercise.stationId))
+    if (left.length === exercises.length) return [group]
+    return left.length ? [{ ...group, exercises: left }] : []
+  })
+  const changed = given
+    .filter(
+      (station, index) =>
+        storedDays.has(station.id) && (!kept[index] || moved[index].date !== storedDays.get(station.id))
+    )
+    .map((station) => station.id)
+
+  return { changed, rotations, stations }
 }
 
 const exerciseErrors = (event: RotationEvent, group: EventRotationGroup, index: number): RotationShapeError[] => {

@@ -512,6 +512,7 @@
     },
     "station": "Suorituspaikka",
     "stationAdd": "Lisää suorituspaikka",
+    "stationDaysLocked": "Suorituspaikalla on jo ajettu vuoroja, joten sen päivä pysyy kokeessa. Kokeen päiviä voi muuttaa niin, että päivä säilyy.",
     "stationDogsAtOnce": "Koiria kerralla",
     "stationJudges": "Tuomarit",
     "stationParts": "Tehtäviä",

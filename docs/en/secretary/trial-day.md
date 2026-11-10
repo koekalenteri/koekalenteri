@@ -14,7 +14,7 @@ covers:
   - src/pages/admin/eventViewPage/infoPanel/ResultsPublishing.tsx
   - src/pages/admin/components/KcIdLookupButton.tsx
   - src/pages/admin/components/StartDaySelector.tsx
-sourceHash: bc8e61
+sourceHash: 13fb48
 ---
 
 On the trial day the secretary's job is to record what the dogs did and to get the results in
@@ -71,6 +71,12 @@ defaults for its exercises. Tasks 2 splits an exercise into two equal parts, of 
 *{t:event.stationDogsAtOnce}* says how many dogs go into one turn. A post saved earlier in two parts is read as one exercise in two
 parts, so its results stay as they were. A post that is not needed is removed with
 **{t:event.stationRemove}**, and the rest are renumbered.
+
+The posts and groups follow the trial's days. When the trial's first day is moved, the posts and
+their groups move as many days. When a day drops out of the trial, its posts and groups are removed.
+A post that has already run turns keeps its day: the trial's days cannot be changed so that it would
+move or go. If the change would take away points already recorded for dogs, Koekalenteri asks
+first.
 
 **{t:event.rotation.title}.** Below the day's posts you say in which order and at which posts each
 group does its exercises. Without groups every class does one exercise at each of the day's posts in

@@ -8,6 +8,7 @@ import {
   formatRotationGroup,
   formatStationArrivals,
   nextRotationGroup,
+  postsFollowingDays,
   pruneRotationClasses,
   rotationCoverageErrors,
   rotationDogOf,
@@ -519,6 +520,106 @@ describe('rotationShapeErrors', () => {
         stations: [...stations, post(1, 1, OTHER_DAY)],
       })
     ).toEqual([])
+  })
+})
+
+// KOE-1741: the posts and their groups follow the trial's days, as the event form moves the classes.
+describe('postsFollowingDays', () => {
+  const first = post(1)
+  const second = post(1, 1, OTHER_DAY)
+  const firstGroup: EventRotationGroup = { class: 'ALO', exercises: [{ stationId: first.id }] }
+  const secondGroup: EventRotationGroup = { class: 'ALO', exercises: [{ stationId: second.id }] }
+  const stored = { endDate: OTHER_DAY, rotations: [firstGroup, secondGroup], startDate: DAY, stations: [first, second] }
+
+  it('moves the posts on their stored days as many days as the start moved, the groups with them', () => {
+    expect(postsFollowingDays(stored, { ...stored, endDate: '2026-09-20', startDate: '2026-09-19' })).toEqual({
+      changed: [first.id, second.id],
+      rotations: [firstGroup, secondGroup],
+      stations: [
+        { ...first, date: '2026-09-19' },
+        { ...second, date: '2026-09-20' },
+      ],
+    })
+  })
+
+  // A post the save placed itself counts as changed against its stored day: a post that has run a turn
+  // keeps its day whoever moves it.
+  it('keeps the day a save gives a post itself, and a post new to the event', () => {
+    const placed = { ...first, date: OTHER_DAY }
+    const added = { ...post(2), date: OTHER_DAY }
+
+    expect(
+      postsFollowingDays(stored, { ...stored, endDate: '2026-09-14', startDate: OTHER_DAY, stations: [placed, added] })
+    ).toMatchObject({ changed: [first.id], stations: [placed, added] })
+  })
+
+  // A post an earlier save left after the last day is taken away by the stored days, not moved into view
+  // by a longer trial starting later.
+  it('takes away a post the stored days had left behind before moving anything', () => {
+    const before = { ...stored, endDate: DAY }
+
+    expect(postsFollowingDays(before, { ...stored, endDate: '2026-09-16', startDate: '2026-09-14' })).toEqual({
+      changed: [first.id, second.id],
+      rotations: [firstGroup],
+      stations: [{ ...first, date: '2026-09-14' }],
+    })
+  })
+
+  // A stored row the day migration could not read (KOE-1547) holds no day key: no day to move it by or
+  // to judge it by, so it stays as it is.
+  it('keeps a post whose day is no day key where it is', () => {
+    const unread: EventStation = { ...post(2), date: '2026-19-39' }
+    const before = { ...stored, stations: [first, unread] }
+
+    expect(postsFollowingDays(before, { ...before, endDate: '2026-09-20', startDate: '2026-09-19' })).toMatchObject({
+      changed: [first.id],
+      stations: [{ ...first, date: '2026-09-19' }, unread],
+    })
+  })
+
+  it('moves nothing when the stored start is no day key', () => {
+    const before: EventStation[] = [first]
+
+    expect(
+      postsFollowingDays(
+        { endDate: OTHER_DAY, startDate: '2026-19-39', stations: before },
+        { ...stored, stations: before }
+      ).stations
+    ).toEqual([first])
+  })
+
+  // The start stays where it was stored: nothing moves, the row is only off its days.
+  it.each([
+    ['after the last day', { endDate: DAY }, DAY, [first], [firstGroup], [second.id]],
+    ['before the first day', { startDate: OTHER_DAY }, OTHER_DAY, [second], [secondGroup], [first.id]],
+  ])('takes away a post %s with its group', (_case, change, storedStart, stations, rotations, changed) => {
+    expect(postsFollowingDays({ ...stored, startDate: storedStart }, { ...stored, ...change })).toEqual({
+      changed,
+      rotations,
+      stations,
+    })
+  })
+
+  it("takes away only a group's exercises at the posts taken away, and keeps a group that had none", () => {
+    const both: EventRotationGroup = { class: 'AVO', exercises: [{ stationId: first.id }, { stationId: second.id }] }
+    const none: EventRotationGroup = { class: 'VOI' }
+
+    expect(postsFollowingDays(stored, { ...stored, endDate: DAY, rotations: [both, none] }).rotations).toEqual([
+      { class: 'AVO', exercises: [{ stationId: first.id }] },
+      none,
+    ])
+  })
+
+  it('leaves a group naming a post the save removed itself for the rotation check', () => {
+    expect(postsFollowingDays(stored, { ...stored, stations: [first] }).rotations).toEqual([firstGroup, secondGroup])
+  })
+
+  it('moves nothing for a new event', () => {
+    expect(postsFollowingDays(undefined, stored)).toEqual({
+      changed: [],
+      rotations: stored.rotations,
+      stations: stored.stations,
+    })
   })
 })
 

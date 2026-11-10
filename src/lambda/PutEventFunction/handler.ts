@@ -26,7 +26,7 @@ import { hasPaymentLockingRegistrations, paymentTermsDiffer } from '../../lib/pa
 import { getStartListBlocker, isStartListFlagPublished } from '../../lib/publishing'
 import { groupParticipantsByClass } from '../../lib/registration'
 import { isOfficialFormatLocked } from '../../lib/results'
-import { pruneRotationClasses, rotationShapeErrors } from '../../lib/rotation'
+import { postsFollowingDays, pruneRotationClasses, rotationShapeErrors } from '../../lib/rotation'
 import { eventBodySchema } from '../../lib/schema/event'
 import { legacyEventDay, rekeyEventDays, requestDay } from '../../lib/storedDays'
 import { pruneTeamDays, teamCompetitionDiffers, teamCompetitionErrors, teamErrors, teamsDiffer } from '../../lib/team'
@@ -232,6 +232,29 @@ const pruneGroupsOfClassesGone = (data: JsonConfirmedEvent, item: Patch<JsonConf
   if (!Object.hasOwn(item, 'classes') || !data.rotations?.length) return
   const kept = pruneRotationClasses(data)
   if (kept.length !== data.rotations.length) data.rotations = kept
+}
+
+/** The fields of a save the posts' days rest on (KOE-1741): the trial's days and the posts themselves. */
+const POST_DAYS_GROUND = ['startDate', 'endDate', 'stations'] as const
+
+/**
+ * The posts and their groups follow the trial's days (KOE-1741, `postsFollowingDays`), on the merged event
+ * and before the rotation is checked: a change of the days is saved, not refused, and the posts of a day
+ * the trial no longer has go with their groups, also those an earlier save left there. A post that has run
+ * a turn keeps its day: the live timeline names it, so a save that would move or take it away is refused.
+ */
+const settlePostsToDays = (
+  data: JsonConfirmedEvent,
+  item: Patch<JsonConfirmedEvent>,
+  existing: JsonConfirmedEvent | undefined
+) => {
+  if (!data.stations?.length || !POST_DAYS_GROUND.some((field) => Object.hasOwn(item, field))) return
+  const { changed, rotations, stations } = postsFollowingDays(existing, data)
+  if (existing?.turns?.some((turn) => changed.includes(turn.stationId))) {
+    throw httpError(409, { error: 'stationDaysLocked', message: 'A post has run a turn; it keeps its day' })
+  }
+  data.stations = stations
+  if (data.rotations) data.rotations = rotations
 }
 
 /**
@@ -648,6 +671,8 @@ const putEventLambda = lambda('putEvent', async (event) => {
   // The index key for the club's own list; a copy, because an index cannot key on a map's field (KOE-1341).
   data.organizerId = data.organizer?.id
   pruneGroupsOfClassesGone(data, item)
+  // After the days of `existing` are keys (rekeyEventDays above): the posts are compared and moved as days.
+  settlePostsToDays(data, item, existing)
   checkMergedEvent(data, item, !!existing)
   pruneDaysOutOfTrial(data, item)
   settleExerciseScoring(data, item, existing)

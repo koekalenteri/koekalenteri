@@ -73,6 +73,12 @@ kahteen osaan tallennettu paikka luetaan yhtenä rastina kahdessa osassa, joten 
 säilyvät ennallaan. Tarpeeton suorituspaikka poistetaan painikkeella
 **{t:event.stationRemove}**, ja loput numeroituvat uudelleen.
 
+Suorituspaikat ja ryhmät seuraavat kokeen päiviä. Kun kokeen alkamispäivää siirretään, suorituspaikat
+ja niiden ryhmät siirtyvät yhtä monta päivää. Kun päivä jää kokeesta pois, sen suorituspaikat ja
+ryhmät poistuvat. Suorituspaikka, jolla on jo ajettu vuoroja, pysyy päivällään: kokeen päiviä ei voi
+muuttaa niin, että se siirtyisi tai poistuisi. Jos muutos poistaisi koirilta jo kirjattuja pisteitä,
+Koekalenteri kysyy ensin.
+
 **{t:event.rotation.title}.** Päivän suorituspaikkojen alla kerrotaan, missä järjestyksessä ja missä
 paikoissa kukin ryhmä tekee rastinsa. Ilman ryhmiä jokainen luokka tekee yhden rastin kullakin päivän
 suorituspaikalla numerojärjestyksessä, kuten ennenkin. Painike **{t:event.rotation.add}** lisää

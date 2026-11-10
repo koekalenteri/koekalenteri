@@ -103,6 +103,7 @@ import {
   placesForClass,
   registrationDatesOutsideClass,
   sanitizeDogEvent,
+  shiftStations,
   shiftTeamDays,
   startNumbersSlotKey,
   storedDayKey,
@@ -1200,6 +1201,17 @@ describe('lib/event', () => {
       })
       const plain = { litters: true }
       expect(shiftTeamDays(plain, 371)).toBe(plain)
+    })
+  })
+
+  describe('shiftStations (KOE-1741)', () => {
+    it('moves each post by the days, and leaves a post without a day key where it is', () => {
+      const legacy = { date: 'not a day', id: 'post-2', number: 1 }
+
+      expect(shiftStations([{ date: '2026-08-31', id: 'post-1', number: 1 }, legacy], 2)).toEqual([
+        { date: '2026-09-02', id: 'post-1', number: 1 },
+        legacy,
+      ])
     })
   })
 

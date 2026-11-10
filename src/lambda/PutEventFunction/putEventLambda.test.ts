@@ -461,7 +461,7 @@ describe('putEventLambda', () => {
       getEventMock.mockResolvedValueOnce({
         ...mockEvent,
         eventType: 'NOWT',
-        stations: [{ date: '2026-09-12', id: 'post-1', number: 1 }],
+        stations: [{ date: '2025-06-01', id: 'post-1', number: 1 }],
       })
 
       const res = await putEventLambda(
@@ -484,8 +484,8 @@ describe('putEventLambda', () => {
 
     describe('rotation groups against the merged event (KOE-1665)', () => {
       const posts: EventStation[] = [
-        { date: '2026-09-12', id: 'post-1', number: 1 },
-        { date: '2026-09-12', id: 'post-2', number: 2 },
+        { date: '2025-06-01', id: 'post-1', number: 1 },
+        { date: '2025-06-01', id: 'post-2', number: 2 },
       ]
       const rotations: EventRotationGroup[] = [
         { class: 'ALO', exercises: [{ stationId: 'post-1' }, { stationId: 'post-2' }] },
@@ -516,7 +516,7 @@ describe('putEventLambda', () => {
           constructAPIGwEvent({
             ...mockEvent,
             // A whole event carries its classes, and a save of the classes keeps only the groups of the classes it runs.
-            classes: [{ class: 'ALO', date: '2026-09-12' }],
+            classes: [{ class: 'ALO', date: '2025-06-01' }],
             eventType: 'NOWT',
             rotations: [{ class: 'ALO', exercises: [{ stationId: 'post-1' }], firstNumber: 9, lastNumber: 1 }],
             stations: posts,
@@ -2110,6 +2110,206 @@ describe('putEventLambda', () => {
           expect.objectContaining({ rotations: [] })
         )
       })
+    })
+  })
+
+  // KOE-1741: a change of the trial's days takes its posts and their groups along, never refusing.
+  describe('the posts and groups when the days change (KOE-1741)', () => {
+    const first: EventStation = { date: '2025-06-01', id: 'post-1', number: 1 }
+    const second: EventStation = { date: '2025-06-02', id: 'post-2', number: 1 }
+    const firstDay: EventRotationGroup = { class: 'ALO', exercises: [{ stationId: 'post-1' }] }
+    const secondDay: EventRotationGroup = { class: 'ALO', exercises: [{ stationId: 'post-2' }] }
+    const nowt: JsonDogEvent = {
+      ...mockEvent,
+      classes: [
+        { class: 'ALO', date: '2025-06-01' },
+        { class: 'ALO', date: '2025-06-02' },
+      ],
+      eventType: 'NOWT',
+      rotations: [firstDay, secondDay],
+      stations: [first, second],
+    }
+    const patch = async (stored: JsonDogEvent, body: Record<string, unknown>) => {
+      signIn(mockSecretary)
+      getEventMock.mockResolvedValueOnce(stored)
+      return putEventLambda(constructAPIGwEvent({ id: 'existing', ...body }, { method: 'PATCH' }))
+    }
+    const expectSaved = (fields: Partial<JsonDogEvent>) =>
+      expect(patchEventMock).toHaveBeenCalledWith('existing', expect.anything(), expect.objectContaining(fields))
+
+    beforeEach(() => mockReadEventRegistrations.mockResolvedValue([]))
+
+    // The event form sends what it changed: the days and the classes it moved with the start.
+    it.each<[string, Partial<JsonDogEvent>, EventStation[], EventRotationGroup[]]>([
+      [
+        'a start moved with the same length',
+        {
+          classes: [
+            { class: 'ALO', date: '2025-06-08' },
+            { class: 'ALO', date: '2025-06-09' },
+          ],
+          endDate: '2025-06-09',
+          startDate: '2025-06-08',
+        },
+        [
+          { ...first, date: '2025-06-08' },
+          { ...second, date: '2025-06-09' },
+        ],
+        [firstDay, secondDay],
+      ],
+      [
+        'a day added at the start',
+        {
+          classes: [
+            { class: 'ALO', date: '2025-05-31' },
+            { class: 'ALO', date: '2025-06-01' },
+          ],
+          endDate: '2025-06-02',
+          startDate: '2025-05-31',
+        },
+        [
+          { ...first, date: '2025-05-31' },
+          { ...second, date: '2025-06-01' },
+        ],
+        [firstDay, secondDay],
+      ],
+      ['a day added at the end', { endDate: '2025-06-03' }, [first, second], [firstDay, secondDay]],
+      [
+        'the last day taken away',
+        { classes: [{ class: 'ALO', date: '2025-06-01' }], endDate: '2025-06-01' },
+        [first],
+        [firstDay],
+      ],
+      [
+        'a start moved past the first day',
+        {
+          classes: [{ class: 'ALO', date: '2025-06-02' }],
+          endDate: '2025-06-02',
+          startDate: '2025-06-02',
+        },
+        [{ ...first, date: '2025-06-02' }],
+        [firstDay],
+      ],
+    ])('moves the posts and their groups along with %s', async (_name, body, stations, rotations) => {
+      const res = await patch(nowt, body)
+
+      expect(res.statusCode).toEqual(200)
+      expectSaved({ rotations, stations })
+    })
+
+    it('moves the posts of a whole-event save that carries them back as stored', async () => {
+      const res = await patch(nowt, {
+        ...nowt,
+        classes: [
+          { class: 'ALO', date: '2025-06-08' },
+          { class: 'ALO', date: '2025-06-09' },
+        ],
+        endDate: '2025-06-09',
+        startDate: '2025-06-08',
+      })
+
+      expect(res.statusCode).toEqual(200)
+      expectSaved({
+        rotations: [firstDay, secondDay],
+        stations: [
+          { ...first, date: '2025-06-08' },
+          { ...second, date: '2025-06-09' },
+        ],
+      })
+    })
+
+    it('keeps the day a save gives a post itself', async () => {
+      const res = await patch(nowt, {
+        endDate: '2025-06-09',
+        startDate: '2025-06-08',
+        stations: [
+          { ...first, date: '2025-06-09' },
+          { ...second, date: '2025-06-08' },
+        ],
+      })
+
+      expect(res.statusCode).toEqual(200)
+      expectSaved({
+        stations: [
+          { ...first, date: '2025-06-09' },
+          { ...second, date: '2025-06-08' },
+        ],
+      })
+    })
+
+    // A row an earlier save left with posts on a day the trial no longer has.
+    it('drops the posts and groups already off the days on the next save of the days', async () => {
+      const stored: JsonDogEvent = { ...nowt, endDate: '2025-06-01' }
+
+      const res = await patch(stored, { endDate: '2025-06-01', startDate: '2025-06-01' })
+
+      expect(res.statusCode).toEqual(200)
+      expectSaved({ rotations: [firstDay], stations: [first] })
+    })
+
+    it('leaves the posts alone on a save that carries neither the days nor the posts', async () => {
+      const stored: JsonDogEvent = { ...nowt, endDate: '2025-06-01' }
+
+      const res = await patch(stored, { name: 'Uusi nimi' })
+
+      expect(res.statusCode).toEqual(200)
+      expectSaved({ rotations: [firstDay, secondDay], stations: [first, second] })
+    })
+
+    // The live timeline names its posts by id: a post that has run a turn keeps its day.
+    /** A turn run at a post: the live timeline names the post by its id. */
+    const turnAt = (stationId: string) => ({
+      dogs: [],
+      id: `turn-${stationId}`,
+      registrationIds: [],
+      startedAt: '2025-06-01T08:00:00.000Z',
+      stationId,
+    })
+
+    it.each([
+      ['drop', 'post-2', { classes: [nowt.classes[0]], endDate: '2025-06-01' }],
+      [
+        'move',
+        'post-1',
+        {
+          classes: [
+            { class: 'ALO', date: '2025-06-08' },
+            { class: 'ALO', date: '2025-06-09' },
+          ],
+          endDate: '2025-06-09',
+          startDate: '2025-06-08',
+        },
+      ],
+    ])('refuses a change of the days that would %s a post that has run a turn', async (_verb, stationId, body) => {
+      const res = await patch({ ...nowt, turns: [turnAt(stationId)] }, body)
+
+      expect(res.statusCode).toEqual(409)
+      expect(JSON.parse(res.body)).toMatchObject({ error: 'stationDaysLocked' })
+      expect(patchEventMock).not.toHaveBeenCalled()
+    })
+
+    // The lock is the run post's alone: the day that has run stays, the other goes.
+    it('saves a change of the days that leaves every post that has run a turn on its day', async () => {
+      const res = await patch(
+        { ...nowt, turns: [turnAt('post-1')] },
+        { classes: [nowt.classes[0]], endDate: '2025-06-01' }
+      )
+
+      expect(res.statusCode).toEqual(200)
+      expectSaved({ rotations: [firstDay], stations: [first] })
+    })
+
+    // A copy is saved as a new event: its posts are on its days, moved there by the copy and the form.
+    it('keeps the posts and groups of a new event on its days', async () => {
+      signIn(mockSecretary)
+      const { id: _id, ...copy } = { ...nowt, name: 'Kopio' }
+
+      const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>(copy))
+
+      expect(res.statusCode).toEqual(200)
+      expect(saveEventMock).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'new-id', rotations: [firstDay, secondDay], stations: [first, second] })
+      )
     })
   })
 

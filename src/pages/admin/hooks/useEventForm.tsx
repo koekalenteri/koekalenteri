@@ -44,6 +44,7 @@ type RefusalKey =
   | 'event.officialFormatLocked'
   | 'event.paymentLocked'
   | 'event.resultsLocked'
+  | 'event.stationDaysLocked'
 
 /** The 409s the server names, by the error it names them with. */
 const CONFLICT_NOTICES: Partial<Record<string, RefusalKey>> = {
@@ -54,6 +55,7 @@ const CONFLICT_NOTICES: Partial<Record<string, RefusalKey>> = {
   officialFormatLocked: 'event.officialFormatLocked',
   paymentLocked: 'event.paymentLocked',
   staleData: 'event.staleData',
+  stationDaysLocked: 'event.stationDaysLocked',
 }
 
 /**

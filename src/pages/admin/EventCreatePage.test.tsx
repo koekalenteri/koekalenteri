@@ -1,4 +1,4 @@
-import type { DayKey } from '@/types'
+import type { DayKey, DogEvent } from '@/types'
 import type { Language } from '../../i18n'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
@@ -11,6 +11,8 @@ import { MemoryRouter } from 'react-router'
 import { TestProvider as Provider } from 'test-utils/AtomProvider'
 import { eventWithEntryNotYetOpen } from '@/__mockData__/events'
 import { putEvent } from '@/api/event'
+import { addDays } from '@/lib/day'
+import { copyDogEvent } from '@/lib/event'
 import { idTokenAtom } from '@/pages/state'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
@@ -141,6 +143,70 @@ describe('EventEditPage', () => {
 
     expect(putEvent).toHaveBeenCalledWith(
       expect.objectContaining({ name: 'Syyskoe' }),
+      expect.anything(),
+      undefined,
+      undefined
+    )
+  })
+
+  // KOE-1741: a copy is saved as a new event, which has no stored posts for the save to move, so a start
+  // changed on the form moves the copy's posts as it moves the classes. The save then keeps them all.
+  it('saves the posts and groups of a copy on the start chosen on the form', async () => {
+    const source: DogEvent = {
+      ...eventWithEntryNotYetOpen,
+      rotations: [{ class: 'AVO', exercises: [{ stationId: 'post-1' }] }],
+      stations: [
+        { date: eventWithEntryNotYetOpen.startDate, id: 'post-1', number: 1 },
+        { date: eventWithEntryNotYetOpen.endDate, id: 'post-2', number: 1 },
+      ],
+    }
+    const copy = copyDogEvent(source)
+    const start = addDays(copy.startDate, 7)
+    const { user } = await renderSuspendedWithUserEvents(
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+          <Provider
+            initializeState={({ set }) => {
+              set(idTokenAtom, TEST_ID_TOKEN)
+              set(adminNewEventAtom, copy)
+            }}
+          >
+            <MemoryRouter>
+              <Suspense fallback={<div>loading...</div>}>
+                <AppSnackbarProvider>
+                  <EventCreatePage />
+                </AppSnackbarProvider>
+              </Suspense>
+            </MemoryRouter>
+          </Provider>
+        </LocalizationProvider>
+      </ThemeProvider>,
+      undefined,
+      { advanceTimers: vi.advanceTimersByTime }
+    )
+    await flushPromises()
+
+    // The picker field is a group of per-section spinbuttons, so the day is pasted into the first one.
+    const startDay = screen
+      .getByRole('group', { name: 'event.startDate' })
+      .querySelector<HTMLElement>('[role="spinbutton"]')
+    if (!startDay) throw new Error('Start date day section not found')
+    await user.click(startDay)
+    await user.keyboard('{Control>}a{/Control}')
+    await user.paste(start.split('-').reverse().join('.'))
+    await flushPromises()
+    await user.click(screen.getByRole('button', { name: 'save' }))
+    await flushPromises()
+
+    expect(putEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        rotations: source.rotations,
+        startDate: start,
+        stations: [
+          { date: start, id: 'post-1', number: 1 },
+          { date: addDays(start, 1), id: 'post-2', number: 1 },
+        ],
+      }),
       expect.anything(),
       undefined,
       undefined
