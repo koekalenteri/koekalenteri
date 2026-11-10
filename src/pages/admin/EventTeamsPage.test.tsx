@@ -388,6 +388,56 @@ describe('EventTeamsPage', () => {
       expect(putRegistrationGroups).toHaveBeenCalledTimes(2)
     })
 
+    // The draw for the places left (KOE-1722): first teams first, as many as the places hold.
+    describe('the draw', () => {
+      const four = [
+        onReserve('a1', 'Aatu', 'ALO'),
+        onReserve('a2', 'Aino', 'ALO'),
+        onReserve('b1', 'Bella', 'ALO'),
+        onReserve('b2', 'Bruno', 'ALO'),
+      ]
+      // Two places left in ALO: one team of two fits.
+      const drawEvent = {
+        ...eventWithStations,
+        classes: eventWithStations.classes.map((c) => (c.class === 'ALO' ? { ...c, places: 2 } : c)),
+        teams: [{ registrationIds: ['a1', 'a2'] }, { primary: true as const, registrationIds: ['b1', 'b2'] }],
+      }
+
+      it('draws a first team first, asks before moving it, and moves it to the participants', async () => {
+        vi.mocked(putRegistrationGroups).mockResolvedValueOnce(moved(four))
+        const { user } = await renderPage(drawEvent, four)
+        await flushPromises()
+
+        await user.click(screen.getByRole('button', { name: 'teams.draw' }))
+        await flushPromises()
+
+        const dialog = screen.getByRole('dialog')
+        expect(dialog).toHaveTextContent('teams.team number')
+        expect(dialog).toHaveTextContent('Bella, Bruno')
+        expect(dialog).not.toHaveTextContent('Aatu')
+        expect(putRegistrationGroups).not.toHaveBeenCalled()
+
+        await user.click(within(dialog).getByRole('button', { name: 'teams.drawConfirm' }))
+        await flushPromises()
+        expect(putRegistrationGroups).toHaveBeenCalledTimes(1)
+        expect(putRegistrationGroups).toHaveBeenCalledWith(
+          eventWithStations.id,
+          [expect.objectContaining({ id: 'b1' }), expect.objectContaining({ id: 'b2' })],
+          TEST_ID_TOKEN
+        )
+      })
+
+      it('offers no draw while the teams have changes to save', async () => {
+        const { user } = await renderPage(drawEvent, four)
+        await flushPromises()
+
+        await user.type(within(teamSections()[0]).getByRole('textbox', { name: 'teams.name' }), 'Uusi')
+        await flushPromises()
+
+        expect(screen.getByRole('button', { name: 'teams.draw' })).toBeDisabled()
+      })
+    })
+
     it('waits for the teams to be saved before a team moves', async () => {
       const { user } = await renderPage(teamEvent, teamEntries)
       await flushPromises()
