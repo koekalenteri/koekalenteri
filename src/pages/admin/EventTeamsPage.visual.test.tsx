@@ -143,9 +143,9 @@ const crowdRegistrations: Registration[] = Array.from({ length: MAX_TEAM_MEMBERS
   entry(`crowd-${at}`, `Joukkokoira ${at + 1}`, 'Maila Mallinen', { teamEntry: { name: 'Iso Joukkue' } })
 )
 
-const renderPage = (shown: ConfirmedEvent = event, entries: Registration[] = registrations) =>
+const renderPage = (shown: ConfirmedEvent = event, entries: Registration[] = registrations, width = 900) =>
   render(
-    <div data-testid="visual-root" style={{ background: '#fff', width: 900 }}>
+    <div data-testid="visual-root" style={{ background: '#fff', width }}>
       <ThemeProvider theme={theme}>
         <TestProvider
           initializeState={({ set }) => {
@@ -241,6 +241,22 @@ it('says a suggestion holds more dogs than a team (KOE-1721)', async () => {
 
   await expect.element(screen.getByText(/^Ehdotuksessa on enemmän koiria/)).toBeVisible()
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-suggestion-too-many')
+})
+
+// KOE-1725: the teams are put together at the trial office on a phone, so the page fits one.
+const PHONE = { height: 1400, width: 390 }
+
+it('fits a phone, nothing reaching past the screen (KOE-1725)', async () => {
+  await page.viewport(PHONE.width, PHONE.height)
+  const screen = await renderPage(seriesEvent, standingsRegistrations, PHONE.width)
+
+  await expect.element(screen.getByRole('heading', { name: 'Joukkue 1' })).toBeVisible()
+  const root = screen.getByTestId('visual-root').element()
+  const overflowing = [...root.querySelectorAll('*')].filter(
+    (element) => element.getBoundingClientRect().right > PHONE.width + 0.5
+  )
+  expect(overflowing.map((element) => element.className || element.tagName).slice(0, 5)).toEqual([])
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('teams-phone')
 })
 
 describeInLanguage('en', () => {

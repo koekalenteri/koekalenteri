@@ -180,6 +180,34 @@ describe('EventTeamsPage', () => {
     expect(within(team).getAllByRole('button', { name: 'teams.moveDown code' })[1]).toBeDisabled()
   })
 
+  // KOE-1725: at the trial office, on a phone, a dog is found by its handler or its start number too.
+  describe('finding a dog to add', () => {
+    const numbered = registrations.map(
+      (registration, at): Registration => ({
+        ...registration,
+        startGroup: registration.group ? { ...registration.group, number: 11 + at } : undefined,
+      })
+    )
+    const typeToFind = async (user: User, text: string) => {
+      await user.type(within(teamSections()[0]).getByRole('combobox', { name: 'teams.addDog' }), text)
+      return screen.queryAllByRole('option').map((option) => option.textContent)
+    }
+
+    it('finds a dog by its handler', async () => {
+      const { user } = await renderPage({ ...eventWithStations, teams: [{ registrationIds: [] }] }, numbered)
+      await flushPromises()
+
+      expect(await typeToFind(user, 'toinen ohjaaja')).toEqual(['12 Toinen, teams.handler name'])
+    })
+
+    it('finds a dog by its start number', async () => {
+      const { user } = await renderPage({ ...eventWithStations, teams: [{ registrationIds: [] }] }, numbered)
+      await flushPromises()
+
+      expect(await typeToFind(user, '11')).toEqual(['11 Ensimmainen, teams.handler name'])
+    })
+  })
+
   it('takes no more dogs into a team of 26, and says why', async () => {
     const full = Array.from({ length: 26 }, (_, index) => `dog-${index}`)
     await renderPage({ ...eventWithStations, teams: [{ registrationIds: full }, { registrationIds: [] }] })
