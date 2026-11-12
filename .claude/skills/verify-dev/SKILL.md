@@ -31,6 +31,17 @@ only those. The release decision stays with the user.
   `scripts/playwright-mcp.mjs` was in its checkout, or without the keys in `.env`. Stop the run
   and tell the user to start a new session from the main checkout with main pulled (and to fill in
   `.env` if the server's log says the keys are missing); never work around it by reading `.env`.
+- **Network requests** are read only by the part a check needs, never whole and never their
+  headers, because the headers carry the signed-in account's id token (`Authorization`, its
+  payload holding the account's email), which no secret covers. `browser_network_requests` lists
+  each request as its method, address and status, which is enough for a status such as a 403.
+  `browser_network_request` is called with `part: "request-body"` or `part: "response-body"`:
+  without `part` it returns both the request's and the response's headers with the details, and
+  `request-headers` and `response-headers` return the headers alone. A check reads only the
+  requests to the dev site and its API, never the body of a sign-in or token request to Cognito
+  or STS, because those bodies carry the tokens and what was typed. If a token or another
+  secret lands in a tool's output anyway, it goes into no reply, Jira comment, screenshot, file or
+  report text, and the run summary says that it happened.
 - **Signing in and the admin side.** The pages that check for admin access are `/admin` and
   everything under it (`/admin/event/startlist/<id>` and `/admin/event/startlist-preview/<id>`
   among them) and `/stats` (`src/routeConfig.ts`, `src/pages/components/AdminAccessGuard.tsx`).
@@ -218,6 +229,8 @@ To the user, one list each, with links:
   **skipped** (the reason).
 - Every role change the setup check made, per account. "No changes" when there were none.
 - The deploy tested against, and its e2e state when it was not success.
+- A token or another secret that landed in a tool's output, with the tool and the step, never
+  the value. Nothing when none did.
 
 Before the summary, `git status --short` shows nothing new. A file the browser wrote outside
 `.playwright-mcp/` (a screenshot saved without the folder in its name) is moved under
