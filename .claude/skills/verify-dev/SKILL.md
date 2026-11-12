@@ -37,7 +37,9 @@ only those. The release decision stays with the user.
   each request as its method, address and status, which is enough for a status such as a 403.
   `browser_network_request` is called with `part: "request-body"` or `part: "response-body"`:
   without `part` it returns both the request's and the response's headers with the details, and
-  `request-headers` and `response-headers` return the headers alone. If a token or another
+  `request-headers` and `response-headers` return the headers alone. A check reads only the
+  requests to the dev site and its API, never the body of a sign-in or token request to Cognito
+  or STS, because those bodies carry the tokens and what was typed. If a token or another
   secret lands in a tool's output anyway, it goes into no reply, Jira comment, screenshot, file or
   report text, and the run summary says that it happened.
 - **Signing in and the admin side.** The pages that check for admin access are `/admin` and
