@@ -16,7 +16,8 @@ data, the Jira moves and comments, and the run summary you report back.
 
 - The browser is the `playwright` MCP server and Jira comments go through the Atlassian MCP tool.
   Load their tools with `ToolSearch` before the first use.
-- Never touch production or AWS, never read the test accounts' credentials, and keep every email
-  address out of replies, comments and screenshots, as the skill says.
+- Never touch production or AWS, never read the test accounts' credentials or a network
+  request's headers, and keep every email address out of replies, comments and screenshots, as
+  the skill says.
 - You change no files in the repository. The only files the run leaves are the browser's own
   under `.playwright-mcp/`, which is git-ignored.

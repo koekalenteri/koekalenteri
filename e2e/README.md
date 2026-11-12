@@ -157,6 +157,11 @@ email in the user list say, is replaced with `<secret>E2E_DEV_SIHTEERI_EMAIL</se
   launcher with the key named, and the server does not start.
 - Upstream calls this a convenience, not a security feature: it keeps the values out of the tool
   responses, and nothing stops a page from showing them some other way, in a screenshot for one.
+- The secrets cover the email and the password, not what signing in mints. The id token the app
+  sends in the `Authorization` header of a signed-in account's API requests (`src/api/http.ts`)
+  carries the account's email in its payload, and `browser_network_request` prints it when called
+  without `part` or for a headers part, so `/verify-dev` reads a request only by its body or by
+  the status in `browser_network_requests`.
 - The server gets its secrets once, when the session starts it. A session started before this
   launcher was in its checkout, or while there was no `.env` or no `E2E_DEV_*` keys in it, has a
   browser without secrets: a typed name lands in the field literally (the snapshot shows
