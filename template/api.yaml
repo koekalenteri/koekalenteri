@@ -17,10 +17,111 @@
           LoggingLevel: INFO
           ThrottlingRateLimit: 5
           ThrottlingBurstLimit: 20
-        # The unauthenticated endpoints below carry no API key, so the usage plan's quota never
-        # covers them; without their own buckets they fall back to the account-wide default — the
-        # same exposure the /user incident above was about. The start list is the page spectators
-        # keep open on an event day, so its bucket is the widest.
+        # Every route below needs no sign-in, and each has a bucket of its own: without one a route
+        # falls back to the account-wide default, the same exposure the /user incident above was
+        # about (KOE-1620; src/lambda/template.test.ts fails on a public route without a bucket).
+        # Unless a comment says otherwise, the numbers are estimates from how the pages use the
+        # route, not measurements. Each bucket is shared by all callers of the method.
+        #
+        # The public event list and an event's page take the entry-opening peak: everyone who
+        # waits for a popular trial's entry loads both, and reloads them, within the same minute.
+        # Some hundreds of people in that minute is a few requests a second, so these sit well
+        # above it.
+        - ResourcePath: '/event'
+          HttpMethod: 'GET'
+          DataTraceEnabled: false
+          LoggingLevel: INFO
+          ThrottlingRateLimit: 25
+          ThrottlingBurstLimit: 100
+        - ResourcePath: '/event/{id}'
+          HttpMethod: 'GET'
+          DataTraceEnabled: false
+          LoggingLevel: INFO
+          ThrottlingRateLimit: 25
+          ThrottlingBurstLimit: 100
+        # The entry itself at the same peak (estimate): one dog lookup, one entry and one payment
+        # per dog, a handful a second at most. A refresh of the dog reaches Kennelliitto at most
+        # once a minute per dog (GetDogFunction).
+        - ResourcePath: '/dog/{regNo}'
+          HttpMethod: 'GET'
+          DataTraceEnabled: false
+          LoggingLevel: INFO
+          ThrottlingRateLimit: 10
+          ThrottlingBurstLimit: 40
+        - ResourcePath: '/registration'
+          HttpMethod: 'POST'
+          DataTraceEnabled: false
+          LoggingLevel: INFO
+          ThrottlingRateLimit: 10
+          ThrottlingBurstLimit: 40
+        - ResourcePath: '/registration'
+          HttpMethod: 'PATCH'
+          DataTraceEnabled: false
+          LoggingLevel: INFO
+          ThrottlingRateLimit: 10
+          ThrottlingBurstLimit: 40
+        - ResourcePath: '/registration/{eventId}/{id}'
+          HttpMethod: 'GET'
+          DataTraceEnabled: false
+          LoggingLevel: INFO
+          ThrottlingRateLimit: 10
+          ThrottlingBurstLimit: 40
+        - ResourcePath: '/payment/create'
+          HttpMethod: 'POST'
+          DataTraceEnabled: false
+          LoggingLevel: INFO
+          ThrottlingRateLimit: 10
+          ThrottlingBurstLimit: 40
+        - ResourcePath: '/payment/verify'
+          HttpMethod: 'POST'
+          DataTraceEnabled: false
+          LoggingLevel: INFO
+          ThrottlingRateLimit: 10
+          ThrottlingBurstLimit: 40
+        # Paytrail's server callbacks, and the pages its redirect lands on (paytrail.ts
+        # createPaymentCallbackUrls, createRefundCallbackUrls). A payment or refund confirmation
+        # must never be the request that is throttled, so these are the widest: twice the event
+        # list's, well above any entry-opening peak (estimate).
+        - ResourcePath: '/payment/success'
+          HttpMethod: 'GET'
+          DataTraceEnabled: false
+          LoggingLevel: INFO
+          ThrottlingRateLimit: 50
+          ThrottlingBurstLimit: 200
+        - ResourcePath: '/payment/cancel'
+          HttpMethod: 'GET'
+          DataTraceEnabled: false
+          LoggingLevel: INFO
+          ThrottlingRateLimit: 50
+          ThrottlingBurstLimit: 200
+        - ResourcePath: '/refund/success'
+          HttpMethod: 'GET'
+          DataTraceEnabled: false
+          LoggingLevel: INFO
+          ThrottlingRateLimit: 50
+          ThrottlingBurstLimit: 200
+        - ResourcePath: '/refund/cancel'
+          HttpMethod: 'GET'
+          DataTraceEnabled: false
+          LoggingLevel: INFO
+          ThrottlingRateLimit: 50
+          ThrottlingBurstLimit: 200
+        # An event's attachment (the invitation) and the public statistics are opened now and then,
+        # from the event page or a mail (estimate).
+        - ResourcePath: '/file/{key}/{name}'
+          HttpMethod: 'GET'
+          DataTraceEnabled: false
+          LoggingLevel: INFO
+          ThrottlingRateLimit: 10
+          ThrottlingBurstLimit: 40
+        - ResourcePath: '/stats'
+          HttpMethod: 'GET'
+          DataTraceEnabled: false
+          LoggingLevel: INFO
+          ThrottlingRateLimit: 5
+          ThrottlingBurstLimit: 20
+        # The start list is the page spectators keep open on an event day, so its bucket is the
+        # widest of the event-day routes (estimate).
         - ResourcePath: '/startlist/{eventId}'
           HttpMethod: 'GET'
           DataTraceEnabled: false
@@ -71,7 +172,7 @@
       Cors:
         AllowOrigin: "'*'"
         AllowMethods: "'OPTIONS,HEAD,GET,PUT,POST,PATCH,DELETE'"
-        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Client-Version,X-Registration-Token'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Amz-Security-Token,X-Client-Version,X-Registration-Token'"
         # Without this the browser preflights every five seconds; one storm episode added
         # 2351 preflight round trips on its own.
         MaxAge: "'3600'"

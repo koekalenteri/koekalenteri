@@ -36,18 +36,6 @@ Globals:
         WS_CONNECTIONS_TABLE_NAME: !Ref WsConnectionsTable
         COGNITO_USER_POOL_ID: !Ref KoekalenteriUserPool
         COGNITO_APP_CLIENT_ID: !Ref KoekalenteriUserPoolTokenClient
-  Api:
-    Auth:
-      UsagePlan:
-        UsagePlanName: DailyUsagePlan
-        CreateUsagePlan: PER_API
-        Description: This will limit 5000 executions per day and throttle executions on 10% of that.
-        Quota:
-          Limit: 5000
-          Period: DAY
-        Throttle:
-          BurstLimit: 100
-          RateLimit: 50
 
 Parameters:
   StageNameParam:

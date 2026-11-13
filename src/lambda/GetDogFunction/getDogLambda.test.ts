@@ -326,6 +326,55 @@ describe('getDogHandler', () => {
     )
   })
 
+  // `?refresh` needs no sign-in, and each one used to cost a Kennelliitto call (KOE-1620).
+  describe('a forced refresh', () => {
+    const klDog: KLKoira = {
+      id: 123,
+      id_Alkuperä: 1,
+      id_Rotu: 1,
+      id_Sukupuoli: 1,
+      id_Tila: 1,
+      kokonimi: 'koera',
+      nimi: 'koera',
+      rekisterinumero: 'FI12345/24',
+      rotukoodi: '122',
+      rotunimi: 'labradorinnoutaja',
+      sukupuoli: 'female',
+      syntymäaika: '2010-01-01T00:00:00',
+      tittelit: '',
+      tunnistusmerkintä: 'FIN12345',
+      väri: 'musta',
+    }
+    const refreshDog = () =>
+      getDogHandler(
+        constructAPIGwEvent('test', { pathParameters: { regNo: 'FI12345~24' }, query: { refresh: 'true' } })
+      )
+
+    it('is ignored within a minute of the last one', async () => {
+      const cachedDog = { refreshDate: '2024-06-20T09:59:30.000Z', regNo: 'FI12345/24' }
+      mockReadDog.mockResolvedValueOnce(cachedDog)
+
+      const res = await refreshDog()
+
+      expect(mockKLAPI.lueKoiranPerustiedot).not.toHaveBeenCalled()
+      expect(mockWriteDog).not.toHaveBeenCalled()
+      expect(res.statusCode).toBe(200)
+      expect(JSON.parse(res.body)).toEqual(cachedDog)
+    })
+
+    it('reads Kennelliitto again once a minute has passed', async () => {
+      mockReadDog.mockResolvedValueOnce({ refreshDate: '2024-06-20T09:58:00.000Z', regNo: 'FI12345/24' })
+      mockKLAPI.lueKoiranPerustiedot.mockResolvedValueOnce({ json: klDog, status: 200 })
+      mockKLAPI.lueKoiranKoetulokset.mockResolvedValueOnce({ json: [], status: 200 })
+
+      const res = await refreshDog()
+
+      expect(res.statusCode).toBe(200)
+      expect(mockKLAPI.lueKoiranPerustiedot).toHaveBeenCalledTimes(1)
+      expect(mockWriteDog).toHaveBeenCalledWith(expect.objectContaining({ refreshDate: '2024-06-20T10:00:00.000Z' }))
+    })
+  })
+
   it('filters cached results in the endpoint response using active event types', async () => {
     const result: Omit<JsonTestResult, 'type'> = {
       class: 'ALO',
