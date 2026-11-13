@@ -1,71 +1,10 @@
-import type { EmailTemplateContent, JsonEmailTemplate, Language } from '../../types'
-import {
-  CreateTemplateCommand,
-  InvalidTemplateException,
-  SESClient,
-  TemplateDoesNotExistException,
-  UpdateTemplateCommand,
-} from '@aws-sdk/client-ses'
-import { explainTemplateRejection, findEmailTemplateError } from '../../lib/emailTemplate'
-import { stageTitle } from '../../lib/env'
-import { CONFIG } from '../config'
+import type { JsonEmailTemplate } from '../../types'
 import { authorizeAdmin, getUsername } from '../lib/auth'
+import { putSesTemplates } from '../lib/emailTemplate'
 import { parseJSONWithFallback } from '../lib/json'
-import { httpError, lambda, response } from '../lib/lambda'
-import { logger } from '../lib/log'
+import { lambda, response } from '../lib/lambda'
 import { readEmailTemplate, writeEmailTemplate } from '../lib/repositories/emailTemplateRepository'
 import { publishAdminDataInvalidation } from '../lib/ws/actions'
-import { markdownToTemplate } from '../utils/email/markdown'
-
-const ses = new SESClient()
-
-/**
- * SES refusing the template's content is the author's to fix, so it goes back as a 400 that names
- * the language. SES itself only says "Handlebars compilation failed for input Template Content";
- * compiling the parts here usually has a better word for it (KOE-1434). Anything else is ours and
- * is thrown on as it came.
- */
-const rejection = (language: Language, template: EmailTemplateContent, e: unknown, message: string): unknown => {
-  if (e instanceof InvalidTemplateException) {
-    const explanation = explainTemplateRejection(template) ?? e.message
-    logger.info('email template rejected by SES', { explanation, language, template: template.TemplateName })
-    return httpError(400, { language, message: explanation })
-  }
-  logger.error(message, { error: e, template: template.TemplateName })
-  return e
-}
-
-const updateOrCreateTemplate = async (language: Language, template: EmailTemplateContent) => {
-  try {
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    const command = new UpdateTemplateCommand({ Template: template })
-    await ses.send(command)
-    logger.info('email template updated', { template: template.TemplateName })
-  } catch (e) {
-    if (!(e instanceof TemplateDoesNotExistException)) {
-      throw rejection(language, template, e, 'failed to update email template')
-    }
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      const command = new CreateTemplateCommand({ Template: template })
-      await ses.send(command)
-      logger.info('email template created', { template: template.TemplateName })
-    } catch (createError) {
-      throw rejection(language, template, createError, 'failed to create email template')
-    }
-  }
-}
-
-/**
- * The stack's own SES template from the markdown source. Outside prod the subject names the stage,
- * "(dev) Ilmoittautumisen vahvistus", so a tester's mailbox tells a dev mail from a prod mail the
- * way a tab title does (KOE-1671). A template saved before this keeps its subject until it is saved
- * again: SES renders the stored template, and sending cannot change the subject.
- */
-const sesTemplate = async (id: string, language: Language, source: string): Promise<EmailTemplateContent> => {
-  const template = await markdownToTemplate(`${id}-${CONFIG.stackName}-${language}`, source)
-  return { ...template, SubjectPart: stageTitle(template.SubjectPart ?? '', CONFIG.stageName) }
-}
 
 const putEmailTemplateLambda = lambda('putEmailTemplate', async (event) => {
   await authorizeAdmin(event)
@@ -76,27 +15,16 @@ const putEmailTemplateLambda = lambda('putEmailTemplate', async (event) => {
   const item: JsonEmailTemplate = parseJSONWithFallback(event.body)
   const existing = await readEmailTemplate(item.id)
 
-  // modification info is always updated
+  // modification info is always updated, creation info only on the row's first save
   item.modifiedAt = timestamp
   item.modifiedBy = username
 
-  const data: JsonEmailTemplate = { ...existing, ...item }
+  const data: JsonEmailTemplate = existing
+    ? { ...existing, ...item }
+    : { ...item, createdAt: timestamp, createdBy: username }
 
-  // Both sources are checked before either reaches SES, so a broken English template never leaves
-  // the Finnish one updated there and the table untouched.
-  const syntaxError = findEmailTemplateError(data)
-  if (syntaxError) throw httpError(400, syntaxError)
-
-  // Generate SES compatible template for all languages
-  data.ses = {
-    en: await sesTemplate(item.id, 'en', data.en),
-    fi: await sesTemplate(item.id, 'fi', data.fi),
-  }
-
-  if (data.ses) {
-    await updateOrCreateTemplate('fi', data.ses.fi)
-    await updateOrCreateTemplate('en', data.ses.en)
-  }
+  // Generate SES compatible template for all languages, after both sources are checked
+  data.ses = await putSesTemplates(data)
 
   await writeEmailTemplate(data)
   await publishAdminDataInvalidation(['emailTemplates'])

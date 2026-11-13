@@ -279,6 +279,20 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - `scripts/migrate.sh` and `aws/README.md` cover a different job — copying whole tables between
   stacks — not changing data in place.
 
+## Email Template Defaults
+
+- A new email template id comes with its content: `<id>.fi.ts` and `<id>.en.ts` in
+  `src/lambda/lib/emailTemplateDefaults/`, each exporting the markdown as a template literal, imported
+  into `EMAIL_TEMPLATE_DEFAULTS` in `defaults.ts`. `defaults.test.ts` fails on an id outside its list
+  of the twelve legacy ids that lacks either language, on a default the templates page would refuse,
+  and on a legacy id that has a default but is still listed (KOE-1363).
+- The deploy puts them in place: the `Seed email templates` step of `deploy-backend` in `release.yml`
+  runs right after `sam deploy` and invokes `SeedEmailTemplatesFunction` directly. For each default
+  whose id has no row it creates the SES templates and then writes the row on condition that none
+  exists; a row that exists is never touched, so a changed default reaches no environment that
+  already has the template. A default that could not be put in place fails the job before the
+  frontend is published, and the next deploy tries it again. The folder's README has the details.
+
 ## Top-Level Domain List
 
 - `src/lib/domains/topLevelDomains.ts` is IANA's list, written by `npm run update-tlds`

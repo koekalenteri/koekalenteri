@@ -21,7 +21,9 @@ vi.doMock('../../utils/CustomDynamoClient', () => ({
   },
 }))
 
-const { readEmailTemplate, readEmailTemplates, writeEmailTemplate } = await import('./emailTemplateRepository')
+const { readEmailTemplate, readEmailTemplates, writeEmailTemplate, writeNewEmailTemplate } = await import(
+  './emailTemplateRepository'
+)
 
 const template: JsonEmailTemplate = {
   createdAt: '2026-10-01T10:00:00.000Z',
@@ -76,5 +78,31 @@ describe('emailTemplateRepository', () => {
     mockWrite.mockRejectedValueOnce(new Error('write failed'))
 
     await expect(writeEmailTemplate(template)).rejects.toThrow('write failed')
+  })
+
+  describe('writeNewEmailTemplate', () => {
+    it('stores the template only where the table holds no row for its id', async () => {
+      mockWrite.mockResolvedValueOnce(undefined)
+
+      await expect(writeNewEmailTemplate(template)).resolves.toBe(true)
+      expect(mockWrite).toHaveBeenCalledWith(template, {
+        expression: 'attribute_not_exists(#id)',
+        names: { '#id': 'id' },
+      })
+    })
+
+    it('answers false when a row was already there', async () => {
+      mockWrite.mockRejectedValueOnce(
+        Object.assign(new Error('The conditional request failed'), { name: 'ConditionalCheckFailedException' })
+      )
+
+      await expect(writeNewEmailTemplate(template)).resolves.toBe(false)
+    })
+
+    it('passes any other failure on to the caller', async () => {
+      mockWrite.mockRejectedValueOnce(new Error('write failed'))
+
+      await expect(writeNewEmailTemplate(template)).rejects.toThrow('write failed')
+    })
   })
 })
