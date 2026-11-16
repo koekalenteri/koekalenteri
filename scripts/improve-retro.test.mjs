@@ -3,6 +3,7 @@ import {
   errorKind,
   errorSignature,
   flakyJobs,
+  gh,
   hookFailure,
   isFix,
   isRevert,
@@ -226,6 +227,52 @@ describe('gh retry', () => {
     expect(retryableGh({ stderr: 'gh: Bad credentials (HTTP 401)' })).toBe(false)
     expect(retryableGh(new SyntaxError('Unexpected token < in JSON'))).toBe(false)
   })
+
+  // An exec that answers with the given outcomes in turn: an Error is thrown, a string is stdout.
+  const scripted = (...outcomes) => {
+    const calls = []
+    const exec = async (cmd, args) => {
+      calls.push([cmd, args])
+      const outcome = outcomes[calls.length - 1]
+      if (outcome instanceof Error) throw outcome
+      return { stdout: outcome }
+    }
+    return { exec, calls }
+  }
+  const failure = (stderr) => Object.assign(new Error('Command failed: gh api x'), { stderr })
+  const waits = []
+  const wait = async (ms) => {
+    waits.push(ms)
+  }
+
+  it('returns the answer that follows a 502', async () => {
+    waits.length = 0
+    const { exec, calls } = scripted(failure('gh: Server Error (HTTP 502)'), '{"ok":true}')
+    await expect(gh(['api', 'x'], { exec, wait })).resolves.toEqual({ ok: true })
+    expect(calls).toEqual([
+      ['gh', ['api', 'x']],
+      ['gh', ['api', 'x']],
+    ])
+    expect(waits).toEqual([2000])
+  })
+
+  it('gives up after four server errors in a row', async () => {
+    waits.length = 0
+    const error = failure('gh: Server Error (HTTP 503)')
+    const { exec, calls } = scripted(error, error, error, error, '{"ok":true}')
+    await expect(gh(['api', 'x'], { exec, wait })).rejects.toBe(error)
+    expect(calls).toHaveLength(4)
+    expect(waits).toEqual([2000, 4000, 6000])
+  })
+
+  it('throws any other error at once', async () => {
+    waits.length = 0
+    const error = failure('gh: Not Found (HTTP 404)')
+    const { exec, calls } = scripted(error, '{"ok":true}')
+    await expect(gh(['api', 'x'], { exec, wait })).rejects.toBe(error)
+    expect(calls).toHaveLength(1)
+    expect(waits).toEqual([])
+  })
 })
 
 describe('hookFailure', () => {
@@ -275,6 +322,28 @@ describe('hookFailure', () => {
         '[lint]   × Biome exited because the configuration resulted in errors.'
       ),
       { hook: 'pre-commit', line: 'Biome exited because the configuration resulted in errors.' },
+    ],
+    [
+      "Biome's count, not its closing line about warnings",
+      failed('pre-commit', '[lint]   × Some warnings were emitted while running checks.', '[lint] Found 2 errors.'),
+      { hook: 'pre-commit', line: 'Found 2 errors' },
+    ],
+    [
+      'the pre-commit script refusing a changed index',
+      failed(
+        'pre-commit',
+        '[knip] npm run knip exited with code 0',
+        'precommit: the index changed while the checks ran; stage the commit again and retry'
+      ),
+      {
+        hook: 'pre-commit',
+        line: 'precommit: the index changed while the checks ran; stage the commit again and retry',
+      },
+    ],
+    [
+      'an error that stopped the hook before any check',
+      failed('pre-commit', "Error: Cannot find module 'concurrently'", 'Require stack:'),
+      { hook: 'pre-commit', line: "Error: Cannot find module 'concurrently'" },
     ],
     [
       'a knip finding',
@@ -472,21 +541,24 @@ describe('TranscriptStats', () => {
       [1, 'git -C /x log'],
       [2, 'git  -C /x\n  log'],
       [3, 'git -C /y status'],
+      [4, 'git -C /y diff'],
+      [5, 'git -C /y show'],
+      [6, 'git -C /z log'],
     ]) {
       stats.line(assistant(at(n), `m${n}`, [{ type: 'tool_use', id: `t${n}`, name: 'Bash', input: { command } }]))
       stats.line(result(at(n), `t${n}`, 'This agent is isolated in the worktree /x/.claude/worktrees/agent-a1', true))
     }
     stats.end()
 
-    // The same command in other whitespace is one example.
+    // The same command in other whitespace is one example, and the fifth distinct one is not kept.
     expect(stats.result().errorCauses).toEqual([
       {
         kind: 'sandbox',
         cause: 'This agent is isolated in the worktree <path>',
-        count: 3,
+        count: 6,
         agents: 'implementer',
-        examples: ['git -C /x log', 'git -C /y status'],
-        last: at(3),
+        examples: ['git -C /x log', 'git -C /y status', 'git -C /y diff', 'git -C /y show'],
+        last: at(6),
       },
     ])
   })

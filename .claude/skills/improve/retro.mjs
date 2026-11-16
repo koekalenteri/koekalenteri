@@ -253,10 +253,11 @@ const first = (m) => m[1]
 const exited = (m) => `${m[1]} exited with code ${m[2]}`
 
 // What a failed hook says, most telling first: a commitlint rule, a failed test, a type error, a
-// Biome rule, message or count, a knip finding, then the check that exited with a nonzero code,
-// from its own line or from the timings table that is all a `| tail` keeps.
+// Biome rule, message or count, a knip finding, the pre-commit script's own refusal, the check
+// that exited with a nonzero code (from its own line or from the timings table that is all a
+// `| tail` keeps), and last an `Error:` that stopped the hook before any check ran.
 const HOOK_CAUSES = [
-  [/^✖\s+(?!found \d+ problems)([^[]+\[[a-z-]+\])$/, first],
+  [/^✖\s+([^[]+\[[a-z-]+\])$/, first],
   [/\bFAIL\s+(\|\w+\|\s+\S+)/, (m) => `FAIL ${m[1]}`],
   [/❯ (\|\w+\| \S+) \(\d+ tests? \| \d+ failed\)/, (m) => `FAIL ${m[1]}`],
   [/\b(error TS\d+: .+)/, first],
@@ -658,14 +659,21 @@ export class TranscriptStats {
 
 const execFileAsync = promisify(execFile)
 const run = (cmd, args) => execFileSync(cmd, args, { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 })
-// One GitHub server error must not end a run that has made hundreds of calls.
-const gh = async (args, attempt = 1) => {
-  try {
-    return JSON.parse((await execFileAsync('gh', args, { maxBuffer: 256 * 1024 * 1024 })).stdout)
-  } catch (error) {
-    if (attempt > 3 || !retryableGh(error)) throw error
-    await new Promise((resolve) => setTimeout(resolve, 2000 * attempt))
-    return gh(args, attempt + 1)
+const GH_ATTEMPTS = 4
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+/**
+ * Runs `gh` and parses its JSON. One GitHub server error must not end a run that has made
+ * hundreds of calls: a 5xx is tried again up to three times, 2, 4 and 6 s apart.
+ */
+export const gh = async (args, { exec = execFileAsync, wait = sleep } = {}) => {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return JSON.parse((await exec('gh', args, { maxBuffer: 256 * 1024 * 1024 })).stdout)
+    } catch (error) {
+      if (attempt >= GH_ATTEMPTS || !retryableGh(error)) throw error
+      await wait(2000 * attempt)
+    }
   }
 }
 
