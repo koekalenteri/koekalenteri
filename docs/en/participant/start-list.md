@@ -5,7 +5,7 @@ order: 30
 covers:
   - src/pages/StartListPage.tsx
   - src/pages/startListPage/**
-sourceHash: a41d2b
+sourceHash: d93997
 ---
 
 The start list is the trial's public page, where the organizer publishes the participants, the

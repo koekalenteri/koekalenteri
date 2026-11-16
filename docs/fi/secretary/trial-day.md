@@ -198,7 +198,7 @@ palkintosija 1–3, nolla tai viiva, NOU- ja NKM-kokeessa vain hyväksytty tai h
 
 **Keskeytys.** Kentästä *{t:results.interruption}* kirjataan, jos koirakon koe päättyi kesken.
 Taulukossa kenttä näkyy rivillä pelkkänä viivana, kunnes keskeytys valitaan.
-Työkokeessa (NOWT) vaihtoehdot ja niiden tulokset sääntöjen mukaan ovat:
+Working testissä (NOWT) vaihtoehdot ja niiden tulokset sääntöjen mukaan ovat:
 
 - *{t:results.retirement.handlerChoice}*: tulos on nolla. Jos tuomarin mielestä koiralla olisi vielä
   ollut mahdollisuus palkintosijoille, ruksataan *{t:results.couldStillHavePlaced}*, jolloin tulos on
