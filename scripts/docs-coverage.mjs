@@ -9,6 +9,8 @@
  * never fails a commit.
  *
  * Usage: docs-coverage.mjs --staged | --since <ref> | <file...>
+ *   --since <ref>  the files HEAD changed since it branched from <ref> (`git diff <ref>...HEAD`),
+ *                  so a branch behind origin/main does not list what main changed meanwhile
  */
 
 import { execFileSync } from 'node:child_process'
@@ -23,7 +25,7 @@ const changedFiles = (args) => {
   if (since >= 0) {
     const ref = args[since + 1]
     if (!ref) throw new Error('--since needs a ref')
-    return git('diff', '--name-only', `${ref}..HEAD`)
+    return git('diff', '--name-only', `${ref}...HEAD`)
   }
 
   return args.filter((arg) => !arg.startsWith('--'))

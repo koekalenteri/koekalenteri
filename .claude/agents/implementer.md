@@ -37,6 +37,26 @@ commits on the same branch.
   When the work later shows a reader the plan missed, or a different approach, say so before
   changing course.
 
+## Commands in the worktree
+
+The worktree sandbox reads every Bash command that names git before it runs, and refuses one
+whose target it cannot tell from the text. Each refusal costs a turn.
+
+- The shell starts in your worktree. Run git and npm there as they are: never `git -C <path>`,
+  even with your own worktree's full path, and never `cd <dir> && git`.
+- A command that names git anywhere has only literal text: no `$(...)`, no `${...}`, no variable
+  you set (`F=...; ... $F`), and no heredoc. `git log --oneline -3 | tail -1` runs;
+  `npm run docs-coverage -- $(git diff --name-only origin/main...)` is refused. Run a step that
+  needs another's output as a call of its own and write the value in; independent calls go in one
+  message in parallel. Scripts that need the branch's files take a ref
+  (`npm run docs-coverage -- --since origin/main`).
+- Edit files with Edit and Write, not with `python3 - <<'EOF'`, `sed -i` or
+  `cat >> <file> <<'EOF'`.
+- Commit messages pass commitlint's conventional config (`commitlint.config.cjs`, run by the
+  `commit-msg` hook): a type from its list, a subject that starts in lower case, and the header
+  and every body and footer line at most 100 characters. Write the message to a file in your
+  scratchpad with Write and commit with `git commit -F <that file's full path>`.
+
 ## Doing it
 
 - Write the test that fails without the change first, and keep the evidence (the failing output)
@@ -60,7 +80,7 @@ commits on the same branch.
 - Changed UI gets a screenshot test and both baselines (`AGENTS.md`, Visual Test Convention).
   Look at every PNG you regenerate.
 - Before pushing, list each new branch you added and the test that takes it.
-- Before pushing, run `npm run docs-coverage -- $(git diff --name-only origin/main...)` and bring
+- Before pushing, run `npm run docs-coverage -- --since origin/main` and bring
   every page it names up to date with what the code now does, Finnish and English, by
   `docs/AGENTS.md`. Update the developer docs that state a convention, command, table or
   interface you added, renamed or removed. A reviewer checks both.

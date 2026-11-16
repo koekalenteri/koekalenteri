@@ -657,5 +657,6 @@ compared with `scripts/ratchet-baseline.json`.
 
 ## Sandbox Notes
 
-- `git commit` requires escalated permissions and does not work in the sandbox.
+- An agent in a worktree of its own runs behind a sandbox that refuses some git commands; how to
+  shape them is in `.claude/agents/implementer.md` ("Commands in the worktree").
 - Network access is restricted. Dependency installs and commands that fetch remote resources require approval when no matching approval is already active.
