@@ -51,10 +51,22 @@ scratch files named after the branch.
 
 Run `/ticket` steps 2–6 for it, with these differences:
 
+- **Design file:** before the implementer starts, read the area's design section once and save it
+  as markdown in the folder of the piece's first issue, `<scratchpad>/<KEY>/design-<area>.md`,
+  with the piece's row of **Palat** at the top. Read the section, not the document. The outline
+  (`{"projection":"outline"}`) gives the ids of the area's heading and of the last block before
+  the next heading of the same or a higher level; then
+  `{"kind":"search","blocks":{"first":"<heading id>","last":"<last block id>"}}` prints every
+  paragraph, heading, list item and table cell between them, paged by `next`. A `view` by the
+  heading's id reads the heading alone. The piece's row is
+  `{"kind":"view","parentId":"<row id>"}`, the row id from `{"kind":"search","text":"P<k>"}`
+  under the table. The implementer and the reviewers get the file's path with the issue folder
+  and read the design from it, not from the document with the Docs tools: a whole-document read
+  stays in an agent's context for every later turn.
 - **Plan:** the design's piece is the approved plan. The implementer confirms the readers against
   the code (`git grep` with output) and commits the failing test before reporting. Plan reviewers
   run only when it found a reader or a contract the design missed; then the design section in
-  the document is corrected too.
+  the document is corrected too, and the design file is saved again from it.
 - **Branch:** `koe-<n>-p<k>-<slug>`, where `<n>` is the first issue the piece advances or
   completes and `P<k>` the piece's id. `candidates.sh` sees the issue as held through the
   branch name, also before a PR names it.
@@ -65,8 +77,8 @@ Run `/ticket` steps 2–6 for it, with these differences:
   claim. So `jira-testable` moves an issue only when its last piece lands. Never an epic's key.
 - **Jira:** an issue moves to In Progress when its first piece starts. The comment with the PR
   link goes on with the piece that completes it, and lists the earlier pieces' PRs.
-- **Review:** the reviewers get the issue folders and the design section of the area as well as
-  the PR. `scope` judges the piece against its row in the table: what it builds and nothing more.
+- **Review:** the reviewers get the issue folders and the design file as well as the PR.
+  `scope` judges the piece against its row in the table: what it builds and nothing more.
 
 Update the piece's row when its branch, PR and status change; that is what the next session reads.
 
@@ -99,7 +111,7 @@ user can make, which `/ticket` would ask at once, parks the piece it belongs to 
   päätökset**, and send it to the area's implementer through `SendMessage`.
 - A question about the product (a stored shape, a name, a behaviour the issues leave open) is one
   `/design` should have asked. Correct the area's design section with the answer, so the next
-  release's design sees what was missed.
+  release's design sees what was missed, and save the area's design files again from it.
 
 What `/ticket` stops for regardless (a fourth feedback round, production access) waits the same
 way: parked, then asked in the round.

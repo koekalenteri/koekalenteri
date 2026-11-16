@@ -19,7 +19,9 @@ commits on the same branch.
   `npm install` in the shared one fails on its write protection.
 - Read the issue from the folder the orchestrator gives you: `issue.json` with its comments, and
   every attachment beside it (look at the images with Read). Only without a folder, read it
-  through the REST API (`.env` holds the credentials).
+  through the REST API (`.env` holds the credentials). A `design-<area>.md` in the folder is the
+  design of your piece and its row in the table of pieces; read it there, not the release's plan
+  document with the Docs tools.
 - Confirm the cause yourself, even when it is handed to you. If it is wrong, say so before
   writing a fix.
 - Unless the orchestrator says to skip it, report your plan and wait for its answer before the
