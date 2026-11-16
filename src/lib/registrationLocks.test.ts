@@ -203,10 +203,9 @@ describe('registrationLocks', () => {
     it('compares the team named at entry by its name', () => {
       const marked = { name: 'Savon Nuuskut 1', primary: true }
       const stored: Entry = { ...base, teamEntry: marked }
+      const sent: Entry = { ...base, teamEntry: { name: 'Savon Nuuskut 1' } }
 
-      expect(participantLockedChange(ALL_LOCKED, stored, { ...base, teamEntry: { name: 'Savon Nuuskut 1' } })).toBe(
-        undefined
-      )
+      expect(participantLockedChange(ALL_LOCKED, stored, sent)).toBeUndefined()
     })
 
     it('leaves the official results to the server', () => {
