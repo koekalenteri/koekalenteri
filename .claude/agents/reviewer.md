@@ -68,9 +68,8 @@ reasoning about the old code. Is every new branch taken by some test (Sonar want
 code)? Does a regenerated screenshot baseline show intended output, or did it record a bug?
 Tests follow `AGENTS.md`: no `mock.calls`, no type assertions, pure helpers run for real.
 A stored field the change adds, lets a user edit, clear or untick, or makes invalid through
-another field needs the removal test of `AGENTS.md` "A removal is tested through the save". Check
-that it reaches the handler's merge over a stored row holding the old value; a test of the client's
-patch alone, or no test, is a finding.
+another field needs the removal test of `AGENTS.md` "A removal is tested through the save"; a
+test that does not meet that rule, or none, is a finding.
 
 **clock**: Fixed dates, weekdays and years in tests or fixtures; `new Date()` without a frozen
 clock in a screenshot test; day keys compared as strings; Helsinki vs UTC around midnight; the
