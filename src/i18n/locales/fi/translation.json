@@ -467,7 +467,7 @@
       "visitAdd": "Lisää rasti",
       "visitNone": "Poista rasti",
       "warning": {
-        "exerciseCount": "{{group}}: {{count}} rastia; työkokeessa on tavallisesti 4 tai 5 rastia."
+        "exerciseCount": "{{group}}: {{count}} rastia; working testissä on tavallisesti 4 tai 5 rastia."
       },
       "warningsTitle": "Tarkista suoritusjärjestys:"
     },

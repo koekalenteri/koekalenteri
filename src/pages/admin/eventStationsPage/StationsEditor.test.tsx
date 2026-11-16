@@ -329,7 +329,7 @@ describeWithTranslations('fi', () => {
 
     await add()
     // Three exercises, one at each post, warn: a work test has four or five. The save is not refused.
-    expect(screen.getByText('ALO: 3 rastia; työkokeessa on tavallisesti 4 tai 5 rastia.')).toBeInTheDocument()
+    expect(screen.getByText('ALO: 3 rastia; working testissä on tavallisesti 4 tai 5 rastia.')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Lisää rasti' }))
     expect(screen.queryByText(/ALO: \d rastia/)).not.toBeInTheDocument()
     await add()
