@@ -7,7 +7,8 @@ covers:
   - src/pages/admin/eventTypeListPage/**
   - src/pages/admin/EmailTemplateListPage.tsx
   - src/pages/admin/emailTemplateListPage/**
-sourceHash: 124861
+  - src/lambda/lib/emailTemplateDefaults/**
+sourceHash: d85353
 ---
 
 The application administrator — SNJ's calendar contact — sees a section of their own at the foot
@@ -55,3 +56,7 @@ underlined as an error before saving, and so is a block or a brace left open. Ct
 the template into use from the next message on; a template that is not accepted leaves a notice
 above the buttons naming the language, the line and the reason, and the editor switches to that
 language's tab. **{t:cancel}** restores the saved version.
+
+A new template comes with the calendar's version already written, and is in use as soon as the
+version is deployed. An edited template stays as it was saved: a new version never replaces a
+template that already exists.

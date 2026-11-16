@@ -1,0 +1,26 @@
+  # Writes the email template defaults the table has no row for, right after every `sam deploy`
+  # (the `Seed email templates` step of .github/workflows/release.yml, KOE-1363). No API route: only
+  # the deploy invokes it, directly.
+  SeedEmailTemplatesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/SeedEmailTemplatesFunction
+      Handler: handler.default
+      # One template at a time, with a second's pause before each SES call.
+      Timeout: 120
+      Policies:
+        # The rows the table holds, and a conditional put of a missing one.
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EmailTemplatesTable
+        # A seeded row bumps the templates' data version and tells the admins watching.
+        - DynamoDBWritePolicy:
+            TableName: !Ref DataVersionTable
+        - CloudWatchPutMetricPolicy: {}
+        - !Ref WebSocketPolicy
+        - Statement:
+            - Sid: SESTemplatesPolicy
+              Effect: Allow
+              Action:
+              - ses:createTemplate
+              - ses:updateTemplate
+              Resource: '*'

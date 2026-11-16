@@ -222,6 +222,27 @@ jobs:
               ParameterKey=Branch,ParameterValue=${{ env.branch }}' \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
             --no-confirm-changeset --no-fail-on-empty-changeset
+      # Email template defaults (KOE-1363): each template that has a default in the repo
+      # (src/lambda/lib/emailTemplateDefaults) and no row in the table gets its row and its SES
+      # templates; a row that exists is never touched. First after the deploy, because the code that
+      # sends a new template is live from here on. A default that could not be put in place answers
+      # 500 and fails the job, so the frontend that offers the template is not published; no row was
+      # written for it, and the next deploy tries again. A second run is harmless (the write is
+      # conditional), so the CLI keeps its retries.
+      - name: Seed email templates
+        run: |
+          function_name=$(aws cloudformation describe-stack-resource \
+            --stack-name "${{ env.environment }}" \
+            --logical-resource-id SeedEmailTemplatesFunction \
+            --query StackResourceDetail.PhysicalResourceId --output text)
+          aws lambda invoke --function-name "$function_name" \
+            --cli-binary-format raw-in-base64-out --cli-read-timeout 120 \
+            --payload '{}' seed-result.json
+          cat seed-result.json
+          jq -r '.body | fromjson | "Seeded: \(.seeded | join(", ") | if . == "" then "none" else . end); kept: \(.kept | length)"' seed-result.json || true
+          jq -r '.body | fromjson | .failed[]? | "::error::Email template \(.id)\(if .language then " (\(.language))" else "" end) was not seeded: \(.reason)"' seed-result.json || true
+          jq -e '.statusCode == 200' seed-result.json > /dev/null \
+            || { echo "::error::Email template defaults were not seeded"; exit 1; }
       # Data migrations (KOE-1502): the function applies the ones its registry does not list yet and
       # answers with their counters. The lambda wrapper turns a failure into a non-200 answer instead of
       # a function error, so the answer is checked here; a failed run fails the job and with it the
