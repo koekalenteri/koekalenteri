@@ -3,12 +3,13 @@ import Add from '@mui/icons-material/Add'
 import ArrowDownward from '@mui/icons-material/ArrowDownward'
 import ArrowUpward from '@mui/icons-material/ArrowUpward'
 import DeleteOutline from '@mui/icons-material/DeleteOutlined'
+import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
-import { useMemo, useState } from 'react'
+import { useId, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { enteredClassCodes, ownClassErrors } from '@/lib/eventClass'
 import { LANGUAGES } from '@/types'
@@ -61,6 +62,7 @@ const changeOf = (classes: EventClass[], ownClasses: OwnClass[]): OwnClassesChan
  */
 export default function OwnClassesEditor({ event, disabled, enteredClasses, hasEntries, onChange }: Props) {
   const { t } = useTranslation()
+  const titleId = useId()
   const ownClasses = useMemo(
     () => (event.ownClasses ?? []).map(({ code, name }): OwnClass => ({ code: code ?? '', name: { ...name } })),
     [event.ownClasses]
@@ -110,86 +112,88 @@ export default function OwnClassesEditor({ event, disabled, enteredClasses, hasE
   }
 
   return (
-    <Stack spacing={1}>
-      <Typography variant="subtitle1" component="h3">
-        {t('event.ownClasses.title')}
-      </Typography>
-      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-        {t('event.ownClasses.info')}
-      </Typography>
-      {ownClasses.map((item, at) => {
-        const entered = registered.has(item.code)
-        const reasons = errorsOf(item.code)
-        return (
-          <Stack key={rows[at]?.id ?? item.code} spacing={0.5}>
-            <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start', flexWrap: 'wrap', pt: 1 }}>
-              <TextField
-                disabled={disabled || entered}
-                error={reasons.some((kind) => kind === 'badCode' || kind === 'typeName' || kind === 'codeTwice')}
-                label={t('event.ownClasses.code')}
-                onChange={(e) => setCode(at, e.target.value)}
-                size="small"
-                slotProps={{ htmlInput: { maxLength: 10 } }}
-                sx={{ width: 140 }}
-                value={item.code}
-              />
-              {LANGUAGES.map((language) => (
+    <Box component="section" aria-labelledby={titleId} sx={{ border: '1px dashed #ddd', borderRadius: 1, p: 1 }}>
+      <Stack spacing={1}>
+        <Typography id={titleId} variant="subtitle1" component="h3">
+          {t('event.ownClasses.title')}
+        </Typography>
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          {t('event.ownClasses.info')}
+        </Typography>
+        {ownClasses.map((item, at) => {
+          const entered = registered.has(item.code)
+          const reasons = errorsOf(item.code)
+          return (
+            <Stack key={rows[at]?.id ?? item.code} spacing={0.5}>
+              <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start', flexWrap: 'wrap', pt: 1 }}>
                 <TextField
-                  key={language}
-                  disabled={disabled}
-                  error={language === 'fi' && reasons.includes('unnamed')}
-                  label={t('event.ownClasses.name', { language: t(`language.${language}`) })}
-                  onChange={(e) => setName(at, language, e.target.value)}
+                  disabled={disabled || entered}
+                  error={reasons.some((kind) => kind === 'badCode' || kind === 'typeName' || kind === 'codeTwice')}
+                  label={t('event.ownClasses.code')}
+                  onChange={(e) => setCode(at, e.target.value)}
                   size="small"
-                  value={item.name[language] ?? ''}
+                  slotProps={{ htmlInput: { maxLength: 10 } }}
+                  sx={{ width: 140 }}
+                  value={item.code}
                 />
+                {LANGUAGES.map((language) => (
+                  <TextField
+                    key={language}
+                    disabled={disabled}
+                    error={language === 'fi' && reasons.includes('unnamed')}
+                    label={t('event.ownClasses.name', { language: t(`language.${language}`) })}
+                    onChange={(e) => setName(at, language, e.target.value)}
+                    size="small"
+                    value={item.name[language] ?? ''}
+                  />
+                ))}
+                <IconButton
+                  aria-label={t('event.ownClasses.moveUp', { code: item.code })}
+                  disabled={disabled || at === 0}
+                  onClick={() => swap(at, at - 1)}
+                >
+                  <ArrowUpward fontSize="small" />
+                </IconButton>
+                <IconButton
+                  aria-label={t('event.ownClasses.moveDown', { code: item.code })}
+                  disabled={disabled || at === ownClasses.length - 1}
+                  onClick={() => swap(at, at + 1)}
+                >
+                  <ArrowDownward fontSize="small" />
+                </IconButton>
+                <IconButton
+                  aria-label={t('event.ownClasses.remove', { code: item.code })}
+                  disabled={disabled || entered}
+                  onClick={() => remove(at)}
+                >
+                  <DeleteOutline fontSize="small" />
+                </IconButton>
+              </Stack>
+              {reasons.map((kind) => (
+                <Typography key={kind} variant="caption" sx={{ color: 'error.main' }}>
+                  {t(`event.ownClasses.errors.${kind}`)}
+                </Typography>
               ))}
-              <IconButton
-                aria-label={t('event.ownClasses.moveUp', { code: item.code })}
-                disabled={disabled || at === 0}
-                onClick={() => swap(at, at - 1)}
-              >
-                <ArrowUpward fontSize="small" />
-              </IconButton>
-              <IconButton
-                aria-label={t('event.ownClasses.moveDown', { code: item.code })}
-                disabled={disabled || at === ownClasses.length - 1}
-                onClick={() => swap(at, at + 1)}
-              >
-                <ArrowDownward fontSize="small" />
-              </IconButton>
-              <IconButton
-                aria-label={t('event.ownClasses.remove', { code: item.code })}
-                disabled={disabled || entered}
-                onClick={() => remove(at)}
-              >
-                <DeleteOutline fontSize="small" />
-              </IconButton>
             </Stack>
-            {reasons.map((kind) => (
-              <Typography key={kind} variant="caption" sx={{ color: 'error.main' }}>
-                {t(`event.ownClasses.errors.${kind}`)}
-              </Typography>
-            ))}
-          </Stack>
-        )
-      })}
-      {loose.map((error) => (
-        <Typography key={`${error.kind}-${error.code}`} variant="caption" sx={{ color: 'error.main' }}>
-          {t(`event.ownClasses.errors.${error.kind}`)}
-          {`: ${error.code}`}
-        </Typography>
-      ))}
-      <div>
-        <Button disabled={disabled || addBlocked} onClick={add} size="small" startIcon={<Add />}>
-          {t('event.ownClasses.add')}
-        </Button>
-      </div>
-      {addBlocked && (
-        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-          {t('event.ownClasses.entered')}
-        </Typography>
-      )}
-    </Stack>
+          )
+        })}
+        {loose.map((error) => (
+          <Typography key={`${error.kind}-${error.code}`} variant="caption" sx={{ color: 'error.main' }}>
+            {t(`event.ownClasses.errors.${error.kind}`)}
+            {`: ${error.code}`}
+          </Typography>
+        ))}
+        <div>
+          <Button disabled={disabled || addBlocked} onClick={add} size="small" startIcon={<Add />}>
+            {t('event.ownClasses.add')}
+          </Button>
+        </div>
+        {addBlocked && (
+          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+            {t('event.ownClasses.entered')}
+          </Typography>
+        )}
+      </Stack>
+    </Box>
   )
 }
