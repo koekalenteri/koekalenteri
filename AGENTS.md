@@ -39,6 +39,20 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   render but did not call use() when it finished" — a React 19 note that `adminEventAtom` flips
   from a promise to a plain value once the list has loaded, which it does by design.
 
+### A removal is tested through the save
+
+- A change that adds a stored field, or lets a user edit, clear or untick one (a form field, a
+  checkbox, a list item, or something derived from it, such as a class's groups), has a test that
+  removes the value through the whole save: the patch the client builds, applied by the handler to
+  a stored row that still holds the old value, leaves the row without it. One test per half counts
+  only when both are there; a test of the client's patch alone does not reach the handler's merge.
+- The same holds for a stored value that a change of another field makes invalid (the scoring of a
+  followed format the event no longer follows): the test changes that other field and shows the
+  stale value is gone from the stored row.
+- In a partial patch merged over the stored object (`merge`, `patchMerge`) only `null` removes a
+  key; a missing key, or an `undefined` that JSON drops on the wire, is no change. A whole-object
+  diff (`patchTo`, `createPatch`) turns what the new object lacks into a removal.
+
 ## Mocking Gotchas
 
 - Mock only boundaries whose behavior the test must control or observe, such as network calls, AWS services, persistence, authorization, secrets, clocks, randomness, or side-effect publishers.

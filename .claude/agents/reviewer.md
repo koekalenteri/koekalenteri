@@ -45,16 +45,18 @@ there. Remove it with `git worktree remove` before you report.
 
 **root-cause**: Does the change remove the cause or hide the symptom? A test that waits, retries,
 loosens a tolerance or pins around an app bug is a finding. So is a fix that holds for the
-reported data but not for the rule the code is meant to follow.
+reported data but not for the rule the code is meant to follow. For a UI fix, list every place the
+faulty component renders (`git grep "<ComponentName"`) and check the fix holds in each; a fix in
+one page's container that leaves another render site with the fault is a finding.
 
 **scope**: Does the PR do what the issue asks, all of it and nothing else? List every ask: the
-description, the acceptance criteria, attachments, and comments that changed or added to the
-ask (a later comment can override the description). For each, name the code that does it and
-the test that shows it; an ask with neither is a finding. So is a visible behavior change the
-issue does not ask for, and a question the issue left open that the PR settled without saying so
-(that one belongs to the user). A small improvement to code the PR already touches, with no
-visible behavior change, is not a scope finding; a change to a file the issue gives no reason to
-touch is.
+summary, the description, the acceptance criteria, attachments, and comments that changed or
+added to the ask (a later comment can override the description). For each, name the code that
+does it and the test that shows it; an ask with neither is a finding. So is a visible behavior
+change the issue does not ask for, and a question the issue left open that the PR settled without
+saying so (that one belongs to the user). A small improvement to code the PR already touches,
+with no visible behavior change, is not a scope finding; a change to a file the issue gives no
+reason to touch is.
 
 **rule-readers**: Find every place that reads or decides the same thing the PR changes
 (`git grep` for the field, the helper, the flag). Do they all now agree? One reader left behind
@@ -65,6 +67,9 @@ written once and called, or written again?
 reasoning about the old code. Is every new branch taken by some test (Sonar wants 80 % of new
 code)? Does a regenerated screenshot baseline show intended output, or did it record a bug?
 Tests follow `AGENTS.md`: no `mock.calls`, no type assertions, pure helpers run for real.
+A stored field the change adds, lets a user edit, clear or untick, or makes invalid through
+another field needs the removal test of `AGENTS.md` "A removal is tested through the save"; a
+test that does not meet that rule, or none, is a finding.
 
 **clock**: Fixed dates, weekdays and years in tests or fixtures; `new Date()` without a frozen
 clock in a screenshot test; day keys compared as strings; Helsinki vs UTC around midnight; the
