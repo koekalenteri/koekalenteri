@@ -232,8 +232,7 @@ tulos myöhemmin korjataan niin, ettei tasapisteitä enää ole, valinnalla ei o
 
 Jos ilmoittautujien halutaan kertovan koiransa joukkue, rastita paneelin *{t:teams.settings}*
 kohdasta *{t:teams.entry}* valinta **{t:teams.askAtEntry}** ja tallenna ennen ilmoittautumisen
-alkua. Silloin ilmoittautumislomakkeella on osio, johon ilmoittautuja kirjoittaa joukkueen nimen ja
-voi merkitä joukkueen yhdistyksen tai kennelin ykkösjoukkueeksi
+alkua. Silloin ilmoittautumislomakkeella on osio, johon ilmoittautuja kirjoittaa joukkueen nimen
 ([Ilmoittautuminen](/docs/participant/entering)). Kun valinnan poistaa, lomake ei enää kysy
 joukkuetta, mutta jo ilmoitetut nimet säilyvät.
 

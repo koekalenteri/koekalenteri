@@ -20,7 +20,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 1a132c
+sourceHash: 3414e5
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -236,8 +236,7 @@ If a result is later corrected so that the teams are no longer level, the mark h
 
 To have the participants name their dog's team, tick **{t:teams.askAtEntry}** under *{t:teams.entry}*
 in the panel *{t:teams.settings}* and save before entry opens. The entry form then has a section
-where the participant types the team's name and can mark it the first team of their club or kennel
-([Entering](/docs/participant/entering)). Clearing the choice stops the form asking, and the names
+where the participant types the team's name ([Entering](/docs/participant/entering)). Clearing the choice stops the form asking, and the names
 already given stay.
 
 From the names given, the page has a panel *{t:teams.suggestions}* with one suggestion for each

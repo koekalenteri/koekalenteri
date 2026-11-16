@@ -178,7 +178,7 @@ export const publicRegistrationPatch = (input: Patch<JsonRegistration>, update: 
 
 /**
  * The stored registration with a participant's operations applied, as it is saved: what they removed
- * stays removed, a team or its first-team mark among them (KOE-1721), and a workflow flag they tried
+ * stays removed, a team among them (KOE-1721), and a workflow flag they tried
  * to clear keeps its stored value, by the rule of `publicRegistrationPatch`. The row is a copy of its
  * own: applying the operations shares every part they leave alone with the stored row, and the save
  * writes into its row (the official results, the days as keys) before comparing it with the stored one.

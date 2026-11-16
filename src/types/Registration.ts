@@ -472,8 +472,8 @@ export interface JsonRegistration extends JsonDbRecord {
   reserveNotified?: number | true // true is only found in old records
   /**
    * The team the participant names at entry (KOE-1721), where the event asks for one
-   * (`teamCompetition.askAtEntry`): the team's name as they wrote it, tidied, and whether it is the
-   * dog's first team. A wish for the secretary, who assembles the teams; the start list shows the teams.
+   * (`teamCompetition.askAtEntry`): the team's name as they wrote it, tidied. A wish for the secretary,
+   * who assembles the teams; the start list shows the teams.
    */
   teamEntry?: TeamEntry
   results?: JsonManualTestResult[]

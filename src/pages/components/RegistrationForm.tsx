@@ -270,7 +270,8 @@ export default function RegistrationForm({
   const handleTeamEntry = useCallback(
     (teamEntry: TeamEntry | undefined) => {
       if (disabled) return
-      // The team replaces the one before it: a merge would keep a first-team mark taken off.
+      // The team replaces the one before it: a merge would keep a key the stored team has and the new one
+      // lacks, such as the first-team mark an entry saved in 2.2.0 holds (KOE-1759).
       if (teamEntry) return handleChange({ teamEntry }, true)
       const { teamEntry: _cleared, ...rest } = registration
       onChange?.(rest)

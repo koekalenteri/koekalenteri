@@ -298,7 +298,7 @@ describe('putAdminRegistrationLambda', () => {
       )
     })
 
-    it("stores an edit's team as its name and first-team mark alone, and refuses a name too long", async () => {
+    it("stores an edit's team as its name alone, and refuses a name too long", async () => {
       mockGetEvent.mockResolvedValue({ cost: 40, organizer: { id: 'org-1' }, teamCompetition: { askAtEntry: true } })
 
       const stored = await putAdminRegistrationLambda(
