@@ -26,7 +26,8 @@ several times more and is not needed for their work.
   comments included) and each attachment beside it under its file name. Every agent gets this
   absolute path and reads the issue from it instead of from Jira. Before each review round, fetch
   the comments again and refresh the folder when a new one has come in: a tester's comment can
-  change the ask mid-ticket.
+  change the ask mid-ticket. Under `/build`, the piece's design file goes in the same folder
+  (`.claude/skills/build/SKILL.md` step 3).
 - Move it to In Progress unless it is in Testing In Progress.
 - Note whether it reports a bug, asks for something new, or both; that picks the review angles
   in step 4. If it is a sub-task, look at its parent: when this is the last open sub-task, the
