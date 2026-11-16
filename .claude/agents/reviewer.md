@@ -54,9 +54,9 @@ summary, the description, the acceptance criteria, attachments, and comments tha
 added to the ask (a later comment can override the description). For each, name the code that
 does it and the test that shows it; an ask with neither is a finding. So is a visible behavior
 change the issue does not ask for, and a question the issue left open that the PR settled without
-saying so (that one belongs to the user). A small improvement to code the PR already touches, with no
-visible behavior change, is not a scope finding; a change to a file the issue gives no reason to
-touch is.
+saying so (that one belongs to the user). A small improvement to code the PR already touches,
+with no visible behavior change, is not a scope finding; a change to a file the issue gives no
+reason to touch is.
 
 **rule-readers**: Find every place that reads or decides the same thing the PR changes
 (`git grep` for the field, the helper, the flag). Do they all now agree? One reader left behind
@@ -67,9 +67,10 @@ written once and called, or written again?
 reasoning about the old code. Is every new branch taken by some test (Sonar wants 80 % of new
 code)? Does a regenerated screenshot baseline show intended output, or did it record a bug?
 Tests follow `AGENTS.md`: no `mock.calls`, no type assertions, pure helpers run for real.
-A stored field the change adds or lets a user edit, clear or untick needs the removal test of
-`AGENTS.md` "A removal is tested through the save"; its absence is a finding, since a removal that
-did not persist was four of 2.2.0's five returns from testing.
+A stored field the change adds, lets a user edit, clear or untick, or makes invalid through
+another field needs the removal test of `AGENTS.md` "A removal is tested through the save". Check
+that it reaches the handler's merge over a stored row holding the old value; a test of the client's
+patch alone, or no test, is a finding.
 
 **clock**: Fixed dates, weekdays and years in tests or fixtures; `new Date()` without a frozen
 clock in a screenshot test; day keys compared as strings; Helsinki vs UTC around midnight; the

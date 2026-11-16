@@ -43,14 +43,15 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 
 - A change that adds a stored field, or lets a user edit, clear or untick one (a form field, a
   checkbox, a list item, or something derived from it, such as a class's groups), has a test that
-  removes the value through the real save path and shows it stays removed: the patch carries `null`
-  for it, or the stored row no longer has it.
-- A partial patch merged over the stored object (`merge` and `patchMerge` in `src/lib/utils.ts`)
-  removes a key only with `null`; a key that is missing or `undefined` in it means "no change". A
-  whole-object diff removes what the new object lacks: `getNestedChanges` (`src/lib/diff.ts`) and
-  `patchTo` (`src/lib/utils.ts`) turn such a key into `null`, and `createPatch`
-  (`src/lambda/lib/patch.ts`) into a `remove` path. A removal persists only when the save diffs the
-  edited object against the stored one or sends the `null` itself.
+  removes the value through the whole save: the patch the client builds, applied by the handler to
+  a stored row that still holds the old value, leaves the row without it. One test per half counts
+  only when both are there; a test of the client's patch alone does not reach the handler's merge.
+- The same holds for a stored value that a change of another field makes invalid (the scoring of a
+  followed format the event no longer follows): the test changes that other field and shows the
+  stale value is gone from the stored row.
+- In a partial patch merged over the stored object (`merge`, `patchMerge`) only `null` removes a
+  key; a missing key, or an `undefined` that JSON drops on the wire, is no change. A whole-object
+  diff (`patchTo`, `createPatch`) turns what the new object lacks into a removal.
 
 ## Mocking Gotchas
 
