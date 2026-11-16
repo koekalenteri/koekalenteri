@@ -427,6 +427,9 @@ export default function EventForm({ event, changes, canSave, disabled, onSave, o
           bgcolor: 'background.form',
           overflow: 'auto',
           pb: 0.5,
+          // Holds text hidden for screen readers, which is absolutely positioned: in the event details
+          // dialog it would otherwise stretch the dialog paper into a second scroll bar (KOE-1758).
+          position: 'relative',
         }}
       >
         <BasicInfoSection

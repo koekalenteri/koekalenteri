@@ -142,6 +142,38 @@ test.describe('a secretary', { annotation: issue('KOE-1478'), tag: '@secretary' 
     expect(pageHeight).toBeLessThanOrEqual(viewportHeight)
   })
 
+  // The event view shows the same form in a dialog, where the admin content area does not hold the hidden
+  // text: the form's own sections box has to, or the dialog paper scrolls as well as the dialog content, a
+  // second scroll bar with empty space under Save and Cancel (KOE-1758).
+  test('the event details dialog has one scroll bar, its content', {
+    annotation: issue('KOE-1758'),
+  }, async ({ context, page }) => {
+    const organizer = await seedOrganizer()
+    const secretary = await seedStaffUser({ roles: { [organizer.id]: 'secretary' } })
+    const event = await seedEvent({ organizer: { id: organizer.id, name: organizer.name } })
+    await signInAs(context, secretary)
+    await new EventViewPage(page).goto(event)
+    await page.getByRole('button', { name: 'Avaa tapahtuman hallinta' }).click()
+    await page.getByRole('button', { name: 'Näytä tapahtuman tiedot' }).click()
+
+    const details = page.getByRole('dialog', { name: event.name })
+    await expect(details.getByRole('textbox', { name: 'Nimi (Suomeksi)' })).toHaveValue(event.name)
+    await expect(details.getByRole('columnheader', { name: 'Toiminnot' }).first()).toBeAttached()
+
+    const scrolling = await details.evaluate((paper) => {
+      const content = paper.querySelector('.MuiDialogContent-root')
+      return [paper, ...paper.querySelectorAll('*')]
+        .filter((element) => ['auto', 'scroll'].includes(getComputedStyle(element).overflowY))
+        .filter((element) => element.scrollHeight > element.clientHeight)
+        .map((element) => {
+          if (element === paper) return 'dialog paper'
+          if (element === content) return 'dialog content'
+          return element.className.toString()
+        })
+    })
+    expect(scrolling).toEqual(['dialog content'])
+  })
+
   // Esc closes the event view's details dialog the way Cancel does, also before the 300 ms in which the
   // field passes a typed value on: Chrome takes the focus off the field as the dialog removes it, and that
   // late value must not land in the draft the close has just dropped. jsdom moves no focus on removal.
