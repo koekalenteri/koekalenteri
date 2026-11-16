@@ -224,14 +224,16 @@ export const MAX_TEAM_NAME_LENGTH = 60
  */
 type EntryTeamError = 'invalid' | 'noName' | 'notAsked' | 'tooLong'
 
-const isTeamEntry = (value: unknown): value is TeamEntry =>
-  isObject(value) && typeof value.name === 'string' && (value.primary === undefined || value.primary === true)
+/**
+ * A team's shape: a name. Other keys are left for `storedTeamEntry` to drop, so an entry saved in 2.2.0
+ * with the first-team mark, or a tab on that bundle sending it, still saves (KOE-1759).
+ */
+const isTeamEntry = (value: unknown): value is TeamEntry => isObject(value) && typeof value.name === 'string'
 
 /**
- * Why the save refuses the team an entry names (KOE-1721), or nothing. A team is a name, and maybe the
- * first-team mark; one is written only where the event asks for it (`teamCompetition.askAtEntry`), and
- * then with a name. The team stored before is kept as it is, so an event that stops asking leaves the
- * entries that named one their own to save, and to take off: the whole team, or only its first-team mark.
+ * Why the save refuses the team an entry names (KOE-1721), or nothing. A team is a name, written only
+ * where the event asks for it (`teamCompetition.askAtEntry`). The team stored before is kept as it is,
+ * so an event that stops asking leaves the entries that named one their own to save, and to take off.
  */
 export const entryTeamError = (
   event: Pick<JsonDogEvent | DogEvent, 'teamCompetition'>,
@@ -241,20 +243,17 @@ export const entryTeamError = (
   if (teamEntry === undefined || teamEntry === null) return undefined
   if (!isTeamEntry(teamEntry)) return 'invalid'
   const name = normalizeTeamName(teamEntry.name)
-  if (stored && name === normalizeTeamName(stored.name) && (!teamEntry.primary || stored.primary)) return undefined
+  if (stored && name === normalizeTeamName(stored.name)) return undefined
   if (event.teamCompetition?.askAtEntry !== true) return 'notAsked'
   if (!name) return 'noName'
   return name.length > MAX_TEAM_NAME_LENGTH ? 'tooLong' : undefined
 }
 
 /**
- * The team named at entry as it is stored (KOE-1721): the tidied name, and the first-team mark where it
- * has one, nothing else the request carried.
+ * The team named at entry as it is stored (KOE-1721): the tidied name, nothing else the request carried,
+ * also not the first-team mark of 2.2.0 (KOE-1759).
  */
-export const storedTeamEntry = ({ name, primary }: TeamEntry): TeamEntry => ({
-  name: normalizeTeamName(name),
-  ...(primary ? { primary } : {}),
-})
+export const storedTeamEntry = ({ name }: TeamEntry): TeamEntry => ({ name: normalizeTeamName(name) })
 /** What the counted days are read from: the trial's days, and the competition's choice of them. */
 export type TeamDaysOwner = Pick<PublicDogEvent, 'classes' | 'endDate' | 'startDate'> & {
   teamCompetition?: TeamCompetition | null

@@ -958,17 +958,17 @@ describe('EventTeamsPage', () => {
     })
   })
 
-  // KOE-1721: the question at entry, the teams suggested from the names given, and the first-team mark.
+  // KOE-1721: the question at entry, the teams suggested from the names given, and the first-team mark
+  // the secretary sets on a team (KOE-1722, KOE-1759).
   describe('teams named at entry', () => {
     const expectSaved = (fields: object) =>
       expect(putEvent).toHaveBeenLastCalledWith(expect.objectContaining(fields), TEST_ID_TOKEN, undefined, undefined)
-    const named = (registration: Registration, name: string, primary?: true): Registration => ({
-      ...registration,
-      teamEntry: { name, ...(primary ? { primary } : {}) },
-    })
+    const named = (registration: Registration, name: string): Registration => ({ ...registration, teamEntry: { name } })
+    // The second entry was saved in 2.2.0 with the first-team mark the entry form asked for then.
+    const markedIn220 = { name: ' kultaiset ', primary: true }
     const namedEntries = [
       named(registrations[0], 'Kultaiset'),
-      named(registrations[1], ' kultaiset ', true),
+      { ...registrations[1], teamEntry: markedIn220 },
       ...registrations.slice(2),
     ]
     const primaryBox = (team: HTMLElement) => within(team).getByRole('checkbox', { name: 'teams.primary' })
@@ -1016,13 +1016,13 @@ describe('EventTeamsPage', () => {
       const [team] = teamSections()
       expect(within(team).getByRole('textbox', { name: 'teams.name' })).toHaveValue('Kultaiset')
       expect(members(team)).toEqual(['1A Ensimmainen', '1B Toinen'])
-      expect(primaryBox(team)).toBeChecked()
+      expect(primaryBox(team)).not.toBeChecked()
       // The dogs are in a team now, so nothing is left to suggest.
       expect(screen.queryByRole('button', { name: 'teams.takeSuggestion name' })).not.toBeInTheDocument()
 
       await user.click(screen.getByRole('button', { name: 'save' }))
       await flushPromises()
-      expectSaved({ teams: [{ name: 'Kultaiset', primary: true, registrationIds: ['run-1', 'run-2'] }] })
+      expectSaved({ teams: [{ name: 'Kultaiset', registrationIds: ['run-1', 'run-2'] }] })
     })
 
     it('fills the first empty team with a suggestion before adding one', async () => {
@@ -1039,7 +1039,7 @@ describe('EventTeamsPage', () => {
       expect(members(teamSections()[1])).toEqual(['2A Ensimmainen', '2B Toinen'])
     })
 
-    it('leaves no first-team mark of its own on the empty team a suggestion without one fills', async () => {
+    it('leaves no first-team mark of its own on the empty team a suggestion fills', async () => {
       vi.mocked(putEvent).mockResolvedValue(eventWithStations)
       const unmarked = [named(registrations[0], 'Kultaiset'), ...registrations.slice(1)]
       const { user } = await renderPage(

@@ -154,7 +154,7 @@ export type LockableRegistration = {
   reserve?: string
   results?: DatedResult[]
   selectedCost?: string
-  teamEntry?: { name?: string; primary?: boolean } | null
+  teamEntry?: { name?: string } | null
 }
 
 /**
@@ -198,8 +198,9 @@ const PROJECTED_SECTIONS: readonly ProjectedSection[] = ['entry', 'dog', 'people
 const SECTION_PROJECTIONS: Record<ProjectedSection, (r: LockableRegistration) => object> = {
   dog: (r) => ({ dog: dogWithoutResults(r.dog) }),
   // The form sorts the days; their order is no change. The team named at entry is a wish of the entry's
-  // own (KOE-1721), and closes with it.
-  entry: (r) => ({ class: r.class, dates: sortedDates(r.dates), reserve: r.reserve, teamEntry: r.teamEntry }),
+  // own (KOE-1721), and closes with it. It is compared by its name: a row saved in 2.2.0 may hold a
+  // first-team mark the form no longer writes (KOE-1759).
+  entry: (r) => ({ class: r.class, dates: sortedDates(r.dates), reserve: r.reserve, teamEntry: r.teamEntry?.name }),
   payment: (r) => ({
     agreeToTerms: r.agreeToTerms,
     optionalCosts: r.optionalCosts ? [...r.optionalCosts].sort((a, b) => a - b) : r.optionalCosts,

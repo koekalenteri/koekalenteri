@@ -1305,7 +1305,7 @@ describe('validation', () => {
         validateRegistration(reg, event, saved).filter((e) => e.opts.field === 'teamEntry')
 
       it('takes a name where the event asks for one, and no team at all', () => {
-        expect(teamErrors({ ...base, teamEntry: { name: 'Golden Ring', primary: true } }, asking)).toEqual([])
+        expect(teamErrors({ ...base, teamEntry: { name: 'Golden Ring' } }, asking)).toEqual([])
         expect(teamErrors(base, asking)).toEqual([])
       })
 

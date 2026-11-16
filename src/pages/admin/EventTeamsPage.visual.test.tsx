@@ -123,7 +123,7 @@ const pickedEvent: ConfirmedEvent = {
 }
 
 // Teams named at entry (KOE-1721): the question asked, a first team made, two spellings of one name
-// suggested as one team with the first-team mark a dog gave it, and a name of its own.
+// suggested as one team, and a name of its own.
 const suggestionsEvent: ConfirmedEvent = {
   ...eventWithStations,
   teamCompetition: { askAtEntry: true },
@@ -133,7 +133,7 @@ const suggestionsRegistrations: Registration[] = registrations.map((registration
   const teamEntry = {
     'dog-2': { name: 'Kultaiset Noutajat' },
     'dog-4': { name: 'Metsän Väki' },
-    'dog-5': { name: 'kultaiset  noutajat', primary: true as const },
+    'dog-5': { name: 'kultaiset  noutajat' },
   }[registration.id]
   return teamEntry ? { ...registration, teamEntry } : registration
 })

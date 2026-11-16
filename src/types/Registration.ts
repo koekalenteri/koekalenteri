@@ -376,11 +376,12 @@ export interface LastEmail extends Omit<JsonLastEmail, 'sentAt'> {
   sentAt: Date
 }
 
-/** The team a participant names at entry (KOE-1721). */
+/**
+ * The team a participant names at entry (KOE-1721). Rows saved in 2.2.0 may also hold `primary`, a
+ * first-team mark nothing reads (KOE-1759); the secretary marks a first team on the team (`EventTeam`).
+ */
 export interface TeamEntry {
   name: string
-  /** The dog's first team, where it enters more than one. */
-  primary?: true
 }
 
 export interface JsonRegistration extends JsonDbRecord {

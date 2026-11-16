@@ -589,8 +589,8 @@ export interface EventTeam {
   /**
    * The first team of its club or kennel (KOE-1722, "ykkösjoukkue"): drawn for the places before the
    * other teams (`teamDraw`) when more teams enter than the trial holds. The secretary sets it on the
-   * teams page, and a team made from a suggestion takes it from the entries (`teamSuggestions`). No club
-   * is stored, so nothing limits a club to one first team; the secretary keeps the marks right.
+   * team's card; the entry asks for no mark (KOE-1759). No club is stored, so nothing limits a club to
+   * one first team; the secretary keeps the marks right.
    */
   primary?: true
   /**

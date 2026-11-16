@@ -2,7 +2,6 @@ import type { TeamSuggestion } from '@/lib/client/teamAssembly'
 import type { Registration } from '@/types'
 import Add from '@mui/icons-material/Add'
 import Button from '@mui/material/Button'
-import Chip from '@mui/material/Chip'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
@@ -26,8 +25,8 @@ const dogNames = (suggestion: TeamSuggestion, entries: ReadonlyMap<string, Regis
     .join(', ')
 
 /**
- * The teams the page suggests (`teamSuggestions`, KOE-1721): each by its name, with its dogs and the
- * first-team mark a dog gave it, and a button that makes it a team. A suggestion of more dogs than a
+ * The teams the page suggests (`teamSuggestions`, KOE-1721): each by its name, with its dogs, and a
+ * button that makes it a team. A suggestion of more dogs than a
  * team holds is kept whole for the secretary to split, and says so.
  */
 export default function TeamSuggestions({ suggestions, entries, onTake }: Props) {
@@ -61,12 +60,7 @@ export default function TeamSuggestions({ suggestions, entries, onTake }: Props)
               sx={{ pr: 16 }}
             >
               <ListItemText
-                primary={
-                  <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-                    <span>{suggestion.name}</span>
-                    {suggestion.primary && <Chip label={t('teams.primary')} size="small" />}
-                  </Stack>
-                }
+                primary={suggestion.name}
                 secondary={
                   <>
                     {dogNames(suggestion, entries)}

@@ -240,35 +240,21 @@ describe('RegistrationForm', () => {
       )
     }
 
-    it('takes the first-team mark off as it put it on, and keeps it through a rename', async () => {
+    // KOE-1759: an entry saved in 2.2.0 may hold the first-team mark; a rename writes the name alone.
+    it('renames the team, and leaves a first-team mark stored in 2.2.0 out', async () => {
       const onChange = vi.fn()
+      const marked = { name: 'Golden Ring', primary: true }
       const { user } = renderWithUserEvents(
-        <StatefulForm
-          initial={{ ...registrationWithStaticDates, teamEntry: { name: 'Golden Ring' } }}
-          onChange={onChange}
-        />,
+        <StatefulForm initial={{ ...registrationWithStaticDates, teamEntry: marked }} onChange={onChange} />,
         { wrapper: RegistrationFormWrapper },
         { advanceTimers: vi.advanceTimersByTime }
       )
       await flushPromises()
-      const primary = () => screen.getByRole('checkbox', { name: 'registration.teamEntryPrimary' })
 
-      await user.click(primary())
-      await flushPromises()
-      expect(onChange).toHaveBeenLastCalledWith(
-        expect.objectContaining({ teamEntry: { name: 'Golden Ring', primary: true } })
-      )
-
-      await user.click(primary())
-      await flushPromises()
-      expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ teamEntry: { name: 'Golden Ring' } }))
-
-      await user.click(primary())
+      expect(screen.queryByRole('checkbox', { name: /teamEntry/ })).not.toBeInTheDocument()
       await user.type(screen.getByRole('textbox', { name: 'registration.teamEntryName' }), ' 2')
       await flushPromises()
-      expect(onChange).toHaveBeenLastCalledWith(
-        expect.objectContaining({ teamEntry: { name: 'Golden Ring 2', primary: true } })
-      )
+      expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ teamEntry: { name: 'Golden Ring 2' } }))
     })
 
     it('shows a team the entry already names where the trial no longer asks for one', async () => {
@@ -297,7 +283,6 @@ describe('RegistrationForm', () => {
       await flushPromises()
 
       expect(screen.getByRole('textbox', { name: 'registration.teamEntryName' })).toBeDisabled()
-      expect(screen.getByRole('checkbox', { name: 'registration.teamEntryPrimary' })).toBeDisabled()
 
       vi.setSystemTime(frozenInstant('2021-01-01'))
       rerender(<RegistrationForm disabled event={event} registration={registration} onChange={onChange} />)

@@ -50,22 +50,12 @@ describe('getRegistrationChanges', () => {
     })
   })
 
-  it('reports a change of the first-team mark alone (KOE-1721)', () => {
-    const before = { ...existing(), teamEntry: { name: 'Ykkönen' } }
+  // KOE-1759: the save stores the name alone, so a mark saved in 2.2.0 comes off without a line.
+  it('reports nothing when a first-team mark stored in 2.2.0 comes off', () => {
+    const marked = { name: 'Ykkönen', primary: true }
+    const before = { ...existing(), teamEntry: marked }
 
-    expect(getRegistrationChanges(before, { ...before, teamEntry: { name: 'Ykkönen', primary: true } }, event)).toEqual(
-      {
-        changes: [
-          {
-            field: 'teamEntry',
-            labelKey: 'registration.teamEntry',
-            next: { text: 'Ykkösjoukkue: kyllä' },
-            previous: { state: 'empty' },
-          },
-        ],
-        messageKey: 'audit.changed',
-      }
-    )
+    expect(getRegistrationChanges(before, { ...before, teamEntry: { name: 'Ykkönen' } }, event)).toBeUndefined()
   })
 
   it('reports nothing when nothing the trail follows changed', () => {

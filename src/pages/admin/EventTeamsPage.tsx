@@ -75,15 +75,15 @@ const withTeamCompetition = (event: DogEvent, teamCompetition: TeamCompetition, 
 }
 
 /**
- * The teams with a suggestion made into one (KOE-1721): its name, its dogs and its first-team mark, in
- * the first team still empty, of no name and no dogs, which keeps its series, or else in a new team at
- * the end.
+ * The teams with a suggestion made into one (KOE-1721): its name and its dogs, in the first team still
+ * empty, of no name and no dogs, which keeps its series, or else in a new team at the end. The secretary
+ * marks a first team on its card (KOE-1759).
  */
-const withSuggestion = (teams: EventTeam[], { name, primary, registrationIds }: TeamSuggestion): EventTeam[] => {
-  const team: EventTeam = { name, ...(primary ? { primary } : {}), registrationIds }
+const withSuggestion = (teams: EventTeam[], { name, registrationIds }: TeamSuggestion): EventTeam[] => {
+  const team: EventTeam = { name, registrationIds }
   const empty = teams.findIndex((item) => !item.name && !item.registrationIds.length)
   if (empty < 0) return [...teams, team]
-  // The empty team keeps its series; its first-team mark is the suggestion's, or none.
+  // The empty team keeps its series, not a first-team mark it was given before it had a name or dogs.
   return teams.map((item, at) => {
     if (at !== empty) return item
     const { primary: _primary, ...kept } = item

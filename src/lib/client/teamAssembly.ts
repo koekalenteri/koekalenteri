@@ -23,8 +23,6 @@ type SuggestionEntry = Pick<JsonRegistration, 'id' | 'cancelled' | 'group' | 'st
 export interface TeamSuggestion {
   kind: 'name' | 'litter'
   name: string
-  /** A dog naming the team marked it its club's or kennel's first team (KOE-1722). */
-  primary?: true
   registrationIds: string[]
 }
 
@@ -102,8 +100,8 @@ export const litterMismatches = (
  * The teams the page suggests to the secretary (KOE-1721, KOE-1727), from the dogs that may join a team
  * and are in none yet (`isTeamCandidate`). First a team for each name given at entry, the spellings
  * that differ only in case and spacing taken as one (`teamNameKey`), named as the first entry made
- * spelled it, its dogs in the order they entered, and marked the first team where any of them marked it
- * so: the secretary, who knows the clubs, keeps or clears the mark on the team (KOE-1722). Then, where
+ * spelled it, its dogs in the order they entered. A suggestion carries no first-team mark: the secretary,
+ * who knows the clubs, marks the first team on the team (KOE-1722, KOE-1759). Then, where
  * the competition asks for litters, a team for each litter of two dogs or more, of the dogs that named
  * no team, named after the first entry's breeder, or the parents ("Isä x Emä") without one. A suggestion
  * is not cut to the most a team may hold; the secretary splits a larger one.
@@ -118,14 +116,13 @@ export const teamSuggestions = (
     .sort(byEntryTime)
 
   const teamNames = candidates.flatMap((entry) =>
-    entry.teamEntry ? [{ id: entry.id, name: entry.teamEntry.name, primary: !!entry.teamEntry.primary }] : []
+    entry.teamEntry ? [{ id: entry.id, name: entry.teamEntry.name }] : []
   )
   const named = groupBy(teamNames, (entry) => teamNameKey(entry.name))
     .map(
       (group): TeamSuggestion => ({
         kind: 'name',
         name: normalizeTeamName(group[0].name),
-        ...(group.some((entry) => entry.primary) ? { primary: true } : {}),
         registrationIds: group.map((entry) => entry.id),
       })
     )

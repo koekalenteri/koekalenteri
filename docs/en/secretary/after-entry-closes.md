@@ -20,7 +20,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 22c652
+sourceHash: 1a132c
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -243,16 +243,16 @@ already given stay.
 From the names given, the page has a panel *{t:teams.suggestions}* with one suggestion for each
 name. Names that differ only in capital letters or spacing are the same team, and a suggestion is
 named as the first participant to enter wrote it. A suggestion holds the dogs that could be added to
-a team from **{t:teams.addDog}** and are in no team yet, in the order they entered. If any of the
-dogs marked the team its first team, the suggestion reads *{t:teams.primary}*. The button
+a team from **{t:teams.addDog}** and are in no team yet, in the order they entered. The button
 **{t:teams.takeSuggestionShort}** makes the suggestion a team: it fills the first empty team, with
-no name and no dogs, or adds a new team at the end. The empty team keeps its series, and its
-first-team mark comes from the suggestion. If more dogs gave the name than a team holds, the
+no name and no dogs, or adds a new team at the end. The empty team keeps its series but not its
+first-team mark: the participant does not say whether a team is a first team, so mark it with
+**{t:teams.primary}** on the team's card. If more dogs gave the name than a team holds, the
 suggestion says so, and once made a team it says how many dogs a team can hold: it can be saved only
 once the extra dogs have moved to other teams. The team's name, dogs and first-team mark can
 then be changed like any other team's, and **{t:save}** stores the changes.
 
-!shot[EventTeamsPage/teams-suggestions] The question at entry is on, and Kultaiset Noutajat, given in two spellings, is one suggestion with the first-team mark
+!shot[EventTeamsPage/teams-suggestions] The question at entry is on, and Kultaiset Noutajat, given in two spellings, is one suggestion
 
 ### Moving a whole team
 

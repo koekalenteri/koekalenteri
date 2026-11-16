@@ -11,15 +11,15 @@ const Frame = ({ children }: { readonly children: React.ReactNode }) => (
   </div>
 )
 
-// KOE-1721: the team the dog runs in, named at entry, and the club's first-team mark.
+// KOE-1721: the team the dog runs in, named at entry; KOE-1759: by its name alone.
 const renderNamed = () =>
   render(
     <Frame>
-      <TeamEntryInfo onChange={() => undefined} open teamEntry={{ name: 'Golden Ring', primary: true }} />
+      <TeamEntryInfo onChange={() => undefined} open teamEntry={{ name: 'Golden Ring' }} />
     </Frame>
   )
 
-it('names the team the dog runs in, and marks it the first team', async () => {
+it('names the team the dog runs in', async () => {
   const screen = await renderNamed()
 
   await expect.element(screen.getByRole('textbox', { name: 'Joukkueen nimi' })).toHaveValue('Golden Ring')
@@ -27,7 +27,7 @@ it('names the team the dog runs in, and marks it the first team', async () => {
 })
 
 describeInLanguage('en', () => {
-  it('names the team the dog runs in, and marks it the first team', async () => {
+  it('names the team the dog runs in', async () => {
     const screen = await renderNamed()
 
     await expect.element(screen.getByRole('textbox', { name: 'Team name' })).toHaveValue('Golden Ring')

@@ -64,11 +64,10 @@ export class RegistrationPage {
     await section.getByRole('textbox', { name: 'Puhelin' }).fill(phone)
   }
 
-  /** The dog's team, where the event asks for one (KOE-1721), and whether it is its club's first team. */
-  async fillTeam(name: string, primary = false) {
+  /** The dog's team, where the event asks for one (KOE-1721). */
+  async fillTeam(name: string) {
     const section = await this.openSection('Joukkue')
     await section.getByRole('textbox', { name: 'Joukkueen nimi' }).fill(name)
-    if (primary) await section.getByRole('checkbox', { name: 'Ykkösjoukkue' }).check()
   }
 
   async acceptTerms() {

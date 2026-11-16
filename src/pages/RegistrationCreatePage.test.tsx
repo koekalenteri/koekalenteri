@@ -136,7 +136,7 @@ describe('RegistrationCreatePage', () => {
 
   // The draft stays for the next dog after a save that pays later; its team does not (KOE-1721).
   const storedDraft = () => JSON.parse(sessionStorage.getItem('newRegistration') ?? '{}')
-  const team = { name: 'Kultaiset', primary: true as const }
+  const team = { name: 'Kultaiset' }
 
   it('leaves the team out of the draft the next entry starts from', async () => {
     const eventWithConfirmationPayment = {
@@ -173,8 +173,6 @@ describe('RegistrationCreatePage', () => {
     const { user } = renderWithRouter(`/event/${eventType}/${id}`)
     await flushPromises()
     await user.type(screen.getByRole('textbox', { name: 'registration.teamEntryName' }), team.name)
-    await flushPromises()
-    await user.click(screen.getByRole('checkbox', { name: 'registration.teamEntryPrimary' }))
     await flushPromises()
     await user.click(screen.getByRole('button', { name: 'registration.dog' }))
     await flushPromises()
