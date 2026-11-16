@@ -201,4 +201,20 @@ test.describe('a secretary', { annotation: issue('KOE-1478'), tag: '@secretary' 
       .poll(async () => (await readRegistration(registration.eventId, registration.id))?.internalNotes)
       .toBe('Soitettu omistajalle')
   })
+
+  test("opening another club's event says it is not found", {
+    annotation: issue('KOE-1738'),
+  }, async ({ context, page }) => {
+    const organizer = await seedOrganizer()
+    const event = await seedEvent({ organizer: { id: organizer.id, name: organizer.name } })
+    const otherClub = await seedOrganizer()
+    const otherSecretary = await seedStaffUser({ roles: { [otherClub.id]: 'secretary' } })
+    await signInAs(context, otherSecretary)
+
+    for (const path of [`/admin/event/view/${event.id}`, `/admin/event/results/${event.id}`]) {
+      await page.goto(path)
+      await expect(page.getByRole('heading', { name: 'Tapahtumaa ei löydy.' })).toBeVisible()
+      await expect(page.getByRole('link', { name: 'Takaisin tapahtumalistaan' })).toBeVisible()
+    }
+  })
 })

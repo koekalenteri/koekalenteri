@@ -10,12 +10,15 @@ import LoadingIndicator from '../components/LoadingIndicator'
 import { EventHeader } from '../startListPage/EventHeader'
 import { ParticipantList } from '../startListPage/ParticipantList'
 import { useConfirmedEvent, validIdTokenAtom } from '../state'
+import { AdminEventGate } from './components/AdminEventGate'
 import { useAdminEventScope } from './state/eventScope'
 
 export default function StartListPreviewPage() {
   return (
     <AdminAccessGuard>
-      <StartListPreview />
+      <AdminEventGate>
+        <StartListPreview />
+      </AdminEventGate>
     </AdminAccessGuard>
   )
 }

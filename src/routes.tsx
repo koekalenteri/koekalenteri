@@ -1,6 +1,6 @@
 import type { RouteObject } from 'react-router'
 import type { RegistrationListPageProps } from './pages/RegistrationListPage'
-import { Navigate, redirect, useLocation } from 'react-router'
+import { Navigate, Outlet, redirect, useLocation } from 'react-router'
 import { reloadOnChunkLoadError } from './lib/client/lazy'
 import LoadingIndicator from './pages/components/LoadingIndicator'
 import { ErrorPage } from './pages/ErrorPage'
@@ -180,53 +180,75 @@ const pageRoutes: RouteObject[] = [
         path: Path.admin.newEvent,
       },
       {
+        // The pages of one event open only for an event on the administrator's list (KOE-1738). The
+        // gate is a pathless parent, so it reads the page's `:id`; loaded lazily, so the admin state
+        // stays out of the first load.
+        children: [
+          {
+            lazy: () =>
+              reloadOnChunkLoadError(async () => ({
+                Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventEditPage')).default,
+              })),
+            path: Path.admin.editEvent(':id'),
+          },
+          {
+            lazy: () =>
+              reloadOnChunkLoadError(async () => ({
+                Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventViewPage')).default,
+              })),
+            path: Path.admin.viewEvent(':id'),
+          },
+          {
+            lazy: () =>
+              reloadOnChunkLoadError(async () => ({
+                Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventStationsPage')).default,
+              })),
+            path: Path.admin.stations(':id'),
+          },
+          {
+            lazy: () =>
+              reloadOnChunkLoadError(async () => ({
+                Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventTeamsPage')).default,
+              })),
+            path: Path.admin.teams(':id'),
+          },
+          {
+            lazy: () =>
+              reloadOnChunkLoadError(async () => ({
+                Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventStartNumbersPage'))
+                  .default,
+              })),
+            path: Path.admin.startNumbers(':id'),
+          },
+          {
+            lazy: () =>
+              reloadOnChunkLoadError(async () => ({
+                Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventResultsPage')).default,
+              })),
+            path: Path.admin.results(':id'),
+          },
+          {
+            lazy: () =>
+              reloadOnChunkLoadError(async () => ({
+                Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/StationResultsPage')).default,
+              })),
+            path: Path.admin.stationResults(':id', ':stationId'),
+          },
+        ],
         lazy: () =>
-          reloadOnChunkLoadError(async () => ({
-            Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventEditPage')).default,
-          })),
-        path: Path.admin.editEvent(':id'),
-      },
-      {
-        lazy: () =>
-          reloadOnChunkLoadError(async () => ({
-            Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventViewPage')).default,
-          })),
-        path: Path.admin.viewEvent(':id'),
-      },
-      {
-        lazy: () =>
-          reloadOnChunkLoadError(async () => ({
-            Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventStationsPage')).default,
-          })),
-        path: Path.admin.stations(':id'),
-      },
-      {
-        lazy: () =>
-          reloadOnChunkLoadError(async () => ({
-            Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventTeamsPage')).default,
-          })),
-        path: Path.admin.teams(':id'),
-      },
-      {
-        lazy: () =>
-          reloadOnChunkLoadError(async () => ({
-            Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventStartNumbersPage')).default,
-          })),
-        path: Path.admin.startNumbers(':id'),
-      },
-      {
-        lazy: () =>
-          reloadOnChunkLoadError(async () => ({
-            Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventResultsPage')).default,
-          })),
-        path: Path.admin.results(':id'),
-      },
-      {
-        lazy: () =>
-          reloadOnChunkLoadError(async () => ({
-            Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/StationResultsPage')).default,
-          })),
-        path: Path.admin.stationResults(':id', ':stationId'),
+          reloadOnChunkLoadError(async () => {
+            const { AdminEventGate } = await import(
+              /* webpackChunkName: "admin" */ './pages/admin/components/AdminEventGate'
+            )
+
+            return {
+              Component: () => (
+                <AdminEventGate>
+                  <Outlet />
+                </AdminEventGate>
+              ),
+            }
+          }),
       },
       {
         lazy: () =>
