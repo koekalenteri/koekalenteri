@@ -1,3 +1,0 @@
-ignore_checks:
-  # SAM generates redundant DependsOn entries for UsagePlan resources.
-  - W3005

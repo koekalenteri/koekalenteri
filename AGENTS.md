@@ -443,6 +443,12 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
   (`MetricsEnabled: true` in `template/api.yaml`) are five billed series per method and stack; a
   method's throttle works without them, and `src/lambda/template.test.ts` fails on one and on an
   alarm that reads a method's series (KOE-1649).
+- An `Api` event without `Auth: Authorizer: CognitoAuthorizer` is a route anyone can call, and it
+  gets a `MethodSettings` bucket of its own in `template/api.yaml` (same `ResourcePath` and
+  `HttpMethod`, `ThrottlingRateLimit` and `ThrottlingBurstLimit`, a comment with the number's
+  reason); without one it falls back to the account-wide default. The API has no usage plan and no
+  API key. `src/lambda/template.test.ts` fails on a public route without a bucket and on a bucket
+  for a route that no longer exists (KOE-1620).
 - A custom metric is published under the stack, never in a namespace the stacks share: dev, test
   and prod are stacks in one account, and a shared namespace makes one metric of all three, so a
   stage's alarm fires on another stage's events. An `AWS::Logs::MetricFilter` publishes to

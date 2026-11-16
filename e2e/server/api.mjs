@@ -21,7 +21,7 @@ const routes = await readRoutes(path.join(DIST, 'template.yaml'))
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Headers':
-    'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Client-Version,X-Registration-Token',
+    'Content-Type,X-Amz-Date,Authorization,X-Amz-Security-Token,X-Client-Version,X-Registration-Token',
   'Access-Control-Allow-Methods': 'OPTIONS,HEAD,GET,PUT,POST,PATCH,DELETE',
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Max-Age': '3600',

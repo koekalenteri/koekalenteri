@@ -34,6 +34,22 @@ const resourceName = (block: string) => block.slice(0, block.indexOf(':'))
 const resourcesOfType = (type: string) =>
   resources.filter((block) => new RegExp(String.raw`^\w+:.*\n {4}Type: ${type}\s*$`, 'm').test(block))
 
+const unquote = (value: string) => value.replaceAll("'", '')
+
+// KoekalenteriApi's MethodSettings, one per method and path: `GET /dog/{regNo}`.
+const methodSettings = [
+  ...template.matchAll(/^ {8}- ResourcePath: (.+)\n {10}HttpMethod: (.+)\n((?: {10}.+\n)*)/gm),
+].map(([, path, method, settings]) => ({ method: `${unquote(method)} ${unquote(path)}`, settings }))
+
+// Every function's Api events: the route and whether API Gateway asks for a Cognito token first.
+const apiEvents = [...template.matchAll(/^ {10}Type: Api\n {10}Properties:\n((?: {12}.+\n)*)/gm)].map(
+  ([, properties]) => ({
+    route: `${/^ {12}Method: (\S+)$/m.exec(properties)?.[1]} ${/^ {12}Path: (\S+)$/m.exec(properties)?.[1]}`,
+    // GET /admin/user carries a trailing comment.
+    signedIn: /^ {14}Authorizer: CognitoAuthorizer(?: +#.*)?$/m.test(properties),
+  })
+)
+
 describe('template', () => {
   it('has a function for every lambda directory, and nothing else', () => {
     const codeUris = matchAll(/^ {6}CodeUri: lambda\/(\w+)$/gm).sort()
@@ -168,9 +184,6 @@ describe('template', () => {
   // series and a method's throttle work without them, and the function's own AWS/Lambda Invocations
   // counts its calls for free (KOE-1649).
   it('turns on no per-method API metrics, and no alarm reads one', () => {
-    const methodSettings = [
-      ...template.matchAll(/^ {8}- ResourcePath: (.+)\n {10}HttpMethod: (.+)\n((?: {10}.+\n)*)/gm),
-    ].map(([, path, method, settings]) => ({ method: `${method} ${path}`, settings }))
     const methodAlarms = resourcesOfType('AWS::CloudWatch::Alarm').filter(
       (block) => /^ {6}Namespace: AWS\/ApiGateway$/m.test(block) && /^ {8}- Name: Resource$/m.test(block)
     )
@@ -180,6 +193,34 @@ describe('template', () => {
       methodSettings.filter(({ settings }) => /^ {10}MetricsEnabled: true$/m.test(settings)).map(({ method }) => method)
     ).toEqual([])
     expect(methodAlarms.map(resourceName)).toEqual([])
+  })
+
+  // A route that needs no sign-in is open to anyone who finds the URL, and one without a bucket of its
+  // own falls back to the account-wide default, which every stack in the account shares. The usage
+  // plan that looked like a limit never was one: no route asked for its API key (KOE-1620).
+  it('throttles every route that needs no sign-in with a bucket of its own', () => {
+    const throttled = new Set(
+      methodSettings
+        .filter(
+          ({ settings }) =>
+            /^ {10}ThrottlingRateLimit: \d+$/m.test(settings) && /^ {10}ThrottlingBurstLimit: \d+$/m.test(settings)
+        )
+        .map(({ method }) => method)
+    )
+    const publicRoutes = apiEvents.filter(({ signedIn }) => !signedIn).map(({ route }) => route)
+    const routes = new Set(apiEvents.map(({ route }) => route))
+
+    expect(apiEvents).toHaveLength(template.match(/^ {10}Type: Api$/gm)?.length ?? 0)
+    expect(publicRoutes.length).toBeGreaterThan(0)
+    expect(publicRoutes.filter((route) => !throttled.has(route))).toEqual([])
+    // A bucket left behind by a renamed or removed route throttles nothing.
+    expect(
+      methodSettings.map(({ method }) => method).filter((method) => method !== '* /*' && !routes.has(method))
+    ).toEqual([])
+  })
+
+  it('has no usage plan or API key', () => {
+    expect(template).not.toMatch(/usageplan|api-?key/i)
   })
 
   // SSEEnabled: true encrypts a table with the AWS-managed aws/dynamodb KMS key, and DynamoDB then
