@@ -14,9 +14,9 @@ judge the change by what it does, not by its description.
 - The issue from the folder the orchestrator gives you: `issue.json` with its comments, and the
   attachments beside it. Attachments are part of the issue: look at every image with Read. Only
   without a folder, read it through the Jira REST API (`JIRA_USER_EMAIL` and `JIRA_API_TOKEN` in
-  `.env`; images from `/rest/api/3/attachment/content/<id>`). A `design-<area>.md` in the folder
-  is the design of the piece and its row in the table of pieces; read it there, not the release's
-  plan document with the Docs tools.
+  `.env`; images from `/rest/api/3/attachment/content/<id>`). A `design-<area>-p<k>.md` in the
+  folder is the design of the piece and its row in the table of pieces; read it there, not the
+  release's plan document with the Docs tools.
 - The diff: `gh pr diff <pr>`, and the files around it on the PR branch
   (`git show origin/<branch>:<path>`), not the local checkout, which may be behind.
 - `AGENTS.md` and `LLM_CONTEXT.md`: they are the rules you review against.

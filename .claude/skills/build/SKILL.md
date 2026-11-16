@@ -52,17 +52,16 @@ scratch files named after the branch.
 Run `/ticket` steps 2–6 for it, with these differences:
 
 - **Design file:** before the implementer starts, read the area's design section once and save it
-  as markdown in the folder of the piece's first issue, `<scratchpad>/<KEY>/design-<area>.md`,
-  with the piece's row of **Palat** at the top. Read the section, not the document. The outline
-  (`{"projection":"outline"}`) gives the ids of the area's heading and of the last block before
-  the next heading of the same or a higher level; then
+  as markdown in the folder of the piece's first issue, `<scratchpad>/<KEY>/design-<area>-p<k>.md`,
+  with the piece's row of **Palat** at the top. The file is the design; the table in the document
+  stays the piece's state. The outline (`{"projection":"outline"}`) gives the ids of the area's
+  heading and of the last block before the next heading of the same or a higher level, or of the
+  document's last block when none follows; then
   `{"kind":"search","blocks":{"first":"<heading id>","last":"<last block id>"}}` prints every
-  paragraph, heading, list item and table cell between them, paged by `next`. A `view` by the
-  heading's id reads the heading alone. The piece's row is
+  paragraph, heading, list item and table cell between them. The piece's row is
   `{"kind":"view","parentId":"<row id>"}`, the row id from `{"kind":"search","text":"P<k>"}`
-  under the table. The implementer and the reviewers get the file's path with the issue folder
-  and read the design from it, not from the document with the Docs tools: a whole-document read
-  stays in an agent's context for every later turn.
+  under the table. The implementer gets the file's path with the issue folder and reads the
+  design from it, not from the document with the Docs tools.
 - **Plan:** the design's piece is the approved plan. The implementer confirms the readers against
   the code (`git grep` with output) and commits the failing test before reporting. Plan reviewers
   run only when it found a reader or a contract the design missed; then the design section in
