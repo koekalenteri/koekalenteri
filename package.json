@@ -108,6 +108,7 @@
     "i18n-sort": "node scripts/sort-translations.js src/i18n/locales/fi/translation.json && node scripts/sort-translations.js src/i18n/locales/en/translation.json",
     "knip": "knip --config knip.config.json",
     "link-node-modules": "node scripts/link-node-modules.mjs",
+    "pull-main-checkout": "node scripts/pull-main-checkout.mjs",
     "check-screenshots": "node scripts/checkScreenshots.js",
     "check-dom-snapshots": "node scripts/checkDomSnapshots.js",
     "prepare": "husky"

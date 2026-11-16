@@ -7,12 +7,14 @@
 // Its local branch is deleted too when it points at that HEAD. Everything else stays, with the
 // reason. `git worktree remove` runs without --force, so git refuses anything not clean.
 // lsof cannot see a subagent that waits for its next message, so name the worktrees whose agents
-// are done rather than sweep a checkout other sessions work in.
+// are done rather than sweep a checkout other sessions work in. With --apply it then pulls the main
+// checkout when it is on `main` with a clean tree (pullMainCheckout in scripts/lib/git.mjs).
 //
 //   node .claude/skills/build/remove-merged-worktrees.mjs [<worktree>...]          what would go
 //   node .claude/skills/build/remove-merged-worktrees.mjs --apply [<worktree>...]  remove it
 import { spawnSync } from 'node:child_process'
 import path from 'node:path'
+import { pullMainCheckout } from '../../../scripts/lib/git.mjs'
 
 const args = process.argv.slice(2)
 const apply = args.includes('--apply')
@@ -100,4 +102,7 @@ for (const wt of worktrees) {
     git(mainCheckout, 'branch', '-D', wt.branch)
   }
 }
-if (apply) console.log(`${removed} removed`)
+if (apply) {
+  console.log(`${removed} removed`)
+  console.log(pullMainCheckout(mainCheckout))
+}
