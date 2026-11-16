@@ -305,6 +305,13 @@ describe('the classes a followed format requires (KOE-1742)', () => {
   })
 })
 
+/** The texts the own classes' group is found by, in the language of the test. */
+interface GroupTexts {
+  readonly code: string
+  readonly eventName: string
+  readonly title: string
+}
+
 // KOE-674: an unofficial trial's own classes, in the secretary's order, chosen by day among the classes.
 // The second class has no Finnish name or day yet, so its row says what the save would refuse.
 describe("an unofficial trial's own classes (KOE-674)", () => {
@@ -346,10 +353,19 @@ describe("an unofficial trial's own classes (KOE-674)", () => {
       </TestProvider>
     )
 
+  // KOE-1760: the editor is a group of its own, so its title does not seem to own the fields below it.
+  const expectOwnGroup = async (screen: Awaited<ReturnType<typeof renderOwnClasses>>, texts: GroupTexts) => {
+    const group = screen.getByRole('region', { name: texts.title })
+    await expect.element(group.getByLabelText(texts.code, { exact: true }).first()).toBeVisible()
+    await expect.element(group.getByLabelText(texts.eventName, { exact: true })).not.toBeInTheDocument()
+    await expect.element(screen.getByLabelText(texts.eventName, { exact: true })).toBeVisible()
+  }
+
   it('lists them with what to correct', async () => {
     const screen = await renderOwnClasses()
 
     await expect.element(screen.getByText('Valitse luokalle päivä kohdasta Luokat.')).toBeVisible()
+    await expectOwnGroup(screen, { code: 'Koodi', eventName: 'Nimi (Suomeksi)', title: 'Omat luokat' })
     await expect(screen.getByTestId('visual-root')).toMatchScreenshot('basic-info-section-own-classes')
   })
 
@@ -392,6 +408,7 @@ describe("an unofficial trial's own classes (KOE-674)", () => {
       const screen = await renderOwnClasses()
 
       await expect.element(screen.getByText('Choose a day for the class under Classes.')).toBeVisible()
+      await expectOwnGroup(screen, { code: 'Code', eventName: 'Name (In Finnish)', title: 'Own classes' })
       await expect(screen.getByTestId('visual-root')).toMatchScreenshot('basic-info-section-own-classes-en')
     })
   })
