@@ -179,12 +179,15 @@ ilman numeroa. Kun molemmat vuorot on julkaistu, päivä on julkaistu kokonaan.
 ## Joukkueet
 
 Kokeessa voi olla joukkuekilpailu, olipa koemuoto mikä tahansa. Joukkueet määritellään paneelin
-*{t:eventManagement.actions}* -osion painikkeella **{t:eventManagement.teams}**. Kenttään
-**{t:teams.count}** kirjoitetaan, montako joukkuetta kilpailussa on, ja sivulle tulee yhtä monta
-joukkuetta numeroituina: Joukkue 1, Joukkue 2 ja niin edelleen. Kun määrää pienennetään, joukkueet
-poistuvat lopusta ja niiden koirat vapautuvat muihin joukkueisiin. Jos määrä on nolla, kokeessa ei
-ole joukkuekilpailua. Joukkueiden yläpuolella on paneeli *{t:teams.settings}*, joka näkyy aina,
-jotta kilpailun asetukset voi tehdä jo ennen kuin joukkueita on.
+*{t:eventManagement.actions}* -osion painikkeella **{t:eventManagement.teams}**. Joukkue tehdään
+koirasta: joukkueiden alla olevasta valikosta **{t:teams.newTeam}** valitaan joukkueen ensimmäinen
+koira, ja sivulle tulee uusi joukkue viimeiseksi. Joukkueet numeroidaan järjestyksessä: Joukkue 1,
+Joukkue 2 ja niin edelleen. Joukkueen kortin poistopainike poistaa joukkueen, mikä tahansa se on:
+sen koirat vapautuvat muihin joukkueisiin, ja sen jälkeiset joukkueet siirtyvät numeron ylemmäs, joten
+myös niiden koirien tunnukset muuttuvat. Poisto on lopullinen vasta tallennuksessa, ja
+**{t:cancel}** palauttaa joukkueet ennalleen. Kun joukkueita ei ole, kokeessa ei ole
+joukkuekilpailua. Joukkueiden yläpuolella on paneeli *{t:teams.settings}*, joka näkyy aina, jotta
+kilpailun asetukset voi tehdä jo ennen kuin joukkueita on.
 
 Joukkueelle voi antaa numeron lisäksi nimen kenttään **{t:teams.name}**, esimerkiksi Team Finland 1.
 Valinta **{t:teams.primary}** merkitsee joukkueen yhdistyksensä tai kennelinsä ykkösjoukkueeksi.
@@ -241,10 +244,8 @@ nimeä kohden. Nimet, jotka eroavat vain isoilta ja pieniltä kirjaimilta tai v�
 joukkue, ja ehdotus on nimetty niin kuin ensimmäinen ilmoittautuja sen kirjoitti. Ehdotuksessa ovat
 ne koirat, jotka voisi lisätä joukkueeseen valikosta **{t:teams.addDog}** ja jotka eivät vielä ole
 missään joukkueessa, ilmoittautumisjärjestyksessä. Painike **{t:teams.takeSuggestionShort}**
-tekee ehdotuksesta joukkueen: se täyttää ensimmäisen tyhjän joukkueen, jolla ei ole nimeä eikä
-koiria, tai lisää uuden joukkueen loppuun. Tyhjän joukkueen sarja säilyy, mutta ykkösjoukkueen
-merkintä ei: ilmoittautuja ei kerro, onko joukkue ykkösjoukkue, joten merkitse se valinnalla
-**{t:teams.primary}** joukkueen kortissa. Jos nimen on ilmoittanut useampi koira kuin joukkueeseen mahtuu,
+tekee ehdotuksesta uuden joukkueen viimeiseksi. Ilmoittautuja ei kerro, onko joukkue ykkösjoukkue,
+joten merkitse se valinnalla **{t:teams.primary}** joukkueen kortissa. Jos nimen on ilmoittanut useampi koira kuin joukkueeseen mahtuu,
 ehdotus kertoo sen, ja joukkueeksi tehtynä se kertoo, montako koiraa joukkueessa voi olla:
 tallentaa voi vasta, kun ylimääräiset koirat on siirretty muihin joukkueisiin. Joukkueen nimeä,
 koiria ja ykkösjoukkueen merkintää voi sen jälkeen muuttaa kuten muidenkin joukkueiden, ja

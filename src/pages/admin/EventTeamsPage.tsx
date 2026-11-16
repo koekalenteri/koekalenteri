@@ -10,7 +10,6 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
-import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useAtomValue } from 'jotai'
 import { useCallback, useMemo, useState } from 'react'
@@ -30,20 +29,16 @@ import { EntryPageHeader } from './components/EntryPageHeader'
 import EventNotFound from './components/EventNotFound'
 import TeamCard from './eventTeamsPage/TeamCard'
 import TeamCompetitionSettings from './eventTeamsPage/TeamCompetitionSettings'
+import TeamDogPicker from './eventTeamsPage/TeamDogPicker'
 import TeamDrawDialog from './eventTeamsPage/TeamDrawDialog'
 import TeamSuggestions from './eventTeamsPage/TeamSuggestions'
 import { useMoveTeam } from './eventTeamsPage/useMoveTeam'
+import { useTeamKeys } from './eventTeamsPage/useTeamKeys'
 import useEventForm from './hooks/useEventForm'
 import { adminEventAtom, adminEventRegistrationsAtom } from './state'
 import { useAdminEventScope } from './state/eventScope'
 
 const NO_TEAMS: EventTeam[] = []
-
-/** The teams as many as the count asks: new ones empty at the end, the last ones dropped. */
-const resized = (teams: EventTeam[], count: number): EventTeam[] =>
-  count <= teams.length
-    ? teams.slice(0, count)
-    : [...teams, ...Array.from({ length: count - teams.length }, (): EventTeam => ({ registrationIds: [] }))]
 
 /**
  * The event with these teams. None is no team competition: an event that stored no teams gets none, and
@@ -75,35 +70,22 @@ const withTeamCompetition = (event: DogEvent, teamCompetition: TeamCompetition, 
 }
 
 /**
- * The teams with a suggestion made into one (KOE-1721): its name and its dogs, in the first team still
- * empty, of no name and no dogs, which keeps its series, or else in a new team at the end. The secretary
- * marks a first team on its card (KOE-1759).
+ * The teams with a suggestion made into one at the end (KOE-1721, KOE-1763): its name and its dogs. The
+ * secretary marks a first team on its card (KOE-1759).
  */
-const withSuggestion = (teams: EventTeam[], { name, registrationIds }: TeamSuggestion): EventTeam[] => {
-  const team: EventTeam = { name, registrationIds }
-  const empty = teams.findIndex((item) => !item.name && !item.registrationIds.length)
-  if (empty < 0) return [...teams, team]
-  // The empty team keeps its series, not a first-team mark it was given before it had a name or dogs.
-  return teams.map((item, at) => {
-    if (at !== empty) return item
-    const { primary: _primary, ...kept } = item
-    return { ...kept, ...team }
-  })
-}
-
-/** The count typed, or undefined while the field holds no whole number of teams. */
-const typedCount = (value: string): number | undefined => {
-  const count = Number(value)
-  return value !== '' && Number.isInteger(count) && count >= 0 ? count : undefined
-}
+const withSuggestion = (teams: EventTeam[], { name, registrationIds }: TeamSuggestion): EventTeam[] => [
+  ...teams,
+  { name, registrationIds },
+]
 
 /**
  * The teams of a team competition (KOE-1714), on a page of their own like the posts: any event can run
- * one, and the count is what turns it on. The competition's settings are set here too, before any team
- * is made: whether the entry form asks for the dog's team (KOE-1721), the series, and each team's
- * series; the standings are worked out series by series (KOE-1720). The names given at entry are
- * suggested as teams. The page edits a draft of its own (KOE-1700), so the secretary saves or cancels
- * the teams as one.
+ * one, and its first team is what turns it on. A team is made of its first dog, or of a suggestion, and
+ * any team can be removed (KOE-1763). The competition's settings are set here too, before any team is
+ * made: whether the entry form asks for the dog's team (KOE-1721), the series, and each team's series;
+ * the standings are worked out series by series (KOE-1720). The names given at entry are suggested as
+ * teams. The page edits a draft of its own (KOE-1700), so the secretary saves or cancels the teams as
+ * one.
  */
 export default function EventTeamsPage() {
   const { t } = useTranslation()
@@ -174,7 +156,9 @@ export default function EventTeamsPage() {
       ),
     [entries, litters, teams]
   )
-  // A team is its number, its place in the list: only the last ones come and go (KOE-1714).
+  // A team is its number, its place in the list (KOE-1714), so removing one moves the teams after it up a
+  // number; each card keeps a key of its own (KOE-1763).
+  const { keys: cardKeys, remove: removeCardKey } = useTeamKeys(teams.length)
   const numbered = useMemo(() => teams.map((team, index) => ({ number: index + 1, team })), [teams])
   // The standings of the draft, so a run-off marked shows before it is saved; the totals a round stored
   // before KOE-1669 lacks are worked out as the start list does (KOE-1717).
@@ -222,15 +206,12 @@ export default function EventTeamsPage() {
     [event, handleChange, storedEvent?.teams]
   )
 
-  // What the field holds while it is being typed in: clearing it to type another count drops no team.
-  const [countText, setCountText] = useState<string>()
-  const handleCount = useCallback(
-    (value: string) => {
-      setCountText(value)
-      const count = typedCount(value)
-      if (count !== undefined) setTeams(resized(teams, count))
+  const removeTeam = useCallback(
+    (index: number) => {
+      removeCardKey(index)
+      setTeams(teams.filter((_, at) => at !== index))
     },
-    [setTeams, teams]
+    [removeCardKey, setTeams, teams]
   )
 
   if (!event?.id) {
@@ -249,16 +230,6 @@ export default function EventTeamsPage() {
       </EntryPageHeader>
       <Box sx={{ flexGrow: 1, overflow: 'auto', p: 2 }}>
         <Stack spacing={2}>
-          <TextField
-            label={t('teams.count')}
-            onBlur={() => setCountText(undefined)}
-            onChange={(e) => handleCount(e.target.value)}
-            size="small"
-            slotProps={{ htmlInput: { min: 0 } }}
-            sx={{ width: 200 }}
-            type="number"
-            value={countText ?? teams.length}
-          />
           <TeamCompetitionSettings
             teamCompetition={event.teamCompetition}
             trialDays={trialDays}
@@ -296,11 +267,12 @@ export default function EventTeamsPage() {
           />
           {numbered.map(({ number, team }) => (
             <TeamCard
-              key={number}
+              key={cardKeys[number - 1]}
               available={available}
               entries={entries}
               number={number}
               onChange={(changed) => setTeams(teams.map((item, at) => (at === number - 1 ? changed : item)))}
+              onRemove={() => removeTeam(number - 1)}
               onRunOffChange={(won) => setTeams(withRunOffWinner(teams, number - 1, won))}
               series={series}
               selection={selections[number - 1]}
@@ -313,6 +285,13 @@ export default function EventTeamsPage() {
               litterMarks={litterMarks[number - 1]}
             />
           ))}
+          <TeamDogPicker
+            available={available}
+            helperText={t('teams.newTeamHelp')}
+            label={t('teams.newTeam')}
+            onPick={(registration) => setTeams([...teams, { registrationIds: [registration.id] }])}
+            resetKey={teams.length}
+          />
         </Stack>
       </Box>
       <Stack

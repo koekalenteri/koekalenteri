@@ -20,12 +20,11 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { findTeamCandidates } from '@/lib/client/teamAssembly'
 import { getHandlingPerson, isStarter } from '@/lib/registration'
 import { formatTeamStanding } from '@/lib/startListView'
 import { MAX_TEAM_MEMBERS, teamMembers } from '@/lib/team'
 import { withTeamSeries } from '@/lib/teamStandings'
-import AutocompleteSingle from '../../components/AutocompleteSingle'
+import TeamDogPicker, { dogLabel } from './TeamDogPicker'
 
 interface Props {
   /** The team's number, from 1. */
@@ -36,6 +35,8 @@ interface Props {
   /** The entries the team may take: candidates (`isTeamCandidate`, KOE-1725) in no team yet. */
   readonly available: readonly Registration[]
   readonly onChange: (team: EventTeam) => void
+  /** Takes the team away (KOE-1763): its dogs are free again, and the teams after it move up a number. */
+  readonly onRemove: () => void
   /** The team's points and placing over the trial, in a format scored at posts once a dog has a result. */
   readonly standing?: TeamStanding
   /** Records whether the team won the run-off for first place. */
@@ -132,16 +133,6 @@ const TeamResult = ({ standing, countedDays, runOffWon, onRunOffChange }: Standi
   )
 }
 
-const dogLabel = (registration: Registration) => registration.dog.name ?? registration.dog.regNo ?? ''
-
-/** What a dog to add is found by (KOE-1725): its name and number, its handler, its published start number. */
-const searchOf = (registration: Registration) => ({
-  dogName: registration.dog.name,
-  handler: getHandlingPerson(registration)?.name,
-  regNo: registration.dog.regNo,
-  startNumber: registration.startGroup?.number,
-})
-
 /** What the secretary is told of a member whose entry no longer runs as it did when it was added. */
 const memberState = (registration: Registration): 'memberCancelled' | 'memberReserve' | undefined => {
   if (registration.cancelled) return 'memberCancelled'
@@ -153,7 +144,7 @@ const memberState = (registration: Registration): 'memberCancelled' | 'memberRes
  * One team of a team competition (KOE-1714): its number, its name, whether it is its club's or kennel's
  * first team (KOE-1722), which the draw reads, its series where the competition has them (KOE-1720),
  * and its dogs, each by its code (`teamMembers`). A dog's place is its letter, so moving it is the only
- * way to change one.
+ * way to change one. Any team can be removed (KOE-1763).
  */
 export default function TeamCard({
   number,
@@ -161,6 +152,7 @@ export default function TeamCard({
   entries,
   available,
   onChange,
+  onRemove,
   standing,
   onRunOffChange,
   series = [],
@@ -198,9 +190,7 @@ export default function TeamCard({
   )
 
   const handleAdd = useCallback(
-    (registration: Registration | null) => {
-      if (registration) onChange({ ...team, registrationIds: [...ids, registration.id] })
-    },
+    (registration: Registration) => onChange({ ...team, registrationIds: [...ids, registration.id] }),
     [ids, onChange, team]
   )
 
@@ -219,9 +209,14 @@ export default function TeamCard({
   return (
     <Paper component="section" aria-label={heading} variant="outlined" sx={{ p: 2 }}>
       <Stack spacing={1}>
-        <Typography variant="h6" component="h2">
-          {heading}
-        </Typography>
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+          <Typography variant="h6" component="h2">
+            {heading}
+          </Typography>
+          <Button onClick={onRemove} size="small" startIcon={<DeleteOutline />}>
+            {t('teams.removeTeam', { number })}
+          </Button>
+        </Stack>
         <TextField
           label={t('teams.name')}
           onChange={(e) => handleName(e.target.value)}
@@ -313,25 +308,13 @@ export default function TeamCard({
             )
           })}
         </List>
-        <AutocompleteSingle<Registration, false>
-          // A new input after each pick, so the field is empty for the next dog.
-          key={ids.length}
-          blurOnSelect
+        <TeamDogPicker
+          available={available}
           disabled={full}
-          filterOptions={(options, { inputValue }) => findTeamCandidates(options, inputValue, searchOf)}
-          getOptionLabel={(registration) => {
-            const { handler, startNumber } = searchOf(registration)
-            const dog = startNumber === undefined ? dogLabel(registration) : `${startNumber} ${dogLabel(registration)}`
-            return handler ? `${dog}, ${t('teams.handler', { name: handler })}` : dog
-          }}
-          getOptionKey={(registration) => registration.id}
           helperText={full ? t('teams.addDogFull', { count: MAX_TEAM_MEMBERS }) : undefined}
-          isOptionEqualToValue={(option, value) => option.id === value.id}
           label={t('teams.addDog')}
-          onChange={handleAdd}
-          options={available}
-          size="small"
-          value={null}
+          onPick={handleAdd}
+          resetKey={ids.length}
         />
       </Stack>
     </Paper>

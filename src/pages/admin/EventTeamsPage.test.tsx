@@ -70,15 +70,20 @@ type User = Awaited<ReturnType<typeof renderPage>>['user']
 
 const teamSections = () => screen.queryAllByRole('region')
 
-const setCount = async (user: User, count: string) => {
-  const field = screen.getByRole('spinbutton', { name: 'teams.count' })
-  await user.clear(field)
-  if (count) await user.type(field, count)
+/** A dog's option in the add-a-dog list: its name, then its handler (KOE-1725). */
+const dogOption = (name: string) => `${name}, teams.handler name`
+
+/** A team made of its first dog, chosen under the cards (KOE-1763). */
+const newTeam = async (user: User, name: string) => {
+  await user.click(screen.getByRole('combobox', { name: 'teams.newTeam' }))
+  await user.click(await screen.findByRole('option', { name: dogOption(name) }))
   await flushPromises()
 }
 
-/** A dog's option in the add-a-dog list: its name, then its handler (KOE-1725). */
-const dogOption = (name: string) => `${name}, teams.handler name`
+const removeTeam = async (user: User, team: HTMLElement) => {
+  await user.click(within(team).getByRole('button', { name: 'teams.removeTeam number' }))
+  await flushPromises()
+}
 
 const addDog = async (user: User, team: HTMLElement, name: string) => {
   await user.click(within(team).getByRole('combobox', { name: 'teams.addDog' }))
@@ -102,34 +107,115 @@ describe('EventTeamsPage', () => {
   })
   afterAll(() => vi.useRealTimers())
 
-  it('adds teams at the end and drops them from the end as the count changes', async () => {
+  // KOE-1763: a team is made of its first dog, after the teams there are.
+  it('makes a team of the first dog chosen for a new team, and the next one after it', async () => {
+    vi.mocked(putEvent).mockResolvedValue(eventWithStations)
     const { user } = await renderPage()
     await flushPromises()
     expect(teamSections()).toHaveLength(0)
+    expect(screen.queryByRole('spinbutton')).not.toBeInTheDocument()
 
-    await setCount(user, '3')
-    expect(teamSections()).toHaveLength(3)
+    await newTeam(user, 'Ensimmainen')
+    await newTeam(user, 'Toinen')
 
-    await user.type(within(teamSections()[0]).getByRole('textbox', { name: 'teams.name' }), 'Lintukoirat')
-    await setCount(user, '1')
+    expect(teamSections().map(members)).toEqual([['1A Ensimmainen'], ['2A Toinen']])
+    expect(screen.getByRole('combobox', { name: 'teams.newTeam' })).toHaveValue('')
 
-    expect(teamSections()).toHaveLength(1)
-    expect(within(teamSections()[0]).getByRole('textbox', { name: 'teams.name' })).toHaveValue('Lintukoirat')
+    await user.click(screen.getByRole('button', { name: 'save' }))
+    await flushPromises()
+    expect(putEvent).toHaveBeenLastCalledWith(
+      expect.objectContaining({ teams: [{ registrationIds: ['run-1'] }, { registrationIds: ['run-2'] }] }),
+      TEST_ID_TOKEN,
+      undefined,
+      undefined
+    )
   })
 
   it('gives each dog the letter of its place, offers a dog to one team only and never a cancelled one', async () => {
     const { user } = await renderPage()
     await flushPromises()
-    await setCount(user, '2')
+    await newTeam(user, 'Ensimmainen')
 
-    const [first, second] = teamSections()
-    await addDog(user, first, 'Ensimmainen')
+    const [first] = teamSections()
     await addDog(user, first, 'Varalla')
 
     expect(members(first)).toEqual(['1A Ensimmainen', '1B Varalla' + 'teams.memberReserve'])
 
-    await user.click(within(second).getByRole('combobox', { name: 'teams.addDog' }))
+    await user.click(screen.getByRole('combobox', { name: 'teams.newTeam' }))
     expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual([dogOption('Toinen')])
+  })
+
+  // KOE-1763: any team can be removed; its dogs are free again and the teams after it move up a number.
+  describe('removing a team', () => {
+    const twoTeams = {
+      ...eventWithStations,
+      teams: [
+        { name: 'Ykköset', registrationIds: ['run-1'] },
+        { name: 'Kakkoset', registrationIds: ['run-2'] },
+      ],
+    }
+
+    it('removes the first team, and the second is team 1 with its card as it was', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const { user } = await renderPage(twoTeams)
+      await flushPromises()
+      // The second card is the card that stays: a card keyed by its number would hand team 1's card to
+      // the team that moves up, and what that card held with it.
+      const second = teamSections()[1]
+
+      await removeTeam(user, teamSections()[0])
+
+      const [team] = teamSections()
+      expect(teamSections()).toHaveLength(1)
+      expect(team).toBe(second)
+      expect(within(team).getByRole('heading', { name: 'teams.team number' })).toBeInTheDocument()
+      expect(within(team).getByRole('textbox', { name: 'teams.name' })).toHaveValue('Kakkoset')
+      expect(members(team)).toEqual(['1A Toinen'])
+
+      // The removed team's dog is free for a team again.
+      await user.click(screen.getByRole('combobox', { name: 'teams.newTeam' }))
+      expect(screen.getAllByRole('option').map((option) => option.textContent)).toContain(dogOption('Ensimmainen'))
+
+      await user.keyboard('{Escape}')
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+      expect(putEvent).toHaveBeenLastCalledWith(
+        expect.objectContaining({ teams: [{ name: 'Kakkoset', registrationIds: ['run-2'] }] }),
+        TEST_ID_TOKEN,
+        undefined,
+        undefined
+      )
+    })
+
+    // Teams made empty by the count of 2.2.0 stay until they are removed; nothing migrates them.
+    it('removes a stored empty team', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const { user } = await renderPage({ ...eventWithStations, teams: [...twoTeams.teams, { registrationIds: [] }] })
+      await flushPromises()
+
+      await removeTeam(user, teamSections()[2])
+      await user.click(screen.getByRole('button', { name: 'save' }))
+      await flushPromises()
+
+      expect(putEvent).toHaveBeenLastCalledWith(
+        expect.objectContaining({ teams: twoTeams.teams }),
+        TEST_ID_TOKEN,
+        undefined,
+        undefined
+      )
+    })
+
+    it('leaves the stored teams as they were once the secretary cancels', async () => {
+      const { user } = await renderPage(twoTeams)
+      await flushPromises()
+
+      await removeTeam(user, teamSections()[0])
+      await user.click(screen.getByRole('button', { name: 'cancel' }))
+      await flushPromises()
+
+      expect(screen.getByText('event view')).toBeInTheDocument()
+      expect(putEvent).not.toHaveBeenCalled()
+    })
   })
 
   // KOE-1725: once a class is picked, a team takes only the dogs picked into it, as the save holds to.
@@ -227,15 +313,15 @@ describe('EventTeamsPage', () => {
     expect(within(other).queryByText('teams.addDogFull count')).not.toBeInTheDocument()
   })
 
-  it('leaves nothing to save when the count goes up and back to nought on an event without teams', async () => {
+  it('leaves nothing to save when a new team is removed again on an event without teams', async () => {
     const { user } = await renderPage()
     await flushPromises()
 
-    await setCount(user, '2')
+    await newTeam(user, 'Ensimmainen')
     expect(screen.getByRole('button', { name: 'save' })).toBeEnabled()
 
     // An empty list would differ from the stored event, which has no teams key at all.
-    await setCount(user, '0')
+    await removeTeam(user, teamSections()[0])
     expect(teamSections()).toHaveLength(0)
     expect(screen.getByRole('button', { name: 'save' })).toBeDisabled()
   })
@@ -1025,9 +1111,16 @@ describe('EventTeamsPage', () => {
       expectSaved({ teams: [{ name: 'Kultaiset', registrationIds: ['run-1', 'run-2'] }] })
     })
 
-    it('fills the first empty team with a suggestion before adding one', async () => {
+    // KOE-1763: teams are made of dogs, so an empty team is one the count of 2.2.0 left; it stays as it is.
+    it('adds a suggestion as a new team at the end, also after an empty team', async () => {
+      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
+      const emptyInSeries = { primary: true as const, registrationIds: [], seriesId: 'open' }
       const { user } = await renderPage(
-        { ...eventWithStations, teams: [{ registrationIds: ['reserve-1'] }, { registrationIds: [] }] },
+        {
+          ...eventWithStations,
+          teamCompetition: { series: [{ id: 'open', name: { fi: 'Avoin' } }] },
+          teams: [{ registrationIds: ['reserve-1'] }, emptyInSeries],
+        },
         namedEntries
       )
       await flushPromises()
@@ -1035,30 +1128,20 @@ describe('EventTeamsPage', () => {
       await user.click(screen.getByRole('button', { name: 'teams.takeSuggestion name' }))
       await flushPromises()
 
-      expect(teamSections()).toHaveLength(2)
-      expect(members(teamSections()[1])).toEqual(['2A Ensimmainen', '2B Toinen'])
-    })
-
-    it('leaves no first-team mark of its own on the empty team a suggestion fills', async () => {
-      vi.mocked(putEvent).mockResolvedValue(eventWithStations)
-      const unmarked = [named(registrations[0], 'Kultaiset'), ...registrations.slice(1)]
-      const { user } = await renderPage(
-        {
-          ...eventWithStations,
-          teamCompetition: { series: [{ id: 'open', name: { fi: 'Avoin' } }] },
-          teams: [{ primary: true, registrationIds: [], seriesId: 'open' }],
-        },
-        unmarked
-      )
-      await flushPromises()
-
-      await user.click(screen.getByRole('button', { name: 'teams.takeSuggestion name' }))
-      await flushPromises()
-      expect(primaryBox(teamSections()[0])).not.toBeChecked()
-
+      expect(teamSections().map(members)).toEqual([
+        ['1A Varalla' + 'teams.memberReserve'],
+        [],
+        ['3A Ensimmainen', '3B Toinen'],
+      ])
       await user.click(screen.getByRole('button', { name: 'save' }))
       await flushPromises()
-      expectSaved({ teams: [{ name: 'Kultaiset', registrationIds: ['run-1'], seriesId: 'open' }] })
+      expectSaved({
+        teams: [
+          { registrationIds: ['reserve-1'] },
+          emptyInSeries,
+          { name: 'Kultaiset', registrationIds: ['run-1', 'run-2'] },
+        ],
+      })
     })
 
     // A suggestion is kept whole for the secretary to split; the save would refuse a team too large
@@ -1113,12 +1196,12 @@ describe('EventTeamsPage', () => {
     })
   })
 
-  it('saves an empty list once the count is back at nought, so a whole-event save clears them too', async () => {
+  it('saves an empty list once the last team is removed, so a whole-event save clears them too', async () => {
     vi.mocked(putEvent).mockResolvedValue(eventWithStations)
     const { user } = await renderPage({ ...eventWithStations, teams: [{ registrationIds: ['run-1'] }] })
     await flushPromises()
 
-    await setCount(user, '0')
+    await removeTeam(user, teamSections()[0])
     await user.click(screen.getByRole('button', { name: 'save' }))
     await flushPromises()
 
