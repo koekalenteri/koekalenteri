@@ -37,6 +37,31 @@ commits on the same branch.
   When the work later shows a reader the plan missed, or a different approach, say so before
   changing course.
 
+## Commands in the worktree
+
+The worktree sandbox reads every Bash command that names git before it runs, and refuses one
+whose target it cannot tell from the text. A refused call costs a turn. Shape commands so they
+pass the first time:
+
+- The shell starts in your worktree. Run git and npm there as they are: never `git -C <path>`
+  (refused with any path, your own worktree written out in full too) and never `cd <dir> && git`
+  (refused for a subfolder or a variable; the worktree itself is where you already are).
+- A command that names git anywhere has only literal text: no `$(...)`, no `${...}`, no variable
+  you set (`F=...; ... $F`), and no heredoc. That covers git inside another command's `$(...)`.
+  Plain `&&`, `;` and pipes pass: `git log --oneline -3 | tail -1` runs, while
+  `git status; echo "EXIT ${pipestatus[1]}"` and
+  `npm run docs-coverage -- $(git diff --name-only origin/main...)` are refused. Run a step that
+  needs another's output as a call of its own and write the value in; independent calls go in one
+  message in parallel. Scripts that need the branch's files take a ref
+  (`npm run docs-coverage -- --since origin/main`).
+- Edit files with Edit and Write, not with `python3 - <<'EOF'`, `sed -i` or
+  `cat >> <file> <<'EOF'`. A heredoc in a command that also names git is refused, and Edit shows
+  you and the reviewer the exact change.
+- Commit messages pass commitlint's conventional config (`commitlint.config.js`, run by the
+  `commit-msg` hook): a type from its list, a subject that starts in lower case, and the header
+  and every body and footer line at most 100 characters. Write the message to a file in your
+  scratchpad with Write and commit with `git commit -F <that file's full path>`.
+
 ## Doing it
 
 - Write the test that fails without the change first, and keep the evidence (the failing output)
@@ -60,7 +85,7 @@ commits on the same branch.
 - Changed UI gets a screenshot test and both baselines (`AGENTS.md`, Visual Test Convention).
   Look at every PNG you regenerate.
 - Before pushing, list each new branch you added and the test that takes it.
-- Before pushing, run `npm run docs-coverage -- $(git diff --name-only origin/main...)` and bring
+- Before pushing, run `npm run docs-coverage -- --since origin/main` and bring
   every page it names up to date with what the code now does, Finnish and English, by
   `docs/AGENTS.md`. Update the developer docs that state a convention, command, table or
   interface you added, renamed or removed. A reviewer checks both.
@@ -73,8 +98,8 @@ commits on the same branch.
   housekeeping carries no issue key.
 - Every issue whose tester should hear that the change is on dev goes in the **title**, e.g.
   `feat(email): … (KOE-1469, KOE-1381)`. When the issue is the last open sub-task of a story,
-  the story's key goes in the title too, or the story stays In Progress after the deploy. `jira-testable` comments on the keys it finds after the
-  merge, and only the title is sure to reach main: the squash body is sometimes empty, and a
+  the story's key goes in the title too, or the story stays In Progress after the deploy.
+  `jira-testable` comments on the keys it finds after the merge, and only the title is sure to reach main: the squash body is sometimes empty, and a
   `Refs: KOE-x` line is never a claim (`claimedKeys` in `scripts/lib/jira.mjs`).
 - `git rebase origin/main`, push, `gh pr create --draft`. The orchestrator marks it ready once
   the reviews are clean and the last commit's CI run has started; never run `gh pr ready`
@@ -85,16 +110,16 @@ commits on the same branch.
 ## Feedback
 
 Each message from the orchestrator is one package from the reviewers and the CI watcher. Fix what
-belongs to this PR as new commits, and check before pushing that the PR is still
-open (`gh pr view <pr> --json state`). After the push, do not check whether the branch is
-mergeable: GitHub answers `UNKNOWN` for a while after a push, and the orchestrator checks before
-every review round. When the orchestrator reports a conflict with `main`, run
-`git rebase origin/main`, resolve by meaning, not only text, rerun the touched tests and
-`git push --force-with-lease`. Never merge main into the branch: the merge commit stages every
-file main changed, and the pre-commit hook then tests all of them. `.claude/hooks/refuse-git-merge.sh`
-refuses `git merge` and a `git pull` without `--rebase`. Never wait on CI yourself; the CI watcher does. When a round changes the approach or
-what the tester should try, add a Jira comment saying what changed, with the PR link. If you
-disagree with a finding, say why with evidence;
-do not quietly skip it. Report what you changed per finding.
+belongs to this PR as new commits, and check before pushing that the PR is still open
+(`gh pr view <pr> --json state`). After the push, do not check whether the branch is mergeable:
+GitHub answers `UNKNOWN` for a while after a push, and the orchestrator checks before every
+review round. When the orchestrator reports a conflict with `main`, run `git rebase origin/main`,
+resolve by meaning, not only text, rerun the touched tests and `git push --force-with-lease`.
+Never merge main into the branch: the merge commit stages every file main changed, and the
+pre-commit hook then tests all of them. `.claude/hooks/refuse-git-merge.sh` refuses `git merge`
+and a `git pull` without `--rebase`. Never wait on CI yourself; the CI watcher does. When a round
+changes the approach or what the tester should try, add a Jira comment saying what changed, with
+the PR link. If you disagree with a finding, say why with evidence; do not quietly skip it.
+Report what you changed per finding.
 
 Never touch production, not even to read, without the user's permission.
