@@ -4,6 +4,8 @@
   # See src/lambda/lib/dataVersions.ts.
   DataVersionTable:
     Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
       TableName: !Join ['-', [data-version-table, !Ref AWS::StackName]]
       KeySchema:
@@ -22,6 +24,7 @@
         - Key: Label
           Value: "koekalenteri"
       BillingMode: PAY_PER_REQUEST
+      DeletionProtectionEnabled: true
       SSESpecification:
         SSEEnabled: false
       # The table also holds the migration registry the release reads to decide which data

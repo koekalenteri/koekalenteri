@@ -18,8 +18,9 @@
         - Key: Label
           Value: "koekalenteri"
       BillingMode: PAY_PER_REQUEST
+      DeletionProtectionEnabled: true
       SSESpecification:
         SSEEnabled: false
-      # No point-in-time recovery: the nightly run rebuilds the statistics from the registrations.
+      # No point-in-time recovery, and no Retain policies above: the nightly run rebuilds the statistics from the registrations.
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: false

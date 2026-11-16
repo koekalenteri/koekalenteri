@@ -1,5 +1,7 @@
   UserTable:
     Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
       TableName: !Join ['-', [user-table, 'v2', !Ref AWS::StackName]]
       KeySchema:
@@ -23,6 +25,7 @@
         - Key: Label
           Value: "koekalenteri"
       BillingMode: PAY_PER_REQUEST
+      DeletionProtectionEnabled: true
       SSESpecification:
         SSEEnabled: false
       PointInTimeRecoverySpecification:

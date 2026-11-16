@@ -23,9 +23,10 @@
         - Key: Label
           Value: "koekalenteri"
       BillingMode: PAY_PER_REQUEST
+      DeletionProtectionEnabled: true
       SSESpecification:
         SSEEnabled: false
-      # No point-in-time recovery: the connections expire on their own and mean nothing after a restore.
+      # No point-in-time recovery, and no Retain policies above: the connections expire on their own and mean nothing after a restore.
       PointInTimeRecoverySpecification:
         PointInTimeRecoveryEnabled: false
       TimeToLiveSpecification:
