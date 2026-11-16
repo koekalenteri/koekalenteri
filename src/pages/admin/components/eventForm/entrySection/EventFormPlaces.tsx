@@ -151,25 +151,19 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
         >
           <Typography variant="subtitle1">{t('event.placesEditor.title')}</Typography>
           <ToggleButtonGroup exclusive size="small" disabled={disabled} value={mode} onChange={handleModeChange}>
-            <ToggleButton
-              value="total"
-              disabled={disabled || locked}
-              title={locked ? t('event.placesEditor.locked') : undefined}
-            >
+            <ToggleButton value="total" disabled={disabled || locked}>
               {t('event.placesEditor.total')}
             </ToggleButton>
             {isMultiDay && (
-              <ToggleButton
-                value="perDay"
-                disabled={disabled || locked}
-                title={locked ? t('event.placesEditor.locked') : undefined}
-              >
+              <ToggleButton value="perDay" disabled={disabled || locked}>
                 {t('event.placesEditor.perDay')}
               </ToggleButton>
             )}
             {hasClasses && <ToggleButton value="perClass">{t('event.placesEditor.perClass')}</ToggleButton>}
           </ToggleButtonGroup>
         </Stack>
+        {/* A disabled button shows no tooltip, so the lock is explained as text (KOE-1756). */}
+        {locked && <FormHelperText>{t('event.placesEditor.locked')}</FormHelperText>}
 
         {mode === 'total' && (
           <TotalPlacesField disabled={!!disabled} value={event.places} onChange={handleTotalChange} />

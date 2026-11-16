@@ -345,6 +345,33 @@ describe('EventFormPlaces', () => {
       expect(onChange).not.toHaveBeenCalled()
     })
 
+    it('says why, as text on the form rather than a tooltip a disabled button never shows (KOE-1756)', async () => {
+      const event = {
+        ...eventWithStaticDatesAndClass,
+        classes: [{ ...eventWithStaticDatesAndClass.classes[0], places: 5 }],
+        places: 5,
+      }
+
+      render(<EventFormPlaces event={event} />)
+      await flushPromises()
+
+      expect(screen.getByText('event.placesEditor.locked')).toBeVisible()
+      expect(modeButton('total')).not.toHaveAttribute('title')
+    })
+
+    it('says nothing of a lock that is not there', () => {
+      const event = {
+        ...eventWithStaticDatesAndClass,
+        classes: [{ ...eventWithStaticDatesAndClass.classes[0], places: 5 }],
+        createdAt: undefined,
+        places: 5,
+      }
+
+      render(<EventFormPlaces event={event} />)
+
+      expect(screen.queryByText('event.placesEditor.locked')).not.toBeInTheDocument()
+    })
+
     it('does not lock an unsaved NOME-B event even with class places already entered', async () => {
       const event = {
         ...eventWithStaticDatesAndClass,

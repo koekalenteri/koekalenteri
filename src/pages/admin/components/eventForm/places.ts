@@ -1,6 +1,6 @@
-import type { DeepPartial, EventClass } from '@/types'
+import type { DayKey, DeepPartial, EventClass } from '@/types'
 import type { PartialEvent } from './types'
-import { formatTypeOf, getEventDays } from '@/lib/event'
+import { formatTypeOf, getEventClassesByDays, getEventDays } from '@/lib/event'
 import { splitEvenly } from '@/lib/utils'
 
 type ClassesEvent = Pick<PartialEvent, 'classes'>
@@ -22,6 +22,19 @@ export function requiresClassPlaces(event: Pick<PartialEvent, 'eventType' | 'off
  */
 export function isClassDateActive(cls: Pick<DeepPartial<EventClass>, 'groups'>): boolean {
   return cls.groups === undefined || cls.groups.length > 0
+}
+
+/**
+ * The days of the trial no class runs on (KOE-1756): an entry is made for a class day
+ * (`adminRegistrationDates`), so no one can enter for such a day. A class deselected for the day
+ * through its groups counts as none; a trial without classes has no such days.
+ */
+export function classlessDays(event: Pick<PartialEvent, 'classes' | 'endDate' | 'startDate'>): DayKey[] {
+  if (event.classes.length === 0) return []
+
+  return getEventClassesByDays(event)
+    .filter(({ classes }) => !classes.some(isClassDateActive))
+    .map(({ day }) => day)
 }
 
 /** Calculate total places from classes, ignoring class-day entries that aren't actually offered. */

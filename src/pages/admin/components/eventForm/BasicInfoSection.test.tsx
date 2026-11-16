@@ -627,6 +627,30 @@ describe('BasicInfoSection', () => {
     })
   })
 
+  describe('a day of the trial without a class (KOE-1756)', () => {
+    const twoDays: PartialEvent = {
+      classes: [{ class: 'VOI', date: '2027-07-03' }],
+      endDate: '2027-07-04',
+      eventType: 'NOME-B',
+      judges: [],
+      startDate: '2027-07-03',
+    }
+    const classes = () => screen.getByRole('combobox', { name: 'event.classes' })
+
+    it('is named under the classes, since no one can enter for it', () => {
+      renderComponent({ event: twoDays, eventTypeClasses: EVENT_TYPE_CLASSES, open: true })
+
+      expect(classes()).toHaveAccessibleDescription('event.classDaysMissing count, list')
+    })
+
+    it('is not mentioned when every day has a class', () => {
+      const event = { ...twoDays, classes: [...twoDays.classes, { class: 'VOI', date: twoDays.endDate }] }
+      renderComponent({ event, eventTypeClasses: EVENT_TYPE_CLASSES, open: true })
+
+      expect(screen.queryByText(/event\.classDaysMissing/)).not.toBeInTheDocument()
+    })
+  })
+
   describe('interactions', () => {
     it('marks a NOWT as a Mock trial and drops its ALO classes (KOE-308)', async () => {
       const testEvent: PartialEvent = {

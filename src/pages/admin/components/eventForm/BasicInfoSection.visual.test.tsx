@@ -396,3 +396,29 @@ describe("an unofficial trial's own classes (KOE-674)", () => {
     })
   })
 })
+
+it('names the day of a longer trial that has no class (KOE-1756)', async () => {
+  const event = {
+    classes: [{ class: 'VOI' as const, date: '2027-07-03' as const }],
+    description: '',
+    endDate: '2027-07-04' as const,
+    eventType: 'NOME-B',
+    id: 'test',
+    judges: [],
+    name: 'Kesäkoe',
+    startDate: '2027-07-03' as const,
+  }
+
+  const screen = await render(
+    <TestProvider initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
+      <Frame>
+        <BasicInfoSection event={event} eventTypeClasses={EVENT_TYPE_CLASSES} eventTypes={['NOME-B']} open />
+      </Frame>
+    </TestProvider>
+  )
+
+  await expect
+    .element(screen.getByText('Päivälle su 4.7. ei ole valittu luokkaa, joten sille ei voi ilmoittautua.'))
+    .toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('basic-info-section-classless-day')
+})

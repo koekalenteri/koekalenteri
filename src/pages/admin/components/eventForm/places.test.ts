@@ -1,8 +1,9 @@
-import type { DeepPartial, EventClass } from '@/types'
+import type { DayKey, DeepPartial, EventClass } from '@/types'
 import type { PartialEvent } from './types'
 import {
   calculateTotalFromClasses,
   calculateTotalFromDays,
+  classlessDays,
   distributePlacesAmongClasses,
   distributePlacesAmongClassesPerDay,
   distributePlacesAmongDays,
@@ -11,6 +12,50 @@ import {
 } from './places'
 
 describe('places', () => {
+  describe('classlessDays', () => {
+    const saturday: DayKey = '2027-07-03'
+    const sunday: DayKey = '2027-07-04'
+    const twoDays = { endDate: sunday, startDate: saturday }
+
+    it('names the day of a longer trial that has no class (KOE-1756)', () => {
+      expect(classlessDays({ ...twoDays, classes: [{ class: 'VOI', date: saturday }] })).toEqual([sunday])
+    })
+
+    it('counts a class deselected for the day through its groups as no class', () => {
+      expect(
+        classlessDays({
+          ...twoDays,
+          classes: [
+            { class: 'VOI', date: saturday },
+            { class: 'VOI', date: sunday, groups: [] },
+          ],
+        })
+      ).toEqual([sunday])
+    })
+
+    it('names no day when every day has a class', () => {
+      expect(
+        classlessDays({
+          ...twoDays,
+          classes: [
+            { class: 'VOI', date: saturday },
+            { class: 'ALO', date: sunday },
+          ],
+        })
+      ).toEqual([])
+    })
+
+    it('names no day for a trial without classes', () => {
+      expect(classlessDays({ ...twoDays, classes: [] })).toEqual([])
+    })
+
+    it('names no day for a one-day trial', () => {
+      expect(
+        classlessDays({ classes: [{ class: 'VOI', date: saturday }], endDate: saturday, startDate: saturday })
+      ).toEqual([])
+    })
+  })
+
   describe('isClassDateActive', () => {
     it('treats undefined groups as active (feature not in use)', () => {
       expect(isClassDateActive({})).toBe(true)
