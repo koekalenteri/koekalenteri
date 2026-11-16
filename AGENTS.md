@@ -44,10 +44,13 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 - A change that adds a stored field, or lets a user edit, clear or untick one (a form field, a
   checkbox, a list item, or something derived from it, such as a class's groups), has a test that
   removes the value through the real save path and shows it stays removed: the patch carries `null`
-  for it, or the stored row no longer has it. In the patch protocol (`patchMerge` and `patchTo` in
-  `src/lib/utils.ts`, `getNestedChanges` in `src/lib/diff.ts`, `createPatch` in
-  `src/lambda/lib/patch.ts`) only `null` removes a key; a key that is `undefined` or missing means
-  "no change", so a removal that is not sent as `null` comes back on the next save.
+  for it, or the stored row no longer has it.
+- A partial patch merged over the stored object (`merge` and `patchMerge` in `src/lib/utils.ts`)
+  removes a key only with `null`; a key that is missing or `undefined` in it means "no change". A
+  whole-object diff removes what the new object lacks: `getNestedChanges` (`src/lib/diff.ts`) and
+  `patchTo` (`src/lib/utils.ts`) turn such a key into `null`, and `createPatch`
+  (`src/lambda/lib/patch.ts`) into a `remove` path. A removal persists only when the save diffs the
+  edited object against the stored one or sends the `null` itself.
 
 ## Mocking Gotchas
 
