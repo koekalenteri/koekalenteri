@@ -20,7 +20,7 @@ covers:
   - src/pages/admin/StartListPreviewPage.tsx
   - src/pages/admin/startListPage/**
   - src/pages/ClassStartNumbersPage.tsx
-sourceHash: 3414e5
+sourceHash: 02ce95
 ---
 
 Once entry has closed, the secretary's work goes step by step: picking the participants, the
@@ -184,12 +184,14 @@ without a number. Once both halves are published, the day is published as a whol
 ## Teams
 
 A trial can run a team competition, whatever its type. The teams are set up with the
-**{t:eventManagement.teams}** button in the panel's *{t:eventManagement.actions}* section. Type how
-many teams the competition has in **{t:teams.count}**, and the page shows that many teams, numbered:
-Team 1, Team 2 and so on. Lowering the number removes teams from the end, and their dogs become free
-for the other teams. A number of zero means the trial has no team competition. Above the teams is the panel
-*{t:teams.settings}*, which always shows, so the competition can be set up before there are any
-teams.
+**{t:eventManagement.teams}** button in the panel's *{t:eventManagement.actions}* section. A team is
+made from a dog: choose the team's first dog in **{t:teams.newTeam}** below the teams, and a new team
+appears last. The teams are numbered in order: Team 1, Team 2 and so on. The remove button on a
+team's card removes the team, whichever it is: its dogs become free for the other teams, and the
+teams after it move up a number, so their dogs' codes change too. A removal is final only once
+saved, and **{t:cancel}** puts the teams back as they were. With no teams, the trial has no team
+competition. Above the teams is the panel *{t:teams.settings}*, which always shows, so the
+competition can be set up before there are any teams.
 
 A team can have a name besides its number, such as Team Finland 1, in **{t:teams.name}**. The
 choice **{t:teams.primary}** marks the team as the first team of its club or kennel. The system does
@@ -243,10 +245,8 @@ From the names given, the page has a panel *{t:teams.suggestions}* with one sugg
 name. Names that differ only in capital letters or spacing are the same team, and a suggestion is
 named as the first participant to enter wrote it. A suggestion holds the dogs that could be added to
 a team from **{t:teams.addDog}** and are in no team yet, in the order they entered. The button
-**{t:teams.takeSuggestionShort}** makes the suggestion a team: it fills the first empty team, with
-no name and no dogs, or adds a new team at the end. The empty team keeps its series but not its
-first-team mark: the participant does not say whether a team is a first team, so mark it with
-**{t:teams.primary}** on the team's card. If more dogs gave the name than a team holds, the
+**{t:teams.takeSuggestionShort}** makes the suggestion a new team, last. The participant does not
+say whether a team is a first team, so mark it with **{t:teams.primary}** on the team's card. If more dogs gave the name than a team holds, the
 suggestion says so, and once made a team it says how many dogs a team can hold: it can be saved only
 once the extra dogs have moved to other teams. The team's name, dogs and first-team mark can
 then be changed like any other team's, and **{t:save}** stores the changes.

@@ -68,8 +68,8 @@ test('a team named at entry is suggested on the teams page, made a team and mark
   await expect(page.getByRole('region', { name: 'Joukkue 1' }).getByText(`1B ${second.name}`)).toBeVisible()
 })
 
-test('on a phone, a dog is found by its handler and added to a team', {
-  annotation: issue('KOE-1725'),
+test('on a phone, a dog is found by its handler and made a new team', {
+  annotation: [issue('KOE-1725'), issue('KOE-1763')],
   tag: '@secretary',
 }, async ({ context, page }) => {
   await page.setViewportSize({ height: 844, width: 390 })
@@ -80,15 +80,14 @@ test('on a phone, a dog is found by its handler and added to a team', {
     eventType: 'NOU',
     organizer: { id: organizer.id, name: organizer.name },
     paymentTime: 'confirmation',
-    teams: [{ registrationIds: [] }],
   })
   const owner = await seedStaffUser()
   const entry = await registerThroughApi(event, await seedDog(), owner)
 
   await signInAs(context, secretary)
   await page.goto(teamsPage(event.id))
-  // The owner handles the dog; part of the handler's name is enough.
-  await page.getByRole('combobox', { name: 'Lisää koira' }).fill(owner.id)
+  // The owner handles the dog; part of the handler's name is enough. The first dog makes the team.
+  await page.getByRole('combobox', { name: 'Uusi joukkue' }).fill(owner.id)
   await page.getByRole('option', { name: new RegExp(`ohj\\. ${owner.name}$`) }).click()
   await page.getByRole('button', { name: 'Tallenna' }).click()
   await expect(page.getByText('Joukkueet tallennettu')).toBeVisible()
