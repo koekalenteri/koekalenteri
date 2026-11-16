@@ -5,290 +5,295 @@ exports[`routes > should match a snapshot 1`] = `
   {
     "children": [
       {
-        "element": <SearchPage />,
-        "index": true,
+        "children": [
+          {
+            "element": <SearchPage />,
+            "index": true,
+          },
+          {
+            "lazy": [Function],
+            "path": "event/:eventType/:id/:class/:date",
+          },
+          {
+            "lazy": [Function],
+            "path": "event/:eventType/:id/:class",
+          },
+          {
+            "lazy": [Function],
+            "path": "event/:eventType/:id",
+          },
+          {
+            "lazy": [Function],
+            "path": "live-entry/:eventId/:stationId/access/:token",
+          },
+          {
+            "lazy": [Function],
+            "path": "start-numbers/:eventId/:eventClass/access/:token",
+          },
+          {
+            "loader": [Function],
+            "path": "station/:eventId/:stationId/access/:token",
+          },
+          {
+            "lazy": [Function],
+            "path": "p/:id/:registrationId",
+          },
+          {
+            "lazy": [Function],
+            "path": "p/:id/:registrationId/access/:editToken",
+          },
+          {
+            "element": <React.Fragment>
+              loading...
+            </React.Fragment>,
+            "loader": [Function],
+            "path": "p/success",
+          },
+          {
+            "element": <React.Fragment>
+              loading...
+            </React.Fragment>,
+            "loader": [Function],
+            "path": "p/cancel",
+          },
+          {
+            "lazy": [Function],
+            "path": "r/:id/:registrationId/cancel",
+          },
+          {
+            "lazy": [Function],
+            "path": "r/:id/:registrationId/access/:editToken/cancel",
+          },
+          {
+            "lazy": [Function],
+            "path": "r/:id/:registrationId/confirm",
+          },
+          {
+            "lazy": [Function],
+            "path": "r/:id/:registrationId/access/:editToken/confirm",
+          },
+          {
+            "lazy": [Function],
+            "path": "r/:id/:registrationId/edit",
+          },
+          {
+            "lazy": [Function],
+            "path": "r/:id/:registrationId/access/:editToken/edit",
+          },
+          {
+            "lazy": [Function],
+            "path": "r/:id/:registrationId/saved",
+          },
+          {
+            "lazy": [Function],
+            "path": "r/:id/:registrationId/access/:editToken/saved",
+          },
+          {
+            "lazy": [Function],
+            "path": "r/:id/:registrationId",
+          },
+          {
+            "lazy": [Function],
+            "path": "r/:id/:registrationId/access/:editToken",
+          },
+        ],
+        "element": <HomePage />,
+        "errorElement": <ErrorPage />,
+        "hydrateFallbackElement": <ForwardRef />,
+        "path": "/",
       },
       {
+        "errorElement": <ErrorPage />,
+        "hydrateFallbackElement": <ForwardRef />,
         "lazy": [Function],
-        "path": "event/:eventType/:id/:class/:date",
+        "path": "r/:id/:registrationId/invitation",
       },
       {
+        "errorElement": <ErrorPage />,
+        "hydrateFallbackElement": <ForwardRef />,
         "lazy": [Function],
-        "path": "event/:eventType/:id/:class",
+        "path": "r/:id/:registrationId/access/:editToken/invitation",
       },
       {
+        "errorElement": <ErrorPage />,
+        "hydrateFallbackElement": <ForwardRef />,
         "lazy": [Function],
-        "path": "event/:eventType/:id",
+        "path": "/login",
       },
-      {
-        "lazy": [Function],
-        "path": "live-entry/:eventId/:stationId/access/:token",
-      },
-      {
-        "lazy": [Function],
-        "path": "start-numbers/:eventId/:eventClass/access/:token",
-      },
-      {
-        "loader": [Function],
-        "path": "station/:eventId/:stationId/access/:token",
-      },
-      {
-        "lazy": [Function],
-        "path": "p/:id/:registrationId",
-      },
-      {
-        "lazy": [Function],
-        "path": "p/:id/:registrationId/access/:editToken",
-      },
-      {
-        "element": <React.Fragment>
-          loading...
-        </React.Fragment>,
-        "loader": [Function],
-        "path": "p/success",
-      },
-      {
-        "element": <React.Fragment>
-          loading...
-        </React.Fragment>,
-        "loader": [Function],
-        "path": "p/cancel",
-      },
-      {
-        "lazy": [Function],
-        "path": "r/:id/:registrationId/cancel",
-      },
-      {
-        "lazy": [Function],
-        "path": "r/:id/:registrationId/access/:editToken/cancel",
-      },
-      {
-        "lazy": [Function],
-        "path": "r/:id/:registrationId/confirm",
-      },
-      {
-        "lazy": [Function],
-        "path": "r/:id/:registrationId/access/:editToken/confirm",
-      },
-      {
-        "lazy": [Function],
-        "path": "r/:id/:registrationId/edit",
-      },
-      {
-        "lazy": [Function],
-        "path": "r/:id/:registrationId/access/:editToken/edit",
-      },
-      {
-        "lazy": [Function],
-        "path": "r/:id/:registrationId/saved",
-      },
-      {
-        "lazy": [Function],
-        "path": "r/:id/:registrationId/access/:editToken/saved",
-      },
-      {
-        "lazy": [Function],
-        "path": "r/:id/:registrationId",
-      },
-      {
-        "lazy": [Function],
-        "path": "r/:id/:registrationId/access/:editToken",
-      },
-    ],
-    "element": <HomePage />,
-    "errorElement": <ErrorPage />,
-    "hydrateFallbackElement": <ForwardRef />,
-    "path": "/",
-  },
-  {
-    "errorElement": <ErrorPage />,
-    "hydrateFallbackElement": <ForwardRef />,
-    "lazy": [Function],
-    "path": "r/:id/:registrationId/invitation",
-  },
-  {
-    "errorElement": <ErrorPage />,
-    "hydrateFallbackElement": <ForwardRef />,
-    "lazy": [Function],
-    "path": "r/:id/:registrationId/access/:editToken/invitation",
-  },
-  {
-    "errorElement": <ErrorPage />,
-    "hydrateFallbackElement": <ForwardRef />,
-    "lazy": [Function],
-    "path": "/login",
-  },
-  {
-    "element": <Navigate
-      replace={true}
-      to="/"
-    />,
-    "errorElement": <ErrorPage />,
-    "path": "/logout",
-  },
-  {
-    "children": [
       {
         "element": <Navigate
           replace={true}
-          to="/admin/event"
+          to="/"
         />,
-        "index": true,
+        "errorElement": <ErrorPage />,
+        "path": "/logout",
+      },
+      {
+        "children": [
+          {
+            "element": <Navigate
+              replace={true}
+              to="/admin/event"
+            />,
+            "index": true,
+          },
+          {
+            "lazy": [Function],
+            "path": "/admin/event",
+          },
+          {
+            "lazy": [Function],
+            "path": "/admin/event/create",
+          },
+          {
+            "lazy": [Function],
+            "path": "/admin/event/edit/:id",
+          },
+          {
+            "lazy": [Function],
+            "path": "/admin/event/view/:id",
+          },
+          {
+            "lazy": [Function],
+            "path": "/admin/event/stations/:id",
+          },
+          {
+            "lazy": [Function],
+            "path": "/admin/event/teams/:id",
+          },
+          {
+            "lazy": [Function],
+            "path": "/admin/event/startnumbers/:id",
+          },
+          {
+            "lazy": [Function],
+            "path": "/admin/event/results/:id",
+          },
+          {
+            "lazy": [Function],
+            "path": "/admin/event/results/:id/station/:stationId",
+          },
+          {
+            "lazy": [Function],
+            "path": "/admin/organizations",
+          },
+          {
+            "lazy": [Function],
+            "path": "/admin/officials",
+          },
+          {
+            "lazy": [Function],
+            "path": "/admin/users",
+          },
+          {
+            "lazy": [Function],
+            "path": "/admin/judge",
+          },
+          {
+            "lazy": [Function],
+            "path": "/admin/types",
+          },
+          {
+            "lazy": [Function],
+            "path": "/admin/templates",
+          },
+          {
+            "lazy": [Function],
+            "path": "/admin/stats",
+          },
+          {
+            "lazy": [Function],
+            "path": "/admin/event-breakdown",
+          },
+        ],
+        "errorElement": <ErrorPage />,
+        "hydrateFallbackElement": <ForwardRef />,
+        "lazy": [Function],
+        "path": "/admin",
+      },
+      {
+        "errorElement": <ErrorPage />,
+        "hydrateFallbackElement": <ForwardRef />,
+        "lazy": [Function],
+        "path": "/admin/event/startlist/:id",
+      },
+      {
+        "errorElement": <ErrorPage />,
+        "hydrateFallbackElement": <ForwardRef />,
+        "lazy": [Function],
+        "path": "/admin/event/startlist-preview/:id",
+      },
+      {
+        "errorElement": <ErrorPage />,
+        "hydrateFallbackElement": <ForwardRef />,
+        "lazy": [Function],
+        "path": "/startlist/:id",
+      },
+      {
+        "errorElement": <ErrorPage />,
+        "hydrateFallbackElement": <ForwardRef />,
+        "lazy": [Function],
+        "path": "/stats",
       },
       {
         "lazy": [Function],
-        "path": "/admin/event",
+        "path": "/docs",
       },
       {
         "lazy": [Function],
-        "path": "/admin/event/create",
+        "path": "/docs/*",
       },
       {
         "lazy": [Function],
-        "path": "/admin/event/edit/:id",
+        "path": "/whats-new",
       },
       {
         "lazy": [Function],
-        "path": "/admin/event/view/:id",
+        "path": "support",
       },
       {
         "lazy": [Function],
-        "path": "/admin/event/stations/:id",
+        "path": "terms",
       },
       {
-        "lazy": [Function],
-        "path": "/admin/event/teams/:id",
+        "element": <MovedGuide />,
+        "path": "ohjeet",
       },
       {
-        "lazy": [Function],
-        "path": "/admin/event/startnumbers/:id",
+        "element": <MovedGuide />,
+        "path": "ohjeet/*",
       },
       {
-        "lazy": [Function],
-        "path": "/admin/event/results/:id",
+        "element": <MovedWhatsNew />,
+        "path": "uutta",
       },
       {
-        "lazy": [Function],
-        "path": "/admin/event/results/:id/station/:stationId",
+        "element": <MovedStats />,
+        "path": "tilastot",
       },
       {
-        "lazy": [Function],
-        "path": "/admin/organizations",
+        "element": <Navigate
+          replace={true}
+          to="/"
+        />,
+        "path": "frmEtusivu.aspx",
       },
       {
-        "lazy": [Function],
-        "path": "/admin/officials",
+        "element": <Navigate
+          replace={true}
+          to="/"
+        />,
+        "path": "frmKoekalenteri.aspx",
       },
       {
-        "lazy": [Function],
-        "path": "/admin/users",
-      },
-      {
-        "lazy": [Function],
-        "path": "/admin/judge",
-      },
-      {
-        "lazy": [Function],
-        "path": "/admin/types",
-      },
-      {
-        "lazy": [Function],
-        "path": "/admin/templates",
-      },
-      {
-        "lazy": [Function],
-        "path": "/admin/stats",
-      },
-      {
-        "lazy": [Function],
-        "path": "/admin/event-breakdown",
+        "element": <Navigate
+          replace={true}
+          to="/"
+        />,
+        "path": "frmKalenteri.aspx",
       },
     ],
     "errorElement": <ErrorPage />,
-    "hydrateFallbackElement": <ForwardRef />,
-    "lazy": [Function],
-    "path": "/admin",
-  },
-  {
-    "errorElement": <ErrorPage />,
-    "hydrateFallbackElement": <ForwardRef />,
-    "lazy": [Function],
-    "path": "/admin/event/startlist/:id",
-  },
-  {
-    "errorElement": <ErrorPage />,
-    "hydrateFallbackElement": <ForwardRef />,
-    "lazy": [Function],
-    "path": "/admin/event/startlist-preview/:id",
-  },
-  {
-    "errorElement": <ErrorPage />,
-    "hydrateFallbackElement": <ForwardRef />,
-    "lazy": [Function],
-    "path": "/startlist/:id",
-  },
-  {
-    "errorElement": <ErrorPage />,
-    "hydrateFallbackElement": <ForwardRef />,
-    "lazy": [Function],
-    "path": "/stats",
-  },
-  {
-    "lazy": [Function],
-    "path": "/docs",
-  },
-  {
-    "lazy": [Function],
-    "path": "/docs/*",
-  },
-  {
-    "lazy": [Function],
-    "path": "/whats-new",
-  },
-  {
-    "lazy": [Function],
-    "path": "support",
-  },
-  {
-    "lazy": [Function],
-    "path": "terms",
-  },
-  {
-    "element": <MovedGuide />,
-    "path": "ohjeet",
-  },
-  {
-    "element": <MovedGuide />,
-    "path": "ohjeet/*",
-  },
-  {
-    "element": <MovedWhatsNew />,
-    "path": "uutta",
-  },
-  {
-    "element": <MovedStats />,
-    "path": "tilastot",
-  },
-  {
-    "element": <Navigate
-      replace={true}
-      to="/"
-    />,
-    "path": "frmEtusivu.aspx",
-  },
-  {
-    "element": <Navigate
-      replace={true}
-      to="/"
-    />,
-    "path": "frmKoekalenteri.aspx",
-  },
-  {
-    "element": <Navigate
-      replace={true}
-      to="/"
-    />,
-    "path": "frmKalenteri.aspx",
   },
 ]
 `;

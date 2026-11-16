@@ -43,7 +43,7 @@ const MovedStats = () => {
   return <Navigate replace to={{ hash, pathname: Path.stats, search }} />
 }
 
-const routes: RouteObject[] = [
+const pageRoutes: RouteObject[] = [
   {
     children: [
       {
@@ -375,5 +375,11 @@ const routes: RouteObject[] = [
     path: 'frmKalenteri.aspx',
   },
 ]
+
+/**
+ * A page without an error page of its own (the guide, the release notes) would show React Router's
+ * developer page for anything it throws, such as a chunk the reload guard gave up on (KOE-1755).
+ */
+const routes: RouteObject[] = [{ children: pageRoutes, errorElement: <ErrorPage /> }]
 
 export default routes
