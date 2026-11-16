@@ -1,8 +1,9 @@
 import { execFile, execFileSync, spawnSync } from 'node:child_process'
-import { mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
+import { createThrowawayRepo } from './lib/throwaway-repo.mjs'
 import {
   checkApi,
   checkFrontPage,
@@ -402,28 +403,8 @@ describe('the command line against a server', () => {
 
   it('passes a dev deploy that Amplify built from a later commit on main with a bumped version', async () => {
     // A history of its own: CI's checkout is shallow, so the repo's own parent commit is not there.
-    // It must never reach the caller's repository. The pre-commit hook runs this file with GIT_DIR
-    // and GIT_INDEX_FILE set, and a `git init` that inherits them rewrites the repository being
-    // committed to (core.bare = true in its shared config). So git here gets a built environment,
-    // not the caller's: no GIT_* variable, an empty global config, no system config, and a ceiling
-    // that stops discovery above the throwaway directory.
-    const base = realpathSync(mkdtempSync(path.join(tmpdir(), 'smoke-deploy-git-')))
-    const repo = path.join(base, 'repo')
-    const globalConfig = path.join(base, 'gitconfig')
-    writeFileSync(globalConfig, '')
-    const env = {
-      GIT_CEILING_DIRECTORIES: base,
-      GIT_CONFIG_GLOBAL: globalConfig,
-      GIT_CONFIG_NOSYSTEM: '1',
-      HOME: base,
-      PATH: process.env.PATH,
-    }
-    const config = ['-c', 'user.name=smoke', '-c', 'user.email=smoke@example.invalid', '-c', 'commit.gpgsign=false']
-    const git = (...args) => execFileSync('git', [...config, ...args], { cwd: repo, encoding: 'utf8', env }).trim()
+    const { dir: repo, env, git, remove } = createThrowawayRepo('smoke-deploy-git-')
     try {
-      execFileSync('git', ['init', '-q', repo], { cwd: base, env })
-      // Every later command runs in `repo`; refuse to go on if git resolves anything else there.
-      expect(git('rev-parse', '--absolute-git-dir')).toBe(path.join(repo, '.git'))
       writeFileSync(path.join(repo, 'package.json'), '{ "version": "1.2.3" }')
       git('add', 'package.json')
       git('commit', '-q', '-m', 'checked out by deploy-frontend')
@@ -442,7 +423,7 @@ describe('the command line against a server', () => {
       expect(result.status).toBe(0)
       expect(result.stdout).toContain(`version 1.3.0, revision ${stamp.revision}`)
     } finally {
-      rmSync(base, { force: true, recursive: true })
+      remove()
     }
   })
 
