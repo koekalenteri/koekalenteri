@@ -77,6 +77,33 @@ describe('ErrorPage', () => {
 
     expect(reload).toHaveBeenCalledTimes(1)
   })
+
+  // KOE-1755: a chunk that still fails after the automatic reload is almost always a new version
+  // of the app, and the page says so instead of a bare "something went wrong".
+  it('tells the app has been updated and reloads on a chunk load error', async () => {
+    const reload = vi.fn()
+    vi.spyOn(globalThis, 'location', 'get').mockReturnValue({ ...globalThis.location, reload })
+    const routes: RouteObject[] = [
+      {
+        errorElement: <ErrorPage />,
+        lazy: () => Promise.reject(Object.assign(new Error('Loading chunk 1190 failed.'), { name: 'ChunkLoadError' })),
+        path: '/',
+      },
+    ]
+    const { user } = renderWithUserEvents(
+      <ThemeProvider theme={theme}>
+        <DataMemoryRouter initialEntries={['/']} routes={routes} />
+      </ThemeProvider>
+    )
+
+    expect(await screen.findByRole('heading', { name: 'error.appUpdated' })).toBeInTheDocument()
+    expect(screen.getByText('error.appUpdatedInfo')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'goHome' })).toHaveAttribute('href', '/')
+
+    await user.click(screen.getByRole('button', { name: 'error.reloadPage' }))
+
+    expect(reload).toHaveBeenCalledTimes(1)
+  })
 })
 
 function ErrorThrowingComponent(): React.JSX.Element {

@@ -18,6 +18,15 @@ describe('routes', () => {
     expect(routes).toMatchSnapshot()
   })
 
+  // KOE-1755: a route without an error page of its own (the guide, the release notes) showed React
+  // Router's developer page for a chunk that failed to load. One root route catches them all.
+  it('puts every route under a root route with an error page', () => {
+    expect(routes).toHaveLength(1)
+    expect(routes[0].path).toBeUndefined()
+    expect(routes[0].errorElement).toBeDefined()
+    expect(findRoute(Path.whatsNew, routes[0].children)).toBeDefined()
+  })
+
   it('redirects a live entry link shared under the old station path', async () => {
     const route = findRoute('station/:eventId/:stationId/access/:token')
     const loader = typeof route?.loader === 'function' ? route.loader : undefined

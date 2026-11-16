@@ -21,35 +21,66 @@ describe('isChunkLoadError', () => {
 })
 
 describe('reloadOnChunkLoadError', () => {
+  const KEY = 'koekalenteri:chunk-load-reloaded'
+  const NOW = 1_800_000_000_000
+  const now = () => NOW
+  const chunkError = () => new Error('Loading chunk 123 failed.')
+
   beforeEach(() => {
     sessionStorage.clear()
   })
 
-  it('returns loaded value and clears previous reload marker', async () => {
-    sessionStorage.setItem('koekalenteri:chunk-load-reloaded', 'true')
-
-    await expect(reloadOnChunkLoadError(() => Promise.resolve('loaded'))).resolves.toBe('loaded')
-
-    expect(sessionStorage.getItem('koekalenteri:chunk-load-reloaded')).toBeNull()
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
-  it('reloads once and leaves the import promise pending for a chunk load error', async () => {
+  // KOE-1755: a reload that lands on an eager page (the calendar) has no lazy load to clear the mark
+  // with, so a mark cleared on success stayed for the tab's life and refused the next update's reload.
+  it('returns the loaded value and leaves the reload mark to expire', async () => {
+    sessionStorage.setItem(KEY, String(NOW - 5_000))
+
+    await expect(reloadOnChunkLoadError(() => Promise.resolve('loaded'), vi.fn(), now)).resolves.toBe('loaded')
+
+    expect(sessionStorage.getItem(KEY)).toBe(String(NOW - 5_000))
+  })
+
+  it.each([
+    ['no mark', undefined],
+    ['a mark older than a minute', String(NOW - 61_000)],
+    ['the mark of the bundle before KOE-1755', 'true'],
+    ['a mark from the future', String(NOW + 5_000)],
+  ])('reloads once and leaves the import promise pending with %s', async (_, mark) => {
+    if (mark !== undefined) sessionStorage.setItem(KEY, mark)
     const reload = vi.fn()
-    const promise = reloadOnChunkLoadError(() => Promise.reject(new Error('Loading chunk 123 failed.')), reload)
+    const promise = reloadOnChunkLoadError(() => Promise.reject(chunkError()), reload, now)
 
     await Promise.resolve()
 
     expect(reload).toHaveBeenCalledTimes(1)
-    expect(sessionStorage.getItem('koekalenteri:chunk-load-reloaded')).toBe('true')
+    expect(sessionStorage.getItem(KEY)).toBe(String(NOW))
     await expect(Promise.race([promise, Promise.resolve('pending')])).resolves.toBe('pending')
   })
 
-  it('rethrows chunk load errors after a reload has already been attempted', async () => {
-    const error = new Error('Loading chunk 123 failed.')
+  it('rethrows a chunk load error within a minute of the previous reload', async () => {
+    const error = chunkError()
     const reload = vi.fn()
-    sessionStorage.setItem('koekalenteri:chunk-load-reloaded', 'true')
+    sessionStorage.setItem(KEY, String(NOW - 5_000))
 
-    await expect(reloadOnChunkLoadError(() => Promise.reject(error), reload)).rejects.toBe(error)
+    await expect(reloadOnChunkLoadError(() => Promise.reject(error), reload, now)).rejects.toBe(error)
+
+    expect(reload).not.toHaveBeenCalled()
+  })
+
+  // Without a readable mark there is no telling whether this load already follows a reload, and a
+  // guess of "no" could reload forever.
+  it('rethrows a chunk load error when the mark cannot be read', async () => {
+    const error = chunkError()
+    const reload = vi.fn()
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('SecurityError')
+    })
+
+    await expect(reloadOnChunkLoadError(() => Promise.reject(error), reload, now)).rejects.toBe(error)
 
     expect(reload).not.toHaveBeenCalled()
   })
@@ -58,7 +89,7 @@ describe('reloadOnChunkLoadError', () => {
     const error = new Error('regular app error')
     const reload = vi.fn()
 
-    await expect(reloadOnChunkLoadError(() => Promise.reject(error), reload)).rejects.toBe(error)
+    await expect(reloadOnChunkLoadError(() => Promise.reject(error), reload, now)).rejects.toBe(error)
 
     expect(reload).not.toHaveBeenCalled()
   })

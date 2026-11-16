@@ -68,6 +68,28 @@ it('shows a generic message for an unhandled error', async () => {
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('error-page-500')
 })
 
+it('tells the app has been updated when a chunk fails to load', async () => {
+  const routes: RouteObject[] = [
+    {
+      errorElement: <ErrorPage />,
+      hydrateFallbackElement: <p>loading</p>,
+      lazy: () => Promise.reject(Object.assign(new Error('Loading chunk 1190 failed.'), { name: 'ChunkLoadError' })),
+      path: '/',
+    },
+  ]
+  await page.viewport(VIEWPORT.width, VIEWPORT.height)
+  const screen = await render(
+    <div data-testid="visual-root">
+      <ThemeProvider theme={theme}>
+        <DataMemoryRouter initialEntries={['/']} routes={routes} />
+      </ThemeProvider>
+    </div>
+  )
+
+  await expect.element(screen.getByRole('heading', { name: 'Sovellus on päivittynyt' })).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('error-page-app-updated')
+})
+
 function ErrorThrowingComponent(): React.JSX.Element {
   throw new Error('TEST ERROR')
 }

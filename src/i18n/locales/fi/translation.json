@@ -272,6 +272,8 @@
   "entryTitle_test": "Ilmoittaudu kokeeseen",
   "entryUpcoming": "Ilmoittautuminen tulossa",
   "error": {
+    "appUpdated": "Sovellus on päivittynyt",
+    "appUpdatedInfo": "Sivun osaa ei saatu ladattua. Palveluun on todennäköisesti tullut uusi versio, tai verkkoyhteys katkesi. Lataa sivu uudelleen.",
     "connectionInterrupted": "Verkkoyhteys katkesi. Tarkista yhteys ja yritä uudelleen. Jos lähetit lomakkeen, päivitä sivu ensin ja tarkista, tallentuiko se.",
     "entryNotOpen": "Ilmoittautuminen ei ole avoinna",
     "eventMayHaveBeenDeleted": "Tapahtuma on saatettu poistaa tai sinulla ei ole oikeuksia.",
@@ -279,6 +281,7 @@
     "noAdminAccess": "Ei käyttöoikeutta",
     "noAdminAccessInfo": "Tunnuksellasi ei ole oikeutta tälle sivulle. Ylläpidon oikeudet antaa yhdistyksesi pääkäyttäjä.",
     "registrationNotFound": "Ilmoittautumista ei löydy.",
+    "reloadPage": "Lataa sivu uudelleen",
     "somethingWentWrong": "Jotakin meni pieleen.",
     "startListNotAvailable": "Starttilistaa ei ole saatavilla tälle tapahtumalle.",
     "tryAgain": "Yritä uudelleen",

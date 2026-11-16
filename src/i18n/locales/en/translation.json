@@ -272,6 +272,8 @@
   "entryTitle_test": "Register to test",
   "entryUpcoming": "Upcoming registration",
   "error": {
+    "appUpdated": "The app has been updated",
+    "appUpdatedInfo": "Part of the page could not be loaded. A new version of the app is probably available, or the connection was interrupted. Reload the page.",
     "connectionInterrupted": "The connection was interrupted. Check your network and try again. If you submitted a form, refresh first to check whether it was saved.",
     "entryNotOpen": "Entry is not open",
     "eventMayHaveBeenDeleted": "The event may have been deleted or access is denied.",
@@ -279,6 +281,7 @@
     "noAdminAccess": "No access",
     "noAdminAccessInfo": "Your account has no rights to this page. Your club's administrator grants the admin rights.",
     "registrationNotFound": "Registration not found.",
+    "reloadPage": "Reload page",
     "somethingWentWrong": "Something went wrong.",
     "startListNotAvailable": "The start list is not available for this event.",
     "tryAgain": "Try again",
