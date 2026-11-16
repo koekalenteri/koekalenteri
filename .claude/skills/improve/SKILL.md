@@ -30,10 +30,11 @@ This session orchestrates, as in `/ticket` (`.claude/skills/ticket/SKILL.md`); r
 .claude/skills/improve/retro.mjs <version> --out <scratchpad>/retro
 ```
 
-It writes `<scratchpad>/retro/retro-<version>.json` and prints the summary. Read the summary, and
-the JSON only for the rows you dig into. Never read a transcript with the model: there are
-gigabytes of them, and the script already has every number taken from them. A question the
-summary cannot answer gets a new measure in the script (step 6), not a manual read.
+It writes `<scratchpad>/retro/retro-<version>.json` and prints the summary; a `gh` call that meets
+a GitHub server error (HTTP 5xx) is tried three more times before the run fails. Read the
+summary, and the JSON only for the rows you dig into. Never read a transcript with the model:
+there are gigabytes of them, and the script already has every number taken from them. A question
+the summary cannot answer gets a new measure in the script (step 6), not a manual read.
 
 What it measures, in the order the retro uses:
 
@@ -43,11 +44,17 @@ What it measures, in the order the retro uses:
   each report's `Findings:` line (`.claude/agents/reviewer.md`).
 - **Wasted work:** PR open-to-merge hours, force-pushes, main merged into a branch, PRs turned back
   to draft, CI watcher rounds per PR, sightings of a `CONFLICTING` branch, pre-commit and
-  commit-msg hook failures, reruns.
+  commit-msg hook failures with the line of each that tells most why, taken in this order: a
+  commitlint rule, a failed test file, a type error, a Biome rule, message or count, a knip
+  finding, the pre-commit script's own refusal, the check that exited nonzero, an `Error:`
+  line. Reruns. Only husky's own `script failed` line counts as a failure, not a file or a grep
+  that quotes it.
 - **CI:** job medians and p90s, why runs went red (job and first failed step), jobs that failed
   and then passed on a rerun of the same run (flaky).
-- **Tools:** failed tool calls by kind (permission, hook, sandbox, MCP, harness, exit code), waits
-  on the user (`AskUserQuestion`), other pauses over half an hour.
+- **Tools:** failed tool calls by kind (permission, hook, sandbox, MCP, harness, exit code); their
+  causes for every kind but exit codes, each with the commands that met it (the JSON keeps up to
+  four, the summary shows one) and the day it was last met, so a cause the release already fixed
+  shows an old date; waits on the user (`AskUserQuestion`), other pauses over half an hour.
 - **Waits** (`waits.mjs`): every way an agent waits, per kind and agent type (the main session or
   the subagent's type). The kinds: `sleep` (a foreground `sleep N`), `poll-loop` (`until`,
   `while` or `for` with a sleep), `gh-pr-checks-watch`, `gh-run-watch`, `bash-background` (Bash

@@ -245,6 +245,49 @@ export const errorSignature = (text) =>
     .trim()
     .slice(0, 120)
 
+// The line husky prints when a hook fails. Only a line of its own is hook output: a source file
+// or a grep that quotes it is not.
+const HOOK_FAILED = /^husky - (pre-commit|commit-msg) script failed \(code \d+\)/m
+
+const first = (m) => m[1]
+const exited = (m) => `${m[1]} exited with code ${m[2]}`
+
+// What a failed hook says, most telling first: a commitlint rule, a failed test, a type error, a
+// Biome rule, message or count, a knip finding, the pre-commit script's own refusal, the check
+// that exited with a nonzero code (from its own line or from the timings table that is all a
+// `| tail` keeps), and last an `Error:` that stopped the hook before any check ran.
+const HOOK_CAUSES = [
+  [/^✖\s+([^[]+\[[a-z-]+\])$/, first],
+  [/\bFAIL\s+(\|\w+\|\s+\S+)/, (m) => `FAIL ${m[1]}`],
+  [/❯ (\|\w+\| \S+) \(\d+ tests? \| \d+ failed\)/, (m) => `FAIL ${m[1]}`],
+  [/\b(error TS\d+: .+)/, first],
+  [/\s(lint\/\w+\/\w+)/, first],
+  [/^\[lint\]\s+×\s+(?!Some (?:errors|warnings) were emitted)(.+)/, first],
+  [/^\[lint\] (Found \d+ errors?)/, first],
+  [/^\[knip\] ((?:Unused|Unlisted|Unresolved|Duplicate) [\w ]+) \(\d+\)/, first],
+  [/^(precommit: .+)/, first],
+  [/^\[([\w-]+)\] npm .* exited with code ([1-9]\d*)$/, exited],
+  [/^(?:--> )?│ ([\w-]+)\s+│[^│]+│ ([1-9]\d*)\s+│/, exited],
+  [/^(Error: .+)/, first],
+]
+
+/** The hook that failed and the first line that tells why, or undefined when no hook failed. */
+export const hookFailure = (text) => {
+  const failed = HOOK_FAILED.exec(text)
+  if (!failed) return undefined
+  const lines = text.slice(0, failed.index).split('\n').map((l) => l.trim())
+  for (const [pattern, format] of HOOK_CAUSES) {
+    for (const l of lines) {
+      const match = pattern.exec(l)
+      if (match) return { hook: failed[1], line: format(match).replaceAll(/\s+/g, ' ').trim() }
+    }
+  }
+  return { hook: failed[1], line: '(the kept output does not tell)' }
+}
+
+/** Whether a failed `gh` call is worth another try: GitHub answered with a server error. */
+export const retryableGh = (error) => /HTTP 5\d\d/.test(String(error?.stderr || error?.message || ''))
+
 /** Input-equivalent tokens: what the four counts cost relative to one fresh input token. */
 export const weightedTokens = (usage) => {
   const oneHour = usage.cache_creation?.ephemeral_1h_input_tokens ?? 0
@@ -318,6 +361,7 @@ export class TranscriptStats {
     this.questions = []
     this.activity = new Map()
     this.precommit = { preCommitFailed: 0, commitMsgFailed: 0 }
+    this.hookCauses = new Map()
     this.conflicts = new Map()
     this.reviewers = []
     this.ciWatchers = new Map()
@@ -447,8 +491,12 @@ export class TranscriptStats {
         minutes: Math.round((Date.parse(record.timestamp) - Date.parse(tool.at)) / 60_000),
       })
     }
-    if (text.includes('husky - pre-commit script failed')) this.precommit.preCommitFailed += 1
-    if (text.includes('husky - commit-msg script failed')) this.precommit.commitMsgFailed += 1
+    const hook = hookFailure(text)
+    if (hook) {
+      this.precommit[hook.hook === 'pre-commit' ? 'preCommitFailed' : 'commitMsgFailed'] += 1
+      const key = `${hook.hook}\t${errorSignature(hook.line)}`
+      this.hookCauses.set(key, (this.hookCauses.get(key) ?? 0) + 1)
+    }
     if (text.includes('CONFLICTING')) {
       const number = /gh pr (?:view|checks|status)\s+(\d+)/.exec(String(tool.input?.command ?? ''))?.[1]
       const pr = number ? `#${number}` : this.prFor({ description: f.description, branch: record.gitBranch })
@@ -463,9 +511,14 @@ export class TranscriptStats {
     this.errors.set(key, (this.errors.get(key) ?? 0) + 1)
     if (kind === 'exit') return
     const cause = `${kind}\t${errorSignature(text)}`
-    const row = this.errorCauses.get(cause) ?? { count: 0, agents: new Set() }
+    const row = this.errorCauses.get(cause) ?? { count: 0, agents: new Set(), examples: [], last: '' }
     row.count += 1
     row.agents.add(f.agentType)
+    const command = String(tool.input?.command ?? '')
+      .replaceAll(/\s+/g, ' ')
+      .trim()
+    if (command && row.examples.length < 4 && !row.examples.includes(command)) row.examples.push(command)
+    if ((tool.at ?? '') > row.last) row.last = tool.at
     this.errorCauses.set(cause, row)
   }
 
@@ -580,10 +633,16 @@ export class TranscriptStats {
           cause: key.split('\t')[1],
           count: row.count,
           agents: [...row.agents].join(','),
+          examples: row.examples,
+          last: row.last,
         }))
         .sort((a, b) => b.count - a.count)
         .slice(0, 30),
       gitHooks: this.precommit,
+      hookCauses: [...this.hookCauses]
+        .map(([key, count]) => ({ hook: key.split('\t')[0], line: key.split('\t')[1], count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 20),
       conflictSightings: Object.fromEntries(this.conflicts),
       reviewers: this.reviewerSummary(),
       reviewerRunsPerPr: countBy(
@@ -600,7 +659,23 @@ export class TranscriptStats {
 
 const execFileAsync = promisify(execFile)
 const run = (cmd, args) => execFileSync(cmd, args, { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 })
-const gh = async (args) => JSON.parse((await execFileAsync('gh', args, { maxBuffer: 256 * 1024 * 1024 })).stdout)
+const GH_ATTEMPTS = 4
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+/**
+ * Runs `gh` and parses its JSON. One GitHub server error must not end a run that has made
+ * hundreds of calls: a 5xx is tried again up to three times, 2, 4 and 6 s apart.
+ */
+export const gh = async (args, { exec = execFileAsync, wait = sleep } = {}) => {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return JSON.parse((await exec('gh', args, { maxBuffer: 256 * 1024 * 1024 })).stdout)
+    } catch (error) {
+      if (attempt >= GH_ATTEMPTS || !retryableGh(error)) throw error
+      await wait(2000 * attempt)
+    }
+  }
+}
 
 /** Runs `fn` over `items`, `limit` at a time, keeping the order. */
 const pool = async (items, limit, fn) => {
@@ -919,7 +994,8 @@ const summary = (r) => {
         .sort((a, b) => b[1] - a[1])
         .slice(0, 10)
     )}`,
-    `Git hooks in agent sessions: ${JSON.stringify(r.transcripts.gitHooks)}`,
+    `Git hooks in agent sessions: ${JSON.stringify(r.transcripts.gitHooks)}; first line that tells why:`,
+    tsv(r.transcripts.hookCauses.slice(0, 8), ['count', 'hook', 'line']),
     'Slowest PRs:',
     tsv(prs.toSorted((a, b) => b.openToMergeH - a.openToMergeH).slice(0, 10), [
       'number',
@@ -941,8 +1017,15 @@ const summary = (r) => {
     '',
     '## Tools',
     tsv(r.transcripts.toolErrors.slice(0, 15), ['count', 'kind', 'tool']),
-    'Causes (all kinds but exit codes):',
-    tsv(r.transcripts.errorCauses.slice(0, 15), ['count', 'kind', 'agents', 'cause']),
+    'Causes (all kinds but exit codes; last = the day it was last seen, example = a command that met it):',
+    tsv(
+      r.transcripts.errorCauses.slice(0, 15).map((c) => ({
+        ...c,
+        last: c.last.slice(0, 10),
+        example: c.examples[0]?.slice(0, 120),
+      })),
+      ['count', 'kind', 'agents', 'last', 'cause', 'example']
+    ),
     `Waits on the user (AskUserQuestion): ${r.transcripts.questionWaits.length}, ${r.transcripts.questionWaits.reduce((s, w) => s + w.minutes, 0)} min; longest ${JSON.stringify(r.transcripts.questionWaits.slice(0, 5))}`,
     ...['user', 'tool'].map((after) => {
       const list = r.transcripts.pauses.filter((p) => p.after === after)
