@@ -146,32 +146,37 @@ exports[`routes > should match a snapshot 1`] = `
             "path": "/admin/event/create",
           },
           {
+            "children": [
+              {
+                "lazy": [Function],
+                "path": "/admin/event/edit/:id",
+              },
+              {
+                "lazy": [Function],
+                "path": "/admin/event/view/:id",
+              },
+              {
+                "lazy": [Function],
+                "path": "/admin/event/stations/:id",
+              },
+              {
+                "lazy": [Function],
+                "path": "/admin/event/teams/:id",
+              },
+              {
+                "lazy": [Function],
+                "path": "/admin/event/startnumbers/:id",
+              },
+              {
+                "lazy": [Function],
+                "path": "/admin/event/results/:id",
+              },
+              {
+                "lazy": [Function],
+                "path": "/admin/event/results/:id/station/:stationId",
+              },
+            ],
             "lazy": [Function],
-            "path": "/admin/event/edit/:id",
-          },
-          {
-            "lazy": [Function],
-            "path": "/admin/event/view/:id",
-          },
-          {
-            "lazy": [Function],
-            "path": "/admin/event/stations/:id",
-          },
-          {
-            "lazy": [Function],
-            "path": "/admin/event/teams/:id",
-          },
-          {
-            "lazy": [Function],
-            "path": "/admin/event/startnumbers/:id",
-          },
-          {
-            "lazy": [Function],
-            "path": "/admin/event/results/:id",
-          },
-          {
-            "lazy": [Function],
-            "path": "/admin/event/results/:id/station/:stationId",
           },
           {
             "lazy": [Function],

@@ -17,6 +17,7 @@ import { keysOf } from '../../lib/typeGuards'
 import { AdminAccessGuard } from '../components/AdminAccessGuard'
 import { HiddenPageTitle } from '../components/HiddenPageTitle'
 import { languageAtom } from '../state'
+import { AdminEventGate } from './components/AdminEventGate'
 import StartListGroup from './startListPage/StartListGroup'
 import { adminEventAtom, adminEventRegistrationsAtom } from './state'
 import { useAdminEventScope } from './state/eventScope'
@@ -40,7 +41,9 @@ const eventTitle = (event: DogEvent, language: Language) => {
 export default function StartListPage() {
   return (
     <AdminAccessGuard>
-      <StartList />
+      <AdminEventGate>
+        <StartList />
+      </AdminEventGate>
     </AdminAccessGuard>
   )
 }
