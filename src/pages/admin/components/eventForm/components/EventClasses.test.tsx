@@ -161,4 +161,38 @@ describe('EventClasses', () => {
     expect(screen.getAllByRole('option', { name: /^(ALO|AVO)$/ })).toHaveLength(3)
     expect(screen.getByText('dateFormat.wdshort date')).toBeInTheDocument()
   })
+
+  describe('a warning (KOE-1756)', () => {
+    const renderWarned = (helperText?: string) =>
+      render(
+        <EventClasses
+          id="class"
+          eventStartDate={date}
+          eventEndDate={date2}
+          value={[{ class: 'VOI', date }]}
+          classes={[
+            { class: 'VOI', date },
+            { class: 'VOI', date: date2 },
+          ]}
+          errorStates={{ classes: !!helperText }}
+          helperTexts={{ classes: helperText }}
+          label="classes"
+          warning="no class on the second day"
+        />
+      )
+
+    it('shows under the field when there is no error', () => {
+      renderWarned()
+
+      expect(screen.getByRole('combobox')).toHaveAccessibleDescription('no class on the second day')
+      expect(screen.getByRole('combobox')).not.toHaveAttribute('aria-invalid', 'true')
+    })
+
+    it('gives way to an error', () => {
+      renderWarned('classes missing a judge')
+
+      expect(screen.getByRole('combobox')).toHaveAccessibleDescription('classes missing a judge')
+      expect(screen.queryByText('no class on the second day')).not.toBeInTheDocument()
+    })
+  })
 })

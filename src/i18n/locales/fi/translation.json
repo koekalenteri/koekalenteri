@@ -286,6 +286,8 @@
   },
   "event": {
     "attachments": "Liitteet",
+    "classDaysMissing_one": "Päivälle {{list}} ei ole valittu luokkaa, joten sille ei voi ilmoittautua.",
+    "classDaysMissing_other": "Päiville {{list}} ei ole valittu luokkia, joten niille ei voi ilmoittautua.",
     "classes": "Luokat",
     "classMoved": "Korjaus: {{from}} siirretty {{to}}",
     "classPlaces": "Paikat",
@@ -418,7 +420,8 @@
     "places": "Paikkoja",
     "placesEditor": {
       "corrected": "Korjaus: Koepaikkojen määrä muutettu {{from}} -> {{to}}",
-      "locked": "Paikkamäärä on lukittu luokittain, koska luokkakohtaiset paikat on jo tallennettu tälle kokeelle",
+      "locked": "Paikat annetaan luokittain, koska tämän kokeen luokille on jo tallennettu paikat. Jos päivälle ei voi antaa paikkoja, valitse sen luokat kohdassa Luokat.",
+      "noClasses": "Ei luokkia. Valitse päivän luokat kohdassa Luokat.",
       "perClass": "Luokittain",
       "perDay": "Päivittäin",
       "title": "Koepaikkojen määrä",

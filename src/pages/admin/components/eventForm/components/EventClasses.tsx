@@ -27,6 +27,8 @@ interface Props {
   readonly errorStates?: { [Property in keyof DogEvent]?: boolean }
   readonly helperTexts?: { [Property in keyof DogEvent]?: string }
   readonly showCount?: boolean
+  /** Told under the field while it has no error: something the save allows but the secretary should know. */
+  readonly warning?: string
   /** The event's own classes, whose order the chosen classes keep within a day (KOE-674). */
   readonly ownClasses?: NonNullable<ClassOrderOwner['ownClasses']>
   readonly onChange?: (
@@ -74,10 +76,13 @@ export default function EventClasses(props: Props) {
     value,
     showCount,
     ownClasses,
+    warning,
     ...rest
   } = props
   const error = errorStates?.classes
-  const helperText = helperTexts?.classes ?? ''
+  const errorText = helperTexts?.classes
+  const warned = !errorText && !!warning
+  const helperText = errorText || warning || ''
   // The chosen classes and the options alike in the event's order: a day's classes as the secretary
   // listed the own ones, whatever order the class days were picked in.
   const sortedValue = useMemo(() => value?.slice().sort(eventClassOrder({ ownClasses })), [ownClasses, value])
@@ -117,7 +122,17 @@ export default function EventClasses(props: Props) {
         </li>
       )}
       renderInput={(inputProps) => (
-        <TextField {...inputProps} required={required} error={!!error} helperText={helperText} label={label} />
+        <TextField
+          {...inputProps}
+          required={required}
+          error={!!error}
+          helperText={helperText}
+          label={label}
+          slotProps={{
+            ...inputProps.slotProps,
+            formHelperText: warned ? { sx: { color: 'warning.dark' } } : undefined,
+          }}
+        />
       )}
       renderValue={(tagValue: readonly EventClassValue[], getItemProps) =>
         tagValue.map((option, index) => {

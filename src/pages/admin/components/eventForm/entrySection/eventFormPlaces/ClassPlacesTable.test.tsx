@@ -1,5 +1,5 @@
 import type { EntryEvent } from '../../types'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { eventWithStaticDatesAndClass } from '@/__mockData__/events'
 import { flushPromises, renderWithUserEvents } from '@/test-utils/utils'
 import ClassPlacesTable from './ClassPlacesTable'
@@ -95,5 +95,19 @@ describe('ClassPlacesTable', () => {
     // "5" appears three times: the active day's row total, the class column total, and
     // the grand total
     expect(screen.getAllByText('5')).toHaveLength(3)
+  })
+
+  it('says a day without a class has none, and where to choose one (KOE-1756)', () => {
+    const event: EntryEvent = {
+      ...eventWithStaticDatesAndClass,
+      classes: [{ ...eventWithStaticDatesAndClass.classes[0], places: 5 }],
+    }
+
+    render(<ClassPlacesTable event={event} disabled={false} handleChange={vi.fn()} />)
+
+    const sunday = screen.getAllByRole('row')[2]
+    expect(within(sunday).getByText('event.placesEditor.noClasses')).toBeInTheDocument()
+    expect(within(sunday).queryByRole('textbox')).not.toBeInTheDocument()
+    expect(screen.getAllByText('event.placesEditor.noClasses')).toHaveLength(1)
   })
 })

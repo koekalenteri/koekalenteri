@@ -56,6 +56,7 @@ import { OFFICIAL_FORMATS } from '@/types'
 import EventClasses from './components/EventClasses'
 import EventProperty from './components/EventProperty'
 import OwnClassesEditor from './components/OwnClassesEditor'
+import { classlessDays } from './places'
 
 export interface Props extends Readonly<Omit<SectionProps, 'event'>> {
   readonly event: BasicInfoEvent
@@ -123,6 +124,7 @@ function BasicInfoSection({
     ? ownClassCodes(event).filter((code): code is string => !!code)
     : getTypeClasses(formatType, eventTypeClasses, event.mockTrial)
   const typeOptions = eventClassOptions(event, classKeys)
+  const classesWarning = classDaysMissingText(event, t)
   const error =
     (errorStates &&
       (errorStates.startDate ||
@@ -361,6 +363,7 @@ function BasicInfoSection({
               ownClasses={event.ownClasses ?? undefined}
               label={t('event.classes')}
               showCount
+              warning={classesWarning}
               onChange={handleClassesChange}
             />
           </Grid>
@@ -583,6 +586,18 @@ function eventClassOptions(event: PartialEvent | undefined, typeClasses: readonl
     )
   }
   return result
+}
+
+/**
+ * The days of a longer trial without a class, told under the classes (KOE-1756): no one can enter for
+ * them. A warning, not an error, since the save and the publishing take the trial as it is.
+ */
+function classDaysMissingText(event: Parameters<typeof classlessDays>[0], t: TFunction): string | undefined {
+  const days = classlessDays(event)
+  if (days.length === 0) return undefined
+
+  const list = days.map((date) => t('dateFormat.wdshort', { date })).join(', ')
+  return t('event.classDaysMissing', { count: days.length, list })
 }
 
 /** The classes moved along with the start, each the same number of days from it; a class past the end is dropped. */

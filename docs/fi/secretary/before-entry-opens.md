@@ -46,7 +46,12 @@ kun kaikki vaadittu on paikallaan. Käy osiot läpi ja tarkista erityisesti:
 - **päivämäärät** — kokeen alkamis- ja päättymispäivä sekä ilmoittautumisajan alku ja loppu;
   päivien ryhmät, päiväkohtaiset paikat, suorituspaikat ryhmineen ja joukkuekilpailun lasketut
   päivät siirtyvät päivien mukana, ja kokeesta pois jäävän päivän tiedot poistuvat,
-- **luokat, ryhmät ja koepaikkojen määrä** — paikat voi antaa yhteensä, päivittäin tai luokittain,
+- **luokat, ryhmät ja koepaikkojen määrä**: paikat voi antaa yhteensä, päivittäin tai luokittain.
+  Monipäiväisessä kokeessa luokat valitaan päivittäin, ja ilmoittautua voi vain päiville, joille
+  on valittu luokka; lomake kertoo luokkien alla, miltä päivältä luokka puuttuu. Kun NOME-B:n tai
+  sitä noudattelevan kokeen luokille on tallennettu paikat, paikat annetaan luokittain, ja lomake
+  kertoo sen paikkojen kohdalla. Päivä, jolla ei ole luokkaa, ei saa paikkoja ennen kuin sille
+  valitaan luokat,
 - **{t:event.officialFormat}**: epävirallinen koe voi noudatella virallista koetta (NOU, NOME-B,
   NOME-A tai NOWT). Silloin luokat, ilmoittautumisen ajat, koepaikat, varasijalista, suorituspaikat
   ja tulosten syöttö toimivat kuten siinä kokeessa, ja tulos kirjataan sen nimellä, esimerkiksi

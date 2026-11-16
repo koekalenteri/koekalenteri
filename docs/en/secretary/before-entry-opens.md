@@ -10,7 +10,7 @@ covers:
   - src/pages/admin/EventCreatePage.tsx
   - src/pages/admin/EventEditPage.tsx
   - src/pages/admin/OrganizerListPage.tsx
-sourceHash: ecd106
+sourceHash: 4bcdb5
 ---
 
 Once a trial has been created in the calendar, the secretary's job before entry opens is to make
@@ -47,7 +47,12 @@ required is in place. Go through the sections and check in particular:
 - **the dates** — the trial's first and last day, and when entry opens and closes; the days' groups,
   the places per day, the posts with their groups and the team competition's counted days move with
   the days, and those of a day that drops out of the trial are removed,
-- **classes, groups and the number of places** — places can be given in total, per day or per class,
+- **classes, groups and the number of places**: places can be given in total, per day or per class.
+  On a trial of several days the classes are chosen per day, and entries can be made only for the
+  days that have a class; the form says under the classes which day has none. Once the classes of a
+  NOME-B, or of a trial that follows NOME-B, have saved places, places are given per class, and the
+  form says so beside the places. A day without a class takes no places until its classes are
+  chosen,
 - **{t:event.officialFormat}**: an unofficial trial can follow an official one (NOU, NOME-B, NOME-A
   or NOWT). Its classes, entry times, places, reserve list, posts and result entry then work as in
   that trial, and a result is written under its name, for example NOU1. Such a trial asks for no

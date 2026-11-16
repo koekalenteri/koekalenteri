@@ -286,6 +286,8 @@
   },
   "event": {
     "attachments": "Attachments",
+    "classDaysMissing_one": "No class is chosen for {{list}}, so entries cannot be made for that day.",
+    "classDaysMissing_other": "No classes are chosen for {{list}}, so entries cannot be made for those days.",
     "classes": "Classes",
     "classMoved": "Correction: {{from}} moved to {{to}}",
     "classPlaces": "Places",
@@ -418,7 +420,8 @@
     "places": "Places",
     "placesEditor": {
       "corrected": "Correction: the number of places changed {{from}} -> {{to}}",
-      "locked": "Places are locked to per-class because class-specific places have already been saved for this trial",
+      "locked": "Places are given per class because this trial's classes already have saved places. If a day takes no places, choose its classes under Classes.",
+      "noClasses": "No classes. Choose the day's classes under Classes.",
       "perClass": "Per class",
       "perDay": "Per day",
       "title": "Number of trial places",

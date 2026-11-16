@@ -30,3 +30,20 @@ it('shows the mode toggle above a two-row class places table', async () => {
   await expect.element(screen.getByRole('textbox').first()).toHaveValue('12')
   await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-form-places-per-class')
 })
+
+it('says why a saved NOME-B keeps its places per class, and that a day without a class takes none (KOE-1756)', async () => {
+  const event = {
+    ...eventWithStaticDatesAndClass,
+    classes: [{ ...eventWithStaticDatesAndClass.classes[0], places: 12 }],
+    places: 12,
+  }
+
+  const screen = await render(
+    <Frame>
+      <EventFormPlaces event={event} />
+    </Frame>
+  )
+
+  await expect.element(screen.getByText('Ei luokkia. Valitse päivän luokat kohdassa Luokat.')).toBeVisible()
+  await expect(screen.getByTestId('visual-root')).toMatchScreenshot('event-form-places-locked-classless-day')
+})

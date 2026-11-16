@@ -1,4 +1,4 @@
-import type { DeepPartial, EventClass } from '@/types'
+import type { ClassKey, DayKey, DeepPartial, EventClass } from '@/types'
 import type { EntryEvent } from '../../types'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
@@ -10,9 +10,49 @@ import BasePlacesTable from './BasePlacesTable'
 import PlacesDisplay from './PlacesDisplay'
 
 interface ClassPlacesTableProps {
-  event: EntryEvent
-  disabled: boolean
-  handleChange: (cls: DeepPartial<EventClass>, value?: number) => void
+  readonly event: EntryEvent
+  readonly disabled: boolean
+  readonly handleChange: (cls: DeepPartial<EventClass>, value?: number) => void
+}
+
+interface DayClassCellsProps extends Pick<ClassPlacesTableProps, 'disabled' | 'handleChange'> {
+  readonly classes: DeepPartial<EventClass>[]
+  readonly day: DayKey
+  readonly uniqueClasses: ClassKey[]
+}
+
+/** A day's places, one input per class the day runs; a day without a class says so (KOE-1756). */
+function DayClassCells({ classes, day, disabled, handleChange, uniqueClasses }: Readonly<DayClassCellsProps>) {
+  const { t } = useTranslation()
+
+  if (uniqueClasses.length > 0 && !classes.some(isClassDateActive)) {
+    // No one can enter for a day without a class, so it takes no places either.
+    return (
+      <TableCell colSpan={uniqueClasses.length} sx={{ color: 'text.secondary' }}>
+        {t('event.placesEditor.noClasses')}
+      </TableCell>
+    )
+  }
+
+  return uniqueClasses.map((c) => {
+    const cls = classes.find((cl) => cl.class === c)
+    return (
+      <TableCell key={c} align="center">
+        {cls && isClassDateActive(cls) ? (
+          <NumberInput
+            slotProps={{
+              input: { inputProps: { 'aria-label': `${t('dateFormat.wdshort', { date: day })} ${c}` } },
+            }}
+            disabled={disabled}
+            value={cls.places || undefined}
+            onChange={(value) => handleChange(cls, value)}
+          />
+        ) : (
+          ''
+        )}
+      </TableCell>
+    )
+  })
 }
 
 export default function ClassPlacesTable({ event, disabled, handleChange }: Readonly<ClassPlacesTableProps>) {
@@ -32,26 +72,13 @@ export default function ClassPlacesTable({ event, disabled, handleChange }: Read
             <TableCell component="th" scope="row">
               {t('dateFormat.wdshort', { date: day })}
             </TableCell>
-            {uniqueClasses.map((c) => {
-              const cls = classes.find((cl) => cl.class === c)
-              const active = cls && isClassDateActive(cls)
-              return (
-                <TableCell key={c} align="center">
-                  {active ? (
-                    <NumberInput
-                      slotProps={{
-                        input: { inputProps: { 'aria-label': `${t('dateFormat.wdshort', { date: day })} ${c}` } },
-                      }}
-                      disabled={disabled}
-                      value={cls.places || undefined}
-                      onChange={(value) => handleChange(cls, value)}
-                    />
-                  ) : (
-                    ''
-                  )}
-                </TableCell>
-              )
-            })}
+            <DayClassCells
+              classes={classes}
+              day={day}
+              disabled={disabled}
+              handleChange={handleChange}
+              uniqueClasses={uniqueClasses}
+            />
             <TableCell align="center">
               <PlacesDisplay value={dayTotal} />
             </TableCell>
