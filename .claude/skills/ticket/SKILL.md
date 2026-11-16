@@ -232,3 +232,10 @@ When the user approves an issue for something found while working on `<KEY>`:
   or Sonar finding does not, because the red check is the gate then.
 - Before sending a follow-up to a PR, check it is still open; a merged PR gets a new one from
   `origin/main`.
+- Each time you learn that a PR this session handled has merged (`gh pr view <pr> --json state`
+  says `MERGED`), run `npm run pull-main-checkout`. The main checkout, the first entry of
+  `git worktree list`, is where orchestrators and reviewers read and `git grep` files; one 18
+  commits behind `main` reported an existing function as missing and sent a wrong finding to an
+  implementer. The script runs `git pull --ff-only` there only when it is on `main` with a clean
+  tree, and prints why it left it otherwise: another branch or uncommitted changes belong to the
+  user or another session. `/build` step 8 gets the same pull from its removal script.

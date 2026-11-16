@@ -167,7 +167,8 @@ node .claude/skills/build/remove-merged-worktrees.mjs --apply <worktree>...
 ```
 
 It removes a worktree only when it is clean, a merged PR's head is its HEAD or descends from it,
-and no process works in it; the branch goes with it. Whatever it keeps it prints with the reason:
+and no process works in it; the branch goes with it. Then it pulls the main checkout, by the rule
+in `/ticket` Rules, and prints what it did. Whatever it keeps it prints with the reason:
 a `has commits after #<n>` worktree holds work that never reached a PR, so ask its implementer.
 An implementer with another piece to build keeps its worktree until that one lands too. Name the
 paths: the script cannot see a subagent that waits for its next message, so a sweep without them
