@@ -3,6 +3,7 @@ import {
   errorKind,
   errorSignature,
   flakyJobs,
+  hookFailure,
   isFix,
   isRevert,
   looksClean,
@@ -12,6 +13,7 @@ import {
   projectDirName,
   prStats,
   reopenings,
+  retryableGh,
   reviewerRun,
   reviewerTally,
   TranscriptStats,
@@ -216,6 +218,99 @@ describe('tool errors', () => {
   })
 })
 
+describe('gh retry', () => {
+  it('tries again only after a GitHub server error', () => {
+    expect(retryableGh({ stderr: 'gh: Server Error (HTTP 502)' })).toBe(true)
+    expect(retryableGh({ message: 'Command failed: gh api x\ngh: HTTP 503' })).toBe(true)
+    expect(retryableGh({ stderr: 'gh: Not Found (HTTP 404)' })).toBe(false)
+    expect(retryableGh({ stderr: 'gh: Bad credentials (HTTP 401)' })).toBe(false)
+    expect(retryableGh(new SyntaxError('Unexpected token < in JSON'))).toBe(false)
+  })
+})
+
+describe('hookFailure', () => {
+  const failed = (hook, ...lines) => ['Exit code 1', ...lines, `husky - ${hook} script failed (code 1)`].join('\n')
+
+  it.each([
+    [
+      'a commitlint rule, not its tally',
+      failed(
+        'commit-msg',
+        '⧗   input: Fix thing',
+        '✖   subject must not be sentence-case [subject-case]',
+        '✖   found 1 problems, 0 warnings'
+      ),
+      { hook: 'commit-msg', line: 'subject must not be sentence-case [subject-case]' },
+    ],
+    [
+      'a failed test before the lint that also failed',
+      failed(
+        'pre-commit',
+        '[lint] src/a.ts:1:2 lint/style/useConst ━━━━',
+        '[test]  FAIL  |backend| src/lambda/template.test.ts > template > alarms',
+        '[test] npm test -- --onlyChanged exited with code 1'
+      ),
+      { hook: 'pre-commit', line: 'FAIL |backend| src/lambda/template.test.ts' },
+    ],
+    [
+      'the file of a failed test from the vitest summary',
+      failed('pre-commit', '[test]  ❯ |frontend| src/pages/A.test.tsx (117 tests | 1 failed) 18595ms'),
+      { hook: 'pre-commit', line: 'FAIL |frontend| src/pages/A.test.tsx' },
+    ],
+    [
+      'a type error',
+      failed('pre-commit', "[lint] src/lib/rotation.test.ts(3,50): error TS2307: Cannot find module './rotation'"),
+      { hook: 'pre-commit', line: "error TS2307: Cannot find module './rotation'" },
+    ],
+    [
+      'the Biome rule',
+      failed('pre-commit', '[lint] src/a.ts:1:2 lint/suspicious/noFloatingPromises ━━━━', '[lint] Found 1 error.'),
+      { hook: 'pre-commit', line: 'lint/suspicious/noFloatingPromises' },
+    ],
+    [
+      "Biome's message, not its closing line",
+      failed(
+        'pre-commit',
+        '[lint]   × Some errors were emitted while running checks.',
+        '[lint]   × Biome exited because the configuration resulted in errors.'
+      ),
+      { hook: 'pre-commit', line: 'Biome exited because the configuration resulted in errors.' },
+    ],
+    [
+      'a knip finding',
+      failed('pre-commit', '[knip] Unused exports (1)', '[knip] npm run knip exited with code 1'),
+      { hook: 'pre-commit', line: 'Unused exports' },
+    ],
+    [
+      'the check that exited nonzero when nothing else tells',
+      failed('pre-commit', '[knip] npm run knip exited with code 0', '[docs] npm run check-docs exited with code 1'),
+      { hook: 'pre-commit', line: 'docs exited with code 1' },
+    ],
+    [
+      'the check that exited nonzero from the timings table a `| tail` keeps',
+      failed(
+        'pre-commit',
+        '--> │ lint          │ 26,159   │ 0         │ false  │ npm run lint                      │',
+        '--> │ test          │ 7,433    │ 1         │ false  │ npm test -- --onlyChanged         │'
+      ),
+      { hook: 'pre-commit', line: 'test exited with code 1' },
+    ],
+    [
+      'nothing that tells',
+      failed('pre-commit', 'node scripts/precommit.js'),
+      { hook: 'pre-commit', line: '(the kept output does not tell)' },
+    ],
+  ])('picks %s', (_, text, expected) => {
+    expect(hookFailure(text)).toEqual(expected)
+  })
+
+  it('takes no source, Read or grep that only quotes the husky line for a failed hook', () => {
+    expect(hookFailure("    if (text.includes('husky - pre-commit script failed')) {\n  errorKind,")).toBeUndefined()
+    expect(hookFailure('   450\t    husky - pre-commit script failed (code 1)')).toBeUndefined()
+    expect(hookFailure('137:husky - commit-msg script failed (code 1)')).toBeUndefined()
+  })
+})
+
 describe('tokens', () => {
   it('weighs every count by its price relative to a fresh input token', () => {
     const usage = {
@@ -326,7 +421,9 @@ describe('TranscriptStats', () => {
       stats.line(result(at(n), `poll${n}`, '{"mergeable":"CONFLICTING"}'))
     }
     stats.line(assistant(at(5), 'm5', [{ type: 'tool_use', id: 'e', name: 'Bash', input: { command: 'git commit' } }]))
-    stats.line(result(at(5), 'e', 'Exit code 1 husky - pre-commit script failed (code 1)', true))
+    stats.line(
+      result(at(5), 'e', 'Exit code 1\n[lint] Found 1 error.\nhusky - pre-commit script failed (code 1)', true)
+    )
     stats.end()
 
     const r = stats.result()
@@ -362,8 +459,36 @@ describe('TranscriptStats', () => {
     ])
     expect(r.conflictSightings).toEqual({ '#1610': 3 })
     expect(r.gitHooks).toEqual({ preCommitFailed: 1, commitMsgFailed: 0 })
+    expect(r.hookCauses).toEqual([{ hook: 'pre-commit', line: 'Found N error', count: 1 }])
     expect(r.toolErrors).toEqual([{ kind: 'exit', tool: 'Bash', count: 1 }])
     expect(r.tokens.byPr.map((p) => p.pr)).toEqual(['#1610'])
+  })
+
+  it('keeps the commands that met an error cause and when it was last met', () => {
+    const stats = new TranscriptStats({ ...window, prs })
+    stats.begin({ sessionId: 's1', agentType: 'implementer' })
+    const at = (n) => `2026-10-10T10:0${n}:00Z`
+    for (const [n, command] of [
+      [1, 'git -C /x log'],
+      [2, 'git  -C /x\n  log'],
+      [3, 'git -C /y status'],
+    ]) {
+      stats.line(assistant(at(n), `m${n}`, [{ type: 'tool_use', id: `t${n}`, name: 'Bash', input: { command } }]))
+      stats.line(result(at(n), `t${n}`, 'This agent is isolated in the worktree /x/.claude/worktrees/agent-a1', true))
+    }
+    stats.end()
+
+    // The same command in other whitespace is one example.
+    expect(stats.result().errorCauses).toEqual([
+      {
+        kind: 'sandbox',
+        cause: 'This agent is isolated in the worktree <path>',
+        count: 3,
+        agents: 'implementer',
+        examples: ['git -C /x log', 'git -C /y status'],
+        last: at(3),
+      },
+    ])
   })
 
   it('counts a reviewer by angle and round from its handback', () => {
