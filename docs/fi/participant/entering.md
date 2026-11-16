@@ -65,14 +65,13 @@ nimillään.
 
 **Joukkue.** Jos kokeessa on joukkuekilpailu ja järjestäjä kysyy joukkuetta ilmoittautuessa,
 lomakkeella on osio *{t:registration.teamEntry}*. Kirjoita siihen joukkueen nimi, jos koirasi kuuluu
-esimerkiksi yhdistyksen tai kennelin joukkueeseen, ja rastita *{t:registration.teamEntryPrimary}*,
-jos joukkue on yhdistyksen tai kennelin ensimmäinen joukkue. Joukkue on vapaaehtoinen. Koesihteeri
+esimerkiksi yhdistyksen tai kennelin joukkueeseen. Joukkue on vapaaehtoinen. Koesihteeri
 kokoaa joukkueet ilmoitettujen nimien mukaan, ja saman joukkueen koirat kannattaa ilmoittaa samalla
 nimellä; isot ja pienet kirjaimet ja välilyönnit eivät erota nimiä toisistaan. Nimessä voi olla
 enintään 60 merkkiä. Joukkue kerrotaan jokaiselle koiralle erikseen: kun ilmoitat seuraavan koiran,
 osio on tyhjä.
 
-!shot[TeamEntryInfo/team-entry-info] Joukkueen nimi ja ykkösjoukkueen merkintä
+!shot[TeamEntryInfo/team-entry-info] Joukkueen nimi
 
 **{t:registration.agreeToTerms}** on hyväksyttävä ennen kuin ilmoittautumisen voi vahvistaa.
 

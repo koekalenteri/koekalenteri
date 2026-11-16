@@ -73,7 +73,7 @@ bug is fixed. See [README.md](README.md) for how they run.
 
 | Test | Tags | Issues |
 | --- | --- | --- |
-| a team named at entry is suggested on the teams page and made a team with its first-team mark | `@secretary` `@public` | [KOE-1721](https://koekalenteri.atlassian.net/browse/KOE-1721) |
+| a team named at entry is suggested on the teams page, made a team and marked the first team | `@secretary` `@public` | [KOE-1721](https://koekalenteri.atlassian.net/browse/KOE-1721)<br>[KOE-1759](https://koekalenteri.atlassian.net/browse/KOE-1759) |
 | on a phone, a dog is found by its handler and added to a team | `@secretary` | [KOE-1725](https://koekalenteri.atlassian.net/browse/KOE-1725) |
 | dogs of one litter are suggested as a team named after their breeder | `@secretary` | [KOE-1727](https://koekalenteri.atlassian.net/browse/KOE-1727) |
 

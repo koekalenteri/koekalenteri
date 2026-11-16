@@ -5,6 +5,7 @@ import {
   isTeamCountedDay,
   MAX_TEAM_MEMBERS,
   normalizeTeamName,
+  storedTeamEntry,
   teamCompetitionDiffers,
   teamCompetitionErrors,
   teamCountedDays,
@@ -263,10 +264,16 @@ describe('entryTeamError (KOE-1721)', () => {
 
   it('accepts a named team where the event asks for one, and no team anywhere', () => {
     expect(entryTeamError(asks, { name: 'Savon Nuuskut 1' })).toBeUndefined()
-    expect(entryTeamError(asks, { name: 'Savon Nuuskut 1', primary: true })).toBeUndefined()
     expect(entryTeamError(asks, { name: ` ${'N'.repeat(60)} ` })).toBeUndefined()
     expect(entryTeamError({}, undefined)).toBeUndefined()
     expect(entryTeamError({}, null)).toBeUndefined()
+  })
+
+  // KOE-1759: a row saved in 2.2.0 and a tab on that bundle still carry the first-team mark, in any form;
+  // the save stores the name alone (`storedTeamEntry`) rather than refusing the entry.
+  it.each([true, false, 'x'])('ignores a first-team mark of %s', (primary) => {
+    expect(entryTeamError(asks, { name: 'Savon Nuuskut 1', primary })).toBeUndefined()
+    expect(entryTeamError({}, { name: 'Savon Nuuskut 1', primary }, { name: 'Savon Nuuskut 1' })).toBeUndefined()
   })
 
   it.each([
@@ -275,7 +282,6 @@ describe('entryTeamError (KOE-1721)', () => {
     ['without a name', asks, { name: '  ' }, 'noName'],
     ['with a name longer than sixty characters', asks, { name: 'N'.repeat(61) }, 'tooLong'],
     ['with a name that is not text', asks, { name: 1 }, 'invalid'],
-    ['with a first-team mark that is not true', asks, { name: 'Savon Nuuskut 1', primary: false }, 'invalid'],
   ])('refuses a team named %s', (_name, event, teamEntry, error) => {
     expect(entryTeamError(event, teamEntry)).toBe(error)
   })
@@ -287,11 +293,19 @@ describe('entryTeamError (KOE-1721)', () => {
     expect(entryTeamError({}, { name: 'Savon Nuuskut 2' }, stored)).toBe('notAsked')
   })
 
-  it('lets the first-team mark come off a stored team, never go on, where the event no longer asks for one', () => {
-    const stored = { name: 'Savon Nuuskut 1', primary: true as const }
+  it('keeps a team stored with the first-team mark of 2.2.0 by its name (KOE-1759)', () => {
+    const stored = { name: 'Savon Nuuskut 1', primary: true }
 
     expect(entryTeamError({}, { name: 'Savon Nuuskut 1' }, stored)).toBeUndefined()
-    expect(entryTeamError({}, { name: 'Savon Nuuskut 1', primary: true }, { name: 'Savon Nuuskut 1' })).toBe('notAsked')
+    expect(entryTeamError({}, stored, stored)).toBeUndefined()
+  })
+})
+
+describe('storedTeamEntry (KOE-1721, KOE-1759)', () => {
+  it('keeps the tidied name alone', () => {
+    const sent = { extra: 'x', name: ' Savon  Nuuskut 1 ', primary: true }
+
+    expect(storedTeamEntry(sent)).toEqual({ name: 'Savon Nuuskut 1' })
   })
 })
 

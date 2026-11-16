@@ -178,7 +178,7 @@ export const publicRegistrationPatch = (input: Patch<JsonRegistration>, update: 
 
 /**
  * The stored registration with a participant's operations applied, as it is saved: what they removed
- * stays removed, a team or its first-team mark among them (KOE-1721), and a workflow flag they tried
+ * stays removed, a team among them (KOE-1721), and a workflow flag they tried
  * to clear keeps its stored value, by the rule of `publicRegistrationPatch`. The row is a copy of its
  * own: applying the operations shares every part they leave alone with the stored row, and the save
  * writes into its row (the official results, the days as keys) before comparing it with the stored one.
@@ -654,8 +654,8 @@ export const assertEntryClass = (
 /**
  * The team an entry names (KOE-1721), held to the one rule both the participant's and the secretary's
  * save read (`entryTeamError`): a name, written only where the event asks for one. A stored team stays
- * the entry's to save as it is. It is stored as its tidied name and its first-team mark alone
- * (`storedTeamEntry`), whatever else the request carried.
+ * the entry's to save as it is. It is stored as its tidied name alone (`storedTeamEntry`), whatever else
+ * the request carried.
  */
 export const assertEntryTeam = (
   data: JsonRegistration,

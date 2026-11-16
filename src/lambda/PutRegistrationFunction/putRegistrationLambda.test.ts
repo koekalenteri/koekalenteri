@@ -2265,7 +2265,8 @@ describe('putRegistrationLabmda', () => {
       expect(mockWriteRegistration).not.toHaveBeenCalled()
     })
 
-    it('stores the name and the first-team mark alone', async () => {
+    // KOE-1759: a tab on the 2.2.0 bundle still sends the first-team mark; the save takes the name alone.
+    it('stores the name alone', async () => {
       asking(true)
 
       const res = await putRegistrationLabmda(
@@ -2273,9 +2274,7 @@ describe('putRegistrationLabmda', () => {
       )
 
       expect(res.statusCode).toBe(200)
-      expect(mockWriteRegistration).toHaveBeenCalledWith(
-        expect.objectContaining({ teamEntry: { name: 'Ykkönen', primary: true } })
-      )
+      expect(mockWriteRegistration).toHaveBeenCalledWith(expect.objectContaining({ teamEntry: { name: 'Ykkönen' } }))
     })
 
     it('refuses a name longer than a team name may be', async () => {
@@ -2297,7 +2296,8 @@ describe('putRegistrationLabmda', () => {
       expect(mockWriteRegistration).not.toHaveBeenCalled()
     })
 
-    // The edit form sends a cleared name, or a first-team mark taken off, as a removal (KOE-1721).
+    // The edit form sends a cleared name as a removal (KOE-1721). A row saved in 2.2.0 may hold the
+    // first-team mark, and a tab on that bundle may take it off the same way (KOE-1759).
     describe('taken off a stored entry', () => {
       const stored = {
         ...storedRegistrationJson(registrationWithStaticDatesAndClass),
@@ -2338,6 +2338,22 @@ describe('putRegistrationLabmda', () => {
           stored.id,
           stored,
           expect.objectContaining({ teamEntry: { name: 'Kultaiset' } })
+        )
+      })
+
+      // KOE-1759: no one writes the mark any more, so a save of anything else leaves it behind.
+      it('stores the entry without the first-team mark when something else changes', async () => {
+        asking(true)
+        mockGetRegistration.mockResolvedValueOnce(structuredClone(stored))
+
+        const res = await putRegistrationLabmda(operating({ path: ['notes'], type: 'CHANGE', value: 'uusi' }))
+
+        expect(res.statusCode).toBe(200)
+        expect(mockPatchRegistration).toHaveBeenCalledWith(
+          stored.eventId,
+          stored.id,
+          stored,
+          expect.objectContaining({ notes: 'uusi', teamEntry: { name: 'Kultaiset' } })
         )
       })
 

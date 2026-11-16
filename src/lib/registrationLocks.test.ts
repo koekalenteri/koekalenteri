@@ -199,6 +199,15 @@ describe('registrationLocks', () => {
       expect(participantLockedChange(ALL_LOCKED, base, { ...base, optionalCosts: [1, 0] })).toBeUndefined()
     })
 
+    // KOE-1759: a row saved in 2.2.0 may hold the first-team mark that the form no longer writes.
+    it('compares the team named at entry by its name', () => {
+      const marked = { name: 'Savon Nuuskut 1', primary: true }
+      const stored: Entry = { ...base, teamEntry: marked }
+      const sent: Entry = { ...base, teamEntry: { name: 'Savon Nuuskut 1' } }
+
+      expect(participantLockedChange(ALL_LOCKED, stored, sent)).toBeUndefined()
+    })
+
     it('leaves the official results to the server', () => {
       const data = { ...base, dog: { ...base.dog, results: [{ date: '2020-08-01' as const }] } }
 

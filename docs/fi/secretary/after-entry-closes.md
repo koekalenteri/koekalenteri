@@ -232,8 +232,7 @@ tulos myöhemmin korjataan niin, ettei tasapisteitä enää ole, valinnalla ei o
 
 Jos ilmoittautujien halutaan kertovan koiransa joukkue, rastita paneelin *{t:teams.settings}*
 kohdasta *{t:teams.entry}* valinta **{t:teams.askAtEntry}** ja tallenna ennen ilmoittautumisen
-alkua. Silloin ilmoittautumislomakkeella on osio, johon ilmoittautuja kirjoittaa joukkueen nimen ja
-voi merkitä joukkueen yhdistyksen tai kennelin ykkösjoukkueeksi
+alkua. Silloin ilmoittautumislomakkeella on osio, johon ilmoittautuja kirjoittaa joukkueen nimen
 ([Ilmoittautuminen](/docs/participant/entering)). Kun valinnan poistaa, lomake ei enää kysy
 joukkuetta, mutta jo ilmoitetut nimet säilyvät.
 
@@ -241,17 +240,17 @@ Ilmoitetuista nimistä sivulla on paneeli *{t:teams.suggestions}*, jossa on yksi
 nimeä kohden. Nimet, jotka eroavat vain isoilta ja pieniltä kirjaimilta tai väleiltä, ovat sama
 joukkue, ja ehdotus on nimetty niin kuin ensimmäinen ilmoittautuja sen kirjoitti. Ehdotuksessa ovat
 ne koirat, jotka voisi lisätä joukkueeseen valikosta **{t:teams.addDog}** ja jotka eivät vielä ole
-missään joukkueessa, ilmoittautumisjärjestyksessä. Jos joku koirista on merkinnyt joukkueen
-ykkösjoukkueeksi, ehdotuksessa lukee *{t:teams.primary}*. Painike **{t:teams.takeSuggestionShort}**
+missään joukkueessa, ilmoittautumisjärjestyksessä. Painike **{t:teams.takeSuggestionShort}**
 tekee ehdotuksesta joukkueen: se täyttää ensimmäisen tyhjän joukkueen, jolla ei ole nimeä eikä
-koiria, tai lisää uuden joukkueen loppuun. Tyhjän joukkueen sarja säilyy, ja ykkösjoukkueen
-merkintä tulee ehdotuksesta. Jos nimen on ilmoittanut useampi koira kuin joukkueeseen mahtuu,
+koiria, tai lisää uuden joukkueen loppuun. Tyhjän joukkueen sarja säilyy, mutta ykkösjoukkueen
+merkintä ei: ilmoittautuja ei kerro, onko joukkue ykkösjoukkue, joten merkitse se valinnalla
+**{t:teams.primary}** joukkueen kortissa. Jos nimen on ilmoittanut useampi koira kuin joukkueeseen mahtuu,
 ehdotus kertoo sen, ja joukkueeksi tehtynä se kertoo, montako koiraa joukkueessa voi olla:
 tallentaa voi vasta, kun ylimääräiset koirat on siirretty muihin joukkueisiin. Joukkueen nimeä,
 koiria ja ykkösjoukkueen merkintää voi sen jälkeen muuttaa kuten muidenkin joukkueiden, ja
 muutokset tallennetaan painikkeella **{t:save}**.
 
-!shot[EventTeamsPage/teams-suggestions] Kysymys ilmoittautumisessa on päällä, ja kahdella kirjoitusasulla ilmoitettu Kultaiset Noutajat on yksi ehdotus ykkösjoukkueen merkinnällä
+!shot[EventTeamsPage/teams-suggestions] Kysymys ilmoittautumisessa on päällä, ja kahdella kirjoitusasulla ilmoitettu Kultaiset Noutajat on yksi ehdotus
 
 ### Koko joukkueen siirto
 
